@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 export default function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const handleAuthSuccess = (data) => {
+  const handleAuthSuccess = (data: { accessToken: string }) => {
     localStorage.setItem("token", data.accessToken);
     console.log("Token salvat:", data.accessToken); // Verifică în consolă dacă apare aici
     navigate("/profile");
   };
 
-  const handleLocalLogin = async (e) => {
+  const handleLocalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch("http://127.0.0.1:8000/auth/login", {
       method: "POST",
@@ -24,9 +24,9 @@ export default function Login() {
     else alert(data.detail);
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     const decoded = JSON.parse(
-      window.atob(credentialResponse.credential.split(".")[1]),
+      window.atob((credentialResponse.credential ?? "").split(".")[1]),
     );
     const res = await fetch("http://127.0.0.1:8000/auth/google", {
       method: "POST",

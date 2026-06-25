@@ -11,7 +11,7 @@ export default function Register() {
     phone: "",
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await fetch("http://127.0.0.1:8000/auth/register", {
