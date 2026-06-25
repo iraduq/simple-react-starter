@@ -1,121 +1,102 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-// Importurile corecte pentru Lucide React:
-import { Phone, Mail, ChevronDown, Globe } from "lucide-react";
+import { ChevronDown, Ticket } from "lucide-react";
 
 export default function Navbar() {
   const [limba, setLimba] = useState("RO");
   const [dropdownDeschis, setDropdownDeschis] = useState(false);
 
   return (
-    <header className="site-header">
-      {/* 1. TOPBAR */}
-      <div className="topbar">
-        <div className="topbar-left">
-          <a href="tel:+40740000000" className="topbar-link">
-            <Phone size={13} /> +40 740 000 000
-          </a>
-          <a href="mailto:rezervari@casaesy.ro" className="topbar-link">
-            <Mail size={13} /> rezervari@casaesy.ro
-          </a>
+    <>
+      {/* TOPBAR PENTRU OFERTE - ULTRA PREMIUM */}
+      <div className="promo-topbar">
+        <div className="promo-content">
+          <span className="promo-text">
+            Folosește codul promoțional
+            <span className="promo-code">
+              <Ticket size={14} className="code-icon" strokeWidth={1.5} />
+              CASAESY15
+            </span>
+            și primești{" "}
+            <strong className="promo-highlight">15% reducere</strong> la
+            rezervările directe.
+          </span>
         </div>
+      </div>
 
-        <div className="topbar-right">
-          <div className="topbar-socials">
-            <a
-              href="#"
-              aria-label="TripAdvisor"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {/* Am înlocuit 't' text cu o iconiță stilizată sau poți folosi text dacă dorești */}
-              <span className="tripadvisor-icon">T</span>
-            </a>
-          </div>
+      {/* HEADER-UL TĂU EXISTENT */}
+      <header className="site-header">
+        <div className="mainbar">
+          {/* Partea Stângă */}
+          <nav className="nav-wing nav-left">
+            <NavLink to="/" end>
+              Acasă
+            </NavLink>
+            <NavLink to="/camere">Camere</NavLink>
+            <NavLink to="/oferte">Oferte</NavLink>
+            <NavLink to="/evenimente-corporate">Corporate</NavLink>
+          </nav>
 
-          <span className="topbar-divider">|</span>
+          {/* LOGO */}
+          <Link to="/" className="brand" aria-label="Vila Casa Esy">
+            <span className="brand-rule">VILA</span>
+            <span className="brand-name">
+              Casa <em>Esy</em>
+            </span>
+            <div className="brand-meta">
+              <span className="brand-stars">★★★</span>
+              <span className="brand-type">3 STELE</span>
+            </div>
+          </Link>
 
-          {/* Selector de Limbă Dropdown */}
-          <div
-            className="lang-selector"
-            onMouseLeave={() => setDropdownDeschis(false)}
-          >
-            <button
-              className="lang-btn"
-              onClick={() => setDropdownDeschis(!dropdownDeschis)}
+          {/* Partea Dreaptă */}
+          <nav className="nav-wing nav-right">
+            <NavLink to="/evenimente-private">Private</NavLink>
+            <NavLink to="/restaurant">Restaurant</NavLink>
+            <NavLink to="/cariere">Cariere</NavLink>
+            <NavLink to="/contact">Contact</NavLink>
+
+            {/* Selector Limba */}
+            <div
+              className="lang-selector-inline"
+              onMouseLeave={() => setDropdownDeschis(false)}
               onMouseEnter={() => setDropdownDeschis(true)}
             >
-              <Globe size={13} />
-              <span>{limba}</span>
-              <ChevronDown
-                size={12}
-                className={`arrow ${dropdownDeschis ? "open" : ""}`}
-              />
-            </button>
+              <button
+                className="lang-btn-inline"
+                onClick={() => setDropdownDeschis(!dropdownDeschis)}
+              >
+                <span>{limba}</span>
+                <ChevronDown
+                  size={12}
+                  className={`arrow ${dropdownDeschis ? "open" : ""}`}
+                />
+              </button>
 
-            {dropdownDeschis && (
-              <ul className="lang-dropdown">
-                <li
-                  onClick={() => {
-                    setLimba("RO");
-                    setDropdownDeschis(false);
-                  }}
-                >
-                  RO (Română)
-                </li>
-                <li
-                  onClick={() => {
-                    setLimba("EN");
-                    setDropdownDeschis(false);
-                  }}
-                >
-                  EN (English)
-                </li>
-              </ul>
-            )}
-          </div>
+              {dropdownDeschis && (
+                <ul className="lang-dropdown-menu">
+                  <li
+                    onClick={() => {
+                      setLimba("RO");
+                      setDropdownDeschis(false);
+                    }}
+                  >
+                    RO
+                  </li>
+                  <li
+                    onClick={() => {
+                      setLimba("EN");
+                      setDropdownDeschis(false);
+                    }}
+                  >
+                    EN
+                  </li>
+                </ul>
+              )}
+            </div>
+          </nav>
         </div>
-      </div>
-
-      {/* 2. MAINBAR (Logo pe mijloc, navigare stânga-dreapta) */}
-      <div className="mainbar">
-        {/* LOGO STÂNGA */}
-        <Link to="/" className="brand" aria-label="Vila Casa Esy">
-          <span className="brand-rule">VILA</span>
-          <span className="brand-name">
-            Casa <em>Esy</em>
-          </span>
-          <div className="brand-meta">
-            <span className="brand-stars">★★★</span>
-            <span className="brand-type">Hotel de trei stele</span>
-            <span className="brand-dot" />
-            <span className="brand-reviews">
-              <b>4.887</b> recenzii
-            </span>
-          </div>
-        </Link>
-
-        {/* Navigație Dreapta */}
-        <nav className="nav-wing nav-right">
-          <NavLink to="/" end>Acasă</NavLink>
-          <NavLink to="/camere">Camere</NavLink>
-          <NavLink to="/oferte">Oferte</NavLink>
-          <NavLink to="/evenimente-corporate">Corporate</NavLink>
-          <NavLink to="/evenimente-private">Private</NavLink>
-          <NavLink to="/restaurant">Restaurant</NavLink>
-          <NavLink to="/cariere">Cariere</NavLink>
-          <NavLink to="/contact">Contact</NavLink>
-        </nav>
-
-        <div className="auth-actions">
-          <NavLink to="/login" className="btn btn-ghost">
-            Login
-          </NavLink>
-          <NavLink to="/register" className="btn btn-primary">
-            Rezervă
-          </NavLink>
-        </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }

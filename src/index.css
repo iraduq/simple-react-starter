@@ -1,10 +1,9 @@
-/* ============================================================
-   Casa Esy — Global Design System
-   All colors & tokens live here. Edit a variable, retheme the app.
-   ============================================================ */
+/* ==========================================================================
+   ------------------------------ GLOBALS -----------------------------------
+   ========================================================================== */
 
 :root {
-  /* Brand palette */
+  /* Paleta de culori */
   --color-bg: #f4f7fb;
   --color-surface: #ffffff;
   --color-ink: #0f1e36;
@@ -12,37 +11,45 @@
   --color-muted: #8595aa;
   --color-line: #e1e8f0;
 
-  --color-primary: #1e4d8c;        /* royal blue */
-  --color-primary-deep: #0d2c5c;
+  --color-primary: #1e4d8c; /* Albastru regal */
+  --color-primary-deep: #0d2c5c; /* Albastru închis (folosit la Topbar) */
   --color-primary-soft: #e6efff;
 
-  --color-accent: #c69a3f;         /* warm gold */
+  --color-accent: #c69a3f; /* Auriu cald (folosit la stele și linii) */
   --color-accent-soft: #f3e6c4;
   --color-star: #d4a437;
-
   --color-on-primary: #ffffff;
 
-  /* Typography */
+  /* Fonturi */
   --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Spacing & shape */
+  /* Forme și spațieri */
   --radius-sm: 4px;
   --radius-md: 10px;
   --radius-pill: 999px;
 
-  --shadow-soft: 0 1px 2px rgba(13, 44, 92, 0.06), 0 8px 30px rgba(13, 44, 92, 0.08);
+  /* Umbre și animații */
+  --shadow-soft:
+    0 1px 2px rgba(13, 44, 92, 0.06), 0 8px 30px rgba(13, 44, 92, 0.08);
   --shadow-elev: 0 10px 40px rgba(13, 44, 92, 0.14);
+  --easing: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --easing-pop: cubic-bezier(0.22, 1, 0.36, 1);
 
+  /* Dimensiuni Navbar */
   --nav-height: 84px;
   --topbar-height: 38px;
-
-  --easing: cubic-bezier(.2,.7,.2,1);
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
-html, body, #root { height: 100%; }
+html,
+body,
+#root {
+  height: 100%;
+}
 
 body {
   margin: 0;
@@ -53,13 +60,22 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-a { color: inherit; text-decoration: none; }
-button { font: inherit; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-/* ============================================================
-   NAVBAR
-   ============================================================ */
+button {
+  font: inherit;
+  border: none;
+  background: none;
+}
 
+/* ==========================================================================
+   ------------------------------- NAVBAR -----------------------------------
+   ========================================================================== */
+
+/* CONTAINER HEADER */
 .site-header {
   position: sticky;
   top: 0;
@@ -67,44 +83,167 @@ button { font: inherit; }
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-line);
   box-shadow: var(--shadow-soft);
+  transition: box-shadow 0.35s var(--easing);
 }
 
+.site-header.is-scrolled {
+  box-shadow: 0 4px 24px rgba(13, 44, 92, 0.16);
+}
+
+/* TOPBAR */
 .topbar {
   height: var(--topbar-height);
-  background: var(--color-primary-deep);
+  background: linear-gradient(120deg, var(--color-primary-deep), #122f63 75%);
   color: var(--color-on-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
   font-size: 12.5px;
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
 }
 
-.topbar-left { display: flex; gap: 22px; align-items: center; opacity: .9; }
-.topbar-left span { display: inline-flex; gap: 6px; align-items: center; }
+.topbar-left {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  opacity: 0.9;
+}
 
-.topbar-socials { display: flex; gap: 6px; }
+.topbar-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  transition:
+    opacity 0.2s var(--easing),
+    color 0.2s var(--easing);
+}
+
+.topbar-link:hover {
+  opacity: 1;
+  color: var(--color-accent-soft);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-socials {
+  display: flex;
+  gap: 6px;
+}
+
 .topbar-socials a {
-  width: 26px; height: 26px;
-  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-pill);
-  background: rgba(255,255,255,.08);
-  transition: background .2s var(--easing);
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 0.2s var(--easing);
   font-size: 12px;
 }
-.topbar-socials a:hover { background: var(--color-accent); }
 
+.topbar-socials a:hover {
+  background: var(--color-accent);
+}
+
+.tripadvisor-icon {
+  font-weight: bold;
+}
+
+.topbar-divider {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.topbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-auth-link {
+  color: var(--color-on-primary);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+  transition: opacity 0.2s var(--easing);
+}
+
+.topbar-auth-link:hover {
+  opacity: 1;
+}
+
+.topbar-auth-link.highlight {
+  color: var(--color-accent-soft);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(198, 154, 63, 0.18);
+  opacity: 1;
+}
+
+.topbar-auth-link.highlight:hover {
+  background: rgba(198, 154, 63, 0.3);
+}
+
+/* MAINBAR & NAVIGAȚIE */
 .mainbar {
   height: var(--nav-height);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0 40px;
   gap: 32px;
 }
 
-/* Brand block (left) */
+.nav-wing {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-wing a {
+  position: relative;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-primary-deep);
+  padding: 10px 2px;
+  transition: color 0.2s var(--easing);
+}
+
+.nav-wing a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-accent);
+  transition:
+    width 0.25s var(--easing),
+    left 0.25s var(--easing);
+}
+
+.nav-wing a:hover,
+.nav-wing a.active {
+  color: var(--color-primary);
+}
+
+.nav-wing a.active::after,
+.nav-wing a:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* LOGO / BRANDING */
 .brand {
   display: flex;
   flex-direction: column;
@@ -113,163 +252,405 @@ button { font: inherit; }
   text-align: left;
   flex-shrink: 0;
 }
+
 .brand-rule {
-  display: inline-flex; align-items: center; gap: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--color-accent);
-  font-size: 11px; letter-spacing: .4em;
+  font-size: 11px;
+  letter-spacing: 0.4em;
 }
+
 .brand-rule::before,
 .brand-rule::after {
-  content: ""; width: 28px; height: 1px; background: var(--color-accent);
-  opacity: .6;
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--color-accent);
+  opacity: 0.6;
 }
+
 .brand-name {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 500;
   line-height: 1;
-  letter-spacing: .02em;
+  letter-spacing: 0.02em;
   color: var(--color-primary-deep);
 }
+
 .brand-name em {
   font-style: italic;
   color: var(--color-accent);
 }
+
 .brand-meta {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 11px;
   color: var(--color-ink-soft);
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.brand-stars { color: var(--color-star); letter-spacing: 2px; font-size: 12px; }
-.brand-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--color-muted); }
-.brand-reviews { color: var(--color-ink-soft); }
-.brand-reviews b { color: var(--color-ink); font-weight: 600; }
 
-/* Nav wings */
-.nav-wing {
-  display: flex;
-  gap: 22px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.nav-right { margin-left: auto; }
-.nav-wing a {
-  position: relative;
+.brand-stars {
+  color: var(--color-star);
+  letter-spacing: 2px;
   font-size: 12px;
-  letter-spacing: .16em;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--color-primary-deep);
-  padding: 10px 2px;
-  transition: color .2s var(--easing);
 }
-.nav-wing a::after {
-  content: "";
-  position: absolute;
-  left: 50%; bottom: 0;
-  width: 0; height: 2px;
-  background: var(--color-accent);
-  transition: width .25s var(--easing), left .25s var(--easing);
-}
-.nav-wing a:hover { color: var(--color-primary); }
-.nav-wing a.active { color: var(--color-primary); }
-.nav-wing a.active::after,
-.nav-wing a:hover::after { width: 100%; left: 0; }
 
-/* Auth (right of brand) */
-.auth-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding-left: 18px;
-  margin-left: 8px;
-  border-left: 1px solid var(--color-line);
-}
-.btn {
+/* SELECTOR DE LIMBĂ */
+.lang-selector-inline {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  font-size: 12px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all .2s var(--easing);
-}
-.btn-ghost {
-  color: var(--color-primary-deep);
-  border-color: var(--color-line);
-  background: transparent;
-}
-.btn-ghost:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
-}
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  border-color: var(--color-primary);
-}
-.btn-primary:hover {
-  background: var(--color-primary-deep);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-elev);
+  margin-left: 10px;
 }
 
+.lang-btn-inline {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary-deep);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  transition:
+    border-color 0.2s var(--easing),
+    background 0.2s var(--easing),
+    color 0.2s var(--easing);
+}
+
+.lang-btn-inline:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.lang-btn-inline .arrow {
+  color: var(--color-muted);
+  transition: transform 0.3s var(--easing);
+}
+
+.lang-btn-inline .arrow.open {
+  transform: rotate(180deg);
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elev);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  list-style: none;
+  min-width: 80px;
+  margin: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: lang-dropdown-in 0.18s var(--easing-pop);
+}
+
+@keyframes lang-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.lang-dropdown-menu li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--color-ink);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition:
+    background 0.2s var(--easing),
+    color 0.2s var(--easing);
+}
+
+.lang-dropdown-menu li:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+/* RESPONSIVE NAVBAR */
 @media (max-width: 960px) {
-  .topbar { display: none; }
+  .topbar {
+    display: none;
+  }
+
   .mainbar {
     flex-direction: column;
     height: auto;
     padding: 18px 20px;
     gap: 16px;
   }
-  .nav-wing { justify-content: center; gap: 14px; }
-  .nav-right { margin-left: 0; }
-  .auth-actions { border-left: none; padding-left: 0; margin-left: 0; }
-  .brand { align-items: center; text-align: center; }
+
+  .nav-wing {
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .brand {
+    align-items: center;
+    text-align: center;
+  }
+}
+/* --- PROMO TOPBAR - UNIFICARE TIPOGRAFICĂ --- */
+.promo-topbar {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-deep),
+    #1b3d6e,
+    var(--color-primary-deep)
+  );
+  background-size: 200% 100%;
+  animation: fluidBackground 4s linear infinite;
+
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+
+  /* FORȚĂM FONTUL SĂ FIE CEL DIN MENIU */
+  font-family: var(--font-body), sans-serif;
+  position: relative;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(13, 44, 92, 0.2);
 }
 
-/* ============================================================
-   HOME PAGE
-   ============================================================ */
+.promo-text {
+  font-size: 0.65rem; /* Mai mic, pentru acel aspect premium "Quiet Luxury" */
+  font-weight: 500; /* Grosime medie-fină */
+  letter-spacing: 1.5px; /* Spațiere mare între litere, exact ca la meniu */
+  text-transform: uppercase; /* Forțăm litere mari ca să se asorteze cu butoanele din navigație */
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
 
-.home { color: var(--color-ink); }
+/* Codul CASAESY15 - Integrat perfect */
+.promo-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(230, 194, 122, 0.5);
+  background-color: rgba(230, 194, 122, 0.1);
+  color: #e6c27a;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.7rem; /* Proporțional cu noul text */
+  letter-spacing: 2px;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
 
+/* Evidențierea reducerii - Fără să fie prea groasă */
+.promo-highlight {
+  color: #e6c27a;
+  font-weight: 700;
+  animation: glowText 2s infinite alternate;
+}
+
+/* ==========================================================================
+   ------------------------------ HOME PAGE ---------------------------------
+   ========================================================================== */
+
+.home {
+  color: var(--color-ink);
+}
+
+/* --- HERO SECTION - BAZA --- */
 .hero-home {
-  min-height: 78vh;
-  background:
-    linear-gradient(rgba(13, 44, 92, .55), rgba(13, 44, 92, .7)),
-    url("https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1920&q=80") center/cover;
-  color: var(--color-on-primary);
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 700px; /* Sau 500px, 700px - alege ce se potrivește estetic */
+  background:
+    linear-gradient(rgba(13, 44, 92, 0.55), rgba(13, 44, 92, 0.7)),
+    url("https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1920&q=80")
+      center/cover no-repeat;
+}
+/* --- OVERLAY CINEMATIC --- */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Un gradient radial: mai întunecat la mijloc (unde e textul), mai transparent spre margini */
+  background: radial-gradient(
+    circle at center,
+    rgba(13, 44, 92, 0.65) 0%,
+    /* Bleumarin închis în centru */ rgba(13, 44, 92, 0.3) 100%
+      /* Mai transparent spre margini pentru a lăsa poza să se vadă */
+  );
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2; /* Ține textul deasupra overlay-ului */
   text-align: center;
-  padding: 100px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+  max-width: 800px;
 }
-.hero-content { max-width: 760px; }
+
+/* --- TIPOGRAFIE DE LUX --- */
 .eyebrow {
-  font-size: 12px; letter-spacing: .5em; text-transform: uppercase;
-  color: var(--color-accent-soft); margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--color-accent); /* Auriu */
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
 }
-.hero-home h1 {
+
+/* Liniile aurii decorative de lângă "BUN VENIT LA" */
+.eyebrow-line {
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background-color: rgba(198, 154, 63, 0.5); /* Auriu semi-transparent */
+}
+
+.hero-content h1 {
+  color: #ffffff;
   font-family: var(--font-display);
-  font-size: clamp(44px, 6vw, 76px);
+  font-size: clamp(
+    3rem,
+    6vw,
+    5rem
+  ); /* Se scalează perfect pe mobil și desktop */
   font-weight: 400;
-  line-height: 1.05;
-  margin: 0 0 22px;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Un mic efect de umbră pentru claritate pe poză */
 }
-.hero-home h1 em { font-style: italic; color: var(--color-accent); }
-.subtitle { font-size: 17px; line-height: 1.65; opacity: .9; margin: 0 0 36px; }
 
-.hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.hero-content h1 em {
+  font-style: italic;
+  color: var(--color-accent);
+}
 
+.subtitle {
+  max-width: 600px;
+  margin: 0 auto 40px auto;
+  line-height: 1.7;
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* --- BUTOANE (CTAs) --- */
+.hero-actions {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn {
+  padding: 15px 40px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* Spațiu pentru iconiță */
+}
+
+/* Butonul principal (Auriu) - Cel care aduce banii (Rezervări) */
+.btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-ink); /* Text bleumarin */
+  border: 1px solid var(--color-accent);
+  box-shadow: 0 4px 15px rgba(198, 154, 63, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: transparent;
+  color: var(--color-accent);
+  box-shadow: 0 8px 25px rgba(198, 154, 63, 0.4);
+  transform: translateY(-2px); /* Se ridică finuț la hover */
+}
+
+/* Butonul secundar (Ghost) - Pentru navigare */
+.btn-ghost {
+  background-color: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.btn-ghost:hover {
+  border-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Săgeata prinde viață la hover */
+.btn-ghost:hover .btn-icon {
+  transform: translateY(3px); /* Săgeata se mișcă în jos, indicând direcția */
+  transition: transform 0.3s ease;
+}
+
+/* --- RESPONSIVITATE --- */
+@media (max-width: 650px) {
+  .hero-actions {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  .btn {
+    width: 100%;
+    max-width: 320px;
+  }
+  .eyebrow-line {
+    width: 20px;
+  }
+}
+/* FEATURES SECTION */
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -277,19 +658,33 @@ button { font: inherit; }
   padding: 90px 40px;
   background: var(--color-bg);
 }
+
 .features article {
   text-align: center;
   padding: 40px 24px;
   background: var(--color-surface);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
-  transition: transform .25s var(--easing), box-shadow .25s var(--easing);
+  transition:
+    transform 0.25s var(--easing),
+    box-shadow 0.25s var(--easing);
 }
-.features article:hover { transform: translateY(-4px); box-shadow: var(--shadow-elev); }
+
+.features article:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elev);
+}
+
 .features h3 {
   font-family: var(--font-display);
-  font-size: 22px; margin: 0 0 12px;
+  font-size: 22px;
+  margin: 0 0 12px;
   color: var(--color-primary-deep);
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
 }
-.features p { color: var(--color-ink-soft); line-height: 1.6; margin: 0; }
+
+.features p {
+  color: var(--color-ink-soft);
+  line-height: 1.6;
+  margin: 0;
+}
