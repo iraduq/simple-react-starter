@@ -79,17 +79,7 @@ export default function Navbar() {
 
       {/* 2. MAINBAR (Logo pe mijloc, navigare stânga-dreapta) */}
       <div className="mainbar">
-        {/* Navigația Stânga */}
-        <nav className="nav-wing nav-left">
-          <NavLink to="/" end>
-            Acasă
-          </NavLink>
-          <NavLink to="/camere">Camere</NavLink>
-          <NavLink to="/oferte">Oferte</NavLink>
-          <NavLink to="/restaurant">Restaurant</NavLink>
-        </nav>
-
-        {/* LOGO CENTRAL */}
+        {/* LOGO STÂNGA */}
         <Link to="/" className="brand" aria-label="Vila Casa Esy">
           <span className="brand-rule">VILA</span>
           <span className="brand-name">
@@ -105,15 +95,18 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Navigația Dreapta */}
+        {/* Navigație Dreapta */}
         <nav className="nav-wing nav-right">
+          <NavLink to="/" end>Acasă</NavLink>
+          <NavLink to="/camere">Camere</NavLink>
+          <NavLink to="/oferte">Oferte</NavLink>
           <NavLink to="/evenimente-corporate">Corporate</NavLink>
           <NavLink to="/evenimente-private">Private</NavLink>
+          <NavLink to="/restaurant">Restaurant</NavLink>
           <NavLink to="/cariere">Cariere</NavLink>
           <NavLink to="/contact">Contact</NavLink>
         </nav>
 
-        {/* Butoane de acțiune (Poziționate absolut sau mutate elegant) */}
         <div className="auth-actions">
           <NavLink to="/login" className="btn btn-ghost">
             Login
