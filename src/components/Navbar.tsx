@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { ChevronDown, Phone, UserRound, Globe, Sparkles } from "lucide-react";
+import { ChevronDown, UserRound, Globe, Sparkles } from "lucide-react";
 
 const LANGS = [
   { code: "RO", label: "Română" },
