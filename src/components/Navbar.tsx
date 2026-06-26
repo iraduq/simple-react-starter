@@ -43,17 +43,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ── TOP INFO BAR ── */}
-      <div className="info-bar">
-        <div className="info-bar-inner">
-          <a href="tel:+40700000000" className="info-item">
-            <Phone size={13} strokeWidth={2} />
-            <span>+40 700 000 000</span>
-          </a>
-          <span className="info-bar-dot">Recepție 24/7 · Mamaia Nord</span>
-        </div>
-      </div>
-
       {/* ── MAIN NAVBAR ── */}
       <header className="site-header">
         <div className="mainbar">
