@@ -81,93 +81,92 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* RIGHT */}
-          <div className="nav-side nav-side--right">
-            <nav className="nav-side-links">
-              <NavLink to="/restaurant">Restaurant</NavLink>
-              <NavLink to="/evenimente-private">Evenimente</NavLink>
-              <NavLink to="/contact">Contact</NavLink>
-            </nav>
+          {/* RIGHT NAV */}
+          <nav className="nav-side nav-side--right">
+            <NavLink to="/restaurant">Restaurant</NavLink>
+            <NavLink to="/evenimente-private">Evenimente</NavLink>
+            <NavLink to="/contact">Contact</NavLink>
+          </nav>
 
-            <div className="nav-tools">
-              {/* Language */}
-              <div className="lang-selector" ref={langRef}>
-                <button
-                  className="icon-btn"
-                  onClick={() => {
-                    setLangOpen((v) => !v);
-                    setAcctOpen(false);
-                  }}
-                  aria-haspopup="true"
-                  aria-expanded={langOpen}
-                  aria-label="Schimbă limba"
-                >
-                  <Globe size={16} strokeWidth={1.8} />
-                  <span className="icon-btn-label">{lang}</span>
-                  <ChevronDown
-                    size={12}
-                    className={`arrow ${langOpen ? "open" : ""}`}
-                  />
-                </button>
-                {langOpen && (
-                  <ul className="menu-pop" role="menu">
-                    {LANGS.map((l) => (
-                      <li
-                        key={l.code}
-                        role="menuitem"
-                        className={l.code === lang ? "is-active" : ""}
-                        onClick={() => {
-                          setLang(l.code);
-                          setLangOpen(false);
-                        }}
-                      >
-                        <span className="menu-code">{l.code}</span>
-                        <span className="menu-label">{l.label}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+          {/* TOOLS — own grid cell */}
+          <div className="nav-tools">
+            {/* Language */}
+            <div className="lang-selector" ref={langRef}>
+              <button
+                className="icon-btn"
+                onClick={() => {
+                  setLangOpen((v) => !v);
+                  setAcctOpen(false);
+                }}
+                aria-haspopup="true"
+                aria-expanded={langOpen}
+                aria-label="Schimbă limba"
+              >
+                <Globe size={16} strokeWidth={1.8} />
+                <span className="icon-btn-label">{lang}</span>
+                <ChevronDown
+                  size={12}
+                  className={`arrow ${langOpen ? "open" : ""}`}
+                />
+              </button>
+              {langOpen && (
+                <ul className="menu-pop" role="menu">
+                  {LANGS.map((l) => (
+                    <li
+                      key={l.code}
+                      role="menuitem"
+                      className={l.code === lang ? "is-active" : ""}
+                      onClick={() => {
+                        setLang(l.code);
+                        setLangOpen(false);
+                      }}
+                    >
+                      <span className="menu-code">{l.code}</span>
+                      <span className="menu-label">{l.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
-              {/* Account */}
-              <div className="acct-selector" ref={acctRef}>
-                <button
-                  className="icon-btn icon-btn--circle"
-                  onClick={() => {
-                    setAcctOpen((v) => !v);
-                    setLangOpen(false);
-                  }}
-                  aria-haspopup="true"
-                  aria-expanded={acctOpen}
-                  aria-label="Cont utilizator"
-                >
-                  <UserRound size={18} strokeWidth={1.8} />
-                </button>
-                {acctOpen && (
-                  <div className="menu-pop menu-pop--card" role="menu">
-                    <div className="acct-head">
-                      <p className="acct-title">Bun venit la Casa Esy</p>
-                      <p className="acct-sub">
-                        Intră în cont pentru a-ți gestiona rezervările.
-                      </p>
-                    </div>
-                    <Link
-                      to="/login"
-                      className="acct-btn acct-btn--primary"
-                      onClick={() => setAcctOpen(false)}
-                    >
-                      Intră în cont
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="acct-btn acct-btn--ghost"
-                      onClick={() => setAcctOpen(false)}
-                    >
-                      Creează cont nou
-                    </Link>
+            {/* Account */}
+            <div className="acct-selector" ref={acctRef}>
+              <button
+                className="icon-btn icon-btn--circle"
+                onClick={() => {
+                  setAcctOpen((v) => !v);
+                  setLangOpen(false);
+                }}
+                aria-haspopup="true"
+                aria-expanded={acctOpen}
+                aria-label="Cont utilizator"
+              >
+                <UserRound size={18} strokeWidth={1.8} />
+              </button>
+              {acctOpen && (
+                <div className="menu-pop menu-pop--card" role="menu">
+                  <div className="acct-head">
+                    <p className="acct-title">Bun venit la Casa Esy</p>
+                    <p className="acct-sub">
+                      Intră în cont pentru a-ți gestiona rezervările.
+                    </p>
                   </div>
-                )}
-              </div>
+                  <Link
+                    to="/login"
+                    className="acct-btn acct-btn--primary"
+                    onClick={() => setAcctOpen(false)}
+                  >
+                    Intră în cont
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="acct-btn acct-btn--ghost"
+                    onClick={() => setAcctOpen(false)}
+                  >
+                    Creează cont nou
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

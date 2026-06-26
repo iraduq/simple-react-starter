@@ -252,7 +252,7 @@ button {
   height: var(--nav-height);
   padding: 0 40px;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto 1fr auto;
   align-items: center;
   gap: 0;
 }
@@ -270,7 +270,7 @@ button {
 }
 
 .nav-side--right {
-  gap: 24px;
+  gap: 28px;
   justify-content: flex-start;
   padding-left: 40px;
 }
@@ -403,7 +403,8 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-left: 18px;
+  padding-left: 20px;
+  margin-left: 4px;
   border-left: 1px solid var(--color-line);
 }
 
@@ -615,11 +616,8 @@ button {
     padding-right: 24px;
   }
   .nav-side--right {
-    gap: 14px;
-    padding-left: 24px;
-  }
-  .nav-side-links {
     gap: 18px;
+    padding-left: 24px;
   }
   .mainbar {
     padding: 0 20px;
@@ -629,8 +627,8 @@ button {
   }
 }
 
-@media (max-width: 900px) {
-  .nav-side-links {
+@media (max-width: 920px) {
+  .nav-side--right {
     display: none;
   }
   .promo-text {
@@ -650,6 +648,11 @@ button {
   .brand {
     justify-self: start;
     padding: 0;
+  }
+  .nav-tools {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
   }
   .promo-strip-inner {
     flex-direction: column;
