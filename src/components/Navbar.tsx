@@ -51,7 +51,6 @@ export default function Navbar() {
             <NavLink to="/" end>Acasă</NavLink>
             <NavLink to="/camere">Camere</NavLink>
             <NavLink to="/oferte">Oferte</NavLink>
-            <NavLink to="/restaurant">Restaurant</NavLink>
           </nav>
 
           {/* CENTER */}
@@ -69,6 +68,7 @@ export default function Navbar() {
           {/* RIGHT */}
           <div className="nav-side nav-side--right">
             <nav className="nav-side-links">
+              <NavLink to="/restaurant">Restaurant</NavLink>
               <NavLink to="/evenimente-private">Evenimente</NavLink>
               <NavLink to="/contact">Contact</NavLink>
             </nav>
