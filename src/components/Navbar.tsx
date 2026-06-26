@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { ChevronDown, Phone, UserRound, Globe, Sparkles } from "lucide-react";
+import { ChevronDown, UserRound, Globe, Sparkles } from "lucide-react";
 
 const LANGS = [
   { code: "RO", label: "Română" },
@@ -43,17 +43,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ── TOP INFO BAR ── */}
-      <div className="info-bar">
-        <div className="info-bar-inner">
-          <a href="tel:+40700000000" className="info-item">
-            <Phone size={13} strokeWidth={2} />
-            <span>+40 700 000 000</span>
-          </a>
-          <span className="info-bar-dot">Recepție 24/7 · Mamaia Nord</span>
-        </div>
-      </div>
-
       {/* ── MAIN NAVBAR ── */}
       <header className="site-header">
         <div className="mainbar">
@@ -62,7 +51,6 @@ export default function Navbar() {
             <NavLink to="/" end>Acasă</NavLink>
             <NavLink to="/camere">Camere</NavLink>
             <NavLink to="/oferte">Oferte</NavLink>
-            <NavLink to="/restaurant">Restaurant</NavLink>
           </nav>
 
           {/* CENTER */}
@@ -80,6 +68,7 @@ export default function Navbar() {
           {/* RIGHT */}
           <div className="nav-side nav-side--right">
             <nav className="nav-side-links">
+              <NavLink to="/restaurant">Restaurant</NavLink>
               <NavLink to="/evenimente-private">Evenimente</NavLink>
               <NavLink to="/contact">Contact</NavLink>
             </nav>
