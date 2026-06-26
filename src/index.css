@@ -678,9 +678,9 @@ button {
   height: 780px;
   background:
     linear-gradient(
-      to bottom,
-      rgba(10, 30, 70, 0.45) 0%,
-      rgba(10, 30, 70, 0.72) 100%
+      to right,
+      rgba(13, 44, 92, 0.4) 0%,
+      rgba(13, 44, 92, 0.85) 100%
     ),
     url("https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop")
       center/cover no-repeat;
@@ -1738,60 +1738,854 @@ button {
   }
 }
 
+@import url("https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+
 /* ==========================================================================
-   ----------------------------- AUTH PAGES ----------------------------------
+   ----------------------------- AUTHENTICATION PAGES ------------------------
    ========================================================================== */
 
-.auth-container {
-  max-width: 400px;
-  margin: 80px auto;
-  padding: 40px;
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-line);
-  box-shadow: var(--shadow-soft);
+/* Font nou doar pentru paginile de autentificare — fără să afectăm
+   --font-body global, folosit în restul site-ului. */
+.auth-layout {
+  --auth-font-body:
+    "Albert Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--auth-font-body);
 }
 
-.auth-container h2 {
-  font-family: var(--font-display);
-  font-size: 28px;
-  color: var(--color-primary-deep);
-  margin: 0 0 28px;
+.auth-layout input,
+.auth-layout button,
+.auth-layout .phone-custom-group .PhoneInputInput,
+.auth-layout .phone-custom-group .PhoneInputInput::placeholder {
+  font-family: var(--auth-font-body);
 }
 
-.auth-container form {
+/* Layout-ul principal: Split Screen pe desktop */
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-surface);
+}
+
+/* --- Partea Stângă (Imaginea) --- */
+.auth-visual {
+  position: relative;
+  flex: 1.2; /* Ocupă puțin mai mult spațiu decât formularul */
+  display: none; /* Ascuns pe mobil, activat prin media query mai jos */
+  background: url("https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop")
+    center/cover no-repeat;
+  overflow: hidden;
+}
+
+.auth-visual-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(13, 44, 92, 0.4) 0%,
+    rgba(13, 44, 92, 0.85) 100%
+  );
+}
+
+/* Un mic artificiu vizual la îmbinarea dintre imagine și formular */
+.auth-decorator-svg {
+  position: absolute;
+  bottom: 0;
+  right: -1px; /* Evită gap-urile la renderizare */
+  width: 15%;
+  height: 100%;
+  z-index: 2;
+}
+
+.auth-visual-content {
+  position: relative;
+  z-index: 3;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  padding: 50px 80px 80px 50px;
+  color: #ffffff;
 }
 
-.auth-container input {
-  padding: 12px 16px;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-body);
-  font-size: 14px;
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.8);
+  transition:
+    color 0.2s,
+    transform 0.2s;
+  align-self: flex-start;
+}
+
+.auth-back-link:hover {
+  color: #ffffff;
+  transform: translateX(-4px);
+}
+
+.auth-visual-text h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0 0 20px 0;
+  max-width: 500px;
+}
+
+.auth-visual-text p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 450px;
+  margin: 0;
+}
+
+/* --- Partea Dreaptă (Formularul) --- */
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: var(--color-surface);
+  position: relative;
+  z-index: 3;
+}
+
+.auth-card-modern {
+  width: 100%;
+  max-width: 420px;
+  /* Fără card, doar un container aerisit */
+}
+
+/* Logo-ul minimal pentru formular */
+.auth-brand-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 40px;
+}
+
+.auth-brand-mini .brand-name {
+  font-size: 28px;
+  color: var(--color-primary-deep);
+}
+.auth-brand-mini .brand-stars {
+  color: var(--color-star);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.auth-title {
+  font-family: var(--font-display);
+  font-size: 32px;
   color: var(--color-ink);
-  outline: none;
-  transition: border-color 0.2s;
+  margin: 0 0 10px;
+  font-weight: 500;
 }
 
-.auth-container input:focus {
+.auth-subtitle {
+  color: var(--color-muted);
+  font-size: 14.5px;
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  transition: color 0.3s;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 16px 44px 16px 50px; /* spațiu în dreapta pentru iconița de status */
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md); /* Colțuri rotunjite fin */
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  transition: all 0.3s var(--easing);
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 4px 15px rgba(30, 77, 140, 0.08);
+}
+
+.input-group input:focus + .input-icon {
+  color: var(--color-primary); /* Iconița se colorează la focus */
+}
+
+/* ── Iconița de status (bifă verde / alertă roșie) în dreapta input-ului ── */
+.input-status-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.input-group.is-valid .input-status-icon {
+  color: #10b981; /* verde succes */
+}
+
+.input-group.has-error .input-status-icon {
+  color: #ef4444; /* roșu eroare */
+}
+
+/* Stare validă: border + fundal discret verde, ca un omolog al has-error */
+.input-group.is-valid input {
+  border-color: #10b981;
+  background-color: #f0fdf9;
+}
+
+.input-group.is-valid .input-icon {
+  color: #10b981;
+}
+
+/* Custom Checkbox */
+.auth-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13.5px;
+  margin-top: -6px;
+  margin-bottom: 8px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.remember-me input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.remember-me .checkmark {
+  height: 18px;
+  width: 18px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remember-me:hover input ~ .checkmark {
   border-color: var(--color-primary);
 }
 
-.auth-container button[type="submit"] {
-  padding: 13px;
-  background: var(--color-primary);
-  color: #fff;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s;
+.remember-me input:checked ~ .checkmark {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
-.auth-container button[type="submit"]:hover {
+/* Culoarea bifei (SVG) */
+.remember-me .checkmark:after {
+  content: "";
+  display: none;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.remember-me input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.remember-me .label-text {
+  color: var(--color-ink-soft);
+  user-select: none;
+}
+
+.forgot-password {
+  color: var(--color-primary-soft); /* Ceva mai sters initial */
+  color: var(--color-primary);
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.forgot-password:hover {
+  color: var(--color-accent);
+}
+
+/* Butonul principal */
+.btn-auth-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 18px;
   background: var(--color-primary-deep);
+  color: #ffffff;
+  border-radius: var(--radius-md); /* Se potriveste cu input-urile */
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: none;
+  box-shadow: 0 4px 15px rgba(13, 44, 92, 0.15);
+}
+
+.btn-auth-submit:hover:not(:disabled) {
+  background: var(--color-accent); /* Devine auriu la hover */
+  color: var(--color-primary-deep);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(198, 154, 63, 0.3);
+}
+
+.btn-auth-submit:disabled {
+  background: var(--color-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Divizorul "SAU" */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 32px 0;
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.auth-divider span {
+  padding: 0 20px;
+}
+
+.google-auth-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.google-auth-wrapper > div {
+  width: 100% !important;
+}
+
+/* Footer form */
+.auth-footer-text {
+  text-align: center;
+  margin: 36px 0 0;
+  font-size: 14px;
+  color: var(--color-ink-soft);
+}
+
+.auth-footer-text a {
+  color: var(--color-primary-deep);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.auth-footer-text a:hover {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* ── RESPONSIVITATE ── */
+@media (min-width: 900px) {
+  .auth-visual {
+    display: block; /* Afisam imaginea doar pe ecrane mari */
+  }
+}
+
+@media (max-width: 899px) {
+  .auth-layout {
+    background: radial-gradient(
+      circle at top right,
+      var(--color-primary-soft),
+      var(--color-bg)
+    );
+  }
+  .auth-form-side {
+    background: transparent;
+  }
+  .auth-card-modern {
+    background: var(--color-surface);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-elev);
+    border: 1px solid var(--color-line);
+  }
+}
+
+@media (max-width: 500px) {
+  .auth-card-modern {
+    padding: 32px 24px;
+  }
+}
+/* ── Organizare formular pe coloane și Validări ── */
+
+/* Rând cu 2 coloane pentru Nume și Prenume */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Când un input are eroare, schimbăm border-ul și fundalul în nuanțe de roșu */
+.input-group.has-error input {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.input-group.has-error .input-icon {
+  color: #ef4444;
+}
+
+/* Telefonul nu are input direct ca țintă (e .PhoneInputInput în interior),
+   așa că borderul de stare se pune pe containerul .phone-custom-group. */
+.phone-custom-group.has-error {
+  border-color: #ef4444 !important;
+}
+
+.phone-custom-group.is-valid {
+  border-color: #10b981 !important;
+}
+
+.phone-custom-group.has-error .PhoneInputCountry {
+  border-right-color: rgba(239, 68, 68, 0.3);
+}
+
+.phone-custom-group.is-valid .PhoneInputCountry {
+  border-right-color: rgba(16, 185, 129, 0.3);
+}
+/* Textul mic de eroare sub input */
+.input-error-text {
+  font-size: 11.5px;
+  color: #ef4444;
+  font-weight: 500;
+  padding-left: 4px;
+}
+
+/* Alertă generală de la server (ex: "Acest email există deja") */
+.auth-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fef2f2;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid #fca5a5;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* Trecem înapoi la 1 coloană pe telefoane mici pentru a nu înghesui textul */
+@media (max-width: 600px) {
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Panou Cerințe Parolă ── */
+.password-requirements {
+  padding: 12px 2px 2px;
+  margin-top: 2px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Bar de progres cu 4 segmente — se colorează pe măsură ce cerințele sunt
+   îndeplinite, înlocuiește vechiul chenar cu grid de checkbox-uri. */
+.password-strength-track {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.password-strength-segment {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-line);
+  transition: background-color 0.3s var(--easing);
+}
+
+.password-strength-segment.is-met {
+  background: #10b981;
+}
+
+.req-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.req-list li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+  transition: color 0.25s;
+}
+
+.req-list li svg {
+  color: var(--color-line);
+  transition: color 0.25s;
+  flex-shrink: 0;
+}
+
+.req-list li.valid {
+  color: var(--color-ink-soft);
+}
+
+.req-list li.valid svg {
+  color: #10b981;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Stiluri Custom pentru Telefon (react-phone-number-input) ── */
+.phone-custom-group {
+  padding: 0 !important; /* Resetăm paddingul implicit al input-group */
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  background: var(--color-bg);
+}
+
+/* La eroare/valid păstrăm un fundal neutru — borderul + iconița de status
+   comunică starea, nu mai "pătăm" toată caseta cu roșu/verde. */
+.phone-custom-group.has-error,
+.phone-custom-group.is-valid {
+  background: var(--color-bg);
+}
+
+.phone-prefix-box {
+  display: none; /* nefolosită — dropdown-ul custom își gestionează propriul aspect */
+}
+
+.phone-prefix-icon {
+  display: none;
+}
+
+/* Containerul randat de react-phone-number-input în jurul componentei
+   noastre custom (CustomCountrySelect). Doar îl folosim ca delimitator. */
+.phone-custom-group .PhoneInputCountry {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  height: 100%;
+  position: relative;
+  border-right: 1px solid var(--color-line);
+}
+
+.phone-custom-group.has-error .PhoneInputCountry {
+  border-right-color: rgba(239, 68, 68, 0.3);
+}
+
+.phone-custom-group.is-valid .PhoneInputCountry {
+  border-right-color: rgba(16, 185, 129, 0.3);
+}
+
+/* ── Dropdown custom de țară (înlocuiește <select> nativ) ── */
+.country-select-wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.country-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 100%;
+  padding: 0 14px 0 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.country-select-trigger:hover {
+  background-color: rgba(13, 44, 92, 0.04);
+}
+
+.country-select-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.country-select-flag {
+  display: flex;
+  align-items: center;
+  width: 24px;
+  height: 18px;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(15, 30, 54, 0.1);
+}
+
+.country-select-flag svg,
+.country-select-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.country-select-chevron {
+  color: var(--color-muted);
+  transition: transform 0.25s var(--easing);
+  flex-shrink: 0;
+}
+
+.country-select-chevron.is-open {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* Panoul derulant — randat prin React Portal direct în <body>, ca să nu
+   fie tăiat de `overflow: hidden` al căsuței de telefon. Poziția (fixed,
+   top, left, width) e calculată dinamic în JS, din getBoundingClientRect()
+   al butonului, deci nu o mai punem aici. */
+.country-select-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(15, 30, 54, 0.14);
+  z-index: 1000;
+  overflow: hidden;
+  animation: countryPanelIn 0.16s ease-out;
+}
+
+@keyframes countryPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.country-select-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-muted);
+}
+
+.country-select-search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--auth-font-body, var(--font-body));
+  font-size: 13.5px;
+  color: var(--color-ink);
+  width: 100%;
+  padding: 2px 0;
+}
+
+.country-select-search input::placeholder {
+  color: var(--color-muted);
+}
+
+.country-select-list {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.country-select-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.country-select-list::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 3px;
+}
+
+.country-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--auth-font-body, var(--font-body));
+  font-size: 13.5px;
+  color: var(--color-ink);
+  transition: background-color 0.15s;
+}
+
+.country-select-option:hover {
+  background-color: rgba(13, 44, 92, 0.06);
+}
+
+.country-select-option.is-selected {
+  background-color: rgba(13, 44, 92, 0.08);
+  font-weight: 600;
+}
+
+.country-select-option-flag {
+  display: flex;
+  align-items: center;
+  width: 22px;
+  height: 16px;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(15, 30, 54, 0.1);
+  flex-shrink: 0;
+}
+
+.country-select-option-flag svg,
+.country-select-option-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.country-select-option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.country-select-empty {
+  padding: 16px 10px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* Partea dreaptă: inputul propriu-zis pentru numărul de telefon.
+   font-family explicit ca să nu mai cadă pe fontul serif default al browserului. */
+.phone-custom-group .PhoneInput {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+}
+
+.phone-custom-group .PhoneInputInput {
+  border: none;
+  background: transparent;
+  padding: 16px 44px 16px 14px;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--color-ink);
+  width: 100%;
+}
+
+.phone-custom-group .PhoneInputInput::placeholder {
+  font-family: var(--font-body);
+  color: var(--color-muted);
+}
+
+/* Iconița de status pentru telefon, fixă pe marginea dreaptă a căsuței întregi */
+.phone-status-icon {
+  position: absolute;
+  right: 16px;
+}
+
+/* ── Buton Ochișor Parolă ── */
+.password-toggle-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--color-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-primary);
 }
