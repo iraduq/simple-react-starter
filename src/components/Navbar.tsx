@@ -36,9 +36,13 @@ export default function Navbar() {
             </a>
           </div>
           <div className="info-bar-right">
-            <Link to="/login" className="info-auth">Intră în cont</Link>
+            <Link to="/login" className="info-auth">
+              Intră în cont
+            </Link>
             <span className="info-sep">|</span>
-            <Link to="/register" className="info-auth info-auth--highlight">Creează cont</Link>
+            <Link to="/register" className="info-auth info-auth--highlight">
+              Creează cont
+            </Link>
           </div>
         </div>
       </div>
@@ -47,7 +51,9 @@ export default function Navbar() {
       <header className="site-header">
         <div className="mainbar">
           <nav className="nav-wing">
-            <NavLink to="/" end>Acasă</NavLink>
+            <NavLink to="/" end>
+              Acasă
+            </NavLink>
             <NavLink to="/camere">Camere</NavLink>
             <NavLink to="/oferte">Oferte</NavLink>
             <NavLink to="/restaurant">Restaurant</NavLink>
@@ -55,7 +61,9 @@ export default function Navbar() {
 
           <Link to="/" className="brand" aria-label="Vila Casa Esy">
             <span className="brand-rule">VILA</span>
-            <span className="brand-name">Casa <em>Esy</em></span>
+            <span className="brand-name">
+              Casa <em>Esy</em>
+            </span>
             <div className="brand-meta">
               <span className="brand-stars">★★★</span>
               <span>3 STELE</span>
@@ -75,14 +83,26 @@ export default function Navbar() {
               onMouseEnter={() => setLangOpen(true)}
               onMouseLeave={() => setLangOpen(false)}
             >
-              <button className="lang-btn-inline" onClick={() => setLangOpen(!langOpen)}>
+              <button
+                className="lang-btn-inline"
+                onClick={() => setLangOpen(!langOpen)}
+              >
                 {lang}
-                <ChevronDown size={11} className={`arrow ${langOpen ? "open" : ""}`} />
+                <ChevronDown
+                  size={11}
+                  className={`arrow ${langOpen ? "open" : ""}`}
+                />
               </button>
               {langOpen && (
                 <ul className="lang-dropdown-menu">
                   {["RO", "EN"].map((l) => (
-                    <li key={l} onClick={() => { setLang(l); setLangOpen(false); }}>
+                    <li
+                      key={l}
+                      onClick={() => {
+                        setLang(l);
+                        setLangOpen(false);
+                      }}
+                    >
                       {l}
                     </li>
                   ))}

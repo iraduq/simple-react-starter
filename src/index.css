@@ -110,7 +110,9 @@ button {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: background 0.2s var(--easing), border-color 0.2s var(--easing);
+  transition:
+    background 0.2s var(--easing),
+    border-color 0.2s var(--easing);
 }
 
 .promo-strip-cta:hover {
@@ -344,7 +346,10 @@ button {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 6px 12px;
-  transition: border-color 0.2s var(--easing), color 0.2s var(--easing), background 0.2s var(--easing);
+  transition:
+    border-color 0.2s var(--easing),
+    color 0.2s var(--easing),
+    background 0.2s var(--easing);
 }
 
 .lang-btn-inline:hover {
@@ -379,8 +384,14 @@ button {
 }
 
 @keyframes dropdown-in {
-  from { opacity: 0; transform: translateY(-5px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .lang-dropdown-menu li {
@@ -394,7 +405,9 @@ button {
   color: var(--color-ink-soft);
   cursor: pointer;
   border-radius: 6px;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .lang-dropdown-menu li:hover {
@@ -415,7 +428,9 @@ button {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: background 0.2s var(--easing), transform 0.2s var(--easing);
+  transition:
+    background 0.2s var(--easing),
+    transform 0.2s var(--easing);
 }
 
 .nav-cta:hover {
@@ -425,14 +440,24 @@ button {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1100px) {
-  .nav-links-right { gap: 16px; }
-  .nav-wing { gap: 18px; }
-  .mainbar { padding: 0 24px; }
+  .nav-links-right {
+    gap: 16px;
+  }
+  .nav-wing {
+    gap: 18px;
+  }
+  .mainbar {
+    padding: 0 24px;
+  }
 }
 
 @media (max-width: 860px) {
-  .info-bar { display: none; }
-  .nav-links-right { display: none; }
+  .info-bar {
+    display: none;
+  }
+  .nav-links-right {
+    display: none;
+  }
   .mainbar {
     flex-wrap: wrap;
     height: auto;
@@ -440,9 +465,18 @@ button {
     gap: 12px;
     justify-content: center;
   }
-  .nav-wing { flex: none; gap: 14px; justify-content: center; }
-  .nav-right-group { flex: none; }
-  .brand { order: -1; width: 100%; }
+  .nav-wing {
+    flex: none;
+    gap: 14px;
+    justify-content: center;
+  }
+  .nav-right-group {
+    flex: none;
+  }
+  .brand {
+    order: -1;
+    width: 100%;
+  }
 }
 
 /* ==========================================================================
@@ -461,7 +495,11 @@ button {
   justify-content: center;
   height: 780px;
   background:
-    linear-gradient(to bottom, rgba(10, 30, 70, 0.45) 0%, rgba(10, 30, 70, 0.72) 100%),
+    linear-gradient(
+      to bottom,
+      rgba(10, 30, 70, 0.45) 0%,
+      rgba(10, 30, 70, 0.72) 100%
+    ),
     url("https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop")
       center/cover no-repeat;
   padding-bottom: 80px;
@@ -735,7 +773,9 @@ button {
   letter-spacing: 0.08em;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.2s var(--easing), transform 0.2s var(--easing);
+  transition:
+    background 0.2s var(--easing),
+    transform 0.2s var(--easing);
   flex-shrink: 0;
   margin-left: 12px;
 }
@@ -757,8 +797,14 @@ button {
     width: auto;
     border-radius: var(--radius-md);
   }
-  .search-divider { display: none; }
-  .search-btn { margin-left: 0; width: 100%; justify-content: center; }
+  .search-divider {
+    display: none;
+  }
+  .search-btn {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* ==========================================================================
@@ -785,7 +831,9 @@ button {
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  transition: transform 0.35s var(--easing-pop), box-shadow 0.35s var(--easing);
+  transition:
+    transform 0.35s var(--easing-pop),
+    box-shadow 0.35s var(--easing);
 }
 
 .exp-card:hover {
@@ -823,7 +871,11 @@ button {
 .exp-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(13, 44, 92, 0.75) 0%, transparent 55%);
+  background: linear-gradient(
+    to top,
+    rgba(13, 44, 92, 0.75) 0%,
+    transparent 55%
+  );
 }
 
 .exp-card-label {
@@ -882,9 +934,15 @@ button {
     padding-bottom: 12px;
     scrollbar-width: none;
   }
-  .exp-cards-track::-webkit-scrollbar { display: none; }
-  .exp-card { flex: 0 0 140px; }
-  .exp-card--center { flex: 0 0 160px; }
+  .exp-cards-track::-webkit-scrollbar {
+    display: none;
+  }
+  .exp-card {
+    flex: 0 0 140px;
+  }
+  .exp-card--center {
+    flex: 0 0 160px;
+  }
 }
 
 /* ==========================================================================
@@ -946,7 +1004,9 @@ button {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-line);
   overflow: hidden;
-  transition: transform 0.3s var(--easing), box-shadow 0.3s var(--easing);
+  transition:
+    transform 0.3s var(--easing),
+    box-shadow 0.3s var(--easing);
 }
 
 .room-card:hover {
@@ -1057,7 +1117,9 @@ button {
   letter-spacing: 0.06em;
   border-radius: var(--radius-sm);
   text-transform: uppercase;
-  transition: background 0.2s var(--easing), transform 0.2s var(--easing);
+  transition:
+    background 0.2s var(--easing),
+    transform 0.2s var(--easing);
 }
 
 .room-btn:hover {
@@ -1067,8 +1129,13 @@ button {
 }
 
 @media (max-width: 700px) {
-  .fr-header { flex-direction: column; align-items: flex-start; }
-  .featured-rooms { padding: 60px 20px; }
+  .fr-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .featured-rooms {
+    padding: 60px 20px;
+  }
 }
 
 /* ==========================================================================
@@ -1235,7 +1302,9 @@ button {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   align-self: flex-start;
-  transition: background 0.2s var(--easing), transform 0.2s var(--easing);
+  transition:
+    background 0.2s var(--easing),
+    transform 0.2s var(--easing);
 }
 
 .btn-about:hover {
@@ -1249,8 +1318,12 @@ button {
     padding: 60px 24px;
     gap: 48px;
   }
-  .about-img-secondary { display: none; }
-  .about-img-main img { height: 320px; }
+  .about-img-secondary {
+    display: none;
+  }
+  .about-img-main img {
+    height: 320px;
+  }
 }
 
 /* ==========================================================================
@@ -1274,7 +1347,9 @@ button {
   background: var(--color-bg);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
-  transition: transform 0.25s var(--easing), box-shadow 0.25s var(--easing);
+  transition:
+    transform 0.25s var(--easing),
+    box-shadow 0.25s var(--easing);
 }
 
 .feature-card:hover {
@@ -1317,7 +1392,9 @@ button {
 }
 
 @media (max-width: 700px) {
-  .features { padding: 60px 20px; }
+  .features {
+    padding: 60px 20px;
+  }
 }
 
 /* ==========================================================================
@@ -1341,7 +1418,9 @@ button {
   border-radius: var(--radius-md);
   padding: 32px 28px;
   position: relative;
-  transition: transform 0.25s var(--easing), box-shadow 0.25s var(--easing);
+  transition:
+    transform 0.25s var(--easing),
+    box-shadow 0.25s var(--easing);
 }
 
 .review-card:hover {
@@ -1398,7 +1477,9 @@ button {
 }
 
 @media (max-width: 700px) {
-  .testimonials { padding: 60px 20px; }
+  .testimonials {
+    padding: 60px 20px;
+  }
 }
 
 /* ==========================================================================
@@ -1418,7 +1499,11 @@ button {
 .cta-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(30, 77, 140, 0.4) 0%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    rgba(30, 77, 140, 0.4) 0%,
+    transparent 70%
+  );
 }
 
 .cta-content {
@@ -1462,8 +1547,13 @@ button {
 }
 
 @media (max-width: 600px) {
-  .cta-banner { padding: 70px 24px; }
-  .cta-actions { flex-direction: column; align-items: center; }
+  .cta-banner {
+    padding: 70px 24px;
+  }
+  .cta-actions {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 /* ==========================================================================
