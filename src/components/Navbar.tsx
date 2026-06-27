@@ -39,18 +39,20 @@ export default function Navbar() {
       {/* ── PROMO STRIP ── */}
       <div className="promo-strip" role="banner">
         <div className="promo-strip-inner">
-          <Sparkles size={15} strokeWidth={2} className="promo-icon" />
+          <Sparkles size={12} strokeWidth={1.8} className="promo-icon" />
           <span className="promo-text">
-            Ofertă limitată — folosește codul{" "}
+            <span>Rezervare directă</span>
+            <span className="promo-sep" aria-hidden>·</span>
+            <strong>15% reducere</strong>
+            <span className="promo-sep" aria-hidden>cu codul</span>
             <button
               type="button"
               onClick={handleCopyCode}
               className={`promo-code ${copied ? "is-copied" : ""}`}
               title="Apasă pentru a copia codul"
             >
-              {copied ? "COPIAT! ✓" : "CASAESY15"}
-            </button>{" "}
-            pentru <strong>15% reducere</strong> la rezervare directă
+              {copied ? "Copiat ✓" : "CASAESY15"}
+            </button>
           </span>
         </div>
       </div>
