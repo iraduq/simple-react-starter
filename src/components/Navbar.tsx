@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { ChevronDown, UserRound, Globe, Sparkles } from "lucide-react";
+import { ChevronDown, Globe, UserRound, X } from "lucide-react";
 
 const LANGS = [
   { code: "RO", label: "Română" },
@@ -12,23 +12,24 @@ export default function Navbar() {
   const [lang, setLang] = useState("RO");
   const [langOpen, setLangOpen] = useState(false);
   const [acctOpen, setAcctOpen] = useState(false);
+  const [promoDismissed, setPromoDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const langRef = useRef<HTMLDivElement>(null);
   const acctRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onClick = (e: MouseEvent) => {
+    const handler = (e: MouseEvent) => {
       if (langRef.current && !langRef.current.contains(e.target as Node))
         setLangOpen(false);
       if (acctRef.current && !acctRef.current.contains(e.target as Node))
         setAcctOpen(false);
     };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const handleCopyCode = () => {
+  const copyCode = () => {
     navigator.clipboard.writeText("CASAESY15");
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -36,133 +37,107 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── PROMO STRIP ── */}
-      <div className="promo-strip" role="banner">
-        <div className="promo-strip-inner">
-          <Sparkles size={12} strokeWidth={1.8} className="promo-icon" />
-          <span className="promo-text">
-            <span>Rezervare directă</span>
-            <span className="promo-sep" aria-hidden>·</span>
-            <strong>15% reducere</strong>
-            <span className="promo-sep" aria-hidden>cu codul</span>
+      {!promoDismissed && (
+        <div className="promo-strip">
+          <span className="promo-strip-text">
+            Ofertă specială — cod&nbsp;
             <button
-              type="button"
-              onClick={handleCopyCode}
-              className={`promo-code ${copied ? "is-copied" : ""}`}
-              title="Apasă pentru a copia codul"
+              className={`promo-code-btn${copied ? " is-copied" : ""}`}
+              onClick={copyCode}
+              title="Apasă pentru a copia"
             >
-              {copied ? "Copiat ✓" : "CASAESY15"}
+              {copied ? "COPIAT ✓" : "CASAESY15"}
             </button>
+            &nbsp;pentru <strong>15% reducere</strong> la rezervare directă
           </span>
+          <button
+            className="promo-close"
+            onClick={() => setPromoDismissed(true)}
+            aria-label="Închide"
+          >
+            <X size={12} strokeWidth={2.5} />
+          </button>
         </div>
-      </div>
+      )}
 
-      {/* ── MAIN NAVBAR ── */}
       <header className="site-header">
         <div className="mainbar">
-          {/* LEFT */}
-          <nav className="nav-side nav-side--left">
-            <NavLink to="/" end>
-              Acasă
-            </NavLink>
-            <NavLink to="/camere">Camere</NavLink>
-            <NavLink to="/oferte">Oferte</NavLink>
-          </nav>
-
-          {/* CENTER */}
+          {/* LOGO */}
           <Link to="/" className="brand" aria-label="Vila Casa Esy">
-            <span className="brand-rule">VILA</span>
-            <span className="brand-name">
-              Casa <em>Esy</em>
-            </span>
-            <span className="brand-meta">
-              <span className="brand-stars" aria-hidden>
-                ★★★
-              </span>
-              <span>Hotel 3 stele · Mamaia</span>
-            </span>
+            <span className="brand-name">CASA ESY</span>
+            <span className="brand-sub">HOTEL 3 STELE · MAMAIA</span>
           </Link>
 
-          {/* RIGHT NAV */}
-          <nav className="nav-side nav-side--right">
+          {/* NAV LINKS */}
+          <nav className="main-nav">
+            <NavLink to="/" end>Acasă</NavLink>
+            <NavLink to="/camere">Camere</NavLink>
+            <NavLink to="/oferte">Oferte</NavLink>
             <NavLink to="/restaurant">Restaurant</NavLink>
             <NavLink to="/evenimente-private">Evenimente</NavLink>
             <NavLink to="/contact">Contact</NavLink>
           </nav>
 
-          {/* TOOLS — own grid cell */}
+          {/* TOOLS + CTA */}
           <div className="nav-tools">
-            {/* Language */}
             <div className="lang-selector" ref={langRef}>
               <button
-                className="icon-btn"
-                onClick={() => {
-                  setLangOpen((v) => !v);
-                  setAcctOpen(false);
-                }}
+                className="tool-btn"
+                onClick={() => { setLangOpen((v) => !v); setAcctOpen(false); }}
                 aria-haspopup="true"
                 aria-expanded={langOpen}
                 aria-label="Schimbă limba"
               >
-                <Globe size={16} strokeWidth={1.8} />
-                <span className="icon-btn-label">{lang}</span>
+                <Globe size={15} strokeWidth={1.8} />
+                <span className="tool-btn-label">{lang}</span>
                 <ChevronDown
-                  size={12}
-                  className={`arrow ${langOpen ? "open" : ""}`}
+                  size={11}
+                  className={`arrow${langOpen ? " open" : ""}`}
                 />
               </button>
               {langOpen && (
-                <ul className="menu-pop" role="menu">
+                <ul className="dropdown-menu" role="menu">
                   {LANGS.map((l) => (
                     <li
                       key={l.code}
                       role="menuitem"
                       className={l.code === lang ? "is-active" : ""}
-                      onClick={() => {
-                        setLang(l.code);
-                        setLangOpen(false);
-                      }}
+                      onClick={() => { setLang(l.code); setLangOpen(false); }}
                     >
-                      <span className="menu-code">{l.code}</span>
-                      <span className="menu-label">{l.label}</span>
+                      <span className="d-code">{l.code}</span>
+                      <span className="d-label">{l.label}</span>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
 
-            {/* Account */}
             <div className="acct-selector" ref={acctRef}>
               <button
-                className="icon-btn icon-btn--circle"
-                onClick={() => {
-                  setAcctOpen((v) => !v);
-                  setLangOpen(false);
-                }}
+                className="tool-btn tool-btn--icon"
+                onClick={() => { setAcctOpen((v) => !v); setLangOpen(false); }}
                 aria-haspopup="true"
                 aria-expanded={acctOpen}
                 aria-label="Cont utilizator"
               >
-                <UserRound size={18} strokeWidth={1.8} />
+                <UserRound size={17} strokeWidth={1.8} />
               </button>
               {acctOpen && (
-                <div className="menu-pop menu-pop--card" role="menu">
-                  <div className="acct-head">
-                    <p className="acct-title">Bun venit la Casa Esy</p>
-                    <p className="acct-sub">
-                      Intră în cont pentru a-ți gestiona rezervările.
-                    </p>
-                  </div>
+                <div className="dropdown-card" role="menu">
+                  <p className="dc-title">Bun venit la Casa Esy</p>
+                  <p className="dc-sub">
+                    Intră în cont pentru a-ți gestiona rezervările.
+                  </p>
                   <Link
                     to="/login"
-                    className="acct-btn acct-btn--primary"
+                    className="dc-btn dc-btn--primary"
                     onClick={() => setAcctOpen(false)}
                   >
                     Intră în cont
                   </Link>
                   <Link
                     to="/register"
-                    className="acct-btn acct-btn--ghost"
+                    className="dc-btn dc-btn--ghost"
                     onClick={() => setAcctOpen(false)}
                   >
                     Creează cont nou
@@ -170,6 +145,10 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+
+            <Link to="/register" className="cta-btn">
+              Rezervă Acum
+            </Link>
           </div>
         </div>
       </header>
