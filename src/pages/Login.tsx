@@ -48,7 +48,7 @@ export default function Login() {
     setResetMessage("");
     try {
       // Ajustează acest endpoint cu cel real din backend-ul tău FastAPI
-      const res = await fetch("http://127.0.0.1:8000/auth/forgot-password", {
+      await fetch("http://127.0.0.1:8000/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resetEmail }),
