@@ -23,7 +23,7 @@
   /* Fonturi */
   --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-body:
-    "Albert Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   /* Forme și spațieri */
   --radius-sm: 4px;
@@ -38,7 +38,7 @@
   --easing-pop: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Dimensiuni Navbar */
-  --nav-height: 84px;
+  --nav-height: 68px;
   --topbar-height: 38px;
 }
 
@@ -209,94 +209,91 @@ button {
 .brand {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: center;
+  gap: 1px;
   flex-shrink: 0;
-  margin-right: 52px;
+  margin-right: 48px;
   text-decoration: none;
+}
+
+.brand-stars {
+  font-size: 8.5px;
+  letter-spacing: 0.55em;
+  color: var(--color-accent);
+  line-height: 1;
+  padding-left: 0.55em;
 }
 
 .brand-name {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 600;
-  line-height: 1;
-  letter-spacing: 0.18em;
-  color: var(--color-primary-deep);
-  transition: color 0.2s var(--easing);
+  line-height: 1.1;
+  letter-spacing: 0.2em;
+  color: var(--color-accent);
+  transition: opacity 0.2s var(--easing);
 }
 
 .brand:hover .brand-name {
-  color: var(--color-accent);
-}
-
-.brand-stars {
-  font-size: 9px;
-  letter-spacing: 0.5em;
-  color: var(--color-accent);
-  line-height: 1;
-  padding-left: 2px;
+  opacity: 0.8;
 }
 
 .brand-sub {
-  font-size: 8.5px;
-  font-weight: 500;
-  letter-spacing: 0.32em;
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--color-muted);
-  padding-left: 1px;
 }
 
 /* ── MAIN NAV ── */
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
   flex: 1;
 }
 
 .main-nav a {
   position: relative;
+  font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--color-ink-soft);
-  padding-bottom: 4px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0;
+  color: #3c4043;
+  padding-bottom: 3px;
   white-space: nowrap;
-  transition: color 0.22s var(--easing);
+  transition: color 0.2s var(--easing);
 }
 
 .main-nav a::after {
   content: "";
   position: absolute;
-  left: 50%;
+  left: 0;
   bottom: 0;
   width: 0;
-  height: 1.5px;
+  height: 2px;
   background: var(--color-accent);
   border-radius: 2px;
-  transition:
-    width 0.28s var(--easing),
-    left 0.28s var(--easing);
+  transition: width 0.25s var(--easing);
 }
 
 .main-nav a:hover {
-  color: var(--color-primary-deep);
+  color: #1a1a1a;
 }
 
 .main-nav a:hover::after {
   width: 100%;
-  left: 0;
 }
 
 .main-nav a.active {
-  color: var(--color-primary-deep);
-  font-weight: 600;
+  color: var(--color-accent);
+  font-weight: 400;
 }
 
 .main-nav a.active::after {
   width: 100%;
-  left: 0;
 }
 
 /* ── NAV TOOLS ── */
@@ -315,34 +312,36 @@ button {
 .tool-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 7px 10px;
+  gap: 4px;
+  padding: 6px 8px;
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
-  color: var(--color-ink-soft);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  color: #3c4043;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0;
   cursor: pointer;
   transition:
-    background 0.2s var(--easing),
-    color 0.2s var(--easing);
+    background 0.18s var(--easing),
+    color 0.18s var(--easing);
 }
 
 .tool-btn:hover {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-deep);
+  background: rgba(0, 0, 0, 0.04);
+  color: #1a1a1a;
 }
 
 .tool-btn-label {
-  font-weight: 700;
-  font-size: 11.5px;
-  letter-spacing: 0.1em;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0;
 }
 
 .tool-btn .arrow {
-  color: var(--color-muted);
+  color: #5f6368;
   transition: transform 0.22s var(--easing);
 }
 
@@ -356,14 +355,14 @@ button {
   padding: 0;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px solid var(--color-line);
-  color: var(--color-ink-soft);
+  border: 1.5px solid #dadce0;
+  color: #5f6368;
 }
 
 .tool-btn--icon:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary-deep);
-  background: var(--color-primary-soft);
+  border-color: #bdc1c6;
+  color: #3c4043;
+  background: rgba(0, 0, 0, 0.04);
 }
 
 /* ── DROPDOWNS ── */
@@ -526,21 +525,23 @@ button {
   display: inline-flex;
   align-items: center;
   padding: 10px 22px;
-  margin-left: 12px;
+  margin-left: 10px;
   background: var(--color-accent);
-  color: var(--color-primary-deep);
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  border-radius: 3px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.01em;
+  border-radius: 6px;
   white-space: nowrap;
   text-decoration: none;
   position: relative;
   overflow: hidden;
   transition:
-    background 0.25s var(--easing),
-    transform 0.25s var(--easing),
-    box-shadow 0.25s var(--easing);
+    background 0.22s var(--easing),
+    transform 0.22s var(--easing),
+    box-shadow 0.22s var(--easing);
 }
 
 /* shimmer sweep effect */
@@ -554,17 +555,17 @@ button {
   background: linear-gradient(
     120deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.25) 50%,
     transparent 100%
   );
   transform: skewX(-20deg);
-  transition: left 0.6s var(--easing);
+  transition: left 0.55s var(--easing);
 }
 
 .cta-btn:hover {
-  background: #d4aa50;
+  background: #b8882e;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(198, 154, 63, 0.38);
+  box-shadow: 0 4px 16px rgba(198, 154, 63, 0.35);
 }
 
 .cta-btn:hover::after {
@@ -575,12 +576,11 @@ button {
 @media (max-width: 1100px) {
   .mainbar { padding: 0 24px; }
   .brand { margin-right: 32px; }
-  .main-nav { gap: 22px; }
+  .main-nav { gap: 20px; }
 }
 
 @media (max-width: 920px) {
-  .main-nav { gap: 16px; }
-  .main-nav a { font-size: 12px; }
+  .main-nav { gap: 14px; }
 }
 
 @media (max-width: 768px) {
