@@ -14,6 +14,7 @@ export default function Navbar() {
   const [acctOpen, setAcctOpen] = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const langRef = useRef<HTMLDivElement>(null);
   const acctRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,12 @@ export default function Navbar() {
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const copyCode = () => {
@@ -60,12 +67,15 @@ export default function Navbar() {
         </div>
       )}
 
-      <header className="site-header">
+      <header className={`site-header${scrolled ? " is-scrolled" : ""}`}>
         <div className="mainbar">
           {/* LOGO */}
           <Link to="/" className="brand" aria-label="Vila Casa Esy">
             <span className="brand-name">CASA ESY</span>
-            <span className="brand-sub">HOTEL 3 STELE · MAMAIA</span>
+            <span className="brand-stars" aria-label="3 stele">
+              ★ ★ ★
+            </span>
+            <span className="brand-sub">HOTEL · MAMAIA</span>
           </Link>
 
           {/* NAV LINKS */}
