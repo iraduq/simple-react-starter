@@ -775,46 +775,49 @@ button {
 }
 
 .btn {
-  padding: 15px 40px;
-  border-radius: var(--radius-sm);
+  padding: 16px 36px;
+  border-radius: var(--radius-md);
   font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  gap: 8px; /* Spațiu pentru iconiță */
+  gap: 10px;
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
-/* Butonul principal (Auriu) - Cel care aduce banii (Rezervări) */
+/* Butonul principal — identic cu .btn-auth-submit (navy → gold) */
 .btn-primary {
-  background-color: var(--color-accent);
-  color: var(--color-ink); /* Text bleumarin */
-  border: 1px solid var(--color-accent);
-  box-shadow: 0 4px 15px rgba(198, 154, 63, 0.25);
+  background: var(--color-primary-deep);
+  color: #ffffff;
+  border-color: var(--color-primary-deep);
+  box-shadow: 0 4px 15px rgba(13, 44, 92, 0.18);
 }
 
 .btn-primary:hover {
-  background-color: transparent;
-  color: var(--color-accent);
-  box-shadow: 0 8px 25px rgba(198, 154, 63, 0.4);
-  transform: translateY(-2px); /* Se ridică finuț la hover */
+  background: var(--color-accent);
+  color: var(--color-primary-deep);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(198, 154, 63, 0.3);
 }
 
 /* Butonul secundar (Ghost) - Pentru navigare */
 .btn-ghost {
   background-color: transparent;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .btn-ghost:hover {
   border-color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
 }
 
@@ -849,12 +852,13 @@ button {
 }
 
 .section-eyebrow {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.1rem;
-  color: var(--color-primary);
-  margin: 0 0 8px;
-  letter-spacing: 0.02em;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 14px;
 }
 
 .section-title {
