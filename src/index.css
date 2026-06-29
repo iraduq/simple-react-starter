@@ -1198,138 +1198,302 @@ button {
   margin-bottom: 64px;
 }
 
-.exp-cards-track {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 16px;
+/* ==========================================================
+   Avant-garde mosaic (Plajă · Nautice · Spa · Gastro · Apus)
+   ========================================================== */
+
+.exp-mosaic {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 240px;
+  gap: 22px;
 }
 
-.exp-card {
-  flex: 0 0 210px;
-  border-radius: 16px;
+.exp-tile {
+  position: relative;
   overflow: hidden;
-  position: relative;
   cursor: pointer;
+  background: var(--color-primary-deep);
+  isolation: isolate;
   box-shadow:
-    0 2px 8px rgba(13, 44, 92, 0.06),
-    0 8px 28px rgba(13, 44, 92, 0.10);
-  transition:
-    transform 0.4s var(--easing-pop),
-    box-shadow 0.4s var(--easing);
+    0 1px 2px rgba(7, 18, 40, 0.06),
+    0 18px 48px -18px rgba(7, 18, 40, 0.28);
+  transition: transform 0.6s var(--easing), box-shadow 0.6s var(--easing);
 }
 
-.exp-card:hover {
-  transform: translateY(-10px);
+.exp-tile:hover {
+  transform: translateY(-4px);
   box-shadow:
-    0 4px 12px rgba(13, 44, 92, 0.08),
-    0 24px 56px rgba(13, 44, 92, 0.20);
+    0 2px 4px rgba(7, 18, 40, 0.10),
+    0 32px 68px -22px rgba(7, 18, 40, 0.45);
 }
 
-.exp-card--center {
-  flex: 0 0 248px;
-  box-shadow:
-    0 4px 12px rgba(13, 44, 92, 0.08),
-    0 12px 40px rgba(13, 44, 92, 0.14);
-}
-
-.exp-card-img-wrap {
-  width: 100%;
-  height: 380px;
-  position: relative;
-}
-
-.exp-card--center .exp-card-img-wrap {
-  height: 460px;
-}
-
-.exp-card-img-wrap img {
+.exp-tile > img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.6s var(--easing);
+  transform: scale(1.06);
+  transition: transform 1.2s var(--easing), filter 0.6s var(--easing);
 }
 
-.exp-card:hover .exp-card-img-wrap img {
-  transform: scale(1.05);
+.exp-tile:hover > img {
+  transform: scale(1.0);
 }
 
-.exp-card-overlay {
+/* Shapes */
+.exp-tile--arch {
+  grid-column: span 4;
+  grid-row: span 2;
+  border-radius: 999px 999px 8px 8px;
+}
+
+.exp-tile--rect {
+  grid-column: span 4;
+  grid-row: span 1;
+  border-radius: 18px;
+}
+.exp-tile--rect > img { opacity: 0.55; transition: opacity 0.7s var(--easing), transform 1.2s var(--easing); }
+.exp-tile--rect:hover > img { opacity: 0.4; }
+
+.exp-tile--circle {
+  grid-column: span 4;
+  grid-row: span 1;
+  border-radius: 999px;
+  border: 4px solid #fdfcf9;
+  box-shadow:
+    0 2px 6px rgba(7, 18, 40, 0.08),
+    0 26px 60px -18px rgba(7, 18, 40, 0.35);
+}
+
+.exp-tile--wave {
+  grid-column: span 5;
+  grid-row: span 1;
+  border-radius: 80px 20px 80px 20px;
+}
+
+.exp-tile--arch-down {
+  grid-column: span 3;
+  grid-row: span 1;
+  border-radius: 8px 8px 999px 999px;
+}
+
+/* Gradients */
+.exp-tile-grad {
   position: absolute;
   inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.exp-tile-grad--bottom {
   background: linear-gradient(
     to top,
-    rgba(5, 14, 36, 0.88) 0%,
-    rgba(5, 14, 36, 0.22) 42%,
-    transparent 68%
+    rgba(7, 18, 40, 0.85) 0%,
+    rgba(7, 18, 40, 0.25) 45%,
+    transparent 70%
   );
 }
+.exp-tile-grad--top {
+  background: linear-gradient(
+    to bottom,
+    rgba(7, 18, 40, 0.55) 0%,
+    rgba(7, 18, 40, 0.05) 55%,
+    transparent 80%
+  );
+}
+.exp-tile-grad--solid {
+  background: linear-gradient(180deg, rgba(7,18,40,0.35), rgba(7,18,40,0.65));
+}
+.exp-tile-grad--soft {
+  background: rgba(7, 18, 40, 0.18);
+  transition: background 0.5s var(--easing);
+}
+.exp-tile--circle:hover .exp-tile-grad--soft { background: rgba(7,18,40,0); }
 
-.exp-card-label {
+/* Captions */
+.exp-tile-caption {
   position: absolute;
-  bottom: 0;
+  z-index: 2;
+  color: #fff;
+  font-family: var(--font-body);
+}
+.exp-tile-caption h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 2vw, 2.1rem);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+.exp-tile-caption p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 10px 0 0;
+  max-width: 32ch;
+}
+
+.exp-tile-caption--bottom {
   left: 0;
   right: 0;
-  padding: 0 22px 26px;
+  bottom: 36px;
+  text-align: center;
+  padding: 0 28px;
+}
+.exp-tile--wave .exp-tile-caption--bottom {
+  text-align: left;
+  bottom: 32px;
+  padding: 0 44px;
+}
+.exp-tile--wave .exp-tile-caption p { margin-inline: 0; }
+
+.exp-tile-caption--top {
+  left: 0;
+  right: 0;
+  top: 40px;
+  text-align: center;
+  padding: 0 22px;
+}
+
+.exp-tile-caption--center {
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
 }
 
-/* Gold separator animates in on hover */
-.exp-card-separator {
+.exp-tile-num {
   display: block;
-  width: 28px;
-  height: 1.5px;
-  background: var(--color-accent);
-  margin-bottom: 10px;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.32s var(--easing-pop);
-}
-
-.exp-card:hover .exp-card-separator {
-  transform: scaleX(1);
-}
-
-.exp-card-title {
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  color: #fff;
-}
-
-.exp-card-desc {
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  margin-top: 6px;
-  transition: color 0.28s var(--easing);
-}
-
-.exp-card:hover .exp-card-desc {
   color: var(--color-accent);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
 }
 
-@media (max-width: 860px) {
-  .exp-categories { padding: 72px 24px 60px; }
-  .exp-cards-track {
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding-bottom: 16px;
-    gap: 12px;
-    scrollbar-width: none;
+.exp-tile-meta {
+  display: inline-block;
+  margin-top: 14px;
+  color: var(--color-accent);
+  font-size: 10.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.exp-tile-rule {
+  display: block;
+  width: 0;
+  height: 1px;
+  background: var(--color-accent);
+  margin: 14px auto 0;
+  transition: width 0.5s var(--easing-pop);
+}
+.exp-tile--rect:hover .exp-tile-rule { width: 64px; }
+
+/* Medallion for Spa circle */
+.exp-tile-medallion {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  margin: auto;
+  width: 200px;
+  height: 200px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  transform: scale(0.85);
+  opacity: 0;
+  transition: transform 0.5s var(--easing-pop), opacity 0.4s var(--easing);
+}
+.exp-tile--circle:hover .exp-tile-medallion {
+  transform: scale(1);
+  opacity: 1;
+}
+.exp-tile-medallion h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.4rem;
+  color: var(--color-primary-deep);
+  margin: 0;
+  line-height: 1.15;
+}
+.exp-tile-medallion span {
+  display: block;
+  margin-top: 10px;
+  color: var(--color-accent);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* Footer CTA */
+.exp-footer-cta {
+  margin-top: 72px;
+  text-align: center;
+}
+.exp-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  color: var(--color-primary-deep);
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.exp-cta-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid rgba(7, 18, 40, 0.15);
+  font-size: 16px;
+  transition: background 0.3s var(--easing), color 0.3s var(--easing), border-color 0.3s var(--easing), transform 0.3s var(--easing);
+}
+.exp-cta-link:hover .exp-cta-arrow {
+  background: var(--color-primary-deep);
+  color: #fff;
+  border-color: var(--color-primary-deep);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .exp-mosaic { grid-auto-rows: 200px; gap: 16px; }
+}
+
+@media (max-width: 760px) {
+  .exp-categories { padding: 72px 20px 60px; }
+  .exp-mosaic {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 280px;
+    gap: 18px;
   }
-  .exp-cards-track::-webkit-scrollbar { display: none; }
-  .exp-card { flex: 0 0 170px; }
-  .exp-card--center { flex: 0 0 200px; }
-  .exp-card-img-wrap { height: 300px; }
-  .exp-card--center .exp-card-img-wrap { height: 360px; }
+  .exp-tile--arch,
+  .exp-tile--rect,
+  .exp-tile--circle,
+  .exp-tile--wave,
+  .exp-tile--arch-down {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+  .exp-tile--arch { border-radius: 200px 200px 12px 12px; }
+  .exp-tile--arch-down { border-radius: 12px 12px 200px 200px; }
+  .exp-tile--circle { aspect-ratio: 1; height: auto; border-radius: 999px; }
+  .exp-tile-medallion { width: 160px; height: 160px; opacity: 1; transform: none; }
 }
 
 /* ==========================================================================
