@@ -5,6 +5,8 @@ import {
   Outlet,
 } from "react-router-dom";
 
+// Importă componenta nouă (asigură-te că pui calea corectă către folderul tău)
+import LoadingScreen from "./components/LoadingScreen";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -24,23 +26,29 @@ const MainLayout = () => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* ==========================================
-            RUTE FĂRĂ NAVBAR (Paginile de Autentificare)
-            ========================================== */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <>
+      {/* Ecranul de încărcare stă la cel mai înalt nivel. 
+         <LoadingScreen />
+      */}
 
-        {/* ==========================================
-            RUTE CU NAVBAR (Grupate sub MainLayout)
-            ========================================== */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-        </Route>
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          {/* ==========================================
+              RUTE FĂRĂ NAVBAR (Paginile de Autentificare)
+              ========================================== */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* ==========================================
+              RUTE CU NAVBAR (Grupate sub MainLayout)
+              ========================================== */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+        </Routes>
+      </Router>
+    </>
   );
 }
 

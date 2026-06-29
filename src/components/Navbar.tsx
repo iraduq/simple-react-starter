@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { ChevronDown, Globe, UserRound, X } from "lucide-react";
+import { ChevronDown, CircleUser, X, Sparkles, Key } from "lucide-react";
 
 const LANGS = [
-  { code: "RO", label: "Română" },
-  { code: "EN", label: "English" },
-  { code: "DE", label: "Deutsch" },
+  { code: "RO", label: "Română", flagUrl: "https://flagcdn.com/w20/ro.png" },
+  { code: "EN", label: "English", flagUrl: "https://flagcdn.com/w20/gb.png" },
+  { code: "DE", label: "Deutsch", flagUrl: "https://flagcdn.com/w20/de.png" },
 ];
 
 export default function Navbar() {
@@ -42,12 +42,18 @@ export default function Navbar() {
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const activeLang = LANGS.find((l) => l.code === lang) || LANGS[0];
+
   return (
     <>
       {!promoDismissed && (
         <div className="promo-strip">
-          <span className="promo-strip-text">
-            Ofertă specială — cod&nbsp;
+          <div className="promo-strip-content">
+            <span className="promo-highlight">
+              <Sparkles size={14} className="promo-icon" />
+              OFERTĂ SPECIALĂ
+            </span>
+
             <button
               className={`promo-code-btn${copied ? " is-copied" : ""}`}
               onClick={copyCode}
@@ -55,14 +61,19 @@ export default function Navbar() {
             >
               {copied ? "COPIAT ✓" : "CASAESY15"}
             </button>
-            &nbsp;pentru <strong>15% reducere</strong> la rezervare directă
-          </span>
+
+            <span className="promo-text">
+              pentru <strong>15% reducere</strong> la rezervare directă
+              <Key size={14} className="promo-icon" />
+            </span>
+          </div>
+
           <button
             className="promo-close"
             onClick={() => setPromoDismissed(true)}
             aria-label="Închide"
           >
-            <X size={12} strokeWidth={2.5} />
+            <X size={16} strokeWidth={2} />
           </button>
         </div>
       )}
@@ -71,16 +82,18 @@ export default function Navbar() {
         <div className="mainbar">
           {/* LOGO */}
           <Link to="/" className="brand" aria-label="Vila Casa Esy">
-            <span className="brand-name">CASA ESY</span>
             <span className="brand-stars" aria-label="3 stele">
               ★ ★ ★
             </span>
+            <span className="brand-name">CASA ESY</span>
             <span className="brand-sub">HOTEL · MAMAIA</span>
           </Link>
 
           {/* NAV LINKS */}
           <nav className="main-nav">
-            <NavLink to="/" end>Acasă</NavLink>
+            <NavLink to="/" end>
+              Acasă
+            </NavLink>
             <NavLink to="/camere">Camere</NavLink>
             <NavLink to="/oferte">Oferte</NavLink>
             <NavLink to="/restaurant">Restaurant</NavLink>
@@ -93,15 +106,22 @@ export default function Navbar() {
             <div className="lang-selector" ref={langRef}>
               <button
                 className="tool-btn"
-                onClick={() => { setLangOpen((v) => !v); setAcctOpen(false); }}
+                onClick={() => {
+                  setLangOpen((v) => !v);
+                  setAcctOpen(false);
+                }}
                 aria-haspopup="true"
                 aria-expanded={langOpen}
                 aria-label="Schimbă limba"
               >
-                <Globe size={15} strokeWidth={1.8} />
+                <img
+                  src={activeLang.flagUrl}
+                  alt="flag"
+                  className="tool-btn-flag"
+                />
                 <span className="tool-btn-label">{lang}</span>
                 <ChevronDown
-                  size={11}
+                  size={14}
                   className={`arrow${langOpen ? " open" : ""}`}
                 />
               </button>
@@ -112,8 +132,16 @@ export default function Navbar() {
                       key={l.code}
                       role="menuitem"
                       className={l.code === lang ? "is-active" : ""}
-                      onClick={() => { setLang(l.code); setLangOpen(false); }}
+                      onClick={() => {
+                        setLang(l.code);
+                        setLangOpen(false);
+                      }}
                     >
+                      <img
+                        src={l.flagUrl}
+                        alt={`${l.code} flag`}
+                        className="d-flag"
+                      />
                       <span className="d-code">{l.code}</span>
                       <span className="d-label">{l.label}</span>
                     </li>
@@ -125,12 +153,15 @@ export default function Navbar() {
             <div className="acct-selector" ref={acctRef}>
               <button
                 className="tool-btn tool-btn--icon"
-                onClick={() => { setAcctOpen((v) => !v); setLangOpen(false); }}
+                onClick={() => {
+                  setAcctOpen((v) => !v);
+                  setLangOpen(false);
+                }}
                 aria-haspopup="true"
                 aria-expanded={acctOpen}
                 aria-label="Cont utilizator"
               >
-                <UserRound size={17} strokeWidth={1.8} />
+                <CircleUser size={22} strokeWidth={1.5} />
               </button>
               {acctOpen && (
                 <div className="dropdown-card" role="menu">

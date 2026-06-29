@@ -1,29 +1,31 @@
 /* ==========================================================================
    ------------------------------ GLOBALS -----------------------------------
    ========================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
 :root {
   /* Paleta de culori */
   --color-bg: #f4f7fb;
   --color-surface: #ffffff;
-  --color-ink: #0f1e36;
-  --color-ink-soft: #4a5b73;
   --color-muted: #8595aa;
+
+  --color-accent: #c69a3f;
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #3c4043;
   --color-line: #e1e8f0;
 
   --color-primary: #1e4d8c; /* Albastru regal */
   --color-primary-deep: #0d2c5c; /* Albastru închis (folosit la Topbar) */
   --color-primary-soft: #e6efff;
 
-  --color-accent: #c69a3f; /* Auriu cald (folosit la stele și linii) */
   --color-accent-soft: #f3e6c4;
   --color-star: #d4a437;
   --color-on-primary: #ffffff;
 
-  /* Fonturi */
   --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
-  --font-body:
-    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: "Google Sans", "Plus Jakarta Sans", -apple-system, sans-serif;
+
+  --nav-height: 80px; /* Ușor mai înalt pentru a respira conform imaginii */
 
   /* Forme și spațieri */
   --radius-sm: 4px;
@@ -37,8 +39,6 @@
   --easing: cubic-bezier(0.2, 0.7, 0.2, 1);
   --easing-pop: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Dimensiuni Navbar */
-  --nav-height: 68px;
   --topbar-height: 38px;
 }
 
@@ -79,59 +79,77 @@ button {
 /* ── PROMO STRIP ── */
 .promo-strip {
   background: var(--color-primary-deep);
-  border-bottom: 1px solid rgba(198, 154, 63, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 9px 48px;
+  padding: 10px 48px;
   position: relative;
 }
 
-.promo-strip-text {
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.7);
+.promo-strip-content {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 16px; /* Distanța dintre text, buton și cheie */
   flex-wrap: wrap;
   justify-content: center;
 }
 
-.promo-strip-text strong {
-  color: var(--color-accent);
-  font-weight: 600;
+.promo-highlight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #ffffff; /* Textul alb */
+}
+
+.promo-icon {
+  color: var(--color-accent); /* Iconițele aurii (Sclipiri și Cheie) */
 }
 
 .promo-code-btn {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--color-accent);
-  background: rgba(198, 154, 63, 0.1);
-  border: 1px dashed rgba(198, 154, 63, 0.5);
-  border-radius: 3px;
-  padding: 2px 10px;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.08
+  ); /* Fundalul ușor transparent din buton */
+  border: 1.5px dashed var(--color-accent); /* Bordura punctată aurie */
+  border-radius: 4px;
+  padding: 5px 14px;
   cursor: pointer;
-  transition:
-    background 0.2s var(--easing),
-    color 0.2s var(--easing),
-    border-color 0.2s var(--easing);
+  transition: all 0.2s var(--easing);
 }
 
 .promo-code-btn:hover {
-  background: var(--color-accent);
-  color: var(--color-primary-deep);
-  border-color: var(--color-accent);
-  border-style: solid;
+  background: rgba(198, 154, 63, 0.15); /* Se aprinde auriu fin la hover */
 }
 
 .promo-code-btn.is-copied {
   background: #16a34a;
-  color: #fff;
   border-color: #16a34a;
   border-style: solid;
+  color: #fff;
+}
+
+.promo-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: #e2e8f0; /* Un gri extrem de deschis / aproape alb */
+}
+
+.promo-text strong {
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .promo-close {
@@ -139,7 +157,7 @@ button {
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   padding: 4px;
   line-height: 1;
@@ -147,23 +165,16 @@ button {
 }
 
 .promo-close:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
 }
 
-/* ── SITE HEADER ── */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
   background: #ffffff;
   border-bottom: 1px solid var(--color-line);
-  box-shadow:
-    0 1px 0 rgba(198, 154, 63, 0.12),
-    0 2px 12px rgba(13, 44, 92, 0.04);
-  transition:
-    box-shadow 0.35s var(--easing),
-    background 0.35s var(--easing),
-    border-color 0.35s var(--easing);
+  /* Fără border top gradient pe header dacă nu e dorit, îl păstrăm curat */
 }
 
 /* Gold accent line at very top */
@@ -192,46 +203,42 @@ button {
   border-color: rgba(198, 154, 63, 0.2);
   box-shadow:
     0 1px 0 rgba(198, 154, 63, 0.18),
-    0 8px 32px rgba(13, 44, 92, 0.10),
+    0 8px 32px rgba(13, 44, 92, 0.1),
     0 2px 8px rgba(13, 44, 92, 0.06);
 }
 
 .mainbar {
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
   height: var(--nav-height);
   padding: 0 40px;
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Asigură un layout uniform */
 }
 
-/* ── BRAND / LOGO ── */
 .brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  flex-shrink: 0;
-  margin-right: 48px;
+  gap: 2px;
   text-decoration: none;
 }
 
 .brand-stars {
-  font-size: 8.5px;
-  letter-spacing: 0.55em;
+  font-size: 12px;
+  letter-spacing: 0.3em;
   color: var(--color-accent);
   line-height: 1;
-  padding-left: 0.55em;
 }
 
 .brand-name {
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: 0.2em;
-  color: var(--color-accent);
-  transition: opacity 0.2s var(--easing);
+  line-height: 1;
+  letter-spacing: 0.05em;
+  color: var(--color-ink);
 }
 
 .brand:hover .brand-name {
@@ -239,31 +246,27 @@ button {
 }
 
 .brand-sub {
-  font-size: 8px;
-  font-weight: 400;
-  letter-spacing: 0.3em;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: #6b7280;
+  margin-top: 1px;
 }
-
-/* ── MAIN NAV ── */
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 28px;
-  flex: 1;
+  gap: 32px;
 }
 
 .main-nav a {
   position: relative;
   font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 18px;
-  letter-spacing: 0;
-  color: #3c4043;
-  padding-bottom: 3px;
-  white-space: nowrap;
+  font-size: 16px; /* Mai mare, identic cu imaginea */
+  font-weight: 500;
+  color: var(--color-ink-soft);
+  padding: 4px 0;
+  text-decoration: none;
   transition: color 0.2s var(--easing);
 }
 
@@ -271,37 +274,62 @@ button {
   content: "";
   position: absolute;
   left: 0;
-  bottom: 0;
+  bottom: -4px; /* Spațiu între text și linie ca în design */
   width: 0;
   height: 2px;
   background: var(--color-accent);
   border-radius: 2px;
-  transition: width 0.25s var(--easing);
+  transition: width 0.3s ease;
 }
 
 .main-nav a:hover {
-  color: #1a1a1a;
+  color: var(--color-ink);
 }
 
-.main-nav a:hover::after {
-  width: 100%;
-}
-
+/* Starea activă */
 .main-nav a.active {
   color: var(--color-accent);
-  font-weight: 400;
+  font-weight: 600; /* Textul activ este puțin mai îngroșat */
 }
 
 .main-nav a.active::after {
   width: 100%;
 }
-
 /* ── NAV TOOLS ── */
 .nav-tools {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
+  gap: 16px;
+  margin-top: -2px;
+}
+
+.tool-btn-flag {
+  width: 24px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  display: block;
+  /* Secretul: îl coborâm forțat cu 1-2 pixeli ca să se alinieze optic cu textul */
+  transform: translateY(1px);
+}
+
+/* Steagul din meniul derulant */
+.d-flag {
+  font-size: 17px; /* Ușor mai mare în meniu pentru vizibilitate */
+  line-height: 1;
+  margin-right: 4px;
+}
+
+/* Dacă vrei să ajustezi spațierea generală în itemii din meniul dropdown */
+.dropdown-menu li {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Am redus gap-ul general ușor pentru a compensa prezența steagului */
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
 .lang-selector,
@@ -312,21 +340,17 @@ button {
 .tool-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 8px;
+  gap: 8px; /* Folosim gap în loc de margin pe steag, e mai curat */
+  padding: 8px 12px;
   background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  color: #3c4043;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 18px;
-  letter-spacing: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
   cursor: pointer;
-  transition:
-    background 0.18s var(--easing),
-    color 0.18s var(--easing);
+  transition: all 0.2s ease;
+}
+
+.tool-btn[aria-expanded="true"] {
+  border-color: var(--color-ink); /* Caseta neagră din jurul "RO" */
 }
 
 .tool-btn:hover {
@@ -335,14 +359,14 @@ button {
 }
 
 .tool-btn-label {
+  font-size: 15px;
   font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0;
 }
 
 .tool-btn .arrow {
-  color: #5f6368;
-  transition: transform 0.22s var(--easing);
+  color: var(--color-ink);
+  margin-top: 2px;
+  transition: transform 0.2s ease;
 }
 
 .tool-btn .arrow.open {
@@ -350,25 +374,25 @@ button {
 }
 
 .tool-btn--icon {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1.5px solid #dadce0;
-  color: #5f6368;
+  padding: 6px; /* Iconița de cont ajustată pentru a fi vizual la același nivel */
+  color: var(--color-ink);
 }
 
 .tool-btn--icon:hover {
-  border-color: #bdc1c6;
-  color: #3c4043;
-  background: rgba(0, 0, 0, 0.04);
+  opacity: 0.8;
+  background: transparent;
 }
 
 /* ── DROPDOWNS ── */
 @keyframes pop-in {
-  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .dropdown-menu {
@@ -524,24 +548,23 @@ button {
 .cta-btn {
   display: inline-flex;
   align-items: center;
-  padding: 10px 22px;
-  margin-left: 10px;
+  padding: 12px 24px;
+  margin-left: 8px;
   background: var(--color-accent);
   color: #ffffff;
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 500;
-  line-height: 18px;
-  letter-spacing: 0.01em;
-  border-radius: 6px;
-  white-space: nowrap;
+  border-radius: 4px; /* Puțin mai pătrățos, conform stilului hotelier clasic */
   text-decoration: none;
-  position: relative;
-  overflow: hidden;
   transition:
-    background 0.22s var(--easing),
-    transform 0.22s var(--easing),
-    box-shadow 0.22s var(--easing);
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.cta-btn:hover {
+  background: #b58933; /* Un auriu ușor mai închis la hover */
+  transform: translateY(-1px);
 }
 
 /* shimmer sweep effect */
@@ -562,32 +585,42 @@ button {
   transition: left 0.55s var(--easing);
 }
 
-.cta-btn:hover {
-  background: #b8882e;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(198, 154, 63, 0.35);
-}
-
 .cta-btn:hover::after {
   left: 150%;
 }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1100px) {
-  .mainbar { padding: 0 24px; }
-  .brand { margin-right: 32px; }
-  .main-nav { gap: 20px; }
+  .mainbar {
+    padding: 0 24px;
+  }
+  .brand {
+    margin-right: 32px;
+  }
+  .main-nav {
+    gap: 20px;
+  }
 }
 
 @media (max-width: 920px) {
-  .main-nav { gap: 14px; }
+  .main-nav {
+    gap: 14px;
+  }
 }
 
 @media (max-width: 768px) {
-  .main-nav { display: none; }
-  .mainbar { padding: 0 18px; }
-  .brand { margin-right: 0; }
-  .promo-strip { padding: 8px 40px 8px 16px; }
+  .main-nav {
+    display: none;
+  }
+  .mainbar {
+    padding: 0 18px;
+  }
+  .brand {
+    margin-right: 0;
+  }
+  .promo-strip {
+    padding: 8px 40px 8px 16px;
+  }
 }
 
 /* ==========================================================================
@@ -2521,4 +2554,316 @@ button {
 
 .password-toggle-btn:hover {
   color: var(--color-primary);
+}
+
+/* ==========================================================================
+   ---------------------------- LOADING SCREEN ------------------------------
+   ========================================================================== */
+
+/* ── CONTAINERUL PRINCIPAL ── */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  /* Un gradient radial foarte fin, de la un albastru mai deschis în centru la cel închis pe margini */
+  background: radial-gradient(
+    circle at center,
+    #113263 0%,
+    var(--color-primary-deep) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Efectul de ieșire (când dispare) - Face un mic zoom IN ca și cum intri în site */
+.loading-screen.fade-out {
+  opacity: 0;
+  transform: scale(1.1);
+  pointer-events: none;
+}
+
+/* ── ELEMENTE DE FUNDAL ── */
+.ls-ambient-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(198, 154, 63, 0.15) 0%,
+    transparent 60%
+  );
+  animation: pulseGlow 4s ease-in-out infinite alternate;
+}
+
+.ls-bg-pattern {
+  position: absolute;
+  width: 140vw; /* Foarte mare ca să acopere ecranul */
+  max-width: 1200px;
+  height: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spinPattern 40s linear infinite; /* Se rotește foarte încet și maiestuos */
+}
+
+/* ── PRAFUL DE AUR (PARTICULE) ── */
+.ls-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ls-particle {
+  position: absolute;
+  bottom: -20px;
+  width: 3px;
+  height: 3px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px 2px rgba(198, 154, 63, 0.6);
+  opacity: 0;
+  animation: floatUp 3s ease-in infinite;
+}
+
+/* Distribuim particulele random pe ecran */
+.ls-particle.p1 {
+  left: 20%;
+  animation-duration: 3.5s;
+  animation-delay: 0.2s;
+}
+.ls-particle.p2 {
+  left: 45%;
+  animation-duration: 4.2s;
+  animation-delay: 1.5s;
+  width: 4px;
+  height: 4px;
+}
+.ls-particle.p3 {
+  left: 75%;
+  animation-duration: 3.8s;
+  animation-delay: 0.8s;
+}
+.ls-particle.p4 {
+  left: 30%;
+  animation-duration: 4.5s;
+  animation-delay: 2.1s;
+}
+.ls-particle.p5 {
+  left: 85%;
+  animation-duration: 3.2s;
+  animation-delay: 0.5s;
+  width: 2px;
+  height: 2px;
+}
+.ls-particle.p6 {
+  left: 60%;
+  animation-duration: 4s;
+  animation-delay: 1.1s;
+}
+
+/* ── CONȚINUTUL CENTRAL ── */
+.loading-brand {
+  position: relative;
+  z-index: 2; /* Peste fundal */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-stars {
+  display: flex;
+  gap: 12px;
+  color: var(--color-accent);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.loading-stars .star {
+  display: inline-block;
+  opacity: 0;
+  transform-origin: center 45%;
+  animation-fill-mode: forwards;
+  text-shadow: 0 0 0 transparent;
+}
+
+.loading-stars .star:nth-child(1) {
+  animation: swoopInLeft 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+.loading-stars .star:nth-child(2) {
+  animation: swoopInCenter 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.35s;
+}
+
+.loading-stars .star:nth-child(3) {
+  animation: swoopInRight 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.5s;
+}
+
+.loading-name {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  color: #ffffff; /* Contrast maxim cu albastrul închis */
+  margin-top: 8px;
+  opacity: 0;
+  animation: cinematicText 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.7s;
+}
+
+.loading-sub {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.4em;
+  opacity: 0;
+  animation: cinematicTextSub 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.9s;
+}
+
+/* ==========================================================================
+   ----------------------- KEYFRAMES PENTRU MAGIE ---------------------------
+   ========================================================================== */
+
+/* Geometria se rotește infinit */
+@keyframes spinPattern {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Lumina pulsează */
+@keyframes pulseGlow {
+  from {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* Particulele zboară de jos în sus */
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(-50px) scale(1);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-300px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Animația Stelelor */
+@keyframes swoopInLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-150px, -100px) rotate(-1080deg) scale(0);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(10px, 10px) rotate(30deg) scale(1.3);
+    filter: blur(0);
+    text-shadow: 0 0 20px var(--color-accent);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    text-shadow: 0 0 12px rgba(198, 154, 63, 0.5);
+  }
+}
+
+@keyframes swoopInCenter {
+  0% {
+    opacity: 0;
+    transform: translate(0, -150px) rotate(-1080deg) scale(0);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(0, 15px) rotate(30deg) scale(1.4);
+    filter: blur(0);
+    text-shadow: 0 0 25px var(--color-accent);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    text-shadow: 0 0 15px rgba(198, 154, 63, 0.6);
+  }
+}
+
+@keyframes swoopInRight {
+  0% {
+    opacity: 0;
+    transform: translate(150px, -100px) rotate(1080deg) scale(0);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-10px, 10px) rotate(-30deg) scale(1.3);
+    filter: blur(0);
+    text-shadow: 0 0 20px var(--color-accent);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    text-shadow: 0 0 12px rgba(198, 154, 63, 0.5);
+  }
+}
+
+/* Apariția Textului */
+@keyframes cinematicText {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.5em;
+    transform: translateY(20px);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.15em;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes cinematicTextSub {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.8em;
+    transform: translateY(15px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.35em;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }
