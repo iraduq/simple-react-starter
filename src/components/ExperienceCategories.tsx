@@ -33,11 +33,12 @@ export default function ExperienceCategories() {
         <div className="section-header">
           <p className="section-eyebrow exp-eyebrow">DESCOPERĂ · MAMAIA</p>
           <h2 className="section-title exp-title">
-            Trăiește <em>Vara</em> la Intensitate Maximă
+            Experiențe care te <em>Inspiră</em>
           </h2>
+          <hr className="exp-rule" />
           <p className="exp-subtitle">
-            De la plaje cu nisip fin până la gastronomie rafinată — Casa Esy
-            este punctul tău de plecare spre cele mai frumoase experiențe ale Mării Negre.
+            De la plaje cu nisip fin la gastronomie rafinată — Casa Esy
+            este locul de unde vacanța ta ideală la Marea Neagră începe.
           </p>
         </div>
 
