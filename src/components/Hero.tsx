@@ -1,19 +1,22 @@
-import { Search } from "lucide-react";
+import { Calendar, Users, Search } from "lucide-react";
 import { useState } from "react";
 
+const today = new Date().toISOString().split("T")[0];
+
 export default function Hero() {
-  const [roomType, setRoomType] = useState("Toate");
-  const [nights, setNights] = useState("3 nopți");
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState("2");
 
   return (
     <section className="hero-home">
-      <div className="hero-overlay"></div>
+      <div className="hero-overlay" />
 
       <div className="hero-content">
         <p className="eyebrow">
-          <span className="eyebrow-line"></span>
+          <span className="eyebrow-line" />
           EXPERIENȚE DE NEUITAT LA MARE
-          <span className="eyebrow-line"></span>
+          <span className="eyebrow-line" />
         </p>
 
         <h1>
@@ -39,37 +42,56 @@ export default function Hero() {
 
       <div className="hero-search-bar">
         <div className="search-field">
-          <label>Destinație</label>
-          <div className="search-input-wrap">
-            <Search size={15} className="search-icon-inner" />
-            <input type="text" placeholder="Caută locație..." />
-          </div>
+          <label>
+            <Calendar size={11} className="search-label-icon" />
+            Check-in
+          </label>
+          <input
+            type="date"
+            value={checkIn}
+            min={today}
+            onChange={(e) => {
+              setCheckIn(e.target.value);
+              if (checkOut && e.target.value >= checkOut) setCheckOut("");
+            }}
+          />
         </div>
+
         <div className="search-divider" />
+
         <div className="search-field">
-          <label>Tip cameră</label>
-          <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
-            <option>Toate</option>
-            <option>Cameră Standard</option>
-            <option>Cameră Deluxe</option>
-            <option>Suită</option>
-            <option>Apartament</option>
+          <label>
+            <Calendar size={11} className="search-label-icon" />
+            Check-out
+          </label>
+          <input
+            type="date"
+            value={checkOut}
+            min={checkIn || today}
+            onChange={(e) => setCheckOut(e.target.value)}
+          />
+        </div>
+
+        <div className="search-divider" />
+
+        <div className="search-field search-field--narrow">
+          <label>
+            <Users size={11} className="search-label-icon" />
+            Persoane
+          </label>
+          <select value={guests} onChange={(e) => setGuests(e.target.value)}>
+            <option value="1">1 persoană</option>
+            <option value="2">2 persoane</option>
+            <option value="3">3 persoane</option>
+            <option value="4">4 persoane</option>
+            <option value="5">5 persoane</option>
+            <option value="6">6 persoane</option>
           </select>
         </div>
-        <div className="search-divider" />
-        <div className="search-field">
-          <label>Durată</label>
-          <select value={nights} onChange={(e) => setNights(e.target.value)}>
-            <option>1 noapte</option>
-            <option>2 nopți</option>
-            <option>3 nopți</option>
-            <option>5 nopți</option>
-            <option>7 nopți</option>
-          </select>
-        </div>
+
         <button className="search-btn">
-          <Search size={16} />
-          Caută
+          <Search size={15} />
+          Verifică disponibilitate
         </button>
       </div>
     </section>

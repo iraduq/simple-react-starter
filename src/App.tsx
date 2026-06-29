@@ -5,8 +5,6 @@ import {
   Outlet,
 } from "react-router-dom";
 
-// Importă componenta nouă (asigură-te că pui calea corectă către folderul tău)
-import LoadingScreen from "./components/LoadingScreen";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -27,10 +25,6 @@ const MainLayout = () => {
 function App() {
   return (
     <>
-      {/* Ecranul de încărcare stă la cel mai înalt nivel. 
-         <LoadingScreen />
-      */}
-
       <Router>
         <Routes>
           {/* ==========================================
