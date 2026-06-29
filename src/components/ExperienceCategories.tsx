@@ -53,6 +53,7 @@ export default function ExperienceCategories() {
                 <div className="exp-card-overlay" />
               </div>
               <div className="exp-card-label">
+                <span className="exp-card-separator" />
                 <span className="exp-card-title">{cat.title}</span>
                 <span className="exp-card-desc">{cat.desc}</span>
               </div>
