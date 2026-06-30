@@ -34,7 +34,7 @@ export default function Login() {
       const data = await res.json();
       if (res.ok) handleAuthSuccess(data);
       else alert(data.detail || "Eroare la autentificare.");
-    } catch (error) {
+    } catch {
       alert("A apărut o problemă de conexiune.");
     } finally {
       setIsLoading(false);
@@ -47,19 +47,16 @@ export default function Login() {
     setIsLoading(true);
     setResetMessage("");
     try {
-      // Ajustează acest endpoint cu cel real din backend-ul tău FastAPI
       await fetch("http://127.0.0.1:8000/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resetEmail }),
       });
 
-      // Afișăm un mesaj de succes (recomandat din motive de securitate să nu
-      // confirmi explicit dacă emailul există sau nu, ci să dai un mesaj generic)
       setResetMessage(
         "Dacă adresa există în sistemul nostru, vei primi un email cu instrucțiunile de resetare.",
       );
-    } catch (error) {
+    } catch {
       setResetMessage(
         "A apărut o problemă de conexiune. Te rugăm să încerci din nou.",
       );
@@ -88,32 +85,49 @@ export default function Login() {
       });
       const data = await res.json();
       if (res.ok) handleAuthSuccess(data);
-    } catch (error) {
+    } catch {
       alert("Eroare la conectarea cu Google.");
     }
   };
 
   return (
-    <div className="auth-layout">
+    <div className="flex min-h-screen bg-white font-sans max-[899px]:bg-[radial-gradient(circle_at_top_right,#e6efff,#f4f7fb)]">
       {/* --- PARTEA STÂNGĂ - Imagine & Branding --- */}
-      <div className="auth-visual">
-        <div className="auth-visual-overlay"></div>
+      <div
+        className="relative flex-[1.2] hidden min-[900px]:block bg-cover bg-center overflow-hidden"
+        style={{
+          backgroundImage:
+            "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
+        }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(13,44,92,0.4) 0%, rgba(13,44,92,0.85) 100%)",
+          }}
+        />
 
         <svg
-          className="auth-decorator-svg"
+          className="absolute bottom-0 -right-px w-[15%] h-full z-[2]"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
-          <polygon fill="var(--color-surface)" points="0,100 100,0 100,100" />
+          <polygon fill="#ffffff" points="0,100 100,0 100,100" />
         </svg>
 
-        <div className="auth-visual-content">
-          <Link to="/" className="auth-back-link">
+        <div className="relative z-[3] h-full flex flex-col justify-between p-[50px_80px_80px_50px] text-white">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.1em] text-white/80 hover:text-white transition-all duration-200 hover:-translate-x-1 self-start"
+          >
             <ArrowLeft size={16} /> Înapoi acasă
           </Link>
-          <div className="auth-visual-text">
-            <h2>Vacanța ta perfectă începe aici.</h2>
-            <p>
+          <div>
+            <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.5rem,4vw,3.5rem)] font-normal leading-[1.1] mb-5 max-w-[500px]">
+              Vacanța ta perfectă începe aici.
+            </h2>
+            <p className="text-[1.1rem] leading-[1.6] text-white/85 max-w-[450px]">
               Conectează-te pentru a-ți gestiona rezervările, a descoperi oferte
               exclusive și a planifica următoarea evadare la mare.
             </p>
@@ -122,66 +136,72 @@ export default function Login() {
       </div>
 
       {/* --- PARTEA DREAPTĂ - Formulare --- */}
-      <div className="auth-form-side">
-        <div className="auth-card-modern">
-          <Link to="/" className="auth-brand-mini">
-            <span className="brand-name">
-              Casa <em>Esy</em>
+      <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-[3] max-[899px]:bg-transparent">
+        <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_10px_40px_rgba(13,44,92,0.14)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
+          <Link
+            to="/"
+            className="flex flex-col items-center mb-10 no-underline"
+          >
+            <span className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c]">
+              Casa <em className="italic">Esy</em>
             </span>
-            <span className="brand-stars">★★★</span>
+            <span className="text-[#d4a437] text-[10px] tracking-[2px]">
+              ★★★
+            </span>
           </Link>
 
           {isForgotPasswordView ? (
-            /* ==================================================
-               VIEW: RECUPERARE PAROLĂ
-               ================================================== */
+            /* ================= VIEW: RECUPERARE PAROLĂ ================= */
             <>
-              <div className="auth-header">
-                <h1 className="auth-title">Recuperare Parolă</h1>
-                <p className="auth-subtitle">
+              <div className="text-center mb-10">
+                <h1 className="font-['Cormorant_Garamond',serif] text-[32px] text-[#1a1a1a] mb-2.5 font-medium">
+                  Recuperare Parolă
+                </h1>
+                <p className="text-[#8595aa] text-[14.5px] m-0">
                   Introdu adresa de email și îți vom trimite un link de
                   resetare.
                 </p>
               </div>
 
               {resetMessage && (
-                <div
-                  className="auth-alert"
-                  style={{
-                    backgroundColor: "#eff6ff",
-                    color: "#1e3a8a",
-                    borderColor: "#bfdbfe",
-                  }}
-                >
+                <div className="flex items-center gap-2.5 bg-blue-50 text-blue-900 border border-blue-200 px-4 py-3 rounded-[10px] text-[13.5px] font-medium mb-5">
                   <span>{resetMessage}</span>
                 </div>
               )}
 
-              <form onSubmit={handleForgotPassword} className="auth-form">
-                <div className="input-group">
-                  <Mail className="input-icon" size={18} strokeWidth={1.5} />
+              <form
+                onSubmit={handleForgotPassword}
+                className="flex flex-col gap-4"
+              >
+                <div className="relative">
+                  <Mail
+                    className="absolute left-[18px] top-1/2 -translate-y-1/2 text-[#8595aa]"
+                    size={18}
+                    strokeWidth={1.5}
+                  />
                   <input
                     type="email"
                     placeholder="Adresa de email"
                     required
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
+                    className="w-full pl-[50px] pr-[44px] py-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="btn-auth-submit"
                   disabled={isLoading}
+                  className="flex items-center justify-center gap-3 w-full py-[18px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
                 >
                   {isLoading ? "Se trimite..." : "Trimite link-ul"}
                   {!isLoading && <ArrowRight size={18} strokeWidth={2} />}
                 </button>
               </form>
 
-              <div className="auth-divider"></div>
+              <div className="flex items-center text-center my-8 text-[#8595aa] text-[11px] font-bold tracking-[0.15em] before:content-[''] before:flex-1 before:border-b before:border-[#e1e8f0] after:content-[''] after:flex-1 after:border-b after:border-[#e1e8f0]" />
 
-              <p className="auth-footer-text">
+              <p className="text-center mt-9 text-sm text-[#3c4043]">
                 Ți-ai amintit parola?{" "}
                 <button
                   type="button"
@@ -189,36 +209,31 @@ export default function Login() {
                     setIsForgotPasswordView(false);
                     setResetMessage("");
                   }}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--color-primary-deep)",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    fontSize: "inherit",
-                    padding: 0,
-                    textDecoration: "underline",
-                  }}
+                  className="bg-transparent border-none text-[#0d2c5c] font-bold cursor-pointer text-inherit p-0 underline"
                 >
                   Întoarce-te la Login
                 </button>
               </p>
             </>
           ) : (
-            /* ==================================================
-               VIEW: LOGIN STANDARD
-               ================================================== */
+            /* ================= VIEW: LOGIN STANDARD ================= */
             <>
-              <div className="auth-header">
-                <h1 className="auth-title">Autentificare</h1>
-                <p className="auth-subtitle">
+              <div className="text-center mb-10">
+                <h1 className="font-['Cormorant_Garamond',serif] text-[32px] text-[#1a1a1a] mb-2.5 font-medium">
+                  Autentificare
+                </h1>
+                <p className="text-[#8595aa] text-[14.5px] m-0">
                   Mă bucur să te revăd! Te rugăm să introduci detaliile.
                 </p>
               </div>
 
-              <form onSubmit={handleLocalLogin} className="auth-form">
-                <div className="input-group">
-                  <Mail className="input-icon" size={18} strokeWidth={1.5} />
+              <form onSubmit={handleLocalLogin} className="flex flex-col gap-4">
+                <div className="relative">
+                  <Mail
+                    className="absolute left-[18px] top-1/2 -translate-y-1/2 text-[#8595aa]"
+                    size={18}
+                    strokeWidth={1.5}
+                  />
                   <input
                     type="email"
                     placeholder="Adresa de email"
@@ -227,11 +242,16 @@ export default function Login() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
+                    className="w-full pl-[50px] pr-[44px] py-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
                   />
                 </div>
 
-                <div className="input-group">
-                  <Lock className="input-icon" size={18} strokeWidth={1.5} />
+                <div className="relative">
+                  <Lock
+                    className="absolute left-[18px] top-1/2 -translate-y-1/2 text-[#8595aa]"
+                    size={18}
+                    strokeWidth={1.5}
+                  />
                   <input
                     type="password"
                     placeholder="Parola"
@@ -240,28 +260,26 @@ export default function Login() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
+                    className="w-full pl-[50px] pr-[44px] py-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
                   />
                 </div>
 
-                <div className="auth-actions-row">
-                  <label className="remember-me">
-                    <input type="checkbox" />
-                    <span className="checkmark"></span>
-                    <span className="label-text">Ține-mă minte</span>
+                <div className="flex items-center justify-between text-[13.5px] -mt-1.5 mb-2">
+                  <label className="flex items-center gap-2 cursor-pointer relative">
+                    <input
+                      type="checkbox"
+                      className="peer absolute opacity-0 w-0 h-0"
+                    />
+                    <span className="h-[18px] w-[18px] bg-[#f4f7fb] border border-[#e1e8f0] rounded flex items-center justify-center transition-all duration-200 peer-checked:bg-[#1e4d8c] peer-checked:border-[#1e4d8c] peer-checked:after:block after:content-[''] after:hidden after:w-1 after:h-2 after:border-white after:border-[0_2px_2px_0] after:rotate-45 after:-mb-0.5" />
+                    <span className="text-[#3c4043] select-none">
+                      Ține-mă minte
+                    </span>
                   </label>
 
-                  {/* Butonul care deschide view-ul de Recuperare */}
                   <button
                     type="button"
-                    className="forgot-password"
                     onClick={() => setIsForgotPasswordView(true)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      font: "inherit",
-                      cursor: "pointer",
-                    }}
+                    className="bg-transparent border-none p-0 font-inherit text-[#1e4d8c] font-semibold cursor-pointer hover:text-[#c69a3f] transition-colors duration-200"
                   >
                     Ai uitat parola?
                   </button>
@@ -269,19 +287,19 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  className="btn-auth-submit"
                   disabled={isLoading}
+                  className="flex items-center justify-center gap-3 w-full py-[18px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
                 >
                   {isLoading ? "Se încarcă..." : "Intră în cont"}
                   {!isLoading && <ArrowRight size={18} strokeWidth={2} />}
                 </button>
               </form>
 
-              <div className="auth-divider">
-                <span>SAU CONTINUĂ CU</span>
+              <div className="flex items-center text-center my-8 text-[#8595aa] text-[11px] font-bold tracking-[0.15em] before:content-[''] before:flex-1 before:border-b before:border-[#e1e8f0] after:content-[''] after:flex-1 after:border-b after:border-[#e1e8f0]">
+                <span className="px-5">SAU CONTINUĂ CU</span>
               </div>
 
-              <div className="google-auth-wrapper">
+              <div className="flex justify-center w-full [&>div]:w-full!">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={() => alert("Eroare la inițializarea Google Login")}
@@ -292,9 +310,14 @@ export default function Login() {
                 />
               </div>
 
-              <p className="auth-footer-text">
+              <p className="text-center mt-9 text-sm text-[#3c4043]">
                 Nu ai încă un cont?{" "}
-                <Link to="/register">Creează unul acum</Link>
+                <Link
+                  to="/register"
+                  className="text-[#0d2c5c] font-bold no-underline border-b border-transparent hover:text-[#c69a3f] hover:border-[#c69a3f] transition-colors duration-200"
+                >
+                  Creează unul acum
+                </Link>
               </p>
             </>
           )}

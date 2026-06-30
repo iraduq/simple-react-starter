@@ -8,8 +8,6 @@ import {
 import { createPortal } from "react-dom";
 import { ChevronDown, Search } from "lucide-react";
 
-// Props-urile pe care react-phone-number-input le transmite automat
-// componentei custom date prin `countrySelectComponent`.
 interface CountryOption {
   value?: string;
   label: string;
@@ -52,9 +50,6 @@ export default function CustomCountrySelect({
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Calculează poziția panoului față de fereastră (nu față de container),
-  // pentru că panoul e randat printr-un portal direct în <body> — astfel
-  // scapă de orice `overflow: hidden` pus pe părinții căsuței de telefon.
   const updatePosition = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
@@ -73,9 +68,6 @@ export default function CustomCountrySelect({
     });
   }, []);
 
-  // useLayoutEffect (nu useEffect) — rulează sincron, înainte ca browserul
-  // să picteze ecranul, ca să nu existe niciun cadru vizibil în care panoul
-  // n-are încă poziție corectă.
   useLayoutEffect(() => {
     if (!isOpen) return;
     updatePosition();
@@ -87,8 +79,6 @@ export default function CustomCountrySelect({
     };
   }, [isOpen, updatePosition]);
 
-  // Închide panoul la click în afara lui — verificăm atât trigger-ul cât
-  // și panoul (care, fiind portal, nu mai e descendent DOM al wrapper-ului).
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -103,7 +93,6 @@ export default function CustomCountrySelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Focus automat pe câmpul de căutare când se deschide panoul
   useEffect(() => {
     if (isOpen) {
       searchRef.current?.focus();
@@ -117,10 +106,6 @@ export default function CustomCountrySelect({
   const handleToggle = () => {
     if (disabled || readOnly) return;
     if (!isOpen) {
-      // Calculăm poziția SINCRON, în același handler de click, înainte de
-      // a deschide panoul. React grupează acest setState cu setIsOpen(true)
-      // în același re-render, deci panoul nu mai apare niciodată "fără
-      // poziție" — eliminăm flash-ul/saltul de pagină de la prima randare.
       updatePosition();
       onFocus?.();
     }
@@ -150,11 +135,11 @@ export default function CustomCountrySelect({
   const selectedOption = options.find((option) => option.value === value);
 
   return (
-    <div className="country-select-wrapper" ref={wrapperRef}>
+    <div className="relative h-full" ref={wrapperRef}>
       <button
         ref={triggerRef}
         type="button"
-        className="country-select-trigger"
+        className="flex items-center gap-[7px] h-full pl-[18px] pr-3.5 bg-transparent border-none cursor-pointer transition-colors duration-200 hover:bg-[rgba(13,44,92,0.04)] disabled:cursor-not-allowed disabled:opacity-60"
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
         disabled={disabled}
@@ -162,26 +147,26 @@ export default function CustomCountrySelect({
         aria-expanded={isOpen}
         aria-label={selectedOption?.label || "Selectează țara"}
       >
-        <span className="country-select-flag">
+        <span className="flex items-center w-6 h-[18px] rounded-sm overflow-hidden shadow-[0_0_0_1px_rgba(15,30,54,0.1)] [&_svg]:w-full [&_svg]:h-full [&_svg]:object-cover [&_svg]:block [&_img]:w-full [&_img]:h-full [&_img]:object-cover [&_img]:block">
           {Icon && <Icon country={value} label={selectedOption?.label} />}
         </span>
         <ChevronDown
           size={14}
           strokeWidth={2}
-          className={`country-select-chevron ${isOpen ? "is-open" : ""}`}
+          className={`text-[#8595aa] shrink-0 transition-transform duration-[250ms] ${isOpen ? "rotate-180 text-[#1e4d8c]" : ""}`}
         />
       </button>
 
       {isOpen &&
         createPortal(
           <div
-            className="country-select-panel"
+            className="bg-white border border-[#e1e8f0] rounded-[10px] shadow-[0_12px_32px_rgba(15,30,54,0.14)] z-[1000] overflow-hidden animate-[fadeIn_0.16s_ease-out]"
             style={panelStyle}
             role="listbox"
             ref={panelRef}
             onKeyDown={handleKeyDown}
           >
-            <div className="country-select-search">
+            <div className="flex items-center gap-2 py-2.5 px-3.5 border-b border-[#e1e8f0] text-[#8595aa]">
               <Search size={14} strokeWidth={2} />
               <input
                 ref={searchRef}
@@ -190,12 +175,18 @@ export default function CustomCountrySelect({
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Caută țara..."
                 autoComplete="off"
+                className="border-none outline-none bg-transparent font-sans text-[13.5px] text-[#1a1a1a] w-full py-0.5 placeholder:text-[#8595aa]"
               />
             </div>
 
-            <div className="country-select-list" ref={listRef}>
+            <div
+              className="max-h-60 overflow-y-auto p-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[#e1e8f0] [&::-webkit-scrollbar-thumb]:rounded-sm"
+              ref={listRef}
+            >
               {filteredOptions.length === 0 && (
-                <div className="country-select-empty">Nicio țară găsită.</div>
+                <div className="py-4 px-2.5 text-center text-[13px] text-[#8595aa]">
+                  Nicio țară găsită.
+                </div>
               )}
 
               {filteredOptions.map((option) => {
@@ -207,15 +198,19 @@ export default function CustomCountrySelect({
                     role="option"
                     aria-selected={isSelected}
                     data-selected={isSelected || undefined}
-                    className={`country-select-option ${isSelected ? "is-selected" : ""}`}
+                    className={`flex items-center gap-2.5 w-full py-2 px-2.5 border-none rounded text-left font-sans text-[13.5px] text-[#1a1a1a] cursor-pointer transition-colors duration-150 ${
+                      isSelected
+                        ? "bg-[rgba(13,44,92,0.08)] font-semibold"
+                        : "bg-transparent hover:bg-[rgba(13,44,92,0.06)]"
+                    }`}
                     onClick={() => handleSelect(option.value)}
                   >
-                    <span className="country-select-option-flag">
+                    <span className="flex items-center w-[22px] h-4 rounded-sm overflow-hidden shadow-[0_0_0_1px_rgba(15,30,54,0.1)] shrink-0 [&_svg]:w-full [&_svg]:h-full [&_svg]:object-cover [&_img]:w-full [&_img]:h-full [&_img]:object-cover">
                       {Icon && (
                         <Icon country={option.value} label={option.label} />
                       )}
                     </span>
-                    <span className="country-select-option-label">
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                       {option.label}
                     </span>
                   </button>

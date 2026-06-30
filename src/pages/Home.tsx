@@ -8,7 +8,7 @@ import Footer from "../components/Footer";
 
 export default function Home() {
   return (
-    <main className="home">
+    <main className="text-[#1a1a1a]">
       <Hero />
       <ExperienceCategories />
       <AboutSection />

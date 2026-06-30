@@ -81,17 +81,26 @@ export default function FeaturedRooms() {
       : rooms.filter((r) => r.category === activeTab);
 
   return (
-    <section className="featured-rooms" id="camere">
-      <div className="fr-header">
+    <section id="camere" className="py-[60px] px-5 md:py-[90px] md:px-10 bg-white">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 flex-wrap">
         <div>
-          <p className="section-eyebrow">Cazare de excepție</p>
-          <h2 className="section-title">Camerele Noastre</h2>
+          <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5">
+            Cazare de excepție
+          </p>
+          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,4vw,3rem)] font-normal text-[#1a1a1a] leading-[1.15]">
+            Camerele Noastre
+          </h2>
         </div>
-        <div className="fr-tabs">
+        <div className="flex gap-2 flex-wrap">
           {tabs.map((tab) => (
             <button
               key={tab}
-              className={`fr-tab ${activeTab === tab ? "fr-tab--active" : ""}`}
+              type="button"
+              className={`px-5 py-2 rounded-full border text-[12.5px] font-semibold cursor-pointer transition-all duration-200 ${
+                activeTab === tab
+                  ? "bg-[#1e4d8c] text-white border-[#1e4d8c]"
+                  : "border-[#e1e8f0] text-[#3c4043] bg-transparent hover:border-[#1e4d8c] hover:text-[#1e4d8c] hover:bg-[#e6efff]"
+              }`}
               onClick={() => setActiveTab(tab)}
             >
               {tab}
@@ -100,31 +109,50 @@ export default function FeaturedRooms() {
         </div>
       </div>
 
-      <div className="fr-grid">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(290px,1fr))] gap-7">
         {filtered.map((room) => (
-          <article key={room.id} className="room-card">
-            <div className="room-card-img">
-              <img src={room.img} alt={room.title} loading="lazy" />
+          <article
+            key={room.id}
+            className="group bg-white rounded-[10px] border border-[#e1e8f0] overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_10px_40px_rgba(13,44,92,0.14)]"
+          >
+            <div className="relative h-[200px] overflow-hidden">
+              <img
+                src={room.img}
+                alt={room.title}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.06]"
+              />
               {room.badge && (
-                <span className="room-badge">{room.badge}</span>
+                <span className="absolute top-3.5 left-3.5 bg-[#1e4d8c] text-white text-[10.5px] font-bold tracking-[0.08em] px-3 py-1 rounded-full uppercase">
+                  {room.badge}
+                </span>
               )}
             </div>
-            <div className="room-card-body">
-              <div className="room-meta">
-                <span className="room-location">📍 {room.location}</span>
-                <div className="room-rating">
+            <div className="p-5 pb-[22px]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-[#8595aa]">📍 {room.location}</span>
+                <div className="flex items-center gap-1 text-[12.5px] font-semibold text-[#1a1a1a]">
                   <Star size={13} fill="#d4a437" color="#d4a437" />
                   <span>{room.rating}</span>
-                  <span className="room-reviews">({room.reviews})</span>
+                  <span className="font-normal text-[#8595aa]">
+                    ({room.reviews})
+                  </span>
                 </div>
               </div>
-              <h3 className="room-title">{room.title}</h3>
-              <div className="room-footer">
-                <div className="room-price">
-                  <span className="price-amount">{room.price} lei</span>
-                  <span className="price-per"> / noapte</span>
+              <h3 className="font-['Cormorant_Garamond',serif] text-lg font-medium text-[#1a1a1a] mb-4 leading-snug">
+                {room.title}
+              </h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-xl font-bold text-[#0d2c5c]">
+                    {room.price} lei
+                  </span>
+                  <span className="text-xs text-[#8595aa]"> / noapte</span>
                 </div>
-                <a href="#rezerva" className="room-btn">
+                <a
+                  href="#rezerva"
+                  className="inline-block px-[22px] py-2.5 bg-[#c69a3f] text-[#1a1a1a] text-xs font-bold tracking-[0.06em] rounded uppercase transition-all duration-200 hover:bg-[#1e4d8c] hover:text-white hover:-translate-y-px"
+                >
                   Rezervă
                 </a>
               </div>

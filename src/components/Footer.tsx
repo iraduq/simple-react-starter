@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-// --- Iconițe Custom SVG ---
 function InstagramIcon() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
@@ -26,7 +25,9 @@ function FacebookIcon() {
     </svg>
   );
 }
-// ----------------------------
+
+const footerLinkClass =
+  "group/link relative inline-block text-white/62 text-sm no-underline transition-all duration-200 hover:text-white hover:pl-4 max-md:hover:pl-0 before:content-['—'] before:absolute before:-left-4 before:opacity-0 before:text-[#c69a3f] before:transition-all before:duration-200 hover:before:opacity-100 hover:before:left-0 max-md:before:hidden";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -46,39 +47,74 @@ export default function Footer() {
   };
 
   return (
-    <footer className="site-footer">
-      {/* Linia de orizont — semnătura vizuală */}
-      <div className="footer-horizon" aria-hidden="true">
-        <span className="horizon-star">★</span>
-        <span className="horizon-line" />
-        <span className="horizon-star">★</span>
-        <span className="horizon-line" />
-        <span className="horizon-star">★</span>
+    <footer
+      className="relative text-white font-sans"
+      style={{
+        background:
+          "radial-gradient(circle at top right, rgba(198,154,63,0.06), transparent 55%), linear-gradient(180deg, #081d3f 0%, #0d2c5c 100%)",
+      }}
+    >
+      <div
+        className="flex items-center justify-center gap-[18px] pt-14 pb-2"
+        aria-hidden="true"
+      >
+        <span className="text-[#c69a3f] text-[13px] leading-none [text-shadow:0_0_14px_rgba(198,154,63,0.55)]">
+          ★
+        </span>
+        <span
+          className="w-[90px] h-px opacity-60"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, #c69a3f 50%, transparent)",
+          }}
+        />
+        <span className="text-[#c69a3f] text-[13px] leading-none [text-shadow:0_0_14px_rgba(198,154,63,0.55)]">
+          ★
+        </span>
+        <span
+          className="w-[90px] h-px opacity-60"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, #c69a3f 50%, transparent)",
+          }}
+        />
+        <span className="text-[#c69a3f] text-[13px] leading-none [text-shadow:0_0_14px_rgba(198,154,63,0.55)]">
+          ★
+        </span>
       </div>
 
-      <div className="footer-top">
-        <div className="footer-container footer-grid">
-          {/* Coloana 1: Brand & Newsletter */}
-          <div className="footer-col footer-col-brand">
+      <div className="py-10 pb-14">
+        <div className="max-w-[1320px] mx-auto px-6 md:px-10 relative z-[2] grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[2.1fr_1.2fr_1.2fr_1.3fr] gap-10 xl:gap-14 max-md:text-center">
+          <div>
             <Link
               to="/"
-              className="brand footer-brand"
+              className="flex flex-col items-start gap-0.5 mb-[22px] no-underline max-md:items-center max-md:mx-auto"
               aria-label="Vila Casa Esy"
             >
-              <span className="brand-name">CASA ESY</span>
-              <span className="brand-sub">HOTEL · MAMAIA</span>
+              <span className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold tracking-[0.05em] text-white">
+                CASA ESY
+              </span>
+              <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-[#c69a3f]">
+                HOTEL · MAMAIA
+              </span>
             </Link>
-            <p className="footer-desc">
+            <p className="text-[14.5px] leading-[1.75] text-white/62 mb-7 max-w-[360px] max-md:mx-auto">
               Oază ta de liniște la malul Mării Negre. Oferim experiențe de
               neuitat, confort la standarde înalte și o atmosferă unde luxul
               întâlnește relaxarea.
             </p>
 
-            <form className="footer-newsletter" onSubmit={handleSubscribe}>
-              <label htmlFor="footer-email" className="newsletter-label">
+            <form
+              className="mb-[26px] max-w-[360px] max-md:mx-auto"
+              onSubmit={handleSubscribe}
+            >
+              <label
+                htmlFor="footer-email"
+                className="block text-[11.5px] font-semibold tracking-[0.08em] uppercase text-white/85 mb-2.5"
+              >
                 Abonează-te pentru oferte exclusive
               </label>
-              <div className="newsletter-row">
+              <div className="flex border border-[rgba(198,154,63,0.35)] rounded-full overflow-hidden bg-white/[0.04] transition-colors duration-[250ms] focus-within:border-[#c69a3f] focus-within:bg-white/[0.07]">
                 <input
                   id="footer-email"
                   type="email"
@@ -86,24 +122,29 @@ export default function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="flex-1 bg-transparent border-none outline-none py-3 px-4 font-sans text-[13.5px] text-white placeholder:text-white/40"
                 />
-                <button type="submit" aria-label="Abonează-te">
+                <button
+                  type="submit"
+                  aria-label="Abonează-te"
+                  className="flex items-center justify-center w-11 shrink-0 bg-[#c69a3f] text-[#0d2c5c] font-bold cursor-pointer border-none transition-colors duration-200 hover:bg-[#d8ad52]"
+                >
                   {subscribed ? "✓" : <Send size={15} strokeWidth={2} />}
                 </button>
               </div>
               {subscribed && (
-                <span className="newsletter-confirm">
+                <span className="block mt-2 text-xs text-[#c69a3f]">
                   Te-ai abonat cu succes
                 </span>
               )}
             </form>
 
-            <div className="footer-social">
+            <div className="flex gap-3 max-md:justify-center">
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="social-link"
+                className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/[0.04] text-white/70 border border-[rgba(198,154,63,0.25)] transition-all duration-300 hover:bg-[#c69a3f] hover:text-[#0d2c5c] hover:border-[#c69a3f] hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(198,154,63,0.3)]"
                 aria-label="Instagram"
               >
                 <InstagramIcon />
@@ -112,7 +153,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="social-link"
+                className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/[0.04] text-white/70 border border-[rgba(198,154,63,0.25)] transition-all duration-300 hover:bg-[#c69a3f] hover:text-[#0d2c5c] hover:border-[#c69a3f] hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(198,154,63,0.3)]"
                 aria-label="Facebook"
               >
                 <FacebookIcon />
@@ -120,64 +161,94 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Coloana 2: Contact */}
-          <div className="footer-col">
-            <h4 className="footer-heading">Contact</h4>
-            <ul className="footer-contact-list">
-              <li>
-                <MapPin size={18} className="contact-icon" />
+          <div>
+            <h4 className="font-['Cormorant_Garamond',serif] text-lg font-medium text-white tracking-[0.04em] mb-[22px] relative pb-3.5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[26px] after:h-0.5 after:bg-[#c69a3f] after:rounded-sm max-md:after:left-1/2 max-md:after:-translate-x-1/2">
+              Contact
+            </h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-[17px]">
+              <li className="flex items-start gap-3 text-white/62 text-sm leading-normal max-md:flex-col max-md:items-center max-md:gap-2">
+                <MapPin size={18} className="text-[#c69a3f] shrink-0 mt-px" />
                 <span>Bulevardul Mamaia, Constanța, România</span>
               </li>
-              <li>
-                <Phone size={18} className="contact-icon" />
-                <a href="tel:+40700000000">+40 700 000 000</a>
+              <li className="flex items-start gap-3 text-white/62 text-sm leading-normal max-md:flex-col max-md:items-center max-md:gap-2">
+                <Phone size={18} className="text-[#c69a3f] shrink-0 mt-px" />
+                <a
+                  href="tel:+40700000000"
+                  className="text-white/62 no-underline transition-colors duration-200 hover:text-[#c69a3f]"
+                >
+                  +40 700 000 000
+                </a>
               </li>
-              <li>
-                <Mail size={18} className="contact-icon" />
-                <a href="mailto:contact@casaesy.ro">contact@casaesy.ro</a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Coloana 3: Linkuri Rapide */}
-          <div className="footer-col">
-            <h4 className="footer-heading">Explorează</h4>
-            <ul className="footer-links">
-              <li>
-                <Link to="/camere">Camere & Apartamente</Link>
-              </li>
-              <li>
-                <Link to="/oferte">Oferte Speciale</Link>
-              </li>
-              <li>
-                <Link to="/restaurant">Restaurant & Bar</Link>
-              </li>
-              <li>
-                <Link to="/evenimente-private">Evenimente Private</Link>
-              </li>
-              <li>
-                <Link to="/contact">Contact & Localizare</Link>
+              <li className="flex items-start gap-3 text-white/62 text-sm leading-normal max-md:flex-col max-md:items-center max-md:gap-2">
+                <Mail size={18} className="text-[#c69a3f] shrink-0 mt-px" />
+                <a
+                  href="mailto:contact@casaesy.ro"
+                  className="text-white/62 no-underline transition-colors duration-200 hover:text-[#c69a3f]"
+                >
+                  contact@casaesy.ro
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Coloana 4: Legal */}
-          <div className="footer-col">
-            <h4 className="footer-heading">Informații Legale</h4>
-            <ul className="footer-links">
+          <div>
+            <h4 className="font-['Cormorant_Garamond',serif] text-lg font-medium text-white tracking-[0.04em] mb-[22px] relative pb-3.5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[26px] after:h-0.5 after:bg-[#c69a3f] after:rounded-sm max-md:after:left-1/2 max-md:after:-translate-x-1/2">
+              Explorează
+            </h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-[13px]">
               <li>
-                <Link to="/termeni-si-conditii">Termeni și condiții</Link>
+                <Link to="/camere" className={footerLinkClass}>
+                  Camere & Apartamente
+                </Link>
               </li>
               <li>
-                <Link to="/politica-de-confidentialitate">
+                <Link to="/oferte" className={footerLinkClass}>
+                  Oferte Speciale
+                </Link>
+              </li>
+              <li>
+                <Link to="/restaurant" className={footerLinkClass}>
+                  Restaurant & Bar
+                </Link>
+              </li>
+              <li>
+                <Link to="/evenimente-private" className={footerLinkClass}>
+                  Evenimente Private
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className={footerLinkClass}>
+                  Contact & Localizare
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-['Cormorant_Garamond',serif] text-lg font-medium text-white tracking-[0.04em] mb-[22px] relative pb-3.5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[26px] after:h-0.5 after:bg-[#c69a3f] after:rounded-sm max-md:after:left-1/2 max-md:after:-translate-x-1/2">
+              Informații Legale
+            </h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-[13px]">
+              <li>
+                <Link to="/termeni-si-conditii" className={footerLinkClass}>
+                  Termeni și condiții
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/politica-de-confidentialitate"
+                  className={footerLinkClass}
+                >
                   Politica de confidențialitate
                 </Link>
               </li>
               <li>
-                <Link to="/politica-de-cookie">Politica de cookie</Link>
+                <Link to="/politica-de-cookie" className={footerLinkClass}>
+                  Politica de cookie
+                </Link>
               </li>
               <li>
-                <Link to="/termeni-facilitati">
+                <Link to="/termeni-facilitati" className={footerLinkClass}>
                   Termeni și condiții facilități
                 </Link>
               </li>
@@ -186,73 +257,69 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* TRUST BAR */}
-      <div className="footer-trust-bar">
-        <div className="footer-container trust-bar-inner">
-          <div className="trust-item">
-            <ShieldCheck size={17} />
+      <div className="relative bg-black/18 border-y border-[rgba(198,154,63,0.18)] z-[2] before:content-[''] before:absolute before:-top-px before:left-1/2 before:-translate-x-1/2 before:w-[200px] before:h-px before:opacity-60 before:bg-[radial-gradient(circle,#c69a3f,transparent_70%)]">
+        <div className="max-w-[1320px] mx-auto px-6 md:px-10 flex items-center justify-center gap-7 flex-wrap py-5">
+          <div className="flex items-center gap-2 text-[13px] font-medium text-white/75 whitespace-nowrap">
+            <ShieldCheck size={17} className="text-[#c69a3f] shrink-0" />
             <span>Plăți 100% Securizate</span>
           </div>
-          <span className="trust-divider" />
-          <div className="trust-item">
-            <BadgeCheck size={17} />
+          <span className="w-px h-5 bg-white/15 shrink-0 max-md:hidden" />
+          <div className="flex items-center gap-2 text-[13px] font-medium text-white/75 whitespace-nowrap">
+            <BadgeCheck size={17} className="text-[#c69a3f] shrink-0" />
             <span>Rezervare Garantată</span>
           </div>
-          <span className="trust-divider" />
-
-          {/* Imaginea pentru metodele de plată */}
-          <div className="trust-item">
+          <span className="w-px h-5 bg-white/15 shrink-0 max-md:hidden" />
+          <div className="flex items-center gap-2 text-[13px] font-medium text-white/75 whitespace-nowrap">
             <img
               src="image_cc2402.png"
               alt="Metode de plată: Mastercard, Maestro, Visa"
-              style={{ height: "24px", width: "auto", objectFit: "contain" }}
+              className="h-6 w-auto object-contain"
             />
           </div>
-          <span className="trust-divider" />
-
-          <div className="anpc-badge-group">
-            {/* 1. Placheta ANPC - SAL (Soluționarea Alternativă a Litigiilor) */}
+          <span className="w-px h-5 bg-white/15 shrink-0 max-md:hidden" />
+          <div className="flex items-center gap-2.5">
             <a
               href="https://anpc.ro/ce-este-sal/"
               target="_blank"
               rel="noopener noreferrer"
-              className="anpc-badge-card"
+              className="flex items-center bg-white rounded-md px-2.5 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.25)] border border-transparent transition-all duration-200 hover:border-[#c69a3f] hover:-translate-y-0.5"
               title="Soluționarea Alternativă a Litigiilor"
             >
               <img
                 src="https://reclamatii.anpc.ro/assets/images/sal.png"
                 alt="ANPC SAL"
                 loading="lazy"
+                className="max-w-[88px] h-auto block"
               />
             </a>
-
-            {/* 2. Placheta ANPC - SOL (Soluționarea Online a Litigiilor) */}
             <a
               href="https://ec.europa.eu/consumers/odr"
               target="_blank"
               rel="noopener noreferrer"
-              className="anpc-badge-card"
+              className="flex items-center bg-white rounded-md px-2.5 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.25)] border border-transparent transition-all duration-200 hover:border-[#c69a3f] hover:-translate-y-0.5"
               title="Soluționarea Online a Litigiilor"
             >
               <img
                 src="https://reclamatii.anpc.ro/assets/images/sol.png"
                 alt="ANPC SOL"
                 loading="lazy"
+                className="max-w-[88px] h-auto block"
               />
             </a>
           </div>
         </div>
       </div>
 
-      <div className="footer-bottom">
-        <div className="footer-container footer-bottom-inner">
-          <p className="copyright">
+      <div className="py-[22px]">
+        <div className="max-w-[1320px] mx-auto px-6 md:px-10 flex items-center justify-between flex-wrap gap-4 max-md:justify-center max-md:text-center">
+          <p className="m-0 text-[12.5px] text-white/40 tracking-[0.04em]">
             © {currentYear} Vila Casa Esy — Toate drepturile rezervate
           </p>
           <button
-            className="back-to-top"
+            type="button"
             onClick={scrollToTop}
             aria-label="Înapoi sus"
+            className="inline-flex items-center gap-2 bg-transparent border border-white/15 rounded-full px-4 py-2 text-[11.5px] font-semibold tracking-[0.06em] text-white/65 cursor-pointer transition-all duration-[250ms] hover:border-[#c69a3f] hover:text-[#c69a3f] hover:-translate-y-[3px]"
           >
             <span>Înapoi sus</span>
             <ArrowUp size={14} />
