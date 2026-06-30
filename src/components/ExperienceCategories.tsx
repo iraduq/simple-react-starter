@@ -1,35 +1,30 @@
-const categories = [
-  {
+const tiles = {
+  plaja: {
     title: "Plajă",
-    eyebrow: "01 · Litoral",
-    img: "https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Oază de liniște sub soarele blând.",
+    label: "Infinit Albastru",
+    img: "https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
   },
-  {
+  nautice: {
     title: "Sporturi Nautice",
-    eyebrow: "02 · Adrenalină",
-    img: "https://images.pexels.com/photos/2108845/pexels-photo-2108845.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Libertate pe valuri",
+    label: "Adrenalină pe valuri",
+    img: "https://images.pexels.com/photos/2108845/pexels-photo-2108845.jpeg?auto=compress&cs=tinysrgb&w=900&h=700&fit=crop",
   },
-  {
-    title: "Spa & Relaxare",
-    eyebrow: "03 · Echilibru",
-    img: "https://images.pexels.com/photos/3757952/pexels-photo-3757952.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Echilibru pentru corp și minte.",
-  },
-  {
+  gastro: {
     title: "Gastronomie",
-    eyebrow: "04 · Gust",
-    img: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Arome locale reinterpretate prin tehnici fine-dining.",
+    label: "Arome ale Mării",
+    img: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=900&h=900&fit=crop",
   },
-  {
-    title: "Apusuri de Soare",
-    eyebrow: "05 · Spectacol",
-    img: "https://images.pexels.com/photos/1386604/pexels-photo-1386604.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Spectacol magic la asfințit",
+  spa: {
+    title: "Spa & Infinity",
+    label: "Echilibru",
+    img: "https://images.pexels.com/photos/3757952/pexels-photo-3757952.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop",
   },
-];
+  apus: {
+    title: "Apusuri",
+    label: "Spectacol Magic",
+    img: "https://images.pexels.com/photos/1386604/pexels-photo-1386604.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop",
+  },
+};
 
 const tileBase =
   "group relative overflow-hidden cursor-pointer bg-[#0d2c5c] isolate shadow-[0_1px_2px_rgba(7,18,40,0.06),0_18px_48px_-18px_rgba(7,18,40,0.28)] transition-[transform,box-shadow] duration-[600ms] hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(7,18,40,0.1),0_32px_68px_-22px_rgba(7,18,40,0.45)] max-[760px]:col-span-1 max-[760px]:row-span-1";
@@ -54,13 +49,13 @@ export default function ExperienceCategories() {
             DESCOPERĂ · MAMAIA
           </p>
           <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-[#1a1a1a] leading-[1.15] tracking-[-0.01em]">
-            Experiențe care te <em className="italic text-[#c69a3f]">Inspiră</em>
+            Experiențe care te{" "}
+            <em className="italic text-[#c69a3f]">Inspiră</em>
           </h2>
           <span
             className="block w-14 h-0.5 mx-auto mt-5 border-0"
             style={{
-              background:
-                "linear-gradient(90deg, #c69a3f, transparent)",
+              background: "linear-gradient(90deg, #c69a3f, transparent)",
             }}
           />
           <p className="max-w-[520px] mx-auto mt-5 text-[15px] text-[#3c4043] leading-[1.75]">
@@ -101,7 +96,9 @@ export default function ExperienceCategories() {
           </article>
 
           {/* 2 · Sporturi Nautice — Soft rect */}
-          <article className={`${tileBase} col-span-4 row-span-1 rounded-[18px]`}>
+          <article
+            className={`${tileBase} col-span-4 row-span-1 rounded-[18px]`}
+          >
             <img
               src={nautice.img}
               alt={nautice.title}
