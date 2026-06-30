@@ -1,113 +1,167 @@
-const categories = [
-  {
+const tiles = {
+  plaja: {
     title: "Plajă",
-    eyebrow: "01 · Litoral",
-    img: "https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Oază de liniște sub soarele blând.",
+    label: "Infinit Albastru",
+    img: "https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
   },
-  {
+  nautice: {
     title: "Sporturi Nautice",
-    eyebrow: "02 · Adrenalină",
-    img: "https://images.pexels.com/photos/2108845/pexels-photo-2108845.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Libertate pe valuri",
+    label: "Adrenalină pe valuri",
+    img: "https://images.pexels.com/photos/2108845/pexels-photo-2108845.jpeg?auto=compress&cs=tinysrgb&w=900&h=700&fit=crop",
   },
-  {
-    title: "Spa & Relaxare",
-    eyebrow: "03 · Echilibru",
-    img: "https://images.pexels.com/photos/3757952/pexels-photo-3757952.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Echilibru pentru corp și minte.",
-  },
-  {
+  gastro: {
     title: "Gastronomie",
-    eyebrow: "04 · Gust",
-    img: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Arome locale reinterpretate prin tehnici fine-dining.",
+    label: "Arome ale Mării",
+    img: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=900&h=900&fit=crop",
   },
-  {
-    title: "Apusuri de Soare",
-    eyebrow: "05 · Spectacol",
-    img: "https://images.pexels.com/photos/1386604/pexels-photo-1386604.jpeg?auto=compress&cs=tinysrgb&w=600&h=800&fit=crop",
-    desc: "Spectacol magic la asfințit",
+  spa: {
+    title: "Spa & Infinity",
+    label: "Echilibru",
+    img: "https://images.pexels.com/photos/3757952/pexels-photo-3757952.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop",
   },
-];
+  apus: {
+    title: "Apusuri",
+    label: "Spectacol Magic",
+    img: "https://images.pexels.com/photos/1386604/pexels-photo-1386604.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop",
+  },
+};
 
 export default function ExperienceCategories() {
-  const [plaja, nautice, spa, gastro, apus] = categories;
   return (
     <section className="exp-categories" id="descopera">
+      {/* Sea-themed background ornaments */}
+      <svg
+        className="exp-bg-wave exp-bg-wave--top"
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          fill="currentColor"
+          d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,144C672,139,768,181,864,181.3C960,181,1056,139,1152,122.7C1248,107,1344,117,1392,122.7L1440,128L1440,0L0,0Z"
+        />
+      </svg>
+      <svg
+        className="exp-bg-blob"
+        viewBox="0 0 200 200"
+        aria-hidden="true"
+      >
+        <path
+          fill="currentColor"
+          d="M44.7,-76.4C58.1,-69.2,69.5,-57.4,77.3,-43.6C85.1,-29.8,89.2,-14.9,88.2,-0.6C87.2,13.7,81,27.4,72.4,39.8C63.8,52.2,52.8,63.3,39.8,70.9C26.8,78.5,13.4,82.6,-0.5,83.4C-14.4,84.2,-28.8,81.7,-42.1,74.5C-55.4,67.3,-67.6,55.4,-75.4,41.4C-83.2,27.4,-86.6,11.3,-85.4,-4.1C-84.2,-19.5,-78.4,-34.2,-68.8,-46C-59.2,-57.8,-45.8,-66.7,-32.1,-73.7C-18.4,-80.7,-4.4,-85.8,10.2,-83.4C24.8,-81,31.3,-83.6,44.7,-76.4Z"
+          transform="translate(100 100)"
+        />
+      </svg>
+
       <div className="exp-categories-inner">
-        <div className="section-header">
-          <p className="section-eyebrow exp-eyebrow">DESCOPERĂ · MAMAIA</p>
-          <h2 className="section-title exp-title">
-            Experiențe care te <em>Inspiră</em>
+        <div className="exp-header">
+          {/* Sun ray emblem */}
+          <svg
+            className="exp-sun"
+            viewBox="0 0 64 64"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="32" cy="32" r="10" />
+            <path d="M32 4v8M32 52v8M4 32h8M52 32h8M12 12l5.7 5.7M46.3 46.3 52 52M52 12l-5.7 5.7M17.7 46.3 12 52" />
+          </svg>
+          <p className="exp-kicker">Experiențe care te Inspiră</p>
+          <h2 className="exp-headline">
+            Trăiește Vara la
+            <br />
+            <em>Intensitate Maximă</em>
           </h2>
-          <hr className="exp-rule" />
-          <p className="exp-subtitle">
-            De la plaje cu nisip fin la gastronomie rafinată — Casa Esy
-            este locul de unde vacanța ta ideală la Marea Neagră începe.
-          </p>
         </div>
 
-        <div className="exp-mosaic">
-          {/* 1 · Plajă — Grand Arch */}
-          <article className="exp-tile exp-tile--arch">
-            <img src={plaja.img} alt={plaja.title} loading="lazy" />
-            <div className="exp-tile-grad exp-tile-grad--bottom" />
-            <div className="exp-tile-caption exp-tile-caption--bottom">
-              <span className="exp-tile-num">01</span>
-              <h3>{plaja.title}</h3>
-              <p>{plaja.desc}</p>
+        <div className="exp-grid">
+          {/* Plajă — large anchor */}
+          <article className="exp-cell exp-cell--plaja">
+            <div className="exp-cell-clip">
+              <img src={tiles.plaja.img} alt={tiles.plaja.title} loading="lazy" />
+              <div className="exp-cell-veil" />
+            </div>
+            <div className="exp-cell-caption">
+              <span className="exp-cell-label">{tiles.plaja.label}</span>
+              <h3>{tiles.plaja.title}</h3>
+              <span className="exp-cell-rule" />
             </div>
           </article>
 
-          {/* 2 · Sporturi Nautice — Soft rect */}
-          <article className="exp-tile exp-tile--rect">
-            <img src={nautice.img} alt={nautice.title} loading="lazy" />
-            <div className="exp-tile-grad exp-tile-grad--solid" />
-            <div className="exp-tile-caption exp-tile-caption--center">
-              <h3>{nautice.title}</h3>
-              <span className="exp-tile-rule" />
-              <p className="exp-tile-meta">Libertate pe valuri</p>
+          {/* Sporturi Nautice — top right */}
+          <article className="exp-cell exp-cell--nautice">
+            <div className="exp-cell-clip">
+              <img src={tiles.nautice.img} alt={tiles.nautice.title} loading="lazy" />
+              <div className="exp-cell-veil" />
+            </div>
+            <div className="exp-cell-caption">
+              <span className="exp-cell-label">{tiles.nautice.label}</span>
+              <h3>{tiles.nautice.title}</h3>
             </div>
           </article>
 
-          {/* 3 · Spa — Circle */}
-          <article className="exp-tile exp-tile--circle">
-            <img src={spa.img} alt={spa.title} loading="lazy" />
-            <div className="exp-tile-grad exp-tile-grad--soft" />
-            <div className="exp-tile-medallion">
-              <h3>{spa.title}</h3>
-              <span>Echilibru</span>
+          {/* Gastronomie — bottom left */}
+          <article className="exp-cell exp-cell--gastro">
+            <div className="exp-cell-clip">
+              <img src={tiles.gastro.img} alt={tiles.gastro.title} loading="lazy" />
+              <div className="exp-cell-veil" />
+            </div>
+            <div className="exp-cell-caption">
+              <span className="exp-cell-label">{tiles.gastro.label}</span>
+              <h3>{tiles.gastro.title}</h3>
             </div>
           </article>
 
-          {/* 4 · Gastronomie — Wave */}
-          <article className="exp-tile exp-tile--wave">
-            <img src={gastro.img} alt={gastro.title} loading="lazy" />
-            <div className="exp-tile-grad exp-tile-grad--bottom" />
-            <div className="exp-tile-caption exp-tile-caption--bottom">
-              <span className="exp-tile-num">04</span>
-              <h3>{gastro.title}</h3>
-              <p>{gastro.desc}</p>
+          {/* Spa — middle */}
+          <article className="exp-cell exp-cell--spa">
+            <div className="exp-cell-clip">
+              <img src={tiles.spa.img} alt={tiles.spa.title} loading="lazy" />
+              <div className="exp-cell-veil" />
+            </div>
+            <div className="exp-cell-caption">
+              <span className="exp-cell-label">{tiles.spa.label}</span>
+              <h3>{tiles.spa.title}</h3>
             </div>
           </article>
 
-          {/* 5 · Apusuri — Inverted arch */}
-          <article className="exp-tile exp-tile--arch-down">
-            <img src={apus.img} alt={apus.title} loading="lazy" />
-            <div className="exp-tile-grad exp-tile-grad--top" />
-            <div className="exp-tile-caption exp-tile-caption--top">
-              <h3>{apus.title}</h3>
-              <span className="exp-tile-meta">Spectacol magic</span>
+          {/* Apusuri — bottom right with compass */}
+          <article className="exp-cell exp-cell--apus">
+            <div className="exp-cell-clip">
+              <img src={tiles.apus.img} alt={tiles.apus.title} loading="lazy" />
+              <div className="exp-cell-veil" />
+            </div>
+            <svg
+              className="exp-compass"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9" strokeWidth="0.5" />
+              <path
+                d="M12 3v18M3 12h18M12 7l2 5h-4l2-5zM12 17l-2-5h4l-2 5z"
+                strokeWidth="1"
+              />
+            </svg>
+            <div className="exp-cell-caption">
+              <span className="exp-cell-label">{tiles.apus.label}</span>
+              <h3>{tiles.apus.title}</h3>
             </div>
           </article>
         </div>
 
-        <div className="exp-footer-cta">
-          <a href="#camere" className="exp-cta-link">
-            <span>Vezi toate experiențele</span>
-            <span className="exp-cta-arrow" aria-hidden="true">→</span>
-          </a>
+        <div className="exp-footer">
+          <svg className="exp-wavelines" viewBox="0 0 100 20" fill="none" aria-hidden="true">
+            <path d="M0 10 Q 12.5 0, 25 10 T 50 10 T 75 10 T 100 10" stroke="currentColor" strokeWidth="1" />
+            <path d="M0 15 Q 12.5 5, 25 15 T 50 15 T 75 15 T 100 15" stroke="currentColor" strokeWidth="0.5" />
+          </svg>
+          <span className="exp-footer-text">Descoperă ritmul mării</span>
+          <svg className="exp-wavelines" viewBox="0 0 100 20" fill="none" aria-hidden="true">
+            <path d="M0 10 Q 12.5 0, 25 10 T 50 10 T 75 10 T 100 10" stroke="currentColor" strokeWidth="1" />
+            <path d="M0 15 Q 12.5 5, 25 15 T 50 15 T 75 15 T 100 15" stroke="currentColor" strokeWidth="0.5" />
+          </svg>
         </div>
       </div>
     </section>
