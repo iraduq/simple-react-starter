@@ -1,4 +1,4 @@
-const tiles = {
+const categories = {
   plaja: {
     title: "Plajă",
     label: "Infinit Albastru",
@@ -33,7 +33,8 @@ const tileImg =
   "absolute inset-0 w-full h-full object-cover block scale-[1.06] transition-[transform,filter] duration-[1200ms] group-hover:scale-100";
 
 export default function ExperienceCategories() {
-  const [plaja, nautice, spa, gastro, apus] = categories;
+  // FIX: Schimbat din [] în {} pentru destructurarea corectă a unui obiect
+  const { plaja, nautice, spa, gastro, apus } = categories;
 
   return (
     <section
@@ -89,8 +90,9 @@ export default function ExperienceCategories() {
               <h3 className="font-['Cormorant_Garamond',serif] font-normal text-[clamp(1.6rem,2vw,2.1rem)] leading-[1.1] tracking-[0.01em] m-0">
                 {plaja.title}
               </h3>
-              <p className="text-[13px] leading-[1.55] text-white/78 mt-2.5 mb-0 max-w-[32ch] mx-auto">
-                {plaja.desc}
+              {/* FIX: Înlocuit .desc cu .label deoarece .desc nu exista în obiect */}
+              <p className="text-[13px] leading-[1.55] text-white/80 mt-2.5 mb-0 max-w-[32ch] mx-auto">
+                {plaja.label}
               </p>
             </div>
           </article>
@@ -118,7 +120,7 @@ export default function ExperienceCategories() {
               </h3>
               <span className="block w-0 h-px bg-[#c69a3f] mt-3.5 mx-auto transition-[width] duration-500 group-hover:w-16" />
               <p className="inline-block mt-3.5 text-[#c69a3f] text-[10.5px] tracking-[0.3em] uppercase mb-0">
-                Libertate pe valuri
+                {nautice.label}
               </p>
             </div>
           </article>
@@ -134,12 +136,12 @@ export default function ExperienceCategories() {
               className={tileImg}
             />
             <div className="absolute inset-0 pointer-events-none z-[1] bg-[rgba(7,18,40,0.18)] transition-colors duration-500 group-hover:bg-transparent" />
-            <div className="absolute z-[2] inset-0 m-auto w-[160px] h-[160px] md:w-[200px] md:h-[200px] rounded-full bg-white/92 backdrop-blur-[6px] flex flex-col items-center justify-center text-center p-5 scale-100 opacity-100 md:scale-[0.85] md:opacity-0 transition-[transform,opacity] duration-500 md:group-hover:scale-100 md:group-hover:opacity-100">
+            <div className="absolute z-[2] inset-0 m-auto w-[160px] h-[160px] md:w-[200px] md:h-[200px] rounded-full bg-white/90 backdrop-blur-[6px] flex flex-col items-center justify-center text-center p-5 scale-100 opacity-100 md:scale-[0.85] md:opacity-0 transition-[transform,opacity] duration-500 md:group-hover:scale-100 md:group-hover:opacity-100">
               <h3 className="font-['Cormorant_Garamond',serif] font-normal text-[1.4rem] text-[#0d2c5c] m-0 leading-[1.15]">
                 {spa.title}
               </h3>
               <span className="block mt-2.5 text-[#c69a3f] text-[10px] tracking-[0.3em] uppercase">
-                Echilibru
+                {spa.label}
               </span>
             </div>
           </article>
@@ -168,8 +170,9 @@ export default function ExperienceCategories() {
               <h3 className="font-['Cormorant_Garamond',serif] font-normal text-[clamp(1.6rem,2vw,2.1rem)] leading-[1.1] m-0">
                 {gastro.title}
               </h3>
-              <p className="text-[13px] leading-[1.55] text-white/78 mt-2.5 mb-0 max-w-[32ch]">
-                {gastro.desc}
+              {/* FIX: Înlocuit .desc cu .label */}
+              <p className="text-[13px] leading-[1.55] text-white/80 mt-2.5 mb-0 max-w-[32ch]">
+                {gastro.label}
               </p>
             </div>
           </article>
@@ -196,7 +199,7 @@ export default function ExperienceCategories() {
                 {apus.title}
               </h3>
               <span className="inline-block mt-3.5 text-[#c69a3f] text-[10.5px] tracking-[0.3em] uppercase">
-                Spectacol magic
+                {apus.label}
               </span>
             </div>
           </article>
