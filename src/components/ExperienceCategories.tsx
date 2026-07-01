@@ -44,57 +44,6 @@ export default function ExperienceCategories() {
         background: "linear-gradient(180deg, #f7f4ee 0%, #ffffff 55%)",
       }}
     >
-      {/* Hero cutout waves — continues the hero image into this section */}
-      <div className="absolute top-0 left-0 right-0 pointer-events-none leading-[0] -translate-y-px z-[1]">
-        <svg
-          className="block w-full h-[90px] md:h-[130px]"
-          viewBox="0 0 1440 130"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern
-              id="heroCutoutImg"
-              patternUnits="userSpaceOnUse"
-              width="1920"
-              height="1080"
-              x="0"
-              y="-950"
-            >
-              <image
-                href="https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop"
-                width="1920"
-                height="1080"
-                preserveAspectRatio="xMidYMid slice"
-              />
-              <rect
-                width="1920"
-                height="1080"
-                fill="rgba(13,44,92,0.75)"
-              />
-            </pattern>
-          </defs>
-          {/* Back layer — hero image continuation */}
-          <path
-            d="M0 0 L1440 0 L1440 70 C1240 110, 1040 40, 820 70 S420 120, 200 80 S40 55, 0 70 Z"
-            fill="url(#heroCutoutImg)"
-          />
-          {/* Mid navy wave */}
-          <path
-            d="M0 0 L1440 0 L1440 40 C1240 80, 1040 20, 820 55 S420 95, 200 60 S40 30, 0 45 Z"
-            fill="#0d2c5c"
-            opacity="0.55"
-          />
-          {/* Gold hairline accent */}
-          <path
-            d="M0 92 C220 60, 440 118, 720 92 S1200 55, 1440 92"
-            fill="none"
-            stroke="#c69a3f"
-            strokeOpacity="0.35"
-            strokeWidth="1"
-          />
-        </svg>
-      </div>
       <div className="max-w-[1280px] mx-auto">
         <div className="relative text-center mb-16">
           {/* Decorative wave SVGs */}
