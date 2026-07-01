@@ -39,13 +39,75 @@ export default function ExperienceCategories() {
   return (
     <section
       id="descopera"
-      className="py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden"
+      className="relative py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden"
       style={{
         background: "linear-gradient(180deg, #f7f4ee 0%, #ffffff 55%)",
       }}
     >
+      {/* Decorative wave SVGs at top */}
+      <svg
+        className="absolute top-0 left-0 w-full h-20 pointer-events-none opacity-[0.06]"
+        viewBox="0 0 1440 80"
+        preserveAspectRatio="none"
+      >
+        <path
+          d="M0 20 C180 50, 360 10, 540 30 S800 60, 1000 35 S1280 5, 1440 25 L1440 0 L0 0 Z"
+          fill="#1e4d8c"
+        />
+      </svg>
       <div className="max-w-[1280px] mx-auto">
-        <div className="text-center mb-16">
+        <div className="relative text-center mb-16">
+          {/* Decorative wave SVGs */}
+          <svg
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-24 md:w-32 h-auto opacity-15 hidden md:block"
+            viewBox="0 0 120 80"
+            fill="none"
+          >
+            <path
+              d="M10 40 Q30 20, 50 40 T90 40"
+              stroke="#1e4d8c"
+              strokeWidth="2"
+              fill="none"
+            />
+            <path
+              d="M5 50 Q25 30, 45 50 T85 50"
+              stroke="#0d2c5c"
+              strokeWidth="1.5"
+              fill="none"
+            />
+            <path
+              d="M15 60 Q35 40, 55 60 T95 60"
+              stroke="#1e4d8c"
+              strokeWidth="1"
+              fill="none"
+            />
+          </svg>
+
+          <svg
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-24 md:w-32 h-auto opacity-15 hidden md:block"
+            viewBox="0 0 120 80"
+            fill="none"
+          >
+            <path
+              d="M30 40 Q50 20, 70 40 T110 40"
+              stroke="#1e4d8c"
+              strokeWidth="2"
+              fill="none"
+            />
+            <path
+              d="M35 50 Q55 30, 75 50 T115 50"
+              stroke="#0d2c5c"
+              strokeWidth="1.5"
+              fill="none"
+            />
+            <path
+              d="M25 60 Q45 40, 65 60 T105 60"
+              stroke="#1e4d8c"
+              strokeWidth="1"
+              fill="none"
+            />
+          </svg>
+
           <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5">
             DESCOPERĂ · MAMAIA
           </p>
@@ -204,6 +266,29 @@ export default function ExperienceCategories() {
             </div>
           </article>
         </div>
+
+        {/* Decorative wave SVGs at bottom */}
+        <svg
+          className="absolute bottom-0 left-0 w-full h-24 pointer-events-none opacity-[0.07] hidden md:block"
+          viewBox="0 0 1440 100"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 60 C200 80, 400 40, 600 60 S900 90, 1100 60 S1350 30, 1440 50 L1440 100 L0 100 Z"
+            fill="#1e4d8c"
+          />
+        </svg>
+
+        <svg
+          className="absolute bottom-0 left-0 w-full h-16 pointer-events-none opacity-[0.05] hidden md:block"
+          viewBox="0 0 1440 60"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 30 C150 50, 300 10, 450 35 S700 55, 900 30 S1150 5, 1300 25 L1440 40 L1440 60 L0 60 Z"
+            fill="#0d2c5c"
+          />
+        </svg>
 
         <div className="mt-[72px] text-center">
           <a
