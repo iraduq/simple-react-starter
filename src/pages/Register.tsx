@@ -45,7 +45,7 @@ export default function Register() {
 
   const isPasswordValid = Object.values(passwordRules).every(Boolean);
 
-  const nameRegex = /^[A-Za-zĂăÂâÎîȘșȚț\s\-]+$/;
+  const nameRegex = /^[A-Za-zĂăÂâÎîȘșȚț\s-]+$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const fieldValidity = {
@@ -262,7 +262,11 @@ export default function Register() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4"
+            noValidate
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <div className="relative">

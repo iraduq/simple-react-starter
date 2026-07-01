@@ -1,18 +1,18 @@
 import { Link } from "react-router-dom";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  ShieldCheck,
-  BadgeCheck,
-  ArrowUp,
-  Send,
-} from "lucide-react";
+import { ChevronsUp, Send } from "lucide-react";
 import { useState } from "react";
+
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+      <path d="M18.9 2H22l-7.6 8.7L23.3 22h-7.1l-5.5-7.2L4.4 22H1.3l8.1-9.3L1 2h7.3l5 6.6L18.9 2zm-1.2 18h1.9L6.4 4H4.4l13.3 16z" />
+    </svg>
+  );
+}
 
 function InstagramIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
       <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.24 2.22.41.56.21.96.47 1.38.89.42.42.68.82.89 1.38.17.42.36 1.05.41 2.22.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.24 1.8-.41 2.22-.21.56-.47.96-.89 1.38-.42.42-.82.68-1.38.89-.42.17-1.05.36-2.22.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.24-2.22-.41-.56-.21-.96-.47-1.38-.89-.42-.42-.68-.82-.89-1.38-.17-.42-.36-1.05-.41-2.22-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.24-1.8.41-2.22.21-.56.47-.96.89-1.38.42-.42.82-.68 1.38-.89.42-.17 1.05-.36 2.22-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.31-1.46.72-2.13 1.39C1.34 2.69.93 3.36.63 4.14c-.3.76-.5 1.64-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.31.79.72 1.46 1.39 2.13.67.67 1.34 1.08 2.13 1.39.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.39.67-.67 1.08-1.34 1.39-2.13.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.39-2.13C21.31 1.34 20.64.93 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zm0 10.16A4 4 0 1 1 16 12a4 4 0 0 1-4 4zm6.41-10.85a1.44 1.44 0 1 1-1.44-1.44 1.44 1.44 0 0 1 1.44 1.44z" />
     </svg>
   );
@@ -20,23 +20,36 @@ function InstagramIcon() {
 
 function FacebookIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
       <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.16 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.78 8.44-4.94 8.44-9.94z" />
     </svg>
   );
 }
 
-const footerLinkClass =
-  "group/link relative inline-block text-white/62 text-sm no-underline transition-all duration-200 hover:text-white hover:pl-4 max-md:hover:pl-0 before:content-['—'] before:absolute before:-left-4 before:opacity-0 before:text-[#c69a3f] before:transition-all before:duration-200 hover:before:opacity-100 hover:before:left-0 max-md:before:hidden";
+function LinkedinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+      <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z" />
+    </svg>
+  );
+}
+
+const linkClass =
+  "text-white/60 text-sm no-underline transition-colors duration-300 hover:text-[#c69a3f]";
+
+const socialLinks = [
+  { Icon: XIcon, label: "X" },
+  { Icon: LinkedinIcon, label: "LinkedIn" },
+  { Icon: InstagramIcon, label: "Instagram" },
+  { Icon: FacebookIcon, label: "Facebook" },
+];
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,73 +61,68 @@ export default function Footer() {
 
   return (
     <footer
-      className="relative text-white font-sans"
+      className="relative text-white font-sans overflow-hidden rounded-t-[28px] bg-cover bg-center"
       style={{
-        background:
-          "radial-gradient(circle at top right, rgba(198,154,63,0.06), transparent 55%), linear-gradient(180deg, #081d3f 0%, #0d2c5c 100%)",
+        backgroundImage:
+          "linear-gradient(180deg, rgba(13,44,92,0.55) 0%, rgba(13,44,92,0.88) 55%, #0d2c5c 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
+        backgroundPosition: "center 30%",
       }}
     >
+      {/* accent turcoaz discret, punte spre Hero */}
       <div
-        className="flex items-center justify-center gap-[18px] pt-14 pb-2"
-        aria-hidden="true"
-      >
-        <span className="text-[#c69a3f] text-[13px] leading-none [text-shadow:0_0_14px_rgba(198,154,63,0.55)]">
-          ★
-        </span>
-        <span
-          className="w-[90px] h-px opacity-60"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, #c69a3f 50%, transparent)",
-          }}
-        />
-        <span className="text-[#c69a3f] text-[13px] leading-none [text-shadow:0_0_14px_rgba(198,154,63,0.55)]">
-          ★
-        </span>
-        <span
-          className="w-[90px] h-px opacity-60"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, #c69a3f 50%, transparent)",
-          }}
-        />
-        <span className="text-[#c69a3f] text-[13px] leading-none [text-shadow:0_0_14px_rgba(198,154,63,0.55)]">
-          ★
-        </span>
-      </div>
+        className="pointer-events-none absolute inset-0 z-[1]"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 0%, rgba(94,201,196,0.12) 0%, transparent 55%)",
+        }}
+      />
 
-      <div className="py-10 pb-14">
-        <div className="max-w-[1320px] mx-auto px-6 md:px-10 relative z-[2] grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[2.1fr_1.2fr_1.2fr_1.3fr] gap-10 xl:gap-14 max-md:text-center">
+      <div className="relative z-[2] max-w-[1320px] mx-auto px-6 md:px-10 pt-16 pb-12">
+        {/* eyebrow, ca in Hero */}
+        <div className="flex items-center justify-center gap-[15px] mb-14">
+          <span className="inline-block w-10 h-px bg-[#5ec9c4]/50" />
+          <p className="text-[#5ec9c4] font-sans text-xs font-semibold tracking-[3px] uppercase">
+            Vila Casa Esy · Mamaia
+          </p>
+          <span className="inline-block w-10 h-px bg-[#5ec9c4]/50" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1.6fr_1fr_1fr] gap-12 md:gap-10">
+          {/* LOGO + DESCRIERE + NEWSLETTER + SOCIAL */}
           <div>
             <Link
               to="/"
-              className="flex flex-col items-start gap-0.5 mb-[22px] no-underline max-md:items-center max-md:mx-auto"
+              className="inline-flex items-center gap-2.5 mb-6 no-underline"
               aria-label="Vila Casa Esy"
             >
-              <span className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold tracking-[0.05em] text-white">
-                CASA ESY
-              </span>
-              <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-[#c69a3f]">
-                HOTEL · MAMAIA
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 2 L22 20 H2 Z"
+                  stroke="#c69a3f"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+                <path d="M12 9 L17 20 H7 Z" fill="#c69a3f" />
+              </svg>
+              <span className="font-['Cormorant_Garamond',serif] text-[22px] tracking-[0.08em] uppercase text-white">
+                Casa Esy
               </span>
             </Link>
-            <p className="text-[14.5px] leading-[1.75] text-white/62 mb-7 max-w-[360px] max-md:mx-auto">
-              Oază ta de liniște la malul Mării Negre. Oferim experiențe de
-              neuitat, confort la standarde înalte și o atmosferă unde luxul
-              întâlnește relaxarea.
+
+            <p className="text-[14px] leading-[1.75] text-white/70 max-w-[340px] font-light mb-7">
+              Oază ta de liniște la malul Mării Negre. Camere rafinate,
+              priveliști superbe și ospitalitate caldă la fiecare pas.
             </p>
 
-            <form
-              className="mb-[26px] max-w-[360px] max-md:mx-auto"
-              onSubmit={handleSubscribe}
-            >
+            {/* NEWSLETTER — glass, ca search bar-ul din Hero */}
+            <form onSubmit={handleSubscribe} className="mb-8 max-w-[360px]">
               <label
                 htmlFor="footer-email"
-                className="block text-[11.5px] font-semibold tracking-[0.08em] uppercase text-white/85 mb-2.5"
+                className="block text-[10.5px] font-bold tracking-[0.14em] uppercase text-white/80 mb-2.5"
               >
                 Abonează-te pentru oferte exclusive
               </label>
-              <div className="flex border border-[rgba(198,154,63,0.35)] rounded-full overflow-hidden bg-white/[0.04] transition-colors duration-[250ms] focus-within:border-[#c69a3f] focus-within:bg-white/[0.07]">
+              <div className="flex bg-white/10 backdrop-blur-md border border-white/25 rounded-full overflow-hidden transition-colors duration-300 focus-within:border-[#c69a3f] focus-within:bg-white/[0.16]">
                 <input
                   id="footer-email"
                   type="email"
@@ -122,134 +130,114 @@ export default function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="flex-1 bg-transparent border-none outline-none py-3 px-4 font-sans text-[13.5px] text-white placeholder:text-white/40"
+                  className="flex-1 bg-transparent border-none outline-none py-3 px-5 font-sans text-[13.5px] text-white placeholder:text-white/50"
                 />
                 <button
                   type="submit"
                   aria-label="Abonează-te"
-                  className="flex items-center justify-center w-11 shrink-0 bg-[#c69a3f] text-[#0d2c5c] font-bold cursor-pointer border-none transition-colors duration-200 hover:bg-[#d8ad52]"
+                  className="flex items-center justify-center w-11 shrink-0 bg-[#c69a3f] text-[#0d2c5c] font-bold cursor-pointer border-none transition-all duration-300 hover:bg-[#d8ad52]"
                 >
                   {subscribed ? "✓" : <Send size={15} strokeWidth={2} />}
                 </button>
               </div>
               {subscribed && (
-                <span className="block mt-2 text-xs text-[#c69a3f]">
+                <span className="block mt-2 text-xs text-[#5ec9c4] tracking-wide">
                   Te-ai abonat cu succes
                 </span>
               )}
             </form>
 
-            <div className="flex gap-3 max-md:justify-center">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/[0.04] text-white/70 border border-[rgba(198,154,63,0.25)] transition-all duration-300 hover:bg-[#c69a3f] hover:text-[#0d2c5c] hover:border-[#c69a3f] hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(198,154,63,0.3)]"
-                aria-label="Instagram"
-              >
-                <InstagramIcon />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/[0.04] text-white/70 border border-[rgba(198,154,63,0.25)] transition-all duration-300 hover:bg-[#c69a3f] hover:text-[#0d2c5c] hover:border-[#c69a3f] hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(198,154,63,0.3)]"
-                aria-label="Facebook"
-              >
-                <FacebookIcon />
-              </a>
+            <div className="flex gap-3 mb-9">
+              {socialLinks.map(({ Icon, label }) => (
+                <a
+                  key={label}
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-white/80 transition-all duration-300 hover:border-[#c69a3f] hover:text-[#c69a3f] hover:bg-white/[0.16]"
+                >
+                  <Icon />
+                </a>
+              ))}
             </div>
+
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/25 rounded-full pl-4 pr-5 py-2 text-[10.5px] font-bold tracking-[0.14em] uppercase text-white/85 transition-all duration-300 hover:border-[#c69a3f] hover:text-[#c69a3f]"
+            >
+              <ChevronsUp size={13} />
+              Înapoi sus
+            </button>
           </div>
 
+          {/* SITE MAP */}
           <div>
-            <h4 className="font-['Cormorant_Garamond',serif] text-lg font-medium text-white tracking-[0.04em] mb-[22px] relative pb-3.5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[26px] after:h-0.5 after:bg-[#c69a3f] after:rounded-sm max-md:after:left-1/2 max-md:after:-translate-x-1/2">
-              Contact
+            <h4 className="text-[11px] font-bold tracking-[0.16em] uppercase text-[#c69a3f] mb-6">
+              Site Map
             </h4>
-            <ul className="list-none p-0 m-0 flex flex-col gap-[17px]">
-              <li className="flex items-start gap-3 text-white/62 text-sm leading-normal max-md:flex-col max-md:items-center max-md:gap-2">
-                <MapPin size={18} className="text-[#c69a3f] shrink-0 mt-px" />
-                <span>Bulevardul Mamaia, Constanța, România</span>
-              </li>
-              <li className="flex items-start gap-3 text-white/62 text-sm leading-normal max-md:flex-col max-md:items-center max-md:gap-2">
-                <Phone size={18} className="text-[#c69a3f] shrink-0 mt-px" />
-                <a
-                  href="tel:+40700000000"
-                  className="text-white/62 no-underline transition-colors duration-200 hover:text-[#c69a3f]"
-                >
-                  +40 700 000 000
-                </a>
-              </li>
-              <li className="flex items-start gap-3 text-white/62 text-sm leading-normal max-md:flex-col max-md:items-center max-md:gap-2">
-                <Mail size={18} className="text-[#c69a3f] shrink-0 mt-px" />
-                <a
-                  href="mailto:contact@casaesy.ro"
-                  className="text-white/62 no-underline transition-colors duration-200 hover:text-[#c69a3f]"
-                >
-                  contact@casaesy.ro
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-['Cormorant_Garamond',serif] text-lg font-medium text-white tracking-[0.04em] mb-[22px] relative pb-3.5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[26px] after:h-0.5 after:bg-[#c69a3f] after:rounded-sm max-md:after:left-1/2 max-md:after:-translate-x-1/2">
-              Explorează
-            </h4>
-            <ul className="list-none p-0 m-0 flex flex-col gap-[13px]">
+            <ul className="list-none p-0 m-0 flex flex-col gap-4">
               <li>
-                <Link to="/camere" className={footerLinkClass}>
+                <Link
+                  to="/"
+                  className="text-white text-sm no-underline underline-offset-4 decoration-[#c69a3f]/70 decoration-1"
+                >
+                  Homepage
+                </Link>
+              </li>
+              <li>
+                <Link to="/camere" className={linkClass}>
                   Camere & Apartamente
                 </Link>
               </li>
               <li>
-                <Link to="/oferte" className={footerLinkClass}>
+                <Link to="/oferte" className={linkClass}>
                   Oferte Speciale
                 </Link>
               </li>
               <li>
-                <Link to="/restaurant" className={footerLinkClass}>
+                <Link to="/restaurant" className={linkClass}>
                   Restaurant & Bar
                 </Link>
               </li>
               <li>
-                <Link to="/evenimente-private" className={footerLinkClass}>
+                <Link to="/evenimente-private" className={linkClass}>
                   Evenimente Private
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className={footerLinkClass}>
+                <Link to="/contact" className={linkClass}>
                   Contact & Localizare
                 </Link>
               </li>
             </ul>
           </div>
 
+          {/* LEGAL */}
           <div>
-            <h4 className="font-['Cormorant_Garamond',serif] text-lg font-medium text-white tracking-[0.04em] mb-[22px] relative pb-3.5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[26px] after:h-0.5 after:bg-[#c69a3f] after:rounded-sm max-md:after:left-1/2 max-md:after:-translate-x-1/2">
-              Informații Legale
+            <h4 className="text-[11px] font-bold tracking-[0.16em] uppercase text-[#c69a3f] mb-6">
+              Legal
             </h4>
-            <ul className="list-none p-0 m-0 flex flex-col gap-[13px]">
+            <ul className="list-none p-0 m-0 flex flex-col gap-4">
               <li>
-                <Link to="/termeni-si-conditii" className={footerLinkClass}>
+                <Link to="/termeni-si-conditii" className={linkClass}>
                   Termeni și condiții
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/politica-de-confidentialitate"
-                  className={footerLinkClass}
-                >
+                <Link to="/politica-de-confidentialitate" className={linkClass}>
                   Politica de confidențialitate
                 </Link>
               </li>
               <li>
-                <Link to="/politica-de-cookie" className={footerLinkClass}>
+                <Link to="/politica-de-cookie" className={linkClass}>
                   Politica de cookie
                 </Link>
               </li>
               <li>
-                <Link to="/termeni-facilitati" className={footerLinkClass}>
-                  Termeni și condiții facilități
+                <Link to="/termeni-facilitati" className={linkClass}>
+                  Termeni facilități
                 </Link>
               </li>
             </ul>
@@ -257,74 +245,11 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="relative bg-black/18 border-y border-[rgba(198,154,63,0.18)] z-[2] before:content-[''] before:absolute before:-top-px before:left-1/2 before:-translate-x-1/2 before:w-[200px] before:h-px before:opacity-60 before:bg-[radial-gradient(circle,#c69a3f,transparent_70%)]">
-        <div className="max-w-[1320px] mx-auto px-6 md:px-10 flex items-center justify-center gap-7 flex-wrap py-5">
-          <div className="flex items-center gap-2 text-[13px] font-medium text-white/75 whitespace-nowrap">
-            <ShieldCheck size={17} className="text-[#c69a3f] shrink-0" />
-            <span>Plăți 100% Securizate</span>
-          </div>
-          <span className="w-px h-5 bg-white/15 shrink-0 max-md:hidden" />
-          <div className="flex items-center gap-2 text-[13px] font-medium text-white/75 whitespace-nowrap">
-            <BadgeCheck size={17} className="text-[#c69a3f] shrink-0" />
-            <span>Rezervare Garantată</span>
-          </div>
-          <span className="w-px h-5 bg-white/15 shrink-0 max-md:hidden" />
-          <div className="flex items-center gap-2 text-[13px] font-medium text-white/75 whitespace-nowrap">
-            <img
-              src="image_cc2402.png"
-              alt="Metode de plată: Mastercard, Maestro, Visa"
-              className="h-6 w-auto object-contain"
-            />
-          </div>
-          <span className="w-px h-5 bg-white/15 shrink-0 max-md:hidden" />
-          <div className="flex items-center gap-2.5">
-            <a
-              href="https://anpc.ro/ce-este-sal/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center bg-white rounded-md px-2.5 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.25)] border border-transparent transition-all duration-200 hover:border-[#c69a3f] hover:-translate-y-0.5"
-              title="Soluționarea Alternativă a Litigiilor"
-            >
-              <img
-                src="https://reclamatii.anpc.ro/assets/images/sal.png"
-                alt="ANPC SAL"
-                loading="lazy"
-                className="max-w-[88px] h-auto block"
-              />
-            </a>
-            <a
-              href="https://ec.europa.eu/consumers/odr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center bg-white rounded-md px-2.5 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.25)] border border-transparent transition-all duration-200 hover:border-[#c69a3f] hover:-translate-y-0.5"
-              title="Soluționarea Online a Litigiilor"
-            >
-              <img
-                src="https://reclamatii.anpc.ro/assets/images/sol.png"
-                alt="ANPC SOL"
-                loading="lazy"
-                className="max-w-[88px] h-auto block"
-              />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div className="py-[22px]">
-        <div className="max-w-[1320px] mx-auto px-6 md:px-10 flex items-center justify-between flex-wrap gap-4 max-md:justify-center max-md:text-center">
-          <p className="m-0 text-[12.5px] text-white/40 tracking-[0.04em]">
-            © {currentYear} Vila Casa Esy — Toate drepturile rezervate
-          </p>
-          <button
-            type="button"
-            onClick={scrollToTop}
-            aria-label="Înapoi sus"
-            className="inline-flex items-center gap-2 bg-transparent border border-white/15 rounded-full px-4 py-2 text-[11.5px] font-semibold tracking-[0.06em] text-white/65 cursor-pointer transition-all duration-[250ms] hover:border-[#c69a3f] hover:text-[#c69a3f] hover:-translate-y-[3px]"
-          >
-            <span>Înapoi sus</span>
-            <ArrowUp size={14} />
-          </button>
-        </div>
+      {/* BARA AURIE */}
+      <div className="relative z-[2] bg-[#c69a3f] py-3">
+        <p className="text-center text-[11px] font-semibold tracking-[0.04em] text-[#0d2c5c] m-0">
+          Copyright © {currentYear} Vila Casa Esy. Toate drepturile rezervate.
+        </p>
       </div>
     </footer>
   );
