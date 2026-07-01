@@ -179,10 +179,29 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="bg-[#c69a3f] py-3">
-        <p className="text-center text-[11px] font-semibold tracking-[0.04em] text-[#0d2c5c] m-0">
-          Copyright © {currentYear} Vila Casa Esy · Mamaia. Toate drepturile rezervate.
-        </p>
+      <div className="border-t border-white/10">
+        <div className="max-w-[1320px] mx-auto px-6 md:px-10 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[12px] text-white/40 m-0">
+            © {currentYear} <span className="text-white/60">Vila Casa Esy</span> · Mamaia. Toate drepturile rezervate.
+          </p>
+
+          {/* Payment methods */}
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-white/30">
+              Plăți sigure
+            </span>
+            <div className="flex items-center gap-2">
+              {["Visa", "Mastercard", "PayPal"].map((card) => (
+                <div
+                  key={card}
+                  className="px-2.5 py-1 rounded border border-white/15 text-[9px] font-semibold text-white/50"
+                >
+                  {card}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   );
