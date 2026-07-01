@@ -18,15 +18,29 @@ export default function AboutSection() {
         backgroundPosition: "center",
       }}
     >
-      {/* Decorative wave at top */}
+      {/* Waves "cut out" of the image at the top — matches the previous section's background */}
       <svg
-        className="absolute top-0 left-0 w-full h-16 pointer-events-none opacity-[0.08]"
-        viewBox="0 0 1440 60"
+        className="absolute -top-px left-0 w-full h-[90px] md:h-[130px] pointer-events-none z-[3] block"
+        viewBox="0 0 1440 130"
         preserveAspectRatio="none"
+        aria-hidden="true"
       >
+        {/* back wave — subtle gold silhouette peeking behind */}
         <path
-          d="M0 30 C180 50, 360 10, 540 35 S800 55, 1000 30 S1280 5, 1440 25 L1440 0 L0 0 Z"
+          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
           fill="#c69a3f"
+          opacity="0.35"
+        />
+        {/* mid wave — deeper navy tone */}
+        <path
+          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
+          fill="#0d2c5c"
+          opacity="0.5"
+        />
+        {/* front wave — matches the previous section background so waves appear carved out of the photo */}
+        <path
+          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
+          fill="#ffffff"
         />
       </svg>
 
