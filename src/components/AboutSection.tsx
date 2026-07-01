@@ -136,15 +136,32 @@ export default function AboutSection() {
         </div>
       </div>
 
-      {/* Decorative wave at bottom */}
+      {/* Inverted waves at bottom — mirror of top, flowing into white section */}
       <svg
-        className="absolute bottom-0 left-0 w-full h-20 pointer-events-none opacity-[0.06]"
-        viewBox="0 0 1440 80"
+        className="absolute bottom-0 left-0 w-full h-[90px] md:h-[130px] pointer-events-none z-[3] block"
+        viewBox="0 0 1440 130"
         preserveAspectRatio="none"
+        aria-hidden="true"
       >
+        {/* back wave — gold silhouette peeking above */}
         <path
-          d="M0 40 C200 60, 400 20, 600 45 S900 75, 1100 50 S1350 20, 1440 35 L1440 80 L0 80 Z"
+          transform="translate(0, 130) scale(1, -1)"
+          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
           fill="#c69a3f"
+          opacity="0.35"
+        />
+        {/* mid wave — deeper navy tone */}
+        <path
+          transform="translate(0, 130) scale(1, -1)"
+          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
+          fill="#0d2c5c"
+          opacity="0.5"
+        />
+        {/* front wave — white, blends into the next section */}
+        <path
+          transform="translate(0, 130) scale(1, -1)"
+          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
+          fill="#ffffff"
         />
       </svg>
     </section>
