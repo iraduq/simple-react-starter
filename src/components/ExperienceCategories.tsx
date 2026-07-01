@@ -44,17 +44,57 @@ export default function ExperienceCategories() {
         background: "linear-gradient(180deg, #f7f4ee 0%, #ffffff 55%)",
       }}
     >
-      {/* Decorative wave SVGs at top */}
-      <svg
-        className="absolute top-0 left-0 w-full h-20 pointer-events-none opacity-[0.06]"
-        viewBox="0 0 1440 80"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0 20 C180 50, 360 10, 540 30 S800 60, 1000 35 S1280 5, 1440 25 L1440 0 L0 0 Z"
-          fill="#1e4d8c"
-        />
-      </svg>
+      {/* Hero cutout waves — continues the hero image into this section */}
+      <div className="absolute top-0 left-0 right-0 pointer-events-none leading-[0] -translate-y-px z-[1]">
+        <svg
+          className="block w-full h-[90px] md:h-[130px]"
+          viewBox="0 0 1440 130"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <pattern
+              id="heroCutoutImg"
+              patternUnits="userSpaceOnUse"
+              width="1920"
+              height="1080"
+              x="0"
+              y="-950"
+            >
+              <image
+                href="https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop"
+                width="1920"
+                height="1080"
+                preserveAspectRatio="xMidYMid slice"
+              />
+              <rect
+                width="1920"
+                height="1080"
+                fill="rgba(13,44,92,0.75)"
+              />
+            </pattern>
+          </defs>
+          {/* Back layer — hero image continuation */}
+          <path
+            d="M0 0 L1440 0 L1440 70 C1240 110, 1040 40, 820 70 S420 120, 200 80 S40 55, 0 70 Z"
+            fill="url(#heroCutoutImg)"
+          />
+          {/* Mid navy wave */}
+          <path
+            d="M0 0 L1440 0 L1440 40 C1240 80, 1040 20, 820 55 S420 95, 200 60 S40 30, 0 45 Z"
+            fill="#0d2c5c"
+            opacity="0.55"
+          />
+          {/* Gold hairline accent */}
+          <path
+            d="M0 92 C220 60, 440 118, 720 92 S1200 55, 1440 92"
+            fill="none"
+            stroke="#c69a3f"
+            strokeOpacity="0.35"
+            strokeWidth="1"
+          />
+        </svg>
+      </div>
       <div className="max-w-[1280px] mx-auto">
         <div className="relative text-center mb-16">
           {/* Decorative wave SVGs */}
@@ -266,29 +306,6 @@ export default function ExperienceCategories() {
             </div>
           </article>
         </div>
-
-        {/* Decorative wave SVGs at bottom */}
-        <svg
-          className="absolute bottom-0 left-0 w-full h-24 pointer-events-none opacity-[0.07] hidden md:block"
-          viewBox="0 0 1440 100"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 60 C200 80, 400 40, 600 60 S900 90, 1100 60 S1350 30, 1440 50 L1440 100 L0 100 Z"
-            fill="#1e4d8c"
-          />
-        </svg>
-
-        <svg
-          className="absolute bottom-0 left-0 w-full h-16 pointer-events-none opacity-[0.05] hidden md:block"
-          viewBox="0 0 1440 60"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 30 C150 50, 300 10, 450 35 S700 55, 900 30 S1150 5, 1300 25 L1440 40 L1440 60 L0 60 Z"
-            fill="#0d2c5c"
-          />
-        </svg>
 
         <div className="mt-[72px] text-center">
           <a
