@@ -103,18 +103,18 @@ export default function Features() {
       <div className="relative max-w-[1320px] mx-auto">
         {/* Header */}
         <div className="mb-14 md:mb-20 max-w-[720px] text-center mx-auto">
-          <p className="eyebrow mb-4 flex items-center justify-center gap-3">
+          <p className="eyebrow mb-4 flex items-center justify-center gap-3 text-[#0d2c5c]/70">
             <span className="gold-rule" />
             Tot ce ai nevoie
             <span className="gold-rule" />
           </p>
           <h2
-            className="text-[clamp(2.4rem,4.4vw,3.6rem)] font-normal text-white leading-[1.1] mb-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.25)]"
+            className="text-[clamp(2.4rem,4.4vw,3.6rem)] font-normal text-[#0d2c5c] leading-[1.1] mb-6"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             Facilitățile <em className="italic text-[var(--gold-500)]">noastre</em>
           </h2>
-          <p className="text-white/75 text-[15px] leading-[1.8] m-0 max-w-[560px] mx-auto">
+          <p className="text-[#0d2c5c]/65 text-[15px] leading-[1.8] m-0 max-w-[560px] mx-auto">
             Fiecare detaliu e gândit ca tu să nu te gândești la nimic. De la
             plajă la masaj, de la prima cafea dimineața până la ultimul pahar
             de vin pe terasă — totul e la îndemână.
@@ -128,9 +128,9 @@ export default function Features() {
             return (
               <article
                 key={f.no}
-                className="group relative rounded-[14px] overflow-hidden border border-white/10 bg-[#0d2c5c]/40 backdrop-blur-sm shadow-[0_10px_40px_rgba(0,0,0,0.25)] transition-all duration-500 hover:-translate-y-1 hover:border-[#c69a3f]/50 hover:shadow-[0_18px_50px_rgba(198,154,63,0.18)]"
+                className="group relative rounded-[14px] overflow-hidden border border-[#0d2c5c]/8 bg-white shadow-[0_10px_40px_rgba(13,44,92,0.08)] transition-all duration-500 hover:-translate-y-1 hover:border-[#c69a3f]/40 hover:shadow-[0_18px_50px_rgba(13,44,92,0.14)]"
               >
-                {/* Image with navy tint */}
+                {/* Image with subtle navy tint */}
                 <div className="relative h-[240px] overflow-hidden">
                   <img
                     src={f.img}
@@ -142,7 +142,7 @@ export default function Features() {
                     className="absolute inset-0"
                     style={{
                       background:
-                        "linear-gradient(180deg, rgba(13,44,92,0.15) 0%, rgba(13,44,92,0.55) 55%, rgba(11,38,80,0.95) 100%)",
+                        "linear-gradient(180deg, rgba(13,44,92,0.10) 0%, rgba(13,44,92,0.35) 55%, rgba(11,38,80,0.72) 100%)",
                     }}
                   />
                   {/* Number monogram */}
@@ -157,7 +157,7 @@ export default function Features() {
                     {f.tag}
                   </span>
                   {/* Icon medallion */}
-                  <span className="absolute bottom-4 left-5 w-11 h-11 rounded-full border border-[#c69a3f]/60 bg-[#0d2c5c]/70 backdrop-blur-sm flex items-center justify-center text-[#c69a3f] transition-transform duration-500 group-hover:rotate-[8deg] group-hover:scale-110">
+                  <span className="absolute bottom-4 left-5 w-11 h-11 rounded-full border border-[#c69a3f]/60 bg-white/20 backdrop-blur-sm flex items-center justify-center text-[#c69a3f] transition-transform duration-500 group-hover:rotate-[8deg] group-hover:scale-110">
                     <Icon size={19} strokeWidth={1.6} />
                   </span>
                 </div>
@@ -165,13 +165,13 @@ export default function Features() {
                 {/* Body */}
                 <div className="relative px-6 pt-6 pb-7">
                   <h3
-                    className="text-[1.55rem] text-white leading-[1.15] mb-3 m-0"
+                    className="text-[1.55rem] text-[#0d2c5c] leading-[1.15] mb-3 m-0"
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
                     {f.title}
                   </h3>
                   <span className="block w-8 h-px bg-[#c69a3f] opacity-70 mb-4" />
-                  <p className="text-white/70 leading-[1.7] text-[14px] m-0 mb-5">
+                  <p className="text-[#0d2c5c]/70 leading-[1.7] text-[14px] m-0 mb-5">
                     {f.desc}
                   </p>
                   <a
@@ -204,13 +204,13 @@ export default function Features() {
         <path
           transform="translate(0, 130) scale(1, -1)"
           d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
-          fill="#0a2450"
+          fill="#0d2c5c"
           opacity="0.55"
         />
         <path
           transform="translate(0, 130) scale(1, -1)"
           d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
-          fill="#ffffff"
+          fill="#fafbfc"
         />
       </svg>
     </section>
