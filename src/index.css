@@ -1,1 +1,52 @@
 @import "tailwindcss";
+
+:root {
+  /* Color system — navy + gold editorial palette */
+  --navy-900: #0d2c5c;
+  --navy-800: #1e4d8c;
+  --navy-700: #2a5fa8;
+  --gold-500: #c69a3f;
+  --gold-400: #d4b06a;
+  --gold-100: #f5ecd9;
+  --ink-900: #1a1a1a;
+  --ink-700: #3c4043;
+  --ink-500: #8595aa;
+  --mist-50: #f4f7fb;
+  --mist-100: #e1e8f0;
+  --mist-200: #e6efff;
+
+  /* Typography */
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--ink-900);
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+/* Subtle gold divider used across sections */
+.gold-rule {
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: var(--gold-500);
+  opacity: 0.6;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-500);
+}
