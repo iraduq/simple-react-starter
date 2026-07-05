@@ -37,7 +37,7 @@ const features = [
     no: "05",
     title: "Parcare Supravegheată",
     desc: "Parcare cu cameră video, inclusă în prețul sejurului. Liniște din clipa în care ai ajuns.",
-    img: "https://images.pexels.com/photos/2660031/pexels-photo-2660031.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
+    img: "https://images.pexels.com/photos/1004409/pexels-photo-1004409.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100",
     tag: "Inclus în preț",
     icon: Car,
   },
@@ -55,164 +55,162 @@ export default function Features() {
   return (
     <section
       id="descopera-facilitati"
-      className="relative py-[110px] md:py-[140px] px-5 md:px-10 overflow-hidden bg-[#fafbfc]"
+      className="relative py-[110px] md:py-[150px] px-5 md:px-10 overflow-hidden bg-white"
     >
-      {/* Top wave — cut out from the navy section above into white */}
-      <svg
-        className="absolute -top-px left-0 w-full h-[80px] md:h-[120px] pointer-events-none z-[3] block"
-        viewBox="0 0 1440 130"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
-          fill="#c69a3f"
-          opacity="0.28"
-        />
-        <path
-          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
-          fill="#0b2650"
-          opacity="0.55"
-        />
-        <path
-          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
-          fill="#fafbfc"
-        />
-      </svg>
-
-      {/* Ambient glow */}
+      {/* Faint corner ornaments in gold — editorial mark, not decoration */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-40"
-        style={{
-          background:
-            "radial-gradient(circle at 15% 25%, rgba(198,154,63,0.12) 0%, transparent 45%), radial-gradient(circle at 85% 75%, rgba(13,44,92,0.10) 0%, transparent 55%)",
-        }}
+        aria-hidden="true"
+        className="absolute top-16 left-10 hidden md:block w-[1px] h-[70px] bg-gradient-to-b from-transparent via-[#c69a3f]/60 to-transparent"
       />
-
-      {/* Faint compass rose watermark */}
       <div
         aria-hidden="true"
-        className="absolute right-[-120px] top-1/2 -translate-y-1/2 w-[520px] h-[520px] pointer-events-none opacity-[0.04]"
-        style={{
-          background:
-            "radial-gradient(circle, transparent 48%, #0d2c5c 48.5%, #0d2c5c 49%, transparent 49.5%), radial-gradient(circle, transparent 32%, #0d2c5c 32.5%, #0d2c5c 33%, transparent 33.5%), conic-gradient(from 0deg, #0d2c5c 0deg 2deg, transparent 2deg 90deg, #0d2c5c 90deg 92deg, transparent 92deg 180deg, #0d2c5c 180deg 182deg, transparent 182deg 270deg, #0d2c5c 270deg 272deg, transparent 272deg 360deg)",
-          borderRadius: "50%",
-        }}
+        className="absolute top-16 right-10 hidden md:block w-[1px] h-[70px] bg-gradient-to-b from-transparent via-[#c69a3f]/60 to-transparent"
       />
 
       <div className="relative max-w-[1320px] mx-auto">
         {/* Header */}
-        <div className="mb-14 md:mb-20 max-w-[720px] text-center mx-auto">
-          <p className="eyebrow mb-4 flex items-center justify-center gap-3 text-[#0d2c5c]/70">
-            <span className="gold-rule" />
-            Tot ce ai nevoie
-            <span className="gold-rule" />
-          </p>
-          <h2
-            className="text-[clamp(2.4rem,4.4vw,3.6rem)] font-normal text-[#0d2c5c] leading-[1.1] mb-6"
-            style={{ fontFamily: "var(--font-serif)" }}
-          >
-            Facilitățile <em className="italic text-[var(--gold-500)]">noastre</em>
-          </h2>
-          <p className="text-[#0d2c5c]/65 text-[15px] leading-[1.8] m-0 max-w-[560px] mx-auto">
-            Fiecare detaliu e gândit ca tu să nu te gândești la nimic. De la
-            plajă la masaj, de la prima cafea dimineața până la ultimul pahar
-            de vin pe terasă — totul e la îndemână.
-          </p>
+        <div className="mb-16 md:mb-24 grid md:grid-cols-12 items-end gap-8">
+          <div className="md:col-span-7">
+            <p className="eyebrow mb-5 flex items-center gap-3 text-[#0d2c5c]/70">
+              <span className="gold-rule" />
+              Tot ce ai nevoie · La îndemână
+            </p>
+            <h2
+              className="text-[clamp(2.6rem,5vw,4.2rem)] font-normal text-[#0d2c5c] leading-[1.02] tracking-[-0.01em] m-0"
+              style={{ fontFamily: "var(--font-serif)" }}
+            >
+              Facilitățile
+              <br />
+              <em className="italic text-[var(--gold-500)]">noastre</em>
+              <span className="inline-block align-middle ml-4 w-16 h-px bg-[#c69a3f]" />
+            </h2>
+          </div>
+          <div className="md:col-span-5">
+            <p className="text-[#0d2c5c]/65 text-[15px] leading-[1.85] m-0 md:pl-8 md:border-l md:border-[#0d2c5c]/10">
+              Fiecare detaliu e gândit ca tu să nu te gândești la nimic.
+              De la plajă la masaj, de la prima cafea dimineața până la
+              ultimul pahar de vin pe terasă — totul e la îndemână.
+            </p>
+          </div>
         </div>
 
-        {/* Editorial card grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {features.map((f) => {
+        {/* Bento editorial grid: featured card + 5 companions */}
+        <div className="grid grid-cols-1 md:grid-cols-6 auto-rows-[240px] md:auto-rows-[210px] gap-5 md:gap-6">
+          {features.map((f, i) => {
             const Icon = f.icon;
+            // Feature: first card spans 3 cols x 2 rows (tall image left)
+            // Second: 3 cols x 1 row (wide banner)
+            // 3,4: 3 cols x 1 row each
+            // 5,6: 3 cols x 1 row each
+            const layout = [
+              "md:col-span-3 md:row-span-2",
+              "md:col-span-3 md:row-span-1",
+              "md:col-span-3 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
+            ][i];
+            const isHero = i === 0;
+            const isBanner = i === 1 || i === 2;
             return (
               <article
                 key={f.no}
-                className="group relative rounded-[14px] overflow-hidden border border-[#0d2c5c]/8 bg-white shadow-[0_10px_40px_rgba(13,44,92,0.08)] transition-all duration-500 hover:-translate-y-1 hover:border-[#c69a3f]/40 hover:shadow-[0_18px_50px_rgba(13,44,92,0.14)]"
+                className={`group relative overflow-hidden rounded-[6px] border border-[#0d2c5c]/8 bg-white shadow-[0_1px_2px_rgba(13,44,92,0.04)] transition-all duration-700 hover:border-[#c69a3f]/50 hover:shadow-[0_24px_60px_-20px_rgba(13,44,92,0.35)] ${layout}`}
               >
-                {/* Image with subtle navy tint */}
-                <div className="relative h-[240px] overflow-hidden">
-                  <img
-                    src={f.img}
-                    alt={f.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover block transition-transform duration-[900ms] ease-out group-hover:scale-[1.08]"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, rgba(13,44,92,0.10) 0%, rgba(13,44,92,0.35) 55%, rgba(11,38,80,0.72) 100%)",
-                    }}
-                  />
-                  {/* Number monogram */}
+                {/* Background image */}
+                <img
+                  src={f.img}
+                  alt={f.title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.06]"
+                />
+                {/* Dark editorial gradient */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0"
+                  style={{
+                    background: isHero
+                      ? "linear-gradient(180deg, rgba(13,44,92,0.15) 0%, rgba(13,44,92,0.55) 55%, rgba(8,26,58,0.92) 100%)"
+                      : "linear-gradient(180deg, rgba(13,44,92,0.25) 0%, rgba(13,44,92,0.55) 50%, rgba(8,26,58,0.88) 100%)",
+                  }}
+                />
+                {/* Gold hairline frame appearing on hover */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-3 border border-[#c69a3f]/0 rounded-[3px] transition-all duration-500 group-hover:inset-2 group-hover:border-[#c69a3f]/40"
+                />
+
+                {/* Top row: number + tag */}
+                <div className="absolute top-4 md:top-5 left-5 right-5 flex items-start justify-between z-[2]">
                   <span
-                    className="absolute top-4 left-5 text-[46px] leading-none text-white/85 [text-shadow:0_2px_16px_rgba(0,0,0,0.4)]"
+                    className={`text-white/85 leading-none ${
+                      isHero ? "text-[64px] md:text-[84px]" : "text-[38px] md:text-[46px]"
+                    }`}
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
+                    <span className="text-[#c69a3f]">·</span>
                     {f.no}
                   </span>
-                  {/* Tag pill */}
-                  <span className="absolute top-5 right-5 bg-[#c69a3f] text-[#0d2c5c] text-[10px] font-bold tracking-[0.12em] uppercase px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(198,154,63,0.35)]">
+                  <span className="mt-2 bg-white/95 text-[#0d2c5c] text-[9.5px] font-bold tracking-[0.16em] uppercase px-2.5 py-1.5 rounded-full shadow-[0_4px_14px_rgba(0,0,0,0.18)]">
                     {f.tag}
-                  </span>
-                  {/* Icon medallion */}
-                  <span className="absolute bottom-4 left-5 w-11 h-11 rounded-full border border-[#c69a3f]/60 bg-white/20 backdrop-blur-sm flex items-center justify-center text-[#c69a3f] transition-transform duration-500 group-hover:rotate-[8deg] group-hover:scale-110">
-                    <Icon size={19} strokeWidth={1.6} />
                   </span>
                 </div>
 
-                {/* Body */}
-                <div className="relative px-6 pt-6 pb-7">
-                  <h3
-                    className="text-[1.55rem] text-[#0d2c5c] leading-[1.15] mb-3 m-0"
-                    style={{ fontFamily: "var(--font-serif)" }}
-                  >
-                    {f.title}
-                  </h3>
-                  <span className="block w-8 h-px bg-[#c69a3f] opacity-70 mb-4" />
-                  <p className="text-[#0d2c5c]/70 leading-[1.7] text-[14px] m-0 mb-5">
-                    {f.desc}
-                  </p>
-                  <a
-                    href="#rezerva"
-                    className="inline-flex items-center gap-1.5 text-[#c69a3f] text-[11px] font-bold tracking-[0.16em] uppercase transition-all duration-300 group-hover:gap-3"
-                  >
-                    Descoperă
-                    <ArrowUpRight size={13} strokeWidth={2.2} />
-                  </a>
+                {/* Bottom content */}
+                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 z-[2]">
+                  <div className="flex items-end gap-4">
+                    <span
+                      className={`shrink-0 rounded-full border border-[#c69a3f]/70 bg-[#0d2c5c]/40 backdrop-blur-md flex items-center justify-center text-[#c69a3f] transition-transform duration-500 group-hover:rotate-[10deg] group-hover:scale-110 ${
+                        isHero ? "w-14 h-14" : "w-11 h-11"
+                      }`}
+                    >
+                      <Icon size={isHero ? 22 : 18} strokeWidth={1.5} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h3
+                        className={`text-white leading-[1.1] m-0 ${
+                          isHero
+                            ? "text-[1.9rem] md:text-[2.3rem]"
+                            : isBanner
+                            ? "text-[1.5rem] md:text-[1.7rem]"
+                            : "text-[1.25rem] md:text-[1.35rem]"
+                        }`}
+                        style={{ fontFamily: "var(--font-serif)" }}
+                      >
+                        {f.title}
+                      </h3>
+                      {(isHero || isBanner) && (
+                        <p className="text-white/75 text-[13px] leading-[1.65] m-0 mt-2 max-w-[46ch]">
+                          {f.desc}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Reveal action on hover */}
+                  <div className="mt-4 flex items-center gap-3 opacity-0 -translate-y-1 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+                    <span className="h-px flex-1 bg-gradient-to-r from-[#c69a3f]/70 to-transparent" />
+                    <a
+                      href="#rezerva"
+                      className="inline-flex items-center gap-1.5 text-[#c69a3f] text-[10.5px] font-bold tracking-[0.18em] uppercase"
+                    >
+                      Descoperă
+                      <ArrowUpRight size={13} strokeWidth={2.2} />
+                    </a>
+                  </div>
                 </div>
               </article>
             );
           })}
         </div>
-      </div>
 
-      {/* Bottom mirrored wave — flows into next white section */}
-      <svg
-        className="absolute bottom-0 left-0 w-full h-[80px] md:h-[120px] pointer-events-none z-[3] block"
-        viewBox="0 0 1440 130"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          transform="translate(0, 130) scale(1, -1)"
-          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
-          fill="#c69a3f"
-          opacity="0.28"
-        />
-        <path
-          transform="translate(0, 130) scale(1, -1)"
-          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
-          fill="#0d2c5c"
-          opacity="0.55"
-        />
-        <path
-          transform="translate(0, 130) scale(1, -1)"
-          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
-          fill="#fafbfc"
-        />
-      </svg>
+        {/* Footer signature line */}
+        <div className="mt-16 md:mt-20 flex items-center justify-center gap-4 text-[#0d2c5c]/55 text-[11px] tracking-[0.28em] uppercase">
+          <span className="w-14 h-px bg-[#c69a3f]/50" />
+          <span>Curated · Discreet · Al Tău</span>
+          <span className="w-14 h-px bg-[#c69a3f]/50" />
+        </div>
+      </div>
     </section>
   );
 }
