@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Waves, UtensilsCrossed, CalendarHeart, Wifi, Car, Sparkles } from "lucide-react";
 
 const features = [
   {
@@ -7,6 +7,7 @@ const features = [
     desc: "Piscină exterioară cu vedere la mare și acces direct la plajă privată, la doar 150 de metri de vilă.",
     img: "https://images.pexels.com/photos/261101/pexels-photo-261101.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
     tag: "La 150 m",
+    icon: Waves,
   },
   {
     no: "02",
@@ -14,6 +15,7 @@ const features = [
     desc: "Bucătărie internațională și preparate locale, gătite zilnic cu ingrediente proaspete de la producătorii din zonă.",
     img: "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
     tag: "Mic dejun inclus",
+    icon: UtensilsCrossed,
   },
   {
     no: "03",
@@ -21,6 +23,7 @@ const features = [
     desc: "Săli luminoase pentru conferințe, nunți și evenimente private memorabile, cu planificare și catering incluse.",
     img: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
     tag: "Până la 120 persoane",
+    icon: CalendarHeart,
   },
   {
     no: "04",
@@ -28,6 +31,7 @@ const features = [
     desc: "Conexiune de mare viteză în toate camerele și spațiile comune — pentru că vacanța nu înseamnă deconectare totală.",
     img: "https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
     tag: "1 Gb/s gratuit",
+    icon: Wifi,
   },
   {
     no: "05",
@@ -35,6 +39,7 @@ const features = [
     desc: "Parcare cu cameră video, inclusă în prețul sejurului. Liniște din clipa în care ai ajuns.",
     img: "https://images.pexels.com/photos/2660031/pexels-photo-2660031.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
     tag: "Inclus în preț",
+    icon: Car,
   },
   {
     no: "06",
@@ -42,6 +47,7 @@ const features = [
     desc: "Sală de fitness echipată modern și servicii de masaj la cerere, pentru dimineți care încep cum vrei tu.",
     img: "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
     tag: "Masaj la cerere",
+    icon: Sparkles,
   },
 ];
 
@@ -49,78 +55,135 @@ export default function Features() {
   return (
     <section
       id="descopera-facilitati"
-      className="py-[72px] px-5 md:py-28 md:px-10 bg-white"
+      className="relative py-[110px] md:py-[140px] px-5 md:px-10 overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(180deg, #0b2650 0%, #0d2c5c 45%, #0a2450 100%)",
+      }}
     >
-      <div className="max-w-[1320px] mx-auto">
+      {/* Top wave — cut out into the white section above */}
+      <svg
+        className="absolute -top-px left-0 w-full h-[80px] md:h-[120px] pointer-events-none z-[3] block"
+        viewBox="0 0 1440 130"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
+          fill="#c69a3f"
+          opacity="0.28"
+        />
+        <path
+          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
+          fill="#0b2650"
+          opacity="0.55"
+        />
+        <path
+          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
+          fill="#ffffff"
+        />
+      </svg>
+
+      {/* Ambient glow */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-70"
+        style={{
+          background:
+            "radial-gradient(circle at 15% 25%, rgba(198,154,63,0.18) 0%, transparent 45%), radial-gradient(circle at 85% 75%, rgba(30,77,140,0.35) 0%, transparent 55%)",
+        }}
+      />
+
+      {/* Faint compass rose watermark */}
+      <div
+        aria-hidden="true"
+        className="absolute right-[-120px] top-1/2 -translate-y-1/2 w-[520px] h-[520px] pointer-events-none opacity-[0.06]"
+        style={{
+          background:
+            "radial-gradient(circle, transparent 48%, #c69a3f 48.5%, #c69a3f 49%, transparent 49.5%), radial-gradient(circle, transparent 32%, #c69a3f 32.5%, #c69a3f 33%, transparent 33.5%), conic-gradient(from 0deg, #c69a3f 0deg 2deg, transparent 2deg 90deg, #c69a3f 90deg 92deg, transparent 92deg 180deg, #c69a3f 180deg 182deg, transparent 182deg 270deg, #c69a3f 270deg 272deg, transparent 272deg 360deg)",
+          borderRadius: "50%",
+        }}
+      />
+
+      <div className="relative max-w-[1320px] mx-auto">
         {/* Header */}
-        <div className="mb-14 md:mb-20 max-w-[640px]">
-          <p className="eyebrow mb-3 flex items-center gap-3">
+        <div className="mb-14 md:mb-20 max-w-[720px] text-center mx-auto">
+          <p className="eyebrow mb-4 flex items-center justify-center gap-3">
             <span className="gold-rule" />
             Tot ce ai nevoie
+            <span className="gold-rule" />
           </p>
           <h2
-            className="text-[clamp(2.2rem,4vw,3.2rem)] font-normal text-[var(--navy-900)] leading-[1.1] mb-5"
+            className="text-[clamp(2.4rem,4.4vw,3.6rem)] font-normal text-white leading-[1.1] mb-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.25)]"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             Facilitățile <em className="italic text-[var(--gold-500)]">noastre</em>
           </h2>
-          <p className="text-[var(--ink-700)] text-[15px] leading-[1.7] m-0">
+          <p className="text-white/75 text-[15px] leading-[1.8] m-0 max-w-[560px] mx-auto">
             Fiecare detaliu e gândit ca tu să nu te gândești la nimic. De la
             plajă la masaj, de la prima cafea dimineața până la ultimul pahar
             de vin pe terasă — totul e la îndemână.
           </p>
         </div>
 
-        {/* Editorial mosaic — alternating image side, asymmetric */}
-        <div className="flex flex-col gap-16 md:gap-24">
-          {features.map((f, i) => {
-            const flip = i % 2 === 1;
+        {/* Editorial card grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {features.map((f) => {
+            const Icon = f.icon;
             return (
               <article
                 key={f.no}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-14 items-center"
+                className="group relative rounded-[14px] overflow-hidden border border-white/10 bg-[#0d2c5c]/40 backdrop-blur-sm shadow-[0_10px_40px_rgba(0,0,0,0.25)] transition-all duration-500 hover:-translate-y-1 hover:border-[#c69a3f]/50 hover:shadow-[0_18px_50px_rgba(198,154,63,0.18)]"
               >
-                {/* Image */}
-                <div
-                  className={`relative rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(13,44,92,0.12)] ${
-                    flip ? "md:order-2" : ""
-                  }`}
-                >
+                {/* Image with navy tint */}
+                <div className="relative h-[240px] overflow-hidden">
                   <img
                     src={f.img}
                     alt={f.title}
                     loading="lazy"
-                    className="w-full h-[340px] md:h-[440px] object-cover block transition-transform duration-[600ms] ease-out hover:scale-[1.04]"
+                    className="w-full h-full object-cover block transition-transform duration-[900ms] ease-out group-hover:scale-[1.08]"
                   />
-                  <span className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-[var(--navy-900)] text-[10.5px] font-bold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full">
-                    {f.tag}
-                  </span>
-                </div>
-
-                {/* Text */}
-                <div className={flip ? "md:order-1 md:pr-4" : "md:pl-4"}>
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(13,44,92,0.15) 0%, rgba(13,44,92,0.55) 55%, rgba(11,38,80,0.95) 100%)",
+                    }}
+                  />
+                  {/* Number monogram */}
                   <span
-                    className="block text-[var(--gold-500)] text-[13px] tracking-[0.18em] mb-4"
+                    className="absolute top-4 left-5 text-[46px] leading-none text-white/85 [text-shadow:0_2px_16px_rgba(0,0,0,0.4)]"
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
                     {f.no}
                   </span>
+                  {/* Tag pill */}
+                  <span className="absolute top-5 right-5 bg-[#c69a3f] text-[#0d2c5c] text-[10px] font-bold tracking-[0.12em] uppercase px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(198,154,63,0.35)]">
+                    {f.tag}
+                  </span>
+                  {/* Icon medallion */}
+                  <span className="absolute bottom-4 left-5 w-11 h-11 rounded-full border border-[#c69a3f]/60 bg-[#0d2c5c]/70 backdrop-blur-sm flex items-center justify-center text-[#c69a3f] transition-transform duration-500 group-hover:rotate-[8deg] group-hover:scale-110">
+                    <Icon size={19} strokeWidth={1.6} />
+                  </span>
+                </div>
+
+                {/* Body */}
+                <div className="relative px-6 pt-6 pb-7">
                   <h3
-                    className="text-[clamp(1.7rem,2.6vw,2.4rem)] text-[var(--navy-900)] leading-[1.1] mb-4 m-0"
+                    className="text-[1.55rem] text-white leading-[1.15] mb-3 m-0"
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
                     {f.title}
                   </h3>
-                  <span className="block w-10 h-px bg-[var(--gold-500)] opacity-50 mb-5" />
-                  <p className="text-[var(--ink-700)] leading-[1.75] text-[15px] m-0 max-w-[440px] mb-6">
+                  <span className="block w-8 h-px bg-[#c69a3f] opacity-70 mb-4" />
+                  <p className="text-white/70 leading-[1.7] text-[14px] m-0 mb-5">
                     {f.desc}
                   </p>
                   <a
                     href="#rezerva"
-                    className="inline-flex items-center gap-1.5 text-[var(--navy-900)] text-[12px] font-bold tracking-[0.12em] uppercase border-b border-[var(--gold-500)] pb-1 transition-colors duration-200 hover:text-[var(--gold-500)]"
+                    className="inline-flex items-center gap-1.5 text-[#c69a3f] text-[11px] font-bold tracking-[0.16em] uppercase transition-all duration-300 group-hover:gap-3"
                   >
                     Descoperă
-                    <ArrowUpRight size={14} strokeWidth={2} />
+                    <ArrowUpRight size={13} strokeWidth={2.2} />
                   </a>
                 </div>
               </article>
@@ -128,6 +191,32 @@ export default function Features() {
           })}
         </div>
       </div>
+
+      {/* Bottom mirrored wave — flows into next white section */}
+      <svg
+        className="absolute bottom-0 left-0 w-full h-[80px] md:h-[120px] pointer-events-none z-[3] block"
+        viewBox="0 0 1440 130"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          transform="translate(0, 130) scale(1, -1)"
+          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
+          fill="#c69a3f"
+          opacity="0.28"
+        />
+        <path
+          transform="translate(0, 130) scale(1, -1)"
+          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
+          fill="#0a2450"
+          opacity="0.55"
+        />
+        <path
+          transform="translate(0, 130) scale(1, -1)"
+          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
+          fill="#ffffff"
+        />
+      </svg>
     </section>
   );
 }
