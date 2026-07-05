@@ -37,7 +37,7 @@ const features = [
     no: "05",
     title: "Parcare Supravegheată",
     desc: "Parcare cu cameră video, inclusă în prețul sejurului. Liniște din clipa în care ai ajuns.",
-    img: "https://images.pexels.com/photos/2660031/pexels-photo-2660031.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop",
+    img: "https://images.pexels.com/photos/1004409/pexels-photo-1004409.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100",
     tag: "Inclus în preț",
     icon: Car,
   },
@@ -105,13 +105,13 @@ export default function Features() {
             const layout = [
               "md:col-span-3 md:row-span-2",
               "md:col-span-3 md:row-span-1",
-              "md:col-span-2 md:row-span-1",
-              "md:col-span-2 md:row-span-1",
-              "md:col-span-2 md:row-span-1",
               "md:col-span-3 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
             ][i];
             const isHero = i === 0;
-            const isBanner = i === 1 || i === 5;
+            const isBanner = i === 1 || i === 2;
             return (
               <article
                 key={f.no}
