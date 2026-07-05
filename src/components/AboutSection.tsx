@@ -1,10 +1,3 @@
-const stats = [
-  { value: "2,400+", label: "Oaspeți fericiți" },
-  { value: "12", label: "Ani de experiență" },
-  { value: "98%", label: "Satisfacție" },
-  { value: "150m", label: "Distanța până la plajă" },
-];
-
 export default function AboutSection() {
   return (
     <section
@@ -68,32 +61,18 @@ export default function AboutSection() {
             <p className="text-white/80 leading-[1.8] text-[15px] mb-5 max-w-[480px]">
               Vila Casa Esy s-a născut dintr-o dorință simplă: să creăm un loc unde
               oaspeții să se simtă acasă, dar cu lux și rafinament. Situată la doar
-              150 de metri de plajă, vila noastră oferă o evadare perfectă din
-              agitația cotidiană.
+              <span className="text-[#c69a3f] font-medium"> 150 de metri de plajă</span>,
+              vila noastră oferă o evadare perfectă din agitația cotidiană.
             </p>
 
             <p className="text-white/70 leading-[1.8] text-[15px] mb-8 max-w-[480px]">
               Fiecare cameră este decorată cu atenție la detalii, iar echipa noastră
               este mereu disponibilă pentru a transforma sejurul tău într-o amintire
-              de neprețuit.
+              de neprețuit. În <span className="text-[#c69a3f] font-medium">12 ani</span> de
+              când vă primim, peste <span className="text-[#c69a3f] font-medium">2.400 de oaspeți</span> ne-au
+              numit casa lor de la mare — și <span className="text-[#c69a3f] font-medium">98% dintre ei</span> ne
+              promit că se vor întoarce.
             </p>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 mb-10 border-t border-b border-white/10 divide-x divide-white/10">
-              {stats.map(({ value, label }) => (
-                <div
-                  key={label}
-                  className="flex flex-col items-center text-center py-6 px-3"
-                >
-                  <strong className="block font-['Cormorant_Garamond',serif] text-[clamp(2rem,3vw,2.6rem)] font-normal text-white leading-none mb-2">
-                    {value}
-                  </strong>
-                  <span className="block w-6 h-px bg-[#c69a3f]/60 mb-2.5" />
-                  <span className="block text-[11px] text-white/55 tracking-[0.06em] leading-tight">
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
 
             <a
               href="#camere"
