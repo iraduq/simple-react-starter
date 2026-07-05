@@ -55,13 +55,9 @@ export default function Features() {
   return (
     <section
       id="descopera-facilitati"
-      className="relative py-[110px] md:py-[140px] px-5 md:px-10 overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(180deg, #0b2650 0%, #0d2c5c 45%, #0a2450 100%)",
-      }}
+      className="relative py-[110px] md:py-[140px] px-5 md:px-10 overflow-hidden bg-[#fafbfc]"
     >
-      {/* Top wave — cut out into the white section above */}
+      {/* Top wave — cut out from the navy section above into white */}
       <svg
         className="absolute -top-px left-0 w-full h-[80px] md:h-[120px] pointer-events-none z-[3] block"
         viewBox="0 0 1440 130"
@@ -80,26 +76,26 @@ export default function Features() {
         />
         <path
           d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
-          fill="#ffffff"
+          fill="#fafbfc"
         />
       </svg>
 
       {/* Ambient glow */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-70"
+        className="absolute inset-0 pointer-events-none opacity-40"
         style={{
           background:
-            "radial-gradient(circle at 15% 25%, rgba(198,154,63,0.18) 0%, transparent 45%), radial-gradient(circle at 85% 75%, rgba(30,77,140,0.35) 0%, transparent 55%)",
+            "radial-gradient(circle at 15% 25%, rgba(198,154,63,0.12) 0%, transparent 45%), radial-gradient(circle at 85% 75%, rgba(13,44,92,0.10) 0%, transparent 55%)",
         }}
       />
 
       {/* Faint compass rose watermark */}
       <div
         aria-hidden="true"
-        className="absolute right-[-120px] top-1/2 -translate-y-1/2 w-[520px] h-[520px] pointer-events-none opacity-[0.06]"
+        className="absolute right-[-120px] top-1/2 -translate-y-1/2 w-[520px] h-[520px] pointer-events-none opacity-[0.04]"
         style={{
           background:
-            "radial-gradient(circle, transparent 48%, #c69a3f 48.5%, #c69a3f 49%, transparent 49.5%), radial-gradient(circle, transparent 32%, #c69a3f 32.5%, #c69a3f 33%, transparent 33.5%), conic-gradient(from 0deg, #c69a3f 0deg 2deg, transparent 2deg 90deg, #c69a3f 90deg 92deg, transparent 92deg 180deg, #c69a3f 180deg 182deg, transparent 182deg 270deg, #c69a3f 270deg 272deg, transparent 272deg 360deg)",
+            "radial-gradient(circle, transparent 48%, #0d2c5c 48.5%, #0d2c5c 49%, transparent 49.5%), radial-gradient(circle, transparent 32%, #0d2c5c 32.5%, #0d2c5c 33%, transparent 33.5%), conic-gradient(from 0deg, #0d2c5c 0deg 2deg, transparent 2deg 90deg, #0d2c5c 90deg 92deg, transparent 92deg 180deg, #0d2c5c 180deg 182deg, transparent 182deg 270deg, #0d2c5c 270deg 272deg, transparent 272deg 360deg)",
           borderRadius: "50%",
         }}
       />
