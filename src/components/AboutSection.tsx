@@ -94,11 +94,11 @@ export default function AboutSection() {
             {/* BUTON — same convention as ExperienceCategories CTA */}
             <a
               href="#camere"
-              className="group inline-flex items-center gap-[22px] self-start text-white text-xs tracking-[0.25em] uppercase no-underline"
+              className="group inline-flex items-center gap-3 self-start px-7 py-3.5 rounded-full bg-[#c69a3f] text-[#0d2c5c] text-xs font-bold tracking-[0.2em] uppercase no-underline shadow-lg shadow-[#c69a3f]/20 transition-all duration-300 hover:bg-[#0d2c5c] hover:text-white hover:shadow-xl hover:shadow-[#0d2c5c]/30 hover:-translate-y-0.5"
             >
               <span>Descoperă camerele</span>
               <span
-                className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-[#c69a3f]/60 text-base transition-all duration-300 group-hover:bg-[#c69a3f] group-hover:text-[#0d2c5c] group-hover:border-[#c69a3f] group-hover:translate-x-1"
+                className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#0d2c5c]/10 text-sm transition-all duration-300 group-hover:bg-white/15 group-hover:translate-x-1"
                 aria-hidden="true"
               >
                 →
