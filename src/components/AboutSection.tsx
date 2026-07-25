@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 const stats = [
   { value: "2,400+", label: "Oaspeți fericiți" },
   { value: "12", label: "Ani de experiență" },
