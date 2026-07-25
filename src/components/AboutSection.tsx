@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 const stats = [
   { value: "2,400+", label: "Oaspeți fericiți" },
   { value: "12", label: "Ani de experiență" },
@@ -46,30 +44,27 @@ export default function AboutSection() {
           {/* Text Content */}
           <div className="flex flex-col order-2 lg:order-1">
             {/* EYEBROW */}
-            <p className="font-sans text-sm font-bold tracking-widest uppercase text-[#c69a3f] mb-4 flex items-center gap-3">
+            <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5 flex items-center gap-3">
               <span className="w-8 h-px bg-[#c69a3f]/60" />
-              Povestea noastră
+              POVESTEA NOASTRĂ
             </p>
 
             {/* TITLU */}
-            <h2
-              className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-8 leading-tight drop-shadow-md"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
-            >
+            <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-white mb-8 leading-[1.15] tracking-[-0.01em] drop-shadow-md">
               Ospitalitate cu suflet,
               <br />
               <em className="italic text-[#c69a3f]">la malul mării</em>
             </h2>
 
             {/* BODY */}
-            <p className="font-sans text-white/80 leading-relaxed text-base md:text-lg mb-6 max-w-lg font-light">
+            <p className="font-sans text-white/80 leading-[1.75] text-[15px] mb-5 max-w-lg font-light">
               Vila Casa Esy s-a născut dintr-o dorință simplă: să creăm un loc
               unde oaspeții să se simtă acasă, dar cu lux și rafinament. Situată
               la doar 150 de metri de plajă, vila noastră oferă o evadare
               perfectă din agitația cotidiană.
             </p>
 
-            <p className="font-sans text-white/70 leading-relaxed text-base md:text-lg mb-12 max-w-lg font-light">
+            <p className="font-sans text-white/70 leading-[1.75] text-[15px] mb-12 max-w-lg font-light">
               Fiecare cameră este decorată cu atenție la detalii, iar echipa
               noastră este mereu disponibilă pentru a transforma sejurul tău
               într-o amintire de neprețuit.
@@ -85,10 +80,10 @@ export default function AboutSection() {
                   }`}
                 >
                   <div className="flex flex-col items-center">
-                    <span className="font-sans block text-2xl md:text-3xl font-bold text-[#c69a3f] leading-none select-none">
+                    <span className="font-['Cormorant_Garamond',serif] block text-[clamp(1.6rem,2vw,2.1rem)] font-normal text-[#c69a3f] leading-none select-none">
                       {value}
                     </span>
-                    <span className="font-sans block mt-3 text-xs md:text-sm text-white/50 uppercase tracking-widest font-bold">
+                    <span className="font-sans block mt-3 text-[10.5px] text-white/60 uppercase tracking-[0.3em] font-bold">
                       {label}
                     </span>
                   </div>
@@ -99,7 +94,7 @@ export default function AboutSection() {
             {/* BUTON */}
             <a
               href="#camere"
-              className="font-sans inline-flex items-center gap-3 self-start px-8 py-4 bg-[#c69a3f] text-[#0d2c5c] rounded-lg text-sm font-bold tracking-widest uppercase shadow-lg shadow-[#c69a3f]/20 transition-all duration-300 hover:bg-white hover:-translate-y-1"
+              className="font-sans inline-flex items-center gap-3 self-start px-8 py-4 bg-[#c69a3f] text-[#0d2c5c] rounded-lg text-[11px] font-bold tracking-[0.25em] uppercase shadow-lg shadow-[#c69a3f]/20 transition-all duration-300 hover:bg-white hover:-translate-y-1"
             >
               Descoperă camerele
               <span className="text-lg leading-none">→</span>

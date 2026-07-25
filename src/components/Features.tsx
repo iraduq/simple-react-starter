@@ -62,60 +62,62 @@ export default function Features() {
   return (
     <section
       id="descopera-facilitati"
-      className="py-[60px] px-5 md:py-[100px] md:px-10 bg-white"
+      className="relative py-[72px] px-5 md:py-24 md:px-10 bg-white overflow-hidden"
     >
-      <div className="text-center mb-14 md:mb-16">
-        <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5 flex items-center justify-center gap-3">
-          <span className="w-8 h-px bg-[#c69a3f]/50" />
-          Tot ce ai nevoie
-          <span className="w-8 h-px bg-[#c69a3f]/50" />
+      <div className="max-w-[1280px] mx-auto">
+      <div className="relative text-center mb-16">
+        <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5">
+          TOT CE AI NEVOIE
         </p>
-        <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.2rem,4vw,3.2rem)] font-normal text-[#0d2c5c] leading-[1.15]">
+        <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-[#1a1a1a] leading-[1.15] tracking-[-0.01em]">
           Facilitățile <em className="italic text-[#c69a3f]">Noastre</em>
         </h2>
+        <span
+          className="block w-14 h-0.5 mx-auto mt-5 border-0"
+          style={{ background: "linear-gradient(90deg, #c69a3f, transparent)" }}
+        />
+        <p className="max-w-[520px] mx-auto mt-5 text-[15px] text-[#3c4043] leading-[1.75]">
+          Fiecare detaliu este gândit pentru confortul tău — de la piscina cu
+          vedere la mare la bucătăria gourmet și spațiile de wellness.
+        </p>
       </div>
 
-      <div className="max-w-[1320px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[18px] md:gap-4 lg:gap-[22px]">
         {items.map(({ icon: Icon, number, title, desc, image }) => (
           <article
             key={title}
-            className="group relative h-[380px] md:h-[420px] rounded-[16px] overflow-hidden cursor-default shadow-[0_10px_30px_rgba(13,44,92,0.12)] transition-shadow duration-500 hover:shadow-[0_24px_60px_rgba(13,44,92,0.3)]"
+            className="group relative h-[380px] md:h-[420px] rounded-[18px] overflow-hidden cursor-default bg-[#0d2c5c] isolate shadow-[0_1px_2px_rgba(7,18,40,0.06),0_18px_48px_-18px_rgba(7,18,40,0.28)] transition-[transform,box-shadow] duration-[600ms] hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(7,18,40,0.1),0_32px_68px_-22px_rgba(7,18,40,0.45)]"
           >
-            {/* Background image */}
             <img
               src={image}
               alt={title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover block scale-[1.06] transition-[transform,filter] duration-[1200ms] group-hover:scale-100"
             />
-
-            {/* Gradient overlay — darker at bottom for text legibility, deepens on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c]/95 via-[#0d2c5c]/40 to-[#0d2c5c]/10 transition-all duration-500 group-hover:from-[#0d2c5c]/98 group-hover:via-[#0d2c5c]/55" />
-
-            {/* Thin gold border on hover */}
-            <div className="absolute inset-0 rounded-[16px] border border-white/0 transition-colors duration-500 group-hover:border-[#c69a3f]/50 pointer-events-none" />
-
-            {/* Number — top left, editorial */}
-            <span className="absolute top-6 left-6 font-['Cormorant_Garamond',serif] text-white/40 text-3xl font-light tracking-widest transition-colors duration-500 group-hover:text-[#c69a3f]/70">
-              {number}
-            </span>
-
-            {/* Icon badge — top right */}
-            <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center transition-all duration-500 group-hover:bg-[#c69a3f] group-hover:border-[#c69a3f] group-hover:text-[#0d2c5c] group-hover:rotate-[360deg]">
-              <Icon size={20} strokeWidth={1.5} />
+            <div
+              className="absolute inset-0 pointer-events-none z-[1]"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(7,18,40,0.85) 0%, rgba(7,18,40,0.25) 45%, transparent 70%)",
+              }}
+            />
+            <div className="absolute top-6 right-6 z-[2] w-11 h-11 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 text-white flex items-center justify-center transition-all duration-500 group-hover:bg-[#c69a3f] group-hover:border-[#c69a3f] group-hover:text-[#0d2c5c]">
+              <Icon size={18} strokeWidth={1.5} />
             </div>
-
-            {/* Content — bottom, slides up slightly on hover */}
-            <div className="absolute bottom-0 left-0 right-0 p-7 transition-transform duration-500 group-hover:-translate-y-1">
-              <span className="block w-8 h-px bg-[#c69a3f] mb-4 transition-all duration-500 group-hover:w-14" />
-              <h3 className="font-['Cormorant_Garamond',serif] text-[26px] text-white mb-2 tracking-[0.02em] leading-[1.2]">
+            <div className="absolute z-[2] text-white font-sans left-0 right-0 bottom-8 text-left px-7">
+              <span className="block text-[#c69a3f] text-[10.5px] tracking-[0.3em] uppercase mb-2.5">
+                {number}
+              </span>
+              <h3 className="font-['Cormorant_Garamond',serif] font-normal text-[clamp(1.6rem,2vw,2.1rem)] leading-[1.1] tracking-[0.01em] m-0">
                 {title}
               </h3>
-              <p className="text-white/75 leading-[1.65] text-[13.5px] m-0">
+              <p className="text-[13px] leading-[1.55] text-white/80 mt-2.5 mb-0 max-w-[32ch]">
                 {desc}
               </p>
             </div>
           </article>
         ))}
+      </div>
       </div>
     </section>
   );
