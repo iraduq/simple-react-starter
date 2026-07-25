@@ -40,9 +40,6 @@ export default function ExperienceCategories() {
     <section
       id="descopera"
       className="relative py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden"
-      style={{
-        background: "linear-gradient(180deg, #f7f4ee 0%, #ffffff 55%)",
-      }}
     >
       <div className="max-w-[1280px] mx-auto">
         <div className="relative text-center mb-16">

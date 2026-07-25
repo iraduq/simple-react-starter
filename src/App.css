@@ -1,0 +1,33 @@
+:root {
+  /* Fonts */
+  --font-display: "Cormorant Garamond", serif;
+  --font-body:
+    "Inter", system-ui, sans-serif; /* ajustează dacă folosești alt font-sans */
+
+  /* Colors */
+  --color-navy: #0d2c5c;
+  --color-navy-soft: #243b5e;
+  --color-navy-muted: #3d4f6b;
+  --color-navy-faded: #5a6b85;
+  --color-gold: #c69a3f;
+  --color-white: #ffffff;
+
+  /* Font sizes */
+  --text-brand: 32px;
+  --text-eyebrow-sm: 10px; /* subtitlu brand, "plăți sigure" */
+  --text-eyebrow-md: 11px; /* titluri coloane, buton sus */
+  --text-body-lg: 14.5px; /* paragraf */
+  --text-body-md: 14px; /* linkuri, liste */
+  --text-body-sm: 13.5px; /* contact */
+  --text-caption: 12px; /* copyright */
+
+  /* Letter spacing */
+  --tracking-brand: 0.025em;
+  --tracking-wide: 0.14em;
+  --tracking-wider: 0.18em;
+  --tracking-widest: 0.25em;
+
+  /* Line height */
+  --leading-tight: 1;
+  --leading-relaxed: 1.8;
+}
