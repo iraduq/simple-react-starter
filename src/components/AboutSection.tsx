@@ -80,7 +80,7 @@ export default function AboutSection() {
                   }`}
                 >
                   <div className="flex flex-col items-center">
-                    <span className="font-sans block text-[clamp(1.6rem,2.4vw,2rem)] font-bold text-[#c69a3f] leading-none tracking-[-0.01em] select-none">
+                    <span className="font-sans block text-2xl sm:text-3xl font-bold text-[#c69a3f] leading-none tracking-[-0.01em] select-none">
                       {value}
                     </span>
                     <span className="font-sans block mt-3 text-[10.5px] text-white/60 uppercase tracking-[0.3em] font-bold">
