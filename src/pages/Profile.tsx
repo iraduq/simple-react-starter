@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchSession, type SessionUser } from "../lib/auth";
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<SessionUser>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://127.0.0.1:8000/users/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const loadProfile = async () => {
+      const sessionUser = await fetchSession();
 
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
+      if (!sessionUser) {
+        navigate("/login", { replace: true });
+        return;
       }
+
+      setUser(sessionUser);
     };
-    fetchProfile();
-  }, []);
+
+    loadProfile();
+  }, [navigate]);
 
   if (!user) return <p>Se încarcă datele...</p>;
 

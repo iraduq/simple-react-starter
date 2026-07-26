@@ -1,10 +1,18 @@
-import { Save as Waves, UtensilsCrossed, CalendarHeart, Wifi, Car, Dumbbell, ArrowRight } from "lucide-react";
+import {
+  Save as Waves,
+  UtensilsCrossed,
+  CalendarHeart,
+  Wifi,
+  Car,
+  Dumbbell,
+  ArrowRight,
+} from "lucide-react";
 
 const facilities = [
   {
     icon: Waves,
-    title: "Piscună & Plajă",
-    desc: "Piscină exterioară și acces direct la plajă privată, la doar 150m.",
+    title: "Piscină & Plajă",
+    desc: "Piscină exterioară și acces direct la plajă privată, la doar 150m distanță.",
   },
   {
     icon: UtensilsCrossed,
@@ -13,23 +21,23 @@ const facilities = [
   },
   {
     icon: CalendarHeart,
-    title: "Sala de Evenimente",
-    desc: "Spațiu elegant pentru nunți, conferințe și celebrări private.",
+    title: "Sală de Evenimente",
+    desc: "Spațiu elegant pentru nunți, conferințe și celebrări private memorabile.",
   },
   {
     icon: Wifi,
     title: "WiFi Premium",
-    desc: "Internet de mare viteză în toate zonele hotelului și camere.",
+    desc: "Internet de mare viteză în toate zonele hotelului și în camere.",
   },
   {
     icon: Car,
     title: "Parcare Gratuită",
-    desc: "Inclusă în prețul sejurului, supravegheată video 24/7.",
+    desc: "Inclusă în prețul sejurului, securizată și supravegheată video 24/7.",
   },
   {
     icon: Dumbbell,
     title: "Fitness & Wellness",
-    desc: "Sală modernă, saună și zonă de relaxare pentru o sejur complet.",
+    desc: "Sală modernă, saună și zonă de relaxare pentru un sejur complet.",
   },
 ];
 
@@ -37,49 +45,60 @@ export default function Features() {
   return (
     <section
       id="descopera-facilitati"
-      className="relative py-20 md:py-28 px-5 md:px-10 bg-[#0d2c5c] overflow-hidden"
+      className="relative py-24 md:py-32 px-5 md:px-10 bg-white overflow-hidden"
     >
-      <div className="max-w-[1280px] mx-auto">
-        <div className="text-center mb-14">
-          <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5">
-            TOT CE AI NEVOIE
-          </p>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-white leading-[1.15] tracking-[-0.01em]">
-            Facilitățile <em className="italic text-[#c69a3f]">Noastre</em>
-          </h2>
-          <p className="max-w-[520px] mx-auto mt-5 text-[15px] text-white/70 leading-[1.75] font-light">
-            Fiecare detaliu este gândit pentru confortul tău — de la piscina
-            cu vedere la mare la bucătăria gourmet și spațiile de wellness.
+      <div className="relative max-w-7xl mx-auto z-10">
+        {/* Header Secțiune */}
+        <div className="flex flex-col md:flex-row justify-between items-end gap-10 mb-20 md:mb-28">
+          <div className="max-w-2xl">
+            <p className="font-sans text-xs md:text-sm font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-4 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#c69a3f]/60" />
+              Tot ce ai nevoie
+            </p>
+            <h2 className="font-['Cormorant_Garamond',serif] text-4xl md:text-5xl lg:text-6xl font-normal text-zinc-900 leading-tight">
+              Facilitățile <em className="italic text-[#c69a3f]">Noastre</em>
+            </h2>
+          </div>
+
+          <p className="max-w-md text-base md:text-lg text-zinc-500 leading-relaxed font-light pb-2">
+            Fiecare detaliu este gândit pentru confortul tău — de la piscina cu
+            vedere la mare la bucătăria gourmet și spațiile de wellness.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10 rounded-2xl overflow-hidden">
+        {/* Grid Editorial (Fără Carduri) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16 md:gap-y-24">
           {facilities.map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="group bg-[#0d2c5c] p-8 md:p-10 transition-colors duration-300 hover:bg-[#11386e]"
-            >
-              <div className="w-14 h-14 rounded-full border border-[#c69a3f]/40 flex items-center justify-center mb-6 transition-all duration-300 group-hover:border-[#c69a3f] group-hover:bg-[#c69a3f]/10">
-                <Icon size={24} className="text-[#c69a3f]" strokeWidth={1.5} />
+            <div key={title} className="group flex flex-col items-start">
+              {/* Icon simplu, fără cutie */}
+              <div className="mb-6 transform transition-transform duration-500 group-hover:-translate-y-2">
+                <Icon size={38} className="text-[#c69a3f]" strokeWidth={1} />
               </div>
-              <h3 className="font-['Cormorant_Garamond',serif] text-[1.6rem] font-normal text-white leading-[1.2] mb-3">
+
+              {/* Text */}
+              <h3 className="font-['Cormorant_Garamond',serif] text-2xl md:text-3xl font-normal text-zinc-900 leading-snug mb-4">
                 {title}
               </h3>
-              <p className="text-[14px] text-white/65 leading-[1.7] font-light m-0">
+              <p className="text-sm md:text-base text-zinc-500 leading-relaxed font-light m-0 max-w-[90%]">
                 {desc}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-14 text-center">
+        {/* Buton / Link */}
+        <div className="mt-20 md:mt-28 border-t border-zinc-100 pt-10 flex justify-center">
           <a
             href="#camere"
-            className="group inline-flex items-center gap-3 text-white text-xs tracking-[0.25em] uppercase no-underline"
+            className="group inline-flex items-center gap-4 text-zinc-900 text-xs md:text-sm font-bold tracking-[0.2em] uppercase no-underline transition-colors hover:text-[#c69a3f]"
           >
-            <span>Vezi toate facilitățile</span>
-            <span className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-white/30 transition-all duration-300 group-hover:bg-[#c69a3f] group-hover:text-[#0d2c5c] group-hover:border-[#c69a3f] group-hover:translate-x-1">
-              <ArrowRight size={16} />
+            <span>Descoperă mai multe</span>
+            <span className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-zinc-200 transition-all duration-500 group-hover:bg-[#c69a3f] group-hover:text-white group-hover:border-[#c69a3f]">
+              <ArrowRight
+                size={18}
+                strokeWidth={1.5}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
             </span>
           </a>
         </div>

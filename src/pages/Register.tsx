@@ -24,8 +24,8 @@ export default function Register() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     phone: "",
   });
 
@@ -49,11 +49,12 @@ export default function Register() {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const fieldValidity = {
-    firstName:
-      formData.firstName.trim().length >= 2 &&
-      nameRegex.test(formData.firstName),
-    lastName:
-      formData.lastName.trim().length >= 2 && nameRegex.test(formData.lastName),
+    first_name:
+      formData.first_name.trim().length >= 2 &&
+      nameRegex.test(formData.first_name),
+    last_name:
+      formData.last_name.trim().length >= 2 &&
+      nameRegex.test(formData.last_name),
     email: emailRegex.test(formData.email),
     phone: formData.phone !== "" && isValidPhoneNumber(formData.phone),
     password: isPasswordValid,
@@ -63,11 +64,11 @@ export default function Register() {
     let errorMsg = "";
 
     switch (name) {
-      case "firstName":
+      case "first_name":
         if (value.trim().length < 2) errorMsg = "Minim 2 caractere.";
         else if (!nameRegex.test(value)) errorMsg = "Doar litere/cratime.";
         break;
-      case "lastName":
+      case "last_name":
         if (value.trim().length < 2) errorMsg = "Minim 2 caractere.";
         else if (!nameRegex.test(value)) errorMsg = "Doar litere/cratime.";
         break;
@@ -117,14 +118,14 @@ export default function Register() {
   };
 
   const validateAll = () => {
-    const isFirst = validateField("firstName", formData.firstName);
-    const isLast = validateField("lastName", formData.lastName);
+    const isFirst = validateField("first_name", formData.first_name);
+    const isLast = validateField("last_name", formData.last_name);
     const isMail = validateField("email", formData.email);
     const isPhone = validateField("phone", formData.phone);
 
     setTouched({
-      firstName: true,
-      lastName: true,
+      first_name: true,
+      last_name: true,
       email: true,
       phone: true,
       password: true,
@@ -141,18 +142,26 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/auth/register", {
+      const response = await fetch("http://localhost:8000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
+      const contentType = response.headers.get("content-type");
+      const data: unknown = contentType?.includes("application/json")
+        ? await response.json()
+        : null;
+
       if (response.ok) {
-        alert("Cont creat cu succes! Te redirecționăm către Login.");
-        navigate("/login");
+        navigate("/verify-email", { state: { email: formData.email } });
       } else {
-        const errorData = await response.json();
-        setServerError(errorData.detail || "Eroare la înregistrare.");
+        const errorMessage =
+          data && typeof data === "object" && "detail" in data
+            ? String(data.detail)
+            : "Eroare la înregistrare.";
+        setServerError(errorMessage);
       }
     } catch (error) {
       console.error("Eroare:", error);
@@ -165,7 +174,46 @@ export default function Register() {
   const handleGoogleSuccess = async (
     credentialResponse: CredentialResponse,
   ) => {
-    console.log("Google token:", credentialResponse.credential);
+    try {
+      const credential = credentialResponse.credential;
+      if (!credential) {
+        alert("Nu s-a putut prelua token-ul de la Google.");
+        return;
+      }
+
+      const decoded = JSON.parse(window.atob(credential.split(".")[1]));
+
+      const response = await fetch("http://localhost:8000/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: decoded.email,
+          first_name: decoded.given_name,
+          last_name: decoded.family_name,
+          google_id: decoded.sub,
+          phone: null,
+        }),
+      });
+
+      if (response.status === 200) {
+        navigate("/profile");
+        return;
+      }
+
+      const contentType = response.headers.get("content-type");
+      let errorMsg = "Eroare la autentificarea cu Google.";
+      if (contentType && contentType.includes("application/json")) {
+        const data = (await response.json()) as Record<string, unknown>;
+        if (data && typeof data.detail === "string") {
+          errorMsg = data.detail;
+        }
+      }
+      alert(errorMsg);
+    } catch (error) {
+      console.error("Eroare detaliată Google Login:", error);
+      alert("A apărut o problemă de conexiune cu serverul.");
+    }
   };
 
   const getInputClass = (name: keyof typeof fieldValidity) => {
@@ -271,22 +319,22 @@ export default function Register() {
               <div className="flex flex-col gap-1">
                 <div className="relative">
                   <User
-                    className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("firstName")}`}
+                    className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("first_name")}`}
                     size={18}
                     strokeWidth={1.5}
                   />
                   <input
                     type="text"
-                    name="firstName"
+                    name="first_name"
                     placeholder="Prenume"
-                    value={formData.firstName}
+                    value={formData.first_name}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    className={getInputClass("firstName")}
+                    className={getInputClass("first_name")}
                   />
-                  {touched.firstName && (
+                  {touched.first_name && (
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none animate-[fadeIn_0.2s_ease-in-out]">
-                      {fieldValidity.firstName ? (
+                      {fieldValidity.first_name ? (
                         <CheckCircle2
                           size={17}
                           strokeWidth={2}
@@ -302,9 +350,9 @@ export default function Register() {
                     </span>
                   )}
                 </div>
-                {errors.firstName && touched.firstName && (
+                {errors.first_name && touched.first_name && (
                   <span className="text-[11.5px] text-red-500 font-medium pl-1">
-                    {errors.firstName}
+                    {errors.first_name}
                   </span>
                 )}
               </div>
@@ -312,22 +360,22 @@ export default function Register() {
               <div className="flex flex-col gap-1">
                 <div className="relative">
                   <User
-                    className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("lastName")}`}
+                    className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("last_name")}`}
                     size={18}
                     strokeWidth={1.5}
                   />
                   <input
                     type="text"
-                    name="lastName"
+                    name="last_name"
                     placeholder="Nume"
-                    value={formData.lastName}
+                    value={formData.last_name}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    className={getInputClass("lastName")}
+                    className={getInputClass("last_name")}
                   />
-                  {touched.lastName && (
+                  {touched.last_name && (
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
-                      {fieldValidity.lastName ? (
+                      {fieldValidity.last_name ? (
                         <CheckCircle2
                           size={17}
                           strokeWidth={2}
@@ -343,9 +391,9 @@ export default function Register() {
                     </span>
                   )}
                 </div>
-                {errors.lastName && touched.lastName && (
+                {errors.last_name && touched.last_name && (
                   <span className="text-[11.5px] text-red-500 font-medium pl-1">
-                    {errors.lastName}
+                    {errors.last_name}
                   </span>
                 )}
               </div>
@@ -557,7 +605,7 @@ export default function Register() {
               theme="outline"
               size="large"
               shape="pill"
-              width="100%"
+              width={350}
               text="signup_with"
             />
           </div>

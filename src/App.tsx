@@ -27,15 +27,9 @@ function App() {
     <>
       <Router>
         <Routes>
-          {/* ==========================================
-              RUTE FĂRĂ NAVBAR (Paginile de Autentificare)
-              ========================================== */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* ==========================================
-              RUTE CU NAVBAR (Grupate sub MainLayout)
-              ========================================== */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />

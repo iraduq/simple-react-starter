@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { ChevronDown, CircleUser, X, Sparkles, Key } from "lucide-react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import {
+  ChevronDown,
+  CircleUser,
+  X,
+  Sparkles,
+  Key,
+  LogOut,
+} from "lucide-react";
+import {
+  clearSession,
+  fetchSession,
+  hasSession,
+  onSessionChange,
+} from "../lib/auth";
 
 const LANGS = [
   { code: "RO", label: "Română", flagUrl: "https://flagcdn.com/w20/ro.png" },
@@ -9,12 +22,14 @@ const LANGS = [
 ];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [lang, setLang] = useState("RO");
   const [langOpen, setLangOpen] = useState(false);
   const [acctOpen, setAcctOpen] = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
 
   const langRef = useRef<HTMLDivElement>(null);
   const acctRef = useRef<HTMLDivElement>(null);
@@ -31,6 +46,12 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    fetchSession().then(() => setIsAuthenticated(hasSession()));
+
+    return onSessionChange(() => setIsAuthenticated(hasSession()));
+  }, []);
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -40,6 +61,12 @@ export default function Navbar() {
     navigator.clipboard.writeText("CASAESY15");
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleLogout = () => {
+    clearSession();
+    setAcctOpen(false);
+    navigate("/");
   };
 
   const activeLang = LANGS.find((l) => l.code === lang) || LANGS[0];
@@ -235,26 +262,50 @@ export default function Navbar() {
                   role="menu"
                   className="absolute top-[calc(100%+10px)] right-0 bg-white border border-[#e1e8f0] rounded-[10px] shadow-[0_4px_6px_rgba(13,44,92,0.04),0_12px_40px_rgba(13,44,92,0.12)] p-5 min-w-[256px] flex flex-col gap-2.5 z-[200] before:content-[''] before:absolute before:-top-[5px] before:right-[14px] before:w-2.5 before:h-2.5 before:bg-white before:border-t before:border-l before:border-[#e1e8f0] before:rotate-45"
                 >
-                  <p className="font-['Cormorant_Garamond',serif] text-lg font-medium text-[#0d2c5c] m-0">
-                    Bun venit la Casa Esy
-                  </p>
-                  <p className="text-[12.5px] text-[#3c4043] leading-relaxed m-0">
-                    Intră în cont pentru a-ți gestiona rezervările.
-                  </p>
-                  <Link
-                    to="/login"
-                    onClick={() => setAcctOpen(false)}
-                    className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
-                  >
-                    Intră în cont
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={() => setAcctOpen(false)}
-                    className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase text-[#3c4043] border border-[#e1e8f0] hover:border-[#1e4d8c] hover:text-[#0d2c5c] transition-colors duration-200"
-                  >
-                    Creează cont nou
-                  </Link>
+                  {isAuthenticated ? (
+                    <>
+                      <p className="font-['Cormorant_Garamond',serif] text-lg font-medium text-[#0d2c5c] m-0">
+                        Ești conectat
+                      </p>
+                      <Link
+                        to="/profile"
+                        onClick={() => setAcctOpen(false)}
+                        className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
+                      >
+                        Vezi profilul
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex items-center justify-center gap-2 px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase text-[#3c4043] border border-[#e1e8f0] hover:border-red-400 hover:text-red-600 transition-colors duration-200"
+                      >
+                        <LogOut size={14} /> Deloghează-te
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-['Cormorant_Garamond',serif] text-lg font-medium text-[#0d2c5c] m-0">
+                        Bun venit la Casa Esy
+                      </p>
+                      <p className="text-[12.5px] text-[#3c4043] leading-relaxed m-0">
+                        Intră în cont pentru a-ți gestiona rezervările.
+                      </p>
+                      <Link
+                        to="/login"
+                        onClick={() => setAcctOpen(false)}
+                        className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
+                      >
+                        Intră în cont
+                      </Link>
+                      <Link
+                        to="/register"
+                        onClick={() => setAcctOpen(false)}
+                        className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase text-[#3c4043] border border-[#e1e8f0] hover:border-[#1e4d8c] hover:text-[#0d2c5c] transition-colors duration-200"
+                      >
+                        Creează cont nou
+                      </Link>
+                    </>
+                  )}
                 </div>
               )}
             </div>

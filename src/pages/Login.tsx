@@ -2,38 +2,46 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { Mail, Lock, ArrowRight, ArrowLeft } from "lucide-react";
+import { fetchSession, notifySessionChange } from "../lib/auth";
 
 export default function Login() {
   const navigate = useNavigate();
 
-  // Stări pentru Login-ul standard
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Stări pentru "Ai uitat parola?"
   const [isForgotPasswordView, setIsForgotPasswordView] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetMessage, setResetMessage] = useState("");
 
-  const handleAuthSuccess = (data: { accessToken: string }) => {
-    localStorage.setItem("token", data.accessToken);
-    console.log("Token salvat:", data.accessToken);
-    navigate("/profile");
-  };
-
-  // --- LOGICĂ LOGIN STANDARD ---
   const handleLocalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/auth/login", {
+      const res = await fetch("http://localhost:8000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
-      if (res.ok) handleAuthSuccess(data);
-      else alert(data.detail || "Eroare la autentificare.");
+      const contentType = res.headers.get("content-type");
+      const data = contentType?.includes("application/json")
+        ? await res.json()
+        : null;
+
+      if (res.ok) {
+        await fetchSession();
+        navigate("/profile");
+      } else {
+        const errorMessage =
+          data &&
+          typeof data === "object" &&
+          "detail" in data &&
+          typeof data.detail === "string"
+            ? data.detail
+            : "Eroare la autentificare.";
+        alert(errorMessage);
+      }
     } catch {
       alert("A apărut o problemă de conexiune.");
     } finally {
@@ -41,15 +49,15 @@ export default function Login() {
     }
   };
 
-  // --- LOGICĂ RECUPERARE PAROLĂ ---
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setResetMessage("");
     try {
-      await fetch("http://127.0.0.1:8000/auth/forgot-password", {
+      await fetch("http://localhost:8000/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: resetEmail }),
       });
 
@@ -65,34 +73,55 @@ export default function Login() {
     }
   };
 
-  // --- LOGICĂ GOOGLE LOGIN ---
   const handleGoogleSuccess = async (
     credentialResponse: CredentialResponse,
   ) => {
-    const decoded = JSON.parse(
-      window.atob((credentialResponse.credential ?? "").split(".")[1]),
-    );
     try {
-      const res = await fetch("http://127.0.0.1:8000/auth/google", {
+      const credential = credentialResponse.credential;
+      if (!credential) {
+        alert("Nu s-a putut prelua token-ul de la Google.");
+        return;
+      }
+
+      const decoded = JSON.parse(window.atob(credential.split(".")[1]));
+
+      const response = await fetch("http://localhost:8000/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           email: decoded.email,
-          firstName: decoded.given_name,
-          lastName: decoded.family_name,
-          googleId: decoded.sub,
+          first_name: decoded.given_name,
+          last_name: decoded.family_name,
+          google_id: decoded.sub,
+          phone: null,
         }),
       });
-      const data = await res.json();
-      if (res.ok) handleAuthSuccess(data);
-    } catch {
-      alert("Eroare la conectarea cu Google.");
+
+      if (response.ok) {
+        await fetchSession();
+        notifySessionChange();
+        navigate("/profile");
+        return;
+      }
+
+      const contentType = response.headers.get("content-type");
+      let errorMsg = `Eroare server (${response.status})`;
+      if (contentType && contentType.includes("application/json")) {
+        const data = (await response.json()) as Record<string, unknown>;
+        if (data && typeof data.detail === "string") {
+          errorMsg = data.detail;
+        }
+      }
+      alert(errorMsg);
+    } catch (error) {
+      console.error("Eroare detaliată Google Login:", error);
+      alert("A apărut o problemă de conexiune cu serverul.");
     }
   };
 
   return (
     <div className="flex min-h-screen bg-white font-sans max-[899px]:bg-[radial-gradient(circle_at_top_right,#e6efff,#f4f7fb)]">
-      {/* --- PARTEA STÂNGĂ - Imagine & Branding --- */}
       <div
         className="relative flex-[1.2] hidden min-[900px]:block bg-cover bg-center overflow-hidden"
         style={{
@@ -135,7 +164,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* --- PARTEA DREAPTĂ - Formulare --- */}
       <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-[3] max-[899px]:bg-transparent">
         <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_10px_40px_rgba(13,44,92,0.14)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
           <Link
@@ -151,7 +179,6 @@ export default function Login() {
           </Link>
 
           {isForgotPasswordView ? (
-            /* ================= VIEW: RECUPERARE PAROLĂ ================= */
             <>
               <div className="text-center mb-10">
                 <h1 className="font-['Cormorant_Garamond',serif] text-[32px] text-[#1a1a1a] mb-2.5 font-medium">
@@ -216,7 +243,6 @@ export default function Login() {
               </p>
             </>
           ) : (
-            /* ================= VIEW: LOGIN STANDARD ================= */
             <>
               <div className="text-center mb-10">
                 <h1 className="font-['Cormorant_Garamond',serif] text-[32px] text-[#1a1a1a] mb-2.5 font-medium">
@@ -306,7 +332,7 @@ export default function Login() {
                   theme="outline"
                   size="large"
                   shape="pill"
-                  width="100%"
+                  width={350}
                 />
               </div>
 
