@@ -46,8 +46,9 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    fetchSession().then(() => setIsAuthenticated(hasSession()));
-
+    if (!hasSession()) {
+      fetchSession().then(() => setIsAuthenticated(hasSession()));
+    }
     return onSessionChange(() => setIsAuthenticated(hasSession()));
   }, []);
 

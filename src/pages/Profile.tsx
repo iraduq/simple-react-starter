@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchSession, type SessionUser } from "../lib/auth";
+import { fetchSession, getCachedUser, type SessionUser } from "../lib/auth";
 
 export default function Profile() {
-  const [user, setUser] = useState<SessionUser>(null);
+  const [user, setUser] = useState<SessionUser>(getCachedUser());
   const navigate = useNavigate();
 
   useEffect(() => {
+    let active = true;
     const loadProfile = async () => {
       const sessionUser = await fetchSession();
-
+      if (!active) return;
       if (!sessionUser) {
         navigate("/login", { replace: true });
         return;
       }
-
       setUser(sessionUser);
     };
 
+    if (user) return;
     loadProfile();
-  }, [navigate]);
+
+    return () => {
+      active = false;
+    };
+  }, [navigate, user]);
 
   if (!user) return <p>Se încarcă datele...</p>;
 

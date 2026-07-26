@@ -7,25 +7,37 @@ export type SessionUser = {
 } | null;
 
 let cachedUser: SessionUser = null;
+let hasFetched = false;
+let fetchPromise: Promise<SessionUser> | null = null;
 
-export const fetchSession = async (): Promise<SessionUser> => {
-  try {
-    const res = await fetch(`${API_URL}/auth/me`, {
-      credentials: "include",
-    });
+export const fetchSession = async (force = false): Promise<SessionUser> => {
+  if (!force && hasFetched) return cachedUser;
+  if (fetchPromise) return fetchPromise;
 
-    if (!res.ok) {
+  fetchPromise = (async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        cachedUser = null;
+        hasFetched = true;
+        return null;
+      }
+      const data = (await res.json()) as SessionUser;
+      cachedUser = data;
+      hasFetched = true;
+      return data;
+    } catch {
       cachedUser = null;
+      hasFetched = true;
       return null;
+    } finally {
+      fetchPromise = null;
     }
+  })();
 
-    const data = (await res.json()) as SessionUser;
-    cachedUser = data;
-    return data;
-  } catch {
-    cachedUser = null;
-    return null;
-  }
+  return fetchPromise;
 };
 
 export const getCachedUser = () => cachedUser;
@@ -46,6 +58,7 @@ export const clearSession = async () => {
     // ignorăm eroarea de rețea, tot ștergem starea locală
   }
   cachedUser = null;
+  hasFetched = true;
   notifySessionChange();
 };
 

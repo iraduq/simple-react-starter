@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
@@ -21,6 +21,7 @@ const inputBase =
 
 export default function Register() {
   const navigate = useNavigate();
+  const phoneWrapRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -37,10 +38,11 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
 
   const passwordRules = {
-    length: formData.password.length >= 8,
+    length: formData.password.length >= 8 && formData.password.length <= 64,
     lowercase: /[a-z]/.test(formData.password),
     uppercase: /[A-Z]/.test(formData.password),
     number: /[0-9]/.test(formData.password),
+    symbol: /[^A-Za-z0-9]/.test(formData.password),
   };
 
   const isPasswordValid = Object.values(passwordRules).every(Boolean);
@@ -66,11 +68,13 @@ export default function Register() {
     switch (name) {
       case "first_name":
         if (value.trim().length < 2) errorMsg = "Minim 2 caractere.";
-        else if (!nameRegex.test(value)) errorMsg = "Doar litere/cratime.";
+        else if (value.trim().length > 50) errorMsg = "Maxim 50 de caractere.";
+        else if (!nameRegex.test(value)) errorMsg = "Doar litere, spații sau cratime.";
         break;
       case "last_name":
         if (value.trim().length < 2) errorMsg = "Minim 2 caractere.";
-        else if (!nameRegex.test(value)) errorMsg = "Doar litere/cratime.";
+        else if (value.trim().length > 50) errorMsg = "Maxim 50 de caractere.";
+        else if (!nameRegex.test(value)) errorMsg = "Doar litere, spații sau cratime.";
         break;
       case "email":
         if (!value.trim()) errorMsg = "Email-ul este obligatoriu.";
@@ -83,7 +87,7 @@ export default function Register() {
         break;
       case "password":
         if (!isPasswordValid)
-          errorMsg = "Parola nu îndeplinește criteriile de securitate.";
+          errorMsg = "Parola trebuie să conțină majuscule, litere mici, cifre și simboluri.";
         break;
     }
 
@@ -116,6 +120,24 @@ export default function Register() {
     setTouched((prev) => ({ ...prev, phone: true }));
     validateField("phone", formData.phone);
   };
+
+  useEffect(() => {
+    const wrap = phoneWrapRef.current;
+    if (!wrap) return;
+    const input = wrap.querySelector(
+      "input.PhoneInputInput",
+    ) as HTMLInputElement | null;
+    if (!input) return;
+    input.setAttribute("autocomplete", "tel-national");
+    input.setAttribute("name", "phone");
+    const sync = () => setFormData((prev) => ({ ...prev, phone: input.value }));
+    input.addEventListener("input", sync);
+    input.addEventListener("change", sync);
+    return () => {
+      input.removeEventListener("input", sync);
+      input.removeEventListener("change", sync);
+    };
+  }, []);
 
   const validateAll = () => {
     const isFirst = validateField("first_name", formData.first_name);
@@ -442,6 +464,7 @@ export default function Register() {
 
             <div className="flex flex-col gap-1">
               <div
+                ref={phoneWrapRef}
                 className={`relative flex items-stretch overflow-hidden p-0! bg-[#f4f7fb] rounded-[10px] border ${getPhoneGroupClass()} [&_.PhoneInput]:flex [&_.PhoneInput]:items-center [&_.PhoneInput]:w-full [&_.PhoneInput]:flex-1 [&_.PhoneInputCountry]:flex [&_.PhoneInputCountry]:items-center [&_.PhoneInputCountry]:m-0 [&_.PhoneInputCountry]:h-full [&_.PhoneInputCountry]:relative [&_.PhoneInputCountry]:border-r [&_.PhoneInputInput]:border-none [&_.PhoneInputInput]:bg-transparent [&_.PhoneInputInput]:py-4 [&_.PhoneInputInput]:pr-11 [&_.PhoneInputInput]:pl-3.5 [&_.PhoneInputInput]:outline-none [&_.PhoneInputInput]:font-sans [&_.PhoneInputInput]:text-[14.5px] [&_.PhoneInputInput]:text-[#1a1a1a] [&_.PhoneInputInput]:w-full [&_.PhoneInputInput]:placeholder:text-[#8595aa]`}
               >
                 <PhoneInput
@@ -453,7 +476,6 @@ export default function Register() {
                   placeholder="Număr de telefon"
                   countrySelectComponent={CustomCountrySelect}
                   focusInputOnCountrySelection={false}
-                  autoComplete="off"
                 />
                 {touched.phone && (
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
@@ -535,7 +557,7 @@ export default function Register() {
                             : "text-[#e1e8f0]"
                         }
                       />
-                      Minim 8 caractere
+                      8-64 caractere
                     </li>
                     <li
                       className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-[250ms] ${passwordRules.lowercase ? "text-[#3c4043]" : "text-[#8595aa]"}`}
@@ -579,7 +601,22 @@ export default function Register() {
                       />
                       Un număr
                     </li>
+                    <li
+                      className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-[250ms] ${passwordRules.symbol ? "text-[#3c4043]" : "text-[#8595aa]"}`}
+                    >
+                      <CheckCircle2
+                        size={13}
+                        strokeWidth={2.25}
+                        className={
+                          passwordRules.symbol
+                            ? "text-emerald-500"
+                            : "text-[#e1e8f0]"
+                        }
+                      />
+                      Un simbol
+                    </li>
                   </ul>
+
                 </div>
               )}
             </div>
