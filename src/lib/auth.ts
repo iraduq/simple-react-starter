@@ -4,6 +4,12 @@ const API_URL = "http://localhost:8000";
 export type SessionUser = {
   email: string;
   role: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string | null;
+  avatar_url?: string | null;
+  provider?: string | null;
+  created_at?: string | null;
 } | null;
 
 let cachedUser: SessionUser = null;
