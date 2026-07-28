@@ -214,19 +214,25 @@ export default function InteractiveMap() {
   };
 
   return (
-    <section className="relative py-20 px-5 bg-[#fdfcf9] overflow-hidden">
-      <div className="pointer-events-none absolute -top-32 -left-32 w-[420px] h-[420px] rounded-full bg-[#c69a3f]/10 blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-40 -right-20 w-[480px] h-[480px] rounded-full bg-[#0d2c5c]/10 blur-[110px]" />
-
+    <section
+      className="relative py-24 md:py-32 px-5 md:px-10 overflow-hidden font-sans"
+      style={{
+        background:
+          "linear-gradient(to right, rgba(13,44,92,0.92) 0%, rgba(13,44,92,0.98) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="max-w-[1280px] mx-auto relative">
-        <div className="text-center mb-10">
-          <p className="text-[#c69a3f] text-xs font-bold tracking-[0.25em] uppercase mb-3">
-            Harta Zonei
+        <div className="text-center mb-12">
+          <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5 inline-flex items-center gap-3">
+            <span className="w-8 h-px bg-[#c69a3f]/60" />
+            HARTA ZONEI
+            <span className="w-8 h-px bg-[#c69a3f]/60" />
           </p>
-          <h2 className="font-['Cormorant_Garamond',serif] text-4xl md:text-5xl font-normal text-[#1a1a1a]">
+          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-white leading-[1.15] tracking-[-0.01em] drop-shadow-md">
             Ghidul Zonei <em className="italic text-[#c69a3f]">Eforie Nord</em>
           </h2>
-          <div className="w-16 h-[2px] bg-[#c69a3f] mx-auto mt-5" />
         </div>
 
         <div className="relative rounded-[28px] p-[2px] bg-gradient-to-br from-[#c69a3f] via-[#e8d5a8] to-[#0d2c5c] shadow-2xl">
@@ -264,15 +270,18 @@ export default function InteractiveMap() {
                   <Popup
                     closeButton={false}
                     autoPan={true}
-                    autoPanPaddingTopLeft={[20, 260]}
-                    autoPanPaddingBottomRight={[20, 20]}
+                    autoPanPaddingTopLeft={[30, 30]}
+                    autoPanPaddingBottomRight={[30, 30]}
+                    keepInView={true}
+                    maxWidth={260}
+                    minWidth={230}
                     offset={[0, -6]}
                     eventHandlers={{
                       remove: () =>
                         setActiveId((cur) => (cur === place.id ? null : cur)),
                     }}
                   >
-                    <div className="w-[230px] overflow-hidden rounded-xl">
+                    <div className="w-[230px] max-w-[calc(100vw-40px)] overflow-hidden rounded-xl">
                       <div className="relative h-28 w-full">
                         <img
                           src={place.img}
@@ -298,7 +307,7 @@ export default function InteractiveMap() {
                           href={`https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="block text-center bg-[#0d2c5c] hover:bg-[#0a2249] transition-colors text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-wider no-underline"
+                          className="block text-center bg-[#c69a3f] hover:bg-[#b0862e] transition-colors text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-[0.2em] no-underline"
                         >
                           Deschide în GPS
                         </a>
