@@ -73,8 +73,7 @@ const createPhotoIcon = (place: Place, active: boolean) => {
           overflow:hidden;
           border:3px solid ${active ? style.color : "#ffffff"};
           box-shadow:0 6px 16px rgba(13,44,92,0.35), 0 0 0 2px ${style.color}22;
-          transform: translateY(${active ? "-4px" : "0"}) scale(${active ? 1.08 : 1});
-          transition: all .2s ease;
+          transition: border-color .2s ease, box-shadow .2s ease;
           background:#fff;
           cursor:pointer;
         ">
@@ -191,21 +190,25 @@ export default function InteractiveMap() {
   const mapRef = useRef<LeafletMap | null>(null);
   const [activeId, setActiveId] = useState<number | null>(null);
 
-  // Selectează un loc: centrează harta pe punct (ușor coborât, ca popup-ul
-  // de deasupra pinului să încapă complet în cadru) și deschide popup-ul.
+  // Selectează un loc fără ca Leaflet să lupte între flyTo + autoPan.
+  // Mutăm harta o singură dată, fin, doar dacă pinul e prea aproape de margini.
   const selectPlace = (place: Place) => {
     setActiveId(place.id);
     const map = mapRef.current;
     if (map) {
-      const targetZoom = Math.max(map.getZoom(), 15);
-      // decalăm centrul spre sud, ca pinul să ajungă în partea de jos
-      // a hărții și popup-ul (care se deschide deasupra) să aibă loc
-      const latOffset = 0.0035;
-      map.flyTo([place.lat - latOffset, place.lng], targetZoom, {
-        duration: 0.6,
+      const target = L.latLng(place.lat, place.lng);
+      map.panInside(target, {
+        paddingTopLeft: [160, 250],
+        paddingBottomRight: [160, 90],
+        animate: true,
+        duration: 0.35,
+        easeLinearity: 0.25,
       });
     }
-    setTimeout(() => markerRefs.current[place.id]?.openPopup(), 350);
+
+    requestAnimationFrame(() => {
+      markerRefs.current[place.id]?.openPopup();
+    });
   };
 
   const closeAll = () => {
@@ -257,22 +260,21 @@ export default function InteractiveMap() {
                   key={place.id}
                   position={[place.lat, place.lng]}
                   icon={createPhotoIcon(place, activeId === place.id)}
+                  bubblingMouseEvents={false}
                   ref={(el) => {
                     markerRefs.current[place.id] = el;
                   }}
                   eventHandlers={{
                     click: (e) => {
-                      L.DomEvent.stopPropagation(e);
+                      L.DomEvent.stopPropagation(e.originalEvent);
                       selectPlace(place);
                     },
                   }}
                 >
                   <Popup
                     closeButton={false}
-                    autoPan={true}
-                    autoPanPaddingTopLeft={[30, 30]}
-                    autoPanPaddingBottomRight={[30, 30]}
-                    keepInView={true}
+                    autoPan={false}
+                    keepInView={false}
                     maxWidth={260}
                     minWidth={230}
                     offset={[0, -6]}
@@ -335,6 +337,10 @@ export default function InteractiveMap() {
         .leaflet-popup-content { margin: 0; width: auto !important; }
         .leaflet-popup-tip { display: none; }
         .custom-photo-marker { background: transparent; border: none; }
+        .leaflet-marker-icon,
+        .leaflet-popup {
+          will-change: transform;
+        }
       `}</style>
     </section>
   );
