@@ -354,7 +354,7 @@ export default function Rooms() {
                     ].map(({ Icon, label }) => (
                       <div
                         key={label}
-                        className="flex flex-col items-center text-center gap-2.5 py-4 px-2 rounded-xl bg-white border border-[#e1e8f0] transition-colors duration-300 hover:border-[#c69a3f]/50"
+                        className="flex flex-col items-center text-center gap-2.5 py-4 px-2 rounded-xl bg-white border border-[#e1e8f0]"
                       >
                         <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#0d2c5c]/[0.05] border border-[#c69a3f]/30">
                           <Icon size={15} strokeWidth={1.6} className="text-[#c69a3f]" />
