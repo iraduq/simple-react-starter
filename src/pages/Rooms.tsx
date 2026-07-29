@@ -147,7 +147,15 @@ const amenityIcon = (label: string) => {
   return Coffee;
 };
 
-function RoomGallery({ images, alt }: { images: string[]; alt: string }) {
+function RoomGallery({
+  images,
+  alt,
+  badge,
+}: {
+  images: string[];
+  alt: string;
+  badge?: string;
+}) {
   const [index, setIndex] = useState(0);
   const go = (dir: number) =>
     setIndex((i) => (i + dir + images.length) % images.length);
@@ -202,6 +210,12 @@ function RoomGallery({ images, alt }: { images: string[]; alt: string }) {
           />
         ))}
       </div>
+
+      {badge && (
+        <span className="absolute top-4 left-4 bg-[#c69a3f] text-[#0d2c5c] text-[10.5px] font-bold tracking-[0.12em] uppercase px-3 py-1 rounded-full">
+          {badge}
+        </span>
+      )}
 
       <span className="absolute top-4 right-4 text-[10.5px] font-bold tracking-[0.14em] uppercase text-white/90 bg-[#0d2c5c]/45 backdrop-blur-md border border-white/20 rounded-full px-3 py-1">
         {index + 1} / {images.length}
@@ -304,7 +318,7 @@ export default function Rooms() {
                 className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white transition-all duration-500 hover:shadow-[0_18px_60px_rgba(13,44,92,0.16)]"
               >
                 <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
-                  <RoomGallery images={room.images} alt={room.title} />
+                  <RoomGallery images={room.images} alt={room.title} badge={room.badge} />
                 </div>
 
                 <div className="flex flex-col justify-center p-7 md:p-12">
@@ -394,9 +408,6 @@ export default function Rooms() {
                   </div>
                 </div>
 
-                {room.badge && (
-                  <span className="sr-only">{room.badge}</span>
-                )}
               </article>
             ))}
           </div>
