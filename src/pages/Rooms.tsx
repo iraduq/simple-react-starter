@@ -315,7 +315,7 @@ export default function Rooms() {
             {filtered.map((room, idx) => (
               <article
                 key={room.id}
-                className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white transition-all duration-500 hover:shadow-[0_18px_60px_rgba(13,44,92,0.16)]"
+                className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white"
               >
                 <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
                   <RoomGallery images={room.images} alt={room.title} badge={room.badge} />
