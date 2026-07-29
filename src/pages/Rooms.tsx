@@ -184,7 +184,7 @@ function RoomGallery({
         type="button"
         aria-label="Imaginea anterioară"
         onClick={() => go(-1)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover/gal:opacity-100 md:-translate-x-2 md:group-hover/gal:translate-x-0 transition-all duration-300 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] max-md:opacity-100"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center transition-colors duration-200 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c]"
       >
         <ChevronLeft size={18} />
       </button>
@@ -192,7 +192,7 @@ function RoomGallery({
         type="button"
         aria-label="Imaginea următoare"
         onClick={() => go(1)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover/gal:opacity-100 md:translate-x-2 md:group-hover/gal:translate-x-0 transition-all duration-300 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] max-md:opacity-100"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center transition-colors duration-200 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c]"
       >
         <ChevronRight size={18} />
       </button>
@@ -315,7 +315,7 @@ export default function Rooms() {
             {filtered.map((room, idx) => (
               <article
                 key={room.id}
-                className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white transition-all duration-500 hover:shadow-[0_18px_60px_rgba(13,44,92,0.16)]"
+                className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white"
               >
                 <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
                   <RoomGallery images={room.images} alt={room.title} badge={room.badge} />
@@ -354,7 +354,7 @@ export default function Rooms() {
                     ].map(({ Icon, label }) => (
                       <div
                         key={label}
-                        className="flex flex-col items-center text-center gap-2.5 py-4 px-2 rounded-xl bg-white border border-[#e1e8f0] transition-colors duration-300 hover:border-[#c69a3f]/50"
+                        className="flex flex-col items-center text-center gap-2.5 py-4 px-2 rounded-xl bg-white border border-[#e1e8f0]"
                       >
                         <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#0d2c5c]/[0.05] border border-[#c69a3f]/30">
                           <Icon size={15} strokeWidth={1.6} className="text-[#c69a3f]" />
@@ -405,7 +405,7 @@ export default function Rooms() {
                     >
                       <span>Rezervă acum</span>
                       <span
-                        className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-[#0d2c5c]/30 text-base transition-all duration-300 group-hover/cta:bg-[#c69a3f] group-hover/cta:text-white group-hover/cta:border-[#c69a3f] group-hover/cta:translate-x-1"
+                        className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-[#0d2c5c]/30 text-base transition-colors duration-200 group-hover/cta:bg-[#c69a3f] group-hover/cta:text-white group-hover/cta:border-[#c69a3f]"
                         aria-hidden="true"
                       >
                         →
