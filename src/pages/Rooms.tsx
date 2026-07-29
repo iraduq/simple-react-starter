@@ -338,7 +338,7 @@ export default function Rooms() {
                   <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(1.7rem,2.4vw,2.3rem)] font-normal leading-[1.2] mb-2">
                     {room.title}
                   </h3>
-                  <p className="font-sans text-[13px] text-[#8595aa] mb-5">
+                  <p className="font-sans text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8595aa] mb-5">
                     {room.subtitle}
                   </p>
 
@@ -354,25 +354,27 @@ export default function Rooms() {
                     ].map(({ Icon, label }) => (
                       <div
                         key={label}
-                        className="flex flex-col items-center text-center gap-2 py-3 px-2 rounded-xl bg-[#f6f9fd] border border-[#e1e8f0]"
+                        className="flex flex-col items-center text-center gap-2.5 py-4 px-2 rounded-xl bg-white border border-[#e1e8f0] transition-colors duration-300 hover:border-[#c69a3f]/50"
                       >
-                        <Icon size={16} className="text-[#c69a3f]" />
-                        <span className="font-sans text-[11.5px] text-[#3d4f6b] leading-tight">
+                        <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#0d2c5c]/[0.05] border border-[#c69a3f]/30">
+                          <Icon size={15} strokeWidth={1.6} className="text-[#c69a3f]" />
+                        </span>
+                        <span className="font-sans text-[10.5px] font-semibold tracking-[0.1em] uppercase text-[#3d4f6b] leading-tight">
                           {label}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <ul className="flex flex-wrap gap-x-6 gap-y-2.5 mb-8">
+                  <ul className="flex flex-wrap gap-2 mb-8">
                     {room.amenities.map((a) => {
                       const Icon = amenityIcon(a);
                       return (
                         <li
                           key={a}
-                          className="flex items-center gap-2 font-sans text-[13px] text-[#3d4f6b]"
+                          className="flex items-center gap-2 font-sans text-[12.5px] font-light text-[#3d4f6b] rounded-full border border-[#e1e8f0] bg-[#f6f9fd] px-3.5 py-1.5"
                         >
-                          <Icon size={14} className="text-[#c69a3f] shrink-0" />
+                          <Icon size={13} strokeWidth={1.6} className="text-[#c69a3f] shrink-0" />
                           {a}
                         </li>
                       );
@@ -380,16 +382,20 @@ export default function Rooms() {
                   </ul>
 
                   <div className="flex items-center justify-between gap-6 pt-6 border-t border-[#e1e8f0] flex-wrap">
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-['Cormorant_Garamond',serif] italic text-[2rem] leading-none text-[#0d2c5c]">
-                        {room.price}
+                    <div className="flex flex-col">
+                      <span className="font-sans text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] mb-1.5">
+                        De la
                       </span>
-                      <span className="font-sans text-sm text-[#0d2c5c] font-semibold">
-                        lei
-                      </span>
-                      <span className="font-sans text-xs text-[#8595aa]">
-                        {" "}
-                        / noapte
+                      <span className="flex items-baseline gap-1.5">
+                        <span className="font-sans text-[26px] font-bold leading-none tracking-[-0.02em] text-[#0d2c5c]">
+                          {room.price}
+                        </span>
+                        <span className="font-sans text-[12px] font-semibold tracking-[0.08em] uppercase text-[#0d2c5c]">
+                          lei
+                        </span>
+                        <span className="font-sans text-[12px] font-light text-[#8595aa]">
+                          / noapte
+                        </span>
                       </span>
                     </div>
 
