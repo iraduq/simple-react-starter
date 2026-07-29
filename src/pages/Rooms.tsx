@@ -184,7 +184,7 @@ function RoomGallery({
         type="button"
         aria-label="Imaginea anterioară"
         onClick={() => go(-1)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover/gal:opacity-100 md:-translate-x-2 md:group-hover/gal:translate-x-0 transition-all duration-300 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] max-md:opacity-100"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center transition-colors duration-200 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c]"
       >
         <ChevronLeft size={18} />
       </button>
@@ -192,7 +192,7 @@ function RoomGallery({
         type="button"
         aria-label="Imaginea următoare"
         onClick={() => go(1)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover/gal:opacity-100 md:translate-x-2 md:group-hover/gal:translate-x-0 transition-all duration-300 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] max-md:opacity-100"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/40 bg-[#0d2c5c]/30 backdrop-blur-md text-white flex items-center justify-center transition-colors duration-200 hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c]"
       >
         <ChevronRight size={18} />
       </button>
