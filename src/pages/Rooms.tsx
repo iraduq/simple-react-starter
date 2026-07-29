@@ -405,7 +405,7 @@ export default function Rooms() {
                     >
                       <span>Rezervă acum</span>
                       <span
-                        className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-[#0d2c5c]/30 text-base transition-all duration-300 group-hover/cta:bg-[#c69a3f] group-hover/cta:text-white group-hover/cta:border-[#c69a3f] group-hover/cta:translate-x-1"
+                        className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-[#0d2c5c]/30 text-base transition-colors duration-200 group-hover/cta:bg-[#c69a3f] group-hover/cta:text-white group-hover/cta:border-[#c69a3f]"
                         aria-hidden="true"
                       >
                         →
