@@ -308,31 +308,25 @@ export default function Login() {
                 </button>
               </form>
 
-              <div className="flex items-center text-center my-8 text-[#8595aa] text-[11px] font-bold tracking-[0.15em] before:content-[''] before:flex-1 before:border-b before:border-[#e1e8f0] after:content-[''] after:flex-1 after:border-b after:border-[#e1e8f0]">
-                <span className="px-5">SAU CONTINUĂ CU</span>
-              </div>
+          <div className="flex items-center text-center my-8 text-[#8595aa] text-[11px] font-bold tracking-[0.15em] before:content-[''] before:flex-1 before:border-b before:border-[#e1e8f0] after:content-[''] after:flex-1 after:border-b after:border-[#e1e8f0]">
+            <span className="px-5">SAU CONTINUĂ CU</span>
+          </div>
 
-              <div className="flex justify-center w-full">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => alert("Eroare la conectarea cu Google")}
-                  theme="outline"
-                  size="large"
-                  width="100%"
-                  text="continue_with"
-                  shape="rectangular"
-                />
-              </div>
+          <GoogleAuthButton
+            onSuccess={handleGoogleSuccess}
+            onError={() => alert("Eroare la conectarea cu Google")}
+            text="continue_with"
+          />
 
-              <p className="text-center mt-9 text-sm text-[#3c4043]">
-                Nu ai încă un cont?{" "}
-                <Link
-                  to="/register"
-                  className="text-[#0d2c5c] font-bold no-underline border-b border-transparent hover:text-[#c69a3f] hover:border-[#c69a3f] transition-colors duration-200"
-                >
-                  Creează unul acum
-                </Link>
-              </p>
+          <p className="text-center mt-9 text-sm text-[#3c4043]">
+            Nu ai încă un cont?{" "}
+            <Link
+              to="/register"
+              className="text-[#0d2c5c] font-bold no-underline border-b border-transparent hover:text-[#c69a3f] hover:border-[#c69a3f] transition-colors duration-200"
+            >
+              Creează unul acum
+            </Link>
+          </p>
             </>
           )}
         </div>
