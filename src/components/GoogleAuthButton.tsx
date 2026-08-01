@@ -6,6 +6,15 @@ interface GoogleAuthButtonProps {
   text?: "continue_with" | "signup_with";
 }
 
+const GOOGLE_BUTTON_HEIGHT = 40; // "large" size renders at 40px
+const OUTER_HEIGHT = 44; // h-11
+const SCALE = OUTER_HEIGHT / GOOGLE_BUTTON_HEIGHT; // 1.1
+
+// Google caps the standard sign-in button at 400px wide. We pre-scale the
+// invisible Google button so its clickable hit-area exactly matches our custom
+// 44px-tall, 400px-wide container, meaning the whole visible button is tappable.
+const GOOGLE_WIDTH = Math.ceil(400 / SCALE);
+
 export default function GoogleAuthButton({
   onSuccess,
   onError,
@@ -18,7 +27,7 @@ export default function GoogleAuthButton({
 
   return (
     <div
-      className="group relative w-full h-11 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_8px_25px_rgba(198,154,63,0.2)] hover:border-[#c69a3f]"
+      className="group relative w-full max-w-[400px] mx-auto h-11 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(13,44,92,0.14)] hover:border-[#1e4d8c]"
       role="button"
       aria-label={label}
     >
@@ -47,19 +56,19 @@ export default function GoogleAuthButton({
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
           />
         </svg>
-        <span className="font-sans text-[15px] font-semibold text-[#0d2c5c] tracking-wide">
+        <span className="font-sans text-[16px] font-semibold text-[#0d2c5c] tracking-wide">
           {label}
         </span>
       </div>
 
       {/* Invisible Google button layer to capture the actual click */}
-      <div className="absolute inset-0 z-20 opacity-0 flex items-center justify-center">
+      <div className="absolute inset-0 z-20 opacity-0 flex items-center justify-center scale-110">
         <GoogleLogin
           onSuccess={onSuccess}
           onError={onError}
           theme="outline"
           size="large"
-          width="100%"
+          width={GOOGLE_WIDTH}
           text={text}
           shape="rectangular"
         />
