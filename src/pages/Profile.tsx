@@ -30,6 +30,8 @@ import {
   notifySessionChange,
   type SessionUser,
 } from "../lib/auth";
+import { apiFetch, ApiError } from "../lib/api";
+import { useToast } from "../components/Toast";
 
 const API_URL = "http://localhost:8000";
 
@@ -423,11 +425,64 @@ function PersonalTab({
 }
 
 /* ─────────────────── SECURITY TAB ─────────────────── */
+type Session = {
+  id: string;
+  browser?: string;
+  os?: string;
+  device_type?: string;
+  country?: string;
+  city?: string;
+  ip?: string;
+  created_at?: string;
+  is_current?: boolean;
+};
+
 function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
+  const { toast } = useToast();
   const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
   const [showPw, setShowPw] = useState(false);
   const [status, setStatus] = useState<null | { ok: boolean; msg: string }>(null);
   const [saving, setSaving] = useState(false);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+
+  const loadSessions = async () => {
+    setSessionsLoading(true);
+    try {
+      const data = await apiFetch<Session[]>("/users/me/sessions");
+      setSessions(data);
+    } catch {
+      setSessions([]);
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSessions();
+  }, []);
+
+  const revokeSession = async (id: string) => {
+    try {
+      await apiFetch(`/users/me/sessions/${id}`, { method: "DELETE" });
+      toast("Sesiunea a fost revocată.", "success");
+      await loadSessions();
+    } catch (e) {
+      if (e instanceof ApiError) toast(e.message, "error");
+      else toast("Nu am putut revoca sesiunea.", "error");
+    }
+  };
+
+  const revokeAllOther = async () => {
+    try {
+      await apiFetch("/users/me/sessions", { method: "DELETE" });
+      toast("Toate celelalte sesiuni au fost revocate.", "success");
+      await loadSessions();
+    } catch (e) {
+      if (e instanceof ApiError) toast(e.message, "error");
+      else toast("Nu am putut revoca sesiunile.", "error");
+    }
+  };
 
   const rules = useMemo(
     () => ({
@@ -473,10 +528,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
     }
   };
 
-  const sessions = [
-    { id: 1, device: "Chrome · macOS", location: "București, RO", current: true, last: "acum" },
-    { id: 2, device: "Safari · iPhone", location: "Constanța, RO", current: false, last: "acum 2 zile" },
-  ];
+
 
   return (
     <>
@@ -593,41 +645,62 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
 
         {/* Sessions */}
         <div>
-          <h3 className="text-[15px] font-semibold text-[#0d2c5c] mb-4">
-            Sesiuni active
-          </h3>
-          <div className="space-y-3">
-            {sessions.map((s) => (
-              <div
-                key={s.id}
-                className="flex items-center justify-between p-4 rounded-[12px] border border-[#e6ecf3] hover:border-[#c69a3f]/40 transition-colors"
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
+              Sesiuni active
+            </h3>
+            {sessions.filter((s) => !s.is_current).length > 0 && (
+              <button
+                onClick={revokeAllOther}
+                className="text-[12px] font-semibold text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-md bg-[#f4f7fb] flex items-center justify-center text-[#0d2c5c]">
-                    <Monitor size={16} />
-                  </div>
-                  <div>
-                    <p className="text-[13.5px] font-semibold text-[#0d2c5c]">
-                      {s.device}
-                      {s.current && (
-                        <span className="ml-2 text-[10px] font-bold tracking-[0.15em] uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                          Această sesiune
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-[12px] text-[#8595aa] mt-0.5">
-                      {s.location} · {s.last}
-                    </p>
-                  </div>
-                </div>
-                {!s.current && (
-                  <button className="text-[12px] font-semibold text-red-600 hover:underline">
-                    Deconectează
-                  </button>
-                )}
-              </div>
-            ))}
+                Revocă toate celelalte
+              </button>
+            )}
           </div>
+          {sessionsLoading ? (
+            <p className="text-[13px] text-[#8595aa] py-4">Se încarcă sesiunile…</p>
+          ) : sessions.length === 0 ? (
+            <p className="text-[13px] text-[#8595aa] py-4">Nicio sesiune activă.</p>
+          ) : (
+            <div className="space-y-3">
+              {sessions.map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between p-4 rounded-[12px] border border-[#e6ecf3] hover:border-[#c69a3f]/40 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-md bg-[#f4f7fb] flex items-center justify-center text-[#0d2c5c]">
+                      <Monitor size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[13.5px] font-semibold text-[#0d2c5c]">
+                        {[s.browser, s.os].filter(Boolean).join(" · ") || "Dispozitiv necunoscut"}
+                        {s.is_current && (
+                          <span className="ml-2 text-[10px] font-bold tracking-[0.15em] uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                            Această sesiune
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-[12px] text-[#8595aa] mt-0.5">
+                        {[s.city, s.country].filter(Boolean).join(", ") || "Locație necunoscută"}
+                        {s.ip && ` · ${s.ip}`}
+                        {s.created_at && ` · ${new Date(s.created_at).toLocaleDateString("ro-RO")}`}
+                      </p>
+                    </div>
+                  </div>
+                  {!s.is_current && (
+                    <button
+                      onClick={() => revokeSession(s.id)}
+                      className="text-[12px] font-semibold text-red-600 hover:underline"
+                    >
+                      Deconectează
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>

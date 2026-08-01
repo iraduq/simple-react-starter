@@ -10,6 +10,7 @@ export type SessionUser = {
   avatar_url?: string | null;
   provider?: string | null;
   created_at?: string | null;
+  permissions?: string[];
 } | null;
 
 let cachedUser: SessionUser = null;

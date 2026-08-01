@@ -14,6 +14,8 @@ import {
   hasSession,
   onSessionChange,
 } from "../lib/auth";
+import { apiFetch } from "../lib/api";
+import { useToast } from "../components/Toast";
 
 const LANGS = [
   { code: "RO", label: "Română", flagUrl: "https://flagcdn.com/w20/ro.png" },
@@ -64,9 +66,17 @@ export default function Navbar() {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleLogout = () => {
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await apiFetch("/auth/logout", { method: "POST" });
+    } catch {
+      // ignore — proceed with local logout
+    }
     clearSession();
     setAcctOpen(false);
+    toast("Te-ai delogheat cu succes.", "success");
     navigate("/");
   };
 
@@ -153,6 +163,7 @@ export default function Navbar() {
             {[
               { to: "/", label: "Acasă", end: true },
               { to: "/camere", label: "Camere" },
+              { to: "/places", label: "Locații" },
               { to: "/oferte", label: "Oferte" },
               { to: "/restaurant", label: "Restaurant" },
               { to: "/evenimente-private", label: "Evenimente" },

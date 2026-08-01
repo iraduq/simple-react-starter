@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Outlet,
+  useNavigate,
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -12,6 +14,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
 import Profile from "./pages/Profile";
+import Places from "./pages/Places";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastProvider, useToast } from "./components/Toast";
+import { setSessionExpiredHandler } from "./lib/api";
+import { clearSession } from "./lib/auth";
 
 const MainLayout = () => {
   return (
@@ -24,23 +31,48 @@ const MainLayout = () => {
   );
 };
 
+function AppInner() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    setSessionExpiredHandler(() => {
+      clearSession();
+      toast("Sesiunea a expirat. Te rugăm să te autentifici din nou.", "warning");
+      navigate("/login", { replace: true });
+    });
+  }, [navigate, toast]);
+
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/camere" element={<Rooms />} />
+        <Route path="/places" element={<Places />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+    </Routes>
+  );
+}
+
 function App() {
   return (
-    <>
+    <ToastProvider>
       <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/camere" element={<Rooms />} />
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-        </Routes>
+        <AppInner />
       </Router>
-    </>
+    </ToastProvider>
   );
 }
 
