@@ -53,7 +53,7 @@ export default function GoogleAuthButton({
       </div>
 
       {/* Invisible Google button layer to capture the actual click */}
-      <div className="absolute inset-0 z-20 opacity-0">
+      <div className="absolute inset-0 z-20 opacity-0 flex items-center justify-center">
         <GoogleLogin
           onSuccess={onSuccess}
           onError={onError}
