@@ -190,25 +190,29 @@ export default function InteractiveMap() {
   const mapRef = useRef<LeafletMap | null>(null);
   const [activeId, setActiveId] = useState<number | null>(null);
 
-  // Selectează un loc fără ca Leaflet să lupte între flyTo + autoPan.
-  // Mutăm harta o singură dată, fin, doar dacă pinul e prea aproape de margini.
+  // Selectează un loc: calculăm offset-ul necesar în PIXELI (nu în grade
+  // lat/lng, care variază cu zoom-ul), mutăm harta cu flyTo, apoi deschidem
+  // popup-ul abia după ce animația chiar s-a terminat (evenimentul moveend).
+  // Așa evităm coliziunea dintre panInside/autoPan și flyTo, care se
+  // anulau reciproc și lăsau harta "înțepenită" fără să focalizeze pinul.
   const selectPlace = (place: Place) => {
     setActiveId(place.id);
     const map = mapRef.current;
-    if (map) {
-      const target = L.latLng(place.lat, place.lng);
-      map.panInside(target, {
-        paddingTopLeft: [160, 250],
-        paddingBottomRight: [160, 90],
-        animate: true,
-        duration: 0.35,
-        easeLinearity: 0.25,
-      });
-    }
 
-    requestAnimationFrame(() => {
+    if (!map) return;
+
+    const targetZoom = Math.max(map.getZoom(), 15);
+    const targetPoint = map.project([place.lat, place.lng], targetZoom);
+    // urcăm centrul hărții cu ~170px, ca pinul să ajungă spre partea de jos
+    // a cadrului, iar popup-ul (care se deschide deasupra lui) să încapă tot
+    const shiftedPoint = targetPoint.subtract([0, 170]);
+    const shiftedLatLng = map.unproject(shiftedPoint, targetZoom);
+
+    map.once("moveend", () => {
       markerRefs.current[place.id]?.openPopup();
     });
+
+    map.flyTo(shiftedLatLng, targetZoom, { duration: 0.5 });
   };
 
   const closeAll = () => {
@@ -226,6 +230,29 @@ export default function InteractiveMap() {
         backgroundPosition: "center",
       }}
     >
+      {/* VAL SUS — tranziția de la secțiunea albă anterioară spre fundalul navy, identic ca stil cu Hero */}
+      <svg
+        className="absolute top-0 left-0 w-full h-[70px] md:h-[100px] pointer-events-none z-[3] block"
+        viewBox="0 0 1440 130"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
+          fill="#c69a3f"
+          opacity="0.35"
+        />
+        <path
+          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
+          fill="#0d2c5c"
+          opacity="0.5"
+        />
+        <path
+          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
+          fill="#fdfcf9"
+        />
+      </svg>
+
       <div className="max-w-[1280px] mx-auto relative">
         <div className="text-center mb-12">
           <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5 inline-flex items-center gap-3">
@@ -236,6 +263,11 @@ export default function InteractiveMap() {
           <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-white leading-[1.15] tracking-[-0.01em] drop-shadow-md">
             Ghidul Zonei <em className="italic text-[#c69a3f]">Eforie Nord</em>
           </h2>
+          <p className="max-w-[560px] mx-auto mt-5 text-[15px] leading-relaxed text-white/70 font-light">
+            Descoperă Vila Casa Esy și tot ce te așteaptă în jur — de la plaje
+            cu nisip fin, la restaurante cu specific local și punctele de
+            interes care fac din Eforie Nord o destinație aparte.
+          </p>
         </div>
 
         <div className="relative rounded-[28px] p-[2px] bg-gradient-to-br from-[#c69a3f] via-[#e8d5a8] to-[#0d2c5c] shadow-2xl">
@@ -300,18 +332,38 @@ export default function InteractiveMap() {
                           {place.title}
                         </h4>
                       </div>
-                      <div className="p-3 bg-white">
+                      <div className="p-4 bg-white">
                         {place.rating && <Stars rating={place.rating} />}
-                        <p className="text-xs text-zinc-600 my-2 leading-relaxed">
+                        <p className="font-['Cormorant_Garamond',serif] text-[15px] text-[#0d2c5c]/80 italic my-2.5 leading-snug">
                           {place.desc}
                         </p>
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="block text-center bg-[#c69a3f] hover:bg-[#b0862e] transition-colors text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-[0.2em] no-underline"
+                          style={{ color: "#ffffff" }}
+                          className="group relative flex items-center justify-center gap-1.5 overflow-hidden text-center bg-gradient-to-r from-[#c69a3f] to-[#dab660] !text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-[0.2em] no-underline shadow-[0_4px_14px_rgba(198,154,63,0.45)] transition-transform hover:scale-[1.02]"
                         >
-                          Deschide în GPS
+                          <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                          <svg
+                            width="11"
+                            height="11"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            className="relative"
+                            style={{ color: "#ffffff" }}
+                          >
+                            <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          <span
+                            className="relative"
+                            style={{ color: "#ffffff" }}
+                          >
+                            Deschide în GPS
+                          </span>
                         </a>
                       </div>
                     </div>
@@ -321,7 +373,27 @@ export default function InteractiveMap() {
             </MapContainer>
           </div>
         </div>
+
+        <div className="text-center mt-10 max-w-[560px] mx-auto">
+          <p className="text-[15px] leading-relaxed text-white/70 font-light">
+            Fiecare locație de pe hartă a fost aleasă cu grijă de echipa
+            noastră, pentru ca timpul petrecut la Vila Casa Esy să fie cât mai
+            plăcut — de la plaja liniștită de dimineață, la o cină cu fructe de
+            mare seara, până la o plimbare relaxantă spre malul lacului. Nu ești
+            sigur de unde să începi?{" "}
+            <a
+              href="#contact"
+              className="text-[#c69a3f] font-medium hover:text-[#dab660] transition-colors underline underline-offset-4 decoration-[#c69a3f]/40"
+            >
+              Recepția noastră e disponibilă 24/7
+            </a>{" "}
+            și te poate ghida pas cu pas prin tot ce oferă Eforie Nord.
+          </p>
+        </div>
       </div>
+
+      {/* tranziție simplă spre footer, fără val (nu se potrivea cu fundalul de dedesubt) */}
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c69a3f]/40 to-transparent" />
 
       <style>{`
         @keyframes pinPulse {
