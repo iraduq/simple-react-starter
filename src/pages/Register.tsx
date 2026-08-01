@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
 import "react-phone-number-input/style.css";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 import CustomCountrySelect from "../components/CustomCountrySelect";
 import { fetchSession, notifySessionChange } from "../lib/auth";
 import {
@@ -626,17 +626,11 @@ export default function Register() {
             <span className="px-5">SAU ÎNREGISTREAZĂ-TE CU</span>
           </div>
 
-          <div className="flex justify-center w-full">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => alert("Eroare la conectarea cu Google")}
-              theme="outline"
-              size="large"
-              width="100%"
-              text="continue_with"
-              shape="rectangular"
-            />
-          </div>
+          <GoogleAuthButton
+            onSuccess={handleGoogleSuccess}
+            onError={() => alert("Eroare la conectarea cu Google")}
+            text="signup_with"
+          />
 
           <p className="text-center mt-9 text-sm text-[#3c4043]">
             Ai deja un cont?{" "}
