@@ -18,7 +18,7 @@ export default function GoogleAuthButton({
 
   return (
     <div
-      className="group relative w-full h-12 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_8px_25px_rgba(198,154,63,0.2)] hover:border-[#c69a3f]"
+      className="group relative w-full h-11 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_8px_25px_rgba(198,154,63,0.2)] hover:border-[#c69a3f]"
       role="button"
       aria-label={label}
     >
