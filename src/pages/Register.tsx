@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
 import "react-phone-number-input/style.css";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 import CustomCountrySelect from "../components/CustomCountrySelect";
 import { fetchSession, notifySessionChange } from "../lib/auth";
 import {
