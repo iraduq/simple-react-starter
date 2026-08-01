@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 
 interface GoogleAuthButtonProps {
@@ -11,6 +12,27 @@ export default function GoogleAuthButton({
   onError,
   text = "continue_with",
 }: GoogleAuthButtonProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [buttonWidth, setButtonWidth] = useState<number>(360);
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+
+    const updateWidth = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0) {
+        setButtonWidth(Math.round(rect.width));
+      }
+    };
+
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
+
   const label =
     text === "signup_with"
       ? "Înregistrează-te cu Google"
@@ -18,7 +40,8 @@ export default function GoogleAuthButton({
 
   return (
     <div
-      className="group relative w-full h-11 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_8px_25px_rgba(198,154,63,0.2)] hover:border-[#c69a3f]"
+      ref={wrapperRef}
+      className="group relative w-full h-12 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(13,44,92,0.14)] hover:border-[#1e4d8c]"
       role="button"
       aria-label={label}
     >
@@ -47,7 +70,7 @@ export default function GoogleAuthButton({
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
           />
         </svg>
-        <span className="font-sans text-[15px] font-semibold text-[#0d2c5c] tracking-wide">
+        <span className="font-sans text-[16px] font-semibold text-[#0d2c5c] tracking-wide">
           {label}
         </span>
       </div>
@@ -55,11 +78,12 @@ export default function GoogleAuthButton({
       {/* Invisible Google button layer to capture the actual click */}
       <div className="absolute inset-0 z-20 opacity-0 flex items-center justify-center">
         <GoogleLogin
+          key={buttonWidth}
           onSuccess={onSuccess}
           onError={onError}
           theme="outline"
           size="large"
-          width="100%"
+          width={buttonWidth}
           text={text}
           shape="rectangular"
         />
