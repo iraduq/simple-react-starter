@@ -1,4 +1,3 @@
-import { useRef, useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 
 interface GoogleAuthButtonProps {
@@ -11,48 +10,23 @@ const GOOGLE_BUTTON_HEIGHT = 40; // "large" size renders at 40px
 const OUTER_HEIGHT = 44; // h-11
 const SCALE = OUTER_HEIGHT / GOOGLE_BUTTON_HEIGHT; // 1.1
 
+// Google caps the standard sign-in button at 400px wide. We pre-scale the
+// invisible Google button so its clickable hit-area exactly matches our custom
+// 44px-tall, 400px-wide container, meaning the whole visible button is tappable.
+const GOOGLE_WIDTH = Math.ceil(400 / SCALE);
+
 export default function GoogleAuthButton({
   onSuccess,
   onError,
   text = "continue_with",
 }: GoogleAuthButtonProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const [buttonWidth, setButtonWidth] = useState<number>(360);
-
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-
-    const updateWidth = () => {
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0) {
-        // Google caps the standard button at 400px
-        setButtonWidth(Math.round(Math.min(rect.width, 400)));
-      }
-    };
-
-    updateWidth();
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, []);
-
   const label =
     text === "signup_with"
       ? "Înregistrează-te cu Google"
       : "Continuă cu Google";
 
-  // Pre-scale the Google button so its invisible hit-area matches our
-  // custom 44px-tall button exactly. Width is capped at 400px (Google's max).
-  const googleWidth = Math.max(
-    Math.ceil(buttonWidth / SCALE),
-    Math.ceil(200 / SCALE),
-  );
-
   return (
     <div
-      ref={wrapperRef}
       className="group relative w-full max-w-[400px] mx-auto h-11 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(13,44,92,0.14)] hover:border-[#1e4d8c]"
       role="button"
       aria-label={label}
@@ -88,16 +62,13 @@ export default function GoogleAuthButton({
       </div>
 
       {/* Invisible Google button layer to capture the actual click */}
-      <div
-        className="absolute inset-0 z-20 opacity-0 flex items-center justify-center scale-110"
-        key={buttonWidth}
-      >
+      <div className="absolute inset-0 z-20 opacity-0 flex items-center justify-center scale-110">
         <GoogleLogin
           onSuccess={onSuccess}
           onError={onError}
           theme="outline"
           size="large"
-          width={googleWidth}
+          width={GOOGLE_WIDTH}
           text={text}
           shape="rectangular"
         />
