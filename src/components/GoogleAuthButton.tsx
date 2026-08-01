@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 
 interface GoogleAuthButtonProps {
@@ -5,15 +6,6 @@ interface GoogleAuthButtonProps {
   onError?: () => void;
   text?: "continue_with" | "signup_with";
 }
-
-const GOOGLE_BUTTON_HEIGHT = 40; // "large" size renders at 40px
-const OUTER_HEIGHT = 44; // h-11
-const SCALE = OUTER_HEIGHT / GOOGLE_BUTTON_HEIGHT; // 1.1
-
-// Google caps the standard sign-in button at 400px wide. We pre-scale the
-// invisible Google button so its clickable hit-area exactly matches our custom
-// 44px-tall, 400px-wide container, meaning the whole visible button is tappable.
-const GOOGLE_WIDTH = Math.ceil(400 / SCALE);
 
 export default function GoogleAuthButton({
   onSuccess,
@@ -25,16 +17,30 @@ export default function GoogleAuthButton({
       ? "Înregistrează-te cu Google"
       : "Continuă cu Google";
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(400);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => setWidth(Math.round(el.getBoundingClientRect().width));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       className="group relative w-full max-w-[400px] mx-auto h-11 bg-white border border-[#0d2c5c] rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(13,44,92,0.06)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(13,44,92,0.14)] hover:border-[#1e4d8c]"
       role="button"
       aria-label={label}
     >
-      {/* Custom visible content */}
-      <div className="absolute inset-0 flex items-center justify-center gap-3 pointer-events-none z-10">
+      {/* Vizual */}
+      <div className="absolute inset-0 flex items-center justify-center gap-3 pointer-events-none z-10 bg-white">
         <svg
-          className="w-5 h-5 transition-transform duration-300 group-hover:scale-105"
+          className="w-5 h-5"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
@@ -61,16 +67,17 @@ export default function GoogleAuthButton({
         </span>
       </div>
 
-      {/* Invisible Google button layer to capture the actual click */}
-      <div className="absolute inset-0 z-20 opacity-0 flex items-center justify-center scale-110">
+      {/* Strat Google real, fără transform, width dat exact */}
+      <div className="absolute inset-0 z-20 opacity-[0.01] flex items-center justify-center overflow-hidden">
         <GoogleLogin
           onSuccess={onSuccess}
           onError={onError}
           theme="outline"
           size="large"
-          width={GOOGLE_WIDTH}
           text={text}
           shape="rectangular"
+          width={width}
+          ux_mode="popup"
         />
       </div>
     </div>
