@@ -21,6 +21,15 @@ import {
   Moon,
   Globe,
   Monitor,
+  Smartphone,
+  Tablet,
+  MapPin,
+  Clock,
+  KeyRound,
+  ShieldCheck,
+  Lock,
+  RefreshCw,
+  ExternalLink,
   FileText,
 } from "lucide-react";
 import {
@@ -480,6 +489,19 @@ type Session = {
   is_current?: boolean;
 };
 
+function deviceKind(s: Session): "mobile" | "tablet" | "desktop" {
+  const raw = `${s.device_type || ""} ${s.os_family || ""}`.toLowerCase();
+  if (/tablet|ipad/.test(raw)) return "tablet";
+  if (/mobile|phone|android|ios|iphone/.test(raw)) return "mobile";
+  return "desktop";
+}
+
+const DEVICE_META = {
+  mobile: { icon: Smartphone, label: "Telefon" },
+  tablet: { icon: Tablet, label: "Tabletă" },
+  desktop: { icon: Monitor, label: "Desktop / Laptop" },
+} as const;
+
 function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
   const { toast } = useToast();
   const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
@@ -495,7 +517,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
     setSessionsLoading(true);
     try {
       const data = await apiFetch<Session[]>("/users/me/sessions");
-      setSessions(data);
+      setSessions(Array.isArray(data) ? data : []);
     } catch {
       setSessions([]);
     } finally {
@@ -542,8 +564,8 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
   );
   const strong = Object.values(rules).every(Boolean);
 
-  const isGoogle =
-    (user.provider || "").toLowerCase() === "google" || !user.provider;
+  const provider = (user.provider || "local").toLowerCase();
+  const isGoogle = provider === "google";
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -573,205 +595,328 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
     }
   };
 
+  const otherSessions = sessions.filter((s) => !s.is_current);
+
   return (
     <>
       <SectionHead
         eyebrow="Securitate"
-        title="Parolă & sesiuni active"
-        description="Menține contul tău protejat printr-o parolă puternică și monitorizează dispozitivele conectate."
+        title="Protecția contului tău"
+        description="Metoda de autentificare, parola și dispozitivele de pe care ești conectat la Casa Esy."
       />
 
       <div className="p-8 space-y-10">
-        {/* Auth provider */}
-        <div className="flex items-center justify-between p-5 rounded-[12px] border border-[#e6ecf3] bg-[#fafbfc]">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-white border border-[#e6ecf3] flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
+        {/* ── Auth provider — premium banner ── */}
+        <div className="relative overflow-hidden rounded-[18px] bg-[linear-gradient(120deg,#07203f_0%,#0d2c5c_55%,#123a75_100%)] text-white p-7">
+          <div className="absolute -right-16 -top-20 w-64 h-64 rounded-full bg-[#c69a3f]/15 blur-2xl" />
+          <div className="absolute right-8 -bottom-24 w-52 h-52 rounded-full bg-white/5" />
+          <div className="relative flex flex-col md:flex-row md:items-center gap-6 md:justify-between">
+            <div className="flex items-start gap-5">
+              <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.25)] shrink-0">
+                {isGoogle ? (
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                ) : (
+                  <KeyRound size={22} className="text-[#0d2c5c]" />
+                )}
+              </div>
+              <div>
+                <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+                  Metodă de autentificare
+                </p>
+                <h3 className="font-['Cormorant_Garamond',serif] text-[26px] leading-tight font-medium">
+                  {isGoogle ? "Cont Google" : "Email și parolă"}
+                </h3>
+                <p className="text-[13px] text-white/70 mt-1.5 max-w-[420px]">
+                  {isGoogle
+                    ? "Autentificarea este gestionată de Google. Parola nu se administrează aici — o schimbi direct din contul tău Google."
+                    : "Te autentifici cu adresa de email și o parolă administrată de Casa Esy."}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[0.2em] uppercase text-emerald-300 bg-emerald-400/10 border border-emerald-300/30 px-3.5 py-2 rounded-full">
+                <ShieldCheck size={13} /> Activ
+              </span>
+              {isGoogle && (
+                <a
+                  href="https://myaccount.google.com/security"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-[12px] font-semibold px-4 py-2.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors"
+                >
+                  Securitate Google <ExternalLink size={13} />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Password ── */}
+        {isGoogle ? (
+          <div className="flex items-start gap-4 p-6 rounded-[16px] border border-[#e6ecf3] bg-[#fafbfd]">
+            <div className="w-10 h-10 rounded-full bg-white border border-[#e6ecf3] flex items-center justify-center shrink-0">
+              <Lock size={16} className="text-[#8595aa]" />
             </div>
             <div>
               <p className="text-[14px] font-semibold text-[#0d2c5c]">
-                Metodă de autentificare
+                Nu există parolă pentru acest cont
               </p>
-              <p className="text-[12.5px] text-[#5a6b85] mt-0.5">
-                {isGoogle
-                  ? "Ești conectat cu Google. Poți seta o parolă locală pentru login clasic."
-                  : "Ești conectat cu email și parolă."}
+              <p className="text-[13px] text-[#5a6b85] mt-1 max-w-[560px]">
+                Contul tău folosește exclusiv autentificarea Google, așa că nu
+                ai o parolă Casa Esy de schimbat. Pentru parolă, verificare în
+                doi pași sau dispozitive de încredere, folosește setările de
+                securitate Google.
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-            Activ
-          </span>
-        </div>
-
-        {/* Password */}
-        <form onSubmit={submit} className="space-y-5">
-          <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
-            Schimbă parola
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Field label="Parola actuală">
-              <PwInput
-                value={pw.current}
-                onChange={(v) => setPw({ ...pw, current: v })}
-                show={showPw}
-                onToggle={() => setShowPw((s) => !s)}
-              />
-            </Field>
-            <Field label="Parolă nouă">
-              <PwInput
-                value={pw.next}
-                onChange={(v) => setPw({ ...pw, next: v })}
-                show={showPw}
-                onToggle={() => setShowPw((s) => !s)}
-              />
-            </Field>
-            <Field label="Confirmă parola nouă">
-              <PwInput
-                value={pw.confirm}
-                onChange={(v) => setPw({ ...pw, confirm: v })}
-                show={showPw}
-                onToggle={() => setShowPw((s) => !s)}
-              />
-            </Field>
-          </div>
-
-          {(pw.next.length > 0 || pw.confirm.length > 0) && (
-            <ul className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1.5 text-[12px]">
-              {[
-                ["length", "8–64 caractere"],
-                ["lowercase", "O literă mică"],
-                ["uppercase", "O literă mare"],
-                ["number", "O cifră"],
-                ["symbol", "Un simbol"],
-                ["match", "Parolele coincid"],
-              ].map(([k, label]) => {
-                const ok = rules[k as keyof typeof rules];
-                return (
-                  <li
-                    key={k}
-                    className={`flex items-center gap-1.5 ${ok ? "text-emerald-600" : "text-[#8595aa]"}`}
-                  >
-                    <Check size={13} className={ok ? "" : "opacity-30"} />
-                    {label}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {status && (
-            <div
-              className={`text-[13px] font-medium px-4 py-3 rounded-lg ${
-                status.ok
-                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
-              }`}
-            >
-              {status.msg}
+        ) : (
+          <form onSubmit={submit} className="space-y-5">
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 rounded-full bg-[#f4f7fb] text-[#0d2c5c] flex items-center justify-center">
+                <KeyRound size={16} />
+              </span>
+              <div>
+                <h3 className="text-[15px] font-semibold text-[#0d2c5c] leading-tight">
+                  Schimbă parola
+                </h3>
+                <p className="text-[12px] text-[#8595aa] mt-0.5">
+                  Recomandăm o parolă unică, folosită doar pentru Casa Esy.
+                </p>
+              </div>
             </div>
-          )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Field label="Parola actuală">
+                <PwInput
+                  value={pw.current}
+                  onChange={(v) => setPw({ ...pw, current: v })}
+                  show={showPw}
+                  onToggle={() => setShowPw((s) => !s)}
+                />
+              </Field>
+              <Field label="Parolă nouă">
+                <PwInput
+                  value={pw.next}
+                  onChange={(v) => setPw({ ...pw, next: v })}
+                  show={showPw}
+                  onToggle={() => setShowPw((s) => !s)}
+                />
+              </Field>
+              <Field label="Confirmă parola nouă">
+                <PwInput
+                  value={pw.confirm}
+                  onChange={(v) => setPw({ ...pw, confirm: v })}
+                  show={showPw}
+                  onToggle={() => setShowPw((s) => !s)}
+                />
+              </Field>
+            </div>
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={!strong || saving}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Shield size={15} />
-              {saving ? "Se salvează…" : "Actualizează parola"}
-            </button>
-          </div>
-        </form>
+            {(pw.next.length > 0 || pw.confirm.length > 0) && (
+              <ul className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1.5 text-[12px]">
+                {[
+                  ["length", "8–64 caractere"],
+                  ["lowercase", "O literă mică"],
+                  ["uppercase", "O literă mare"],
+                  ["number", "O cifră"],
+                  ["symbol", "Un simbol"],
+                  ["match", "Parolele coincid"],
+                ].map(([k, label]) => {
+                  const ok = rules[k as keyof typeof rules];
+                  return (
+                    <li
+                      key={k}
+                      className={`flex items-center gap-1.5 ${ok ? "text-emerald-600" : "text-[#8595aa]"}`}
+                    >
+                      <Check size={13} className={ok ? "" : "opacity-30"} />
+                      {label}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            {status && (
+              <div
+                className={`text-[13px] font-medium px-4 py-3 rounded-lg ${
+                  status.ok
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
+                {status.msg}
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={!strong || saving}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Shield size={15} />
+                {saving ? "Se salvează…" : "Actualizează parola"}
+              </button>
+            </div>
+          </form>
+        )}
 
         <Divider />
 
-        {/* Sessions */}
+        {/* ── Sessions ── */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
-              Sesiuni active
-            </h3>
-            {sessions.filter((s) => !s.is_current).length > 0 && (
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+            <div>
+              <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+                Dispozitive
+              </p>
+              <h3 className="font-['Cormorant_Garamond',serif] text-[24px] font-medium text-[#0d2c5c] leading-tight">
+                Sesiuni active
+              </h3>
+              <p className="text-[12.5px] text-[#8595aa] mt-1">
+                {sessionsLoading
+                  ? "Se verifică dispozitivele conectate…"
+                  : `${sessions.length} ${sessions.length === 1 ? "dispozitiv conectat" : "dispozitive conectate"}`}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
               <button
-                onClick={revokeAllOther}
-                className="text-[12px] font-semibold text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                onClick={loadSessions}
+                className="inline-flex items-center gap-2 text-[12px] font-semibold text-[#0d2c5c] border border-[#e1e8f0] px-3.5 py-2 rounded-full hover:border-[#c69a3f] transition-colors"
               >
-                Revocă toate celelalte
+                <RefreshCw size={13} /> Reîmprospătează
               </button>
-            )}
-          </div>
-          {sessionsLoading ? (
-            <p className="text-[13px] text-[#8595aa] py-4">
-              Se încarcă sesiunile…
-            </p>
-          ) : sessions.length === 0 ? (
-            <p className="text-[13px] text-[#8595aa] py-4">
-              Nicio sesiune activă.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {sessions.map((s) => (
-                <div
-                  key={s.id}
-                  className="flex items-center justify-between p-4 rounded-[12px] border border-[#e6ecf3] hover:border-[#c69a3f]/40 transition-colors"
+              {otherSessions.length > 0 && (
+                <button
+                  onClick={revokeAllOther}
+                  className="inline-flex items-center gap-2 text-[12px] font-semibold text-red-600 border border-red-200 px-3.5 py-2 rounded-full hover:bg-red-50 transition-colors"
                 >
-                  <div>
-                    <p className="text-[13.5px] font-semibold text-[#0d2c5c]">
-                      {/* Combină device_type, browser_family și os_family */}
-                      {[
-                        s.device_type,
-                        s.browser_family
-                          ? `${s.browser_family} ${s.browser_version || ""}`.trim()
-                          : null,
-                        s.os_family
-                          ? `${s.os_family} ${s.os_version || ""}`.trim()
-                          : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ") || "Dispozitiv necunoscut"}
+                  <LogOut size={13} /> Revocă toate celelalte
+                </button>
+              )}
+            </div>
+          </div>
 
-                      {s.is_current && (
-                        <span className="ml-2 text-[10px] font-bold tracking-[0.15em] uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                          Această sesiune
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-[12px] text-[#8595aa] mt-0.5">
-                      {[s.city, s.country_code].filter(Boolean).join(", ") ||
-                        "Locație necunoscută"}
-                      {s.ip_address && ` · ${s.ip_address}`}
-                      {s.created_at &&
-                        ` · ${new Date(s.created_at).toLocaleDateString("ro-RO")}`}
-                    </p>
-                  </div>
-                  {!s.is_current && (
-                    <button
-                      onClick={() => revokeSession(s.id)}
-                      className="text-[12px] font-semibold text-red-600 hover:underline"
-                    >
-                      Deconectează
-                    </button>
-                  )}
-                </div>
+          {sessionsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[0, 1].map((i) => (
+                <div
+                  key={i}
+                  className="h-[116px] rounded-[16px] border border-[#eef2f7] bg-[#fafbfd] animate-pulse"
+                />
               ))}
+            </div>
+          ) : sessions.length === 0 ? (
+            <EmptyState
+              icon={Monitor}
+              title="Nicio sesiune activă"
+              text="Dispozitivele de pe care te conectezi vor apărea aici."
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {sessions.map((s) => {
+                const kind = deviceKind(s);
+                const meta = DEVICE_META[kind];
+                const DeviceIcon = meta.icon;
+                const browser = s.browser_family
+                  ? `${s.browser_family} ${s.browser_version || ""}`.trim()
+                  : null;
+                const os = s.os_family
+                  ? `${s.os_family} ${s.os_version || ""}`.trim()
+                  : null;
+                return (
+                  <article
+                    key={s.id}
+                    className={`relative p-5 rounded-[16px] border transition-colors ${
+                      s.is_current
+                        ? "border-[#c69a3f]/50 bg-[#fffdf7]"
+                        : "border-[#e6ecf3] bg-white hover:border-[#c69a3f]/40"
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div
+                        className={`w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 ${
+                          s.is_current
+                            ? "bg-[#c69a3f] text-white"
+                            : "bg-[#f4f7fb] text-[#0d2c5c]"
+                        }`}
+                      >
+                        <DeviceIcon size={20} strokeWidth={1.6} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-[14px] font-semibold text-[#0d2c5c] truncate">
+                            {browser || meta.label}
+                          </p>
+                          {s.is_current && (
+                            <span className="text-[9.5px] font-bold tracking-[0.18em] uppercase text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                              Sesiunea curentă
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#8595aa] mt-1">
+                          {meta.label}
+                          {os ? ` · ${os}` : ""}
+                        </p>
+
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-[12px] text-[#5a6b85]">
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin size={12} className="text-[#c69a3f]" />
+                            {[s.city, s.country_code]
+                              .filter(Boolean)
+                              .join(", ") || "Locație necunoscută"}
+                          </span>
+                          {s.created_at && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Clock size={12} className="text-[#c69a3f]" />
+                              {new Date(s.created_at).toLocaleDateString(
+                                "ro-RO",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
+                            </span>
+                          )}
+                          {s.ip_address && (
+                            <span className="font-mono text-[11.5px] text-[#8595aa]">
+                              {s.ip_address}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {!s.is_current && (
+                      <div className="mt-4 pt-4 border-t border-[#eef2f7] flex justify-end">
+                        <button
+                          onClick={() => revokeSession(s.id)}
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-red-600 border border-red-200 px-3.5 py-2 rounded-full hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut size={12} /> Deconectează
+                        </button>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>
