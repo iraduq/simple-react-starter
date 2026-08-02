@@ -50,11 +50,36 @@ const TABS: {
   icon: typeof UserIcon;
 }[] = [
   { key: "personal", label: "Profil", hint: "Date personale", icon: UserIcon },
-  { key: "security", label: "Securitate", hint: "Parolă & sesiuni", icon: Shield },
-  { key: "reservations", label: "Rezervări", hint: "Istoric & viitoare", icon: CalendarCheck },
-  { key: "downloads", label: "Descărcări", hint: "Facturi & resurse", icon: Download },
-  { key: "settings", label: "Preferințe", hint: "Notificări & temă", icon: SettingsIcon },
-  { key: "danger", label: "Zonă periculoasă", hint: "Ștergere cont", icon: TriangleAlert },
+  {
+    key: "security",
+    label: "Securitate",
+    hint: "Parolă & sesiuni",
+    icon: Shield,
+  },
+  {
+    key: "reservations",
+    label: "Rezervări",
+    hint: "Istoric & viitoare",
+    icon: CalendarCheck,
+  },
+  {
+    key: "downloads",
+    label: "Descărcări",
+    hint: "Facturi & resurse",
+    icon: Download,
+  },
+  {
+    key: "settings",
+    label: "Preferințe",
+    hint: "Notificări & temă",
+    icon: SettingsIcon,
+  },
+  {
+    key: "danger",
+    label: "Zonă periculoasă",
+    hint: "Ștergere cont",
+    icon: TriangleAlert,
+  },
 ];
 
 export default function Profile() {
@@ -103,7 +128,9 @@ export default function Profile() {
           <SideNav tab={tab} setTab={setTab} onLogout={handleLogout} />
 
           <section className="bg-white border border-[#e6ecf3] rounded-[18px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
-            {tab === "personal" && <PersonalTab user={user} setUser={setUser} />}
+            {tab === "personal" && (
+              <PersonalTab user={user} setUser={setUser} />
+            )}
             {tab === "security" && <SecurityTab user={user} />}
             {tab === "reservations" && <ReservationsTab />}
             {tab === "downloads" && <DownloadsTab />}
@@ -328,7 +355,11 @@ function PersonalTab({
           <div className="relative">
             <div className="w-[86px] h-[86px] rounded-full bg-[#0d2c5c] text-white flex items-center justify-center font-['Cormorant_Garamond',serif] text-[30px] font-semibold overflow-hidden">
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={user.avatar_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 initials
               )}
@@ -342,7 +373,9 @@ function PersonalTab({
             </button>
           </div>
           <div>
-            <p className="text-[14px] font-semibold text-[#0d2c5c]">Poză de profil</p>
+            <p className="text-[14px] font-semibold text-[#0d2c5c]">
+              Poză de profil
+            </p>
             <p className="text-[12.5px] text-[#8595aa] mt-0.5">
               PNG sau JPG, până la 2MB. Recomandat 400×400px.
             </p>
@@ -371,9 +404,15 @@ function PersonalTab({
               placeholder="ex: Popescu"
             />
           </Field>
-          <Field label="Adresă email" hint="Contactează-ne pentru a schimba emailul.">
+          <Field
+            label="Adresă email"
+            hint="Contactează-ne pentru a schimba emailul."
+          >
             <div className="relative">
-              <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8595aa]" />
+              <Mail
+                size={16}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8595aa]"
+              />
               <input
                 type="email"
                 value={user.email}
@@ -384,7 +423,10 @@ function PersonalTab({
           </Field>
           <Field label="Număr de telefon">
             <div className="relative">
-              <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8595aa]" />
+              <Phone
+                size={16}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8595aa]"
+              />
               <input
                 type="tel"
                 value={form.phone}
@@ -424,15 +466,16 @@ function PersonalTab({
   );
 }
 
-/* ─────────────────── SECURITY TAB ─────────────────── */
 type Session = {
   id: string;
-  browser?: string;
-  os?: string;
+  browser_family?: string;
+  browser_version?: string;
+  os_family?: string;
+  os_version?: string;
   device_type?: string;
-  country?: string;
+  country_code?: string;
   city?: string;
-  ip?: string;
+  ip_address?: string;
   created_at?: string;
   is_current?: boolean;
 };
@@ -441,7 +484,9 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
   const { toast } = useToast();
   const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
   const [showPw, setShowPw] = useState(false);
-  const [status, setStatus] = useState<null | { ok: boolean; msg: string }>(null);
+  const [status, setStatus] = useState<null | { ok: boolean; msg: string }>(
+    null,
+  );
   const [saving, setSaving] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
@@ -528,8 +573,6 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
     }
   };
 
-
-
   return (
     <>
       <SectionHead
@@ -543,7 +586,24 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
         <div className="flex items-center justify-between p-5 rounded-[12px] border border-[#e6ecf3] bg-[#fafbfc]">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-white border border-[#e6ecf3] flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
             </div>
             <div>
               <p className="text-[14px] font-semibold text-[#0d2c5c]">
@@ -659,9 +719,13 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
             )}
           </div>
           {sessionsLoading ? (
-            <p className="text-[13px] text-[#8595aa] py-4">Se încarcă sesiunile…</p>
+            <p className="text-[13px] text-[#8595aa] py-4">
+              Se încarcă sesiunile…
+            </p>
           ) : sessions.length === 0 ? (
-            <p className="text-[13px] text-[#8595aa] py-4">Nicio sesiune activă.</p>
+            <p className="text-[13px] text-[#8595aa] py-4">
+              Nicio sesiune activă.
+            </p>
           ) : (
             <div className="space-y-3">
               {sessions.map((s) => (
@@ -669,25 +733,34 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                   key={s.id}
                   className="flex items-center justify-between p-4 rounded-[12px] border border-[#e6ecf3] hover:border-[#c69a3f]/40 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-md bg-[#f4f7fb] flex items-center justify-center text-[#0d2c5c]">
-                      <Monitor size={16} />
-                    </div>
-                    <div>
-                      <p className="text-[13.5px] font-semibold text-[#0d2c5c]">
-                        {[s.browser, s.os].filter(Boolean).join(" · ") || "Dispozitiv necunoscut"}
-                        {s.is_current && (
-                          <span className="ml-2 text-[10px] font-bold tracking-[0.15em] uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                            Această sesiune
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-[12px] text-[#8595aa] mt-0.5">
-                        {[s.city, s.country].filter(Boolean).join(", ") || "Locație necunoscută"}
-                        {s.ip && ` · ${s.ip}`}
-                        {s.created_at && ` · ${new Date(s.created_at).toLocaleDateString("ro-RO")}`}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-[13.5px] font-semibold text-[#0d2c5c]">
+                      {/* Combină device_type, browser_family și os_family */}
+                      {[
+                        s.device_type,
+                        s.browser_family
+                          ? `${s.browser_family} ${s.browser_version || ""}`.trim()
+                          : null,
+                        s.os_family
+                          ? `${s.os_family} ${s.os_version || ""}`.trim()
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "Dispozitiv necunoscut"}
+
+                      {s.is_current && (
+                        <span className="ml-2 text-[10px] font-bold tracking-[0.15em] uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                          Această sesiune
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-[12px] text-[#8595aa] mt-0.5">
+                      {[s.city, s.country_code].filter(Boolean).join(", ") ||
+                        "Locație necunoscută"}
+                      {s.ip_address && ` · ${s.ip_address}`}
+                      {s.created_at &&
+                        ` · ${new Date(s.created_at).toLocaleDateString("ro-RO")}`}
+                    </p>
                   </div>
                   {!s.is_current && (
                     <button
@@ -919,7 +992,9 @@ function SettingsTab() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Bell size={15} className="text-[#c69a3f]" />
-            <h3 className="text-[15px] font-semibold text-[#0d2c5c]">Notificări</h3>
+            <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
+              Notificări
+            </h3>
           </div>
           <div className="space-y-2">
             <Toggle
@@ -954,7 +1029,9 @@ function SettingsTab() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Globe size={15} className="text-[#c69a3f]" />
-              <h3 className="text-[15px] font-semibold text-[#0d2c5c]">Limbă</h3>
+              <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
+                Limbă
+              </h3>
             </div>
             <div className="flex gap-2">
               {["RO", "EN", "DE"].map((l) => (
@@ -1048,7 +1125,8 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
               Dezactivează temporar contul
             </p>
             <p className="text-[12.5px] text-amber-800/80 mt-1 max-w-[520px]">
-              Contul devine invizibil, dar datele tale se păstrează. Poți reveni oricând prin login.
+              Contul devine invizibil, dar datele tale se păstrează. Poți reveni
+              oricând prin login.
             </p>
           </div>
           <button className="px-5 py-2.5 text-[12.5px] font-semibold text-amber-800 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors whitespace-nowrap">
@@ -1063,7 +1141,8 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
                 Șterge permanent contul
               </p>
               <p className="text-[12.5px] text-red-800/80 mt-1 max-w-[520px]">
-                Toate rezervările, facturile și datele tale vor fi șterse definitiv. Această acțiune nu poate fi anulată.
+                Toate rezervările, facturile și datele tale vor fi șterse
+                definitiv. Această acțiune nu poate fi anulată.
               </p>
             </div>
             {!confirmOpen && (
