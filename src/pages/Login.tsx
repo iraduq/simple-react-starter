@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, ArrowRight, ArrowLeft } from "lucide-react";
+import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
 
@@ -9,6 +9,17 @@ export default function Login() {
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Restaurează emailul memorat
+  useEffect(() => {
+    const saved = localStorage.getItem("casaesy_remember_email");
+    if (saved) {
+      setFormData((f) => ({ ...f, email: saved }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const [isForgotPasswordView, setIsForgotPasswordView] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -22,7 +33,7 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, remember_me: rememberMe }),
       });
       const contentType = res.headers.get("content-type");
       const data = contentType?.includes("application/json")
@@ -30,6 +41,11 @@ export default function Login() {
         : null;
 
       if (res.ok) {
+        if (rememberMe) {
+          localStorage.setItem("casaesy_remember_email", formData.email);
+        } else {
+          localStorage.removeItem("casaesy_remember_email");
+        }
         await fetchSession(true);
         notifySessionChange();
         navigate("/profile");
