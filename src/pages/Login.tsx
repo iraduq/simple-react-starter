@@ -282,7 +282,7 @@ export default function Login() {
                     strokeWidth={1.5}
                   />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Parola"
                     required
                     value={formData.password}
@@ -291,12 +291,28 @@ export default function Login() {
                     }
                     className="w-full pl-[50px] pr-[44px] py-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Ascunde parola" : "Arată parola"
+                    }
+                    className="absolute right-[14px] top-1/2 -translate-y-1/2 p-1 text-[#8595aa] hover:text-[#0d2c5c] transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} strokeWidth={1.5} />
+                    ) : (
+                      <Eye size={18} strokeWidth={1.5} />
+                    )}
+                  </button>
                 </div>
 
                 <div className="flex items-center justify-between text-[13.5px] -mt-1.5 mb-2">
                   <label className="flex items-center gap-2 cursor-pointer relative">
                     <input
                       type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
                       className="peer absolute opacity-0 w-0 h-0"
                     />
                     <span className="h-[18px] w-[18px] bg-[#f4f7fb] border border-[#e1e8f0] rounded flex items-center justify-center transition-all duration-200 peer-checked:bg-[#1e4d8c] peer-checked:border-[#1e4d8c] peer-checked:after:block after:content-[''] after:hidden after:w-1 after:h-2 after:border-white after:border-[0_2px_2px_0] after:rotate-45 after:-mb-0.5" />
