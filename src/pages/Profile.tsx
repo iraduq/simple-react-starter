@@ -9,7 +9,6 @@ import {
   TriangleAlert,
   Mail,
   Phone,
-  Camera,
   Save,
   LogOut,
   Eye,
