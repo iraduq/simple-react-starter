@@ -10,14 +10,12 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   // Restaurează emailul memorat
   useEffect(() => {
     const saved = localStorage.getItem("casaesy_remember_email");
     if (saved) {
       setFormData((f) => ({ ...f, email: saved }));
-      setRememberMe(true);
     }
   }, []);
 
@@ -33,7 +31,7 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ...formData, remember_me: rememberMe }),
+        body: JSON.stringify({ ...formData }),
       });
       const contentType = res.headers.get("content-type");
       const data = contentType?.includes("application/json")
@@ -41,11 +39,6 @@ export default function Login() {
         : null;
 
       if (res.ok) {
-        if (rememberMe) {
-          localStorage.setItem("casaesy_remember_email", formData.email);
-        } else {
-          localStorage.removeItem("casaesy_remember_email");
-        }
         await fetchSession(true);
         notifySessionChange();
         navigate("/profile");
@@ -308,19 +301,6 @@ export default function Login() {
                 </div>
 
                 <div className="flex items-center justify-between text-[13.5px] -mt-1.5 mb-2">
-                  <label className="flex items-center gap-2 cursor-pointer relative">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="peer absolute opacity-0 w-0 h-0"
-                    />
-                    <span className="h-[18px] w-[18px] bg-[#f4f7fb] border border-[#e1e8f0] rounded flex items-center justify-center transition-all duration-200 peer-checked:bg-[#1e4d8c] peer-checked:border-[#1e4d8c] peer-checked:after:block after:content-[''] after:hidden after:w-1 after:h-2 after:border-white after:border-[0_2px_2px_0] after:rotate-45 after:-mb-0.5" />
-                    <span className="text-[#3c4043] select-none">
-                      Ține-mă minte
-                    </span>
-                  </label>
-
                   <button
                     type="button"
                     onClick={() => setIsForgotPasswordView(true)}

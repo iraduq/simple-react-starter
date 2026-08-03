@@ -19,6 +19,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastProvider, useToast } from "./components/Toast";
 import { setSessionExpiredHandler } from "./lib/api";
 import { clearSession } from "./lib/auth";
+import Contact from "./pages/Contact";
 
 const MainLayout = () => {
   return (
@@ -38,7 +39,10 @@ function AppInner() {
   useEffect(() => {
     setSessionExpiredHandler(() => {
       clearSession();
-      toast("Sesiunea a expirat. Te rugăm să te autentifici din nou.", "warning");
+      toast(
+        "Sesiunea a expirat. Te rugăm să te autentifici din nou.",
+        "warning",
+      );
       navigate("/login", { replace: true });
     });
   }, [navigate, toast]);
@@ -53,6 +57,7 @@ function AppInner() {
         <Route path="/" element={<Home />} />
         <Route path="/camere" element={<Rooms />} />
         <Route path="/places" element={<Places />} />
+        <Route path="/contact" element={<Contact />} />
         <Route
           path="/profile"
           element={
