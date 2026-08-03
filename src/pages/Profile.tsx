@@ -169,15 +169,7 @@ function ProfileHero({ user }: { user: NonNullable<SessionUser> }) {
       <div className="max-w-[1240px] mx-auto h-full px-6 lg:px-10 flex items-end pb-24">
         <div className="flex items-center gap-5 text-white">
           <div className="w-[92px] h-[92px] rounded-full bg-[#c69a3f] border-[3px] border-white/90 shadow-lg flex items-center justify-center font-['Cormorant_Garamond',serif] text-[34px] font-semibold text-white">
-            {user.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                alt=""
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              initials
-            )}
+            {initials}
           </div>
           <div>
             <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
