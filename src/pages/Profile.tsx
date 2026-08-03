@@ -321,6 +321,14 @@ function PersonalTab({
     null,
   );
 
+  useEffect(() => {
+    setForm({
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
+      phone: user.phone || "",
+    });
+  }, [user.first_name, user.last_name, user.phone]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -335,6 +343,8 @@ function PersonalTab({
       if (res.ok) {
         setStatus({ ok: true, msg: "Modificările au fost salvate." });
         setUser({ ...user, ...form });
+        const fresh = await fetchSession(true);
+        if (fresh) setUser(fresh);
         notifySessionChange();
       } else {
         setStatus({ ok: false, msg: "Nu am putut salva modificările." });
@@ -359,34 +369,17 @@ function PersonalTab({
       />
 
       <form onSubmit={handleSubmit} className="p-8 space-y-8">
-        {/* Avatar */}
+        {/* Monogram */}
         <div className="flex items-center gap-5">
-          <div className="relative">
-            <div className="w-[86px] h-[86px] rounded-full bg-[#0d2c5c] text-white flex items-center justify-center font-['Cormorant_Garamond',serif] text-[30px] font-semibold overflow-hidden">
-              {user.avatar_url ? (
-                <img
-                  src={user.avatar_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                initials
-              )}
-            </div>
-            <button
-              type="button"
-              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#c69a3f] text-white flex items-center justify-center shadow-md hover:bg-[#b58933] transition-colors"
-              title="Schimbă poza"
-            >
-              <Camera size={14} />
-            </button>
+          <div className="w-[86px] h-[86px] rounded-full bg-[#0d2c5c] text-white flex items-center justify-center font-['Cormorant_Garamond',serif] text-[30px] font-semibold">
+            {initials}
           </div>
           <div>
             <p className="text-[14px] font-semibold text-[#0d2c5c]">
-              Poză de profil
+              Monograma ta
             </p>
             <p className="text-[12.5px] text-[#8595aa] mt-0.5">
-              PNG sau JPG, până la 2MB. Recomandat 400×400px.
+              Se generează automat din numele tău.
             </p>
           </div>
         </div>
