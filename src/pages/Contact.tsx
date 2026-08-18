@@ -2,9 +2,17 @@ import { useState } from "react";
 import { Send, AlertCircle } from "lucide-react";
 import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
+import Footer from "../components/Footer";
 
 const IconPin = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M12 2c-4 0-7 2.7-7 6 0 3.2 4 8.6 6.2 11.2a1.5 1.5 0 0 0 1.8 0C15.2 16.6 19 11.2 19 8c0-3.3-3-6-7-6z" />
     <circle cx="12" cy="8" r="2.5" />
     <path d="M5 20h14" />
@@ -12,13 +20,27 @@ const IconPin = () => (
 );
 
 const IconPhone = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M22 16.9c0 1-.6 1.9-1.5 2.3-1.3.6-2.8.8-4.3.8-5.5 0-10.8-4.3-13-9.4C2.4 7.8 2 6.1 2 4.3 2 3 3 2 4.3 2c.8 0 1.5.4 1.9 1.1l1.6 2.8c.4.7.3 1.5-.2 2.1l-.7.8c.6 1.4 1.6 2.7 2.9 3.8 1.2 1.1 2.6 1.9 4.1 2.4l.6-.7c.5-.6 1.3-.8 2-.5l2.8 1.1c.7.3 1.1 1 1.1 1.8z" />
   </svg>
 );
 
 const IconMail = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <rect x="2" y="5" width="20" height="14" rx="3" />
     <path d="M2 8l8.5 5.5a3 3 0 0 0 3 0L22 8" />
     <path d="M2 17l7-5" />
@@ -27,7 +49,14 @@ const IconMail = () => (
 );
 
 const IconClock = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <circle cx="12" cy="12" r="9" />
     <path d="M12 7v5l3 3" />
     <path d="M5 3l2 2" />
@@ -128,7 +157,9 @@ export default function Contact() {
             <em className="italic text-[var(--gold)]">sejurul tău</em>
           </h1>
           <p className="max-w-[600px] mx-auto text-[15px] text-[var(--text-secondary)] leading-[1.8] font-light">
-            Fie că ai o întrebare despre disponibilitate, vrei recomandări sau dorești să organizezi un eveniment special — echipa noastră este aici să transforme ideile în realitate.
+            Fie că ai o întrebare despre disponibilitate, vrei recomandări sau
+            dorești să organizezi un eveniment special — echipa noastră este
+            aici să transforme ideile în realitate.
           </p>
         </div>
 
@@ -166,8 +197,10 @@ export default function Contact() {
             <div className="mt-2 p-5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-soft)]">
               <p className="text-[13.5px] text-[var(--text-muted)] font-light leading-[1.8]">
                 Îți răspundem de obicei în mai puțin de{" "}
-                <span className="text-[var(--text-primary)] font-medium">24 de ore</span>.
-                Pentru urgențe, te rugăm să ne suni direct.
+                <span className="text-[var(--text-primary)] font-medium">
+                  24 de ore
+                </span>
+                . Pentru urgențe, te rugăm să ne suni direct.
               </p>
             </div>
           </div>
@@ -272,7 +305,10 @@ export default function Contact() {
 
               {status === "error" && (
                 <div className="mt-5 p-4 bg-[#fef2f2] border border-[#fecaca] rounded-lg flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <AlertCircle size={18} className="text-[#b91c1c] shrink-0 mt-px" />
+                  <AlertCircle
+                    size={18}
+                    className="text-[#b91c1c] shrink-0 mt-px"
+                  />
                   <p className="text-[13.5px] text-[#b91c1c] font-medium">
                     {errorMessage}
                   </p>
@@ -286,6 +322,7 @@ export default function Contact() {
       {/* Linie subtilă jos, înainte de footer */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-light)]" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--navy)]" />
+      <Footer />
     </section>
   );
 }
