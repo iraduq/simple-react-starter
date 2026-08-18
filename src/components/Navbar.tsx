@@ -11,8 +11,10 @@ import {
 import {
   clearSession,
   fetchSession,
+  getCachedUser,
   hasSession,
   onSessionChange,
+  type SessionUser,
 } from "../lib/auth";
 import { apiFetch } from "../lib/api";
 import { useToast } from "../components/Toast";
@@ -32,6 +34,7 @@ export default function Navbar() {
   const [copied, setCopied] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
+  const [currentUser, setCurrentUser] = useState<SessionUser>(getCachedUser());
 
   const langRef = useRef<HTMLDivElement>(null);
   const acctRef = useRef<HTMLDivElement>(null);
@@ -49,9 +52,17 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!hasSession()) {
-      fetchSession().then(() => setIsAuthenticated(hasSession()));
+      fetchSession().then(() => {
+        setIsAuthenticated(hasSession());
+        setCurrentUser(getCachedUser());
+      });
+    } else {
+      setCurrentUser(getCachedUser());
     }
-    return onSessionChange(() => setIsAuthenticated(hasSession()));
+    return onSessionChange(() => {
+      setIsAuthenticated(hasSession());
+      setCurrentUser(getCachedUser());
+    });
   }, []);
 
   useEffect(() => {
@@ -277,15 +288,27 @@ export default function Navbar() {
                   {isAuthenticated ? (
                     <>
                       <p className="font-['Cormorant_Garamond',serif] text-lg font-medium text-[#0d2c5c] m-0">
-                        Ești conectat
+                        {currentUser?.role === "admin"
+                          ? `Salut, ${currentUser?.first_name || "Admin"}`
+                          : "Ești conectat"}
                       </p>
-                      <Link
-                        to="/profile"
-                        onClick={() => setAcctOpen(false)}
-                        className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
-                      >
-                        Vezi profilul
-                      </Link>
+                      {currentUser?.role === "admin" ? (
+                        <Link
+                          to="/admin"
+                          onClick={() => setAcctOpen(false)}
+                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
+                        >
+                          Administrează
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/profile"
+                          onClick={() => setAcctOpen(false)}
+                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
+                        >
+                          Vezi profilul
+                        </Link>
+                      )}
                       <button
                         type="button"
                         onClick={handleLogout}
