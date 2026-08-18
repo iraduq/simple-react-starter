@@ -372,22 +372,35 @@ function MediaManager({ room, onClose, onChanged }: { room: Room; onClose: () =>
       </div>
 
       {/* Gallery */}
-      {images.length > 0 && (
+      {images.length > 0 ? (
         <div className="mt-5">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#4f6280]">Galerie ({images.length})</p>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#4f6280]">Galerie foto ({images.length})</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {images.map((img) => (
-              <div key={img.id} className="group relative overflow-hidden rounded-lg border border-[#e1e8f0]">
-                <img src={imageUrl(img)} alt="" className="h-20 w-full object-cover" />
+              <div key={img.id} className="group relative overflow-hidden rounded-xl border border-[#e1e8f0]">
+                <img src={imageUrl(img)} alt="" className="h-28 w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 <button
                   onClick={() => void deleteImage(img)}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-red-600 opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
+                  className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-sm transition-all hover:bg-white hover:scale-110"
                 >
-                  <X size={13} />
+                  <X size={14} />
                 </button>
+                <a
+                  href={imageUrl(img)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute bottom-2 left-2 rounded-lg bg-white/90 px-2 py-1 text-[10px] font-semibold text-[#0d2c5c] opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  Vezi
+                </a>
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-dashed border-[#e1e8f0] py-8 text-center">
+          <p className="text-[13px] text-[#8595aa]">Nicio imagine încărcată pentru această cameră</p>
         </div>
       )}
 

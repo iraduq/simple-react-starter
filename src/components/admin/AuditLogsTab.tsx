@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, Search } from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -7,6 +7,7 @@ import {
   Badge,
   TableSkeleton,
   EmptyState,
+  inputCls,
 } from "./ui";
 import { get, list, dateTimeFmt, errMsg, type AuditLog } from "../../lib/admin";
 import { useToast } from "../Toast";
@@ -20,6 +21,7 @@ export default function AuditLogsTab() {
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>("timestamp");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [search, setSearch] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -47,13 +49,22 @@ export default function AuditLogsTab() {
         case "ip": return log.ip_address || log.ip || "";
       }
     };
-    return [...logs].sort((a, b) => {
+    let result = [...logs];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((log) => {
+        const fields = [log.user_email, log.action, log.resource, log.resource_type, log.ip_address, log.ip, String(log.user_id || "")];
+        return fields.some((f) => (f || "").toLowerCase().includes(q));
+      });
+    }
+    result.sort((a, b) => {
       const av = getVal(a, sortKey);
       const bv = getVal(b, sortKey);
       const cmp = av.localeCompare(bv);
       return sortDir === "asc" ? cmp : -cmp;
     });
-  }, [logs, sortKey, sortDir]);
+    return result;
+  }, [logs, sortKey, sortDir, search]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -89,6 +100,18 @@ export default function AuditLogsTab() {
           <Button variant="ghost" size="sm" onClick={() => void load()}>Reîmprospătează</Button>
         }
       />
+
+      <Card className="mb-4 p-4">
+        <div className="relative">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8595aa]" />
+          <input
+            className={`${inputCls} pl-10`}
+            placeholder="Caută după utilizator, acțiune, resursă, IP…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </Card>
 
       <Card>
         {loading ? (

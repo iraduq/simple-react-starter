@@ -140,6 +140,7 @@ export default function PricingTab() {
   };
 
   const monthName = monthDate.toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
+  const basePrice = rooms.find((r) => String(r.id) === selectedRoom)?.base_price;
 
   if (loading) {
     return (
@@ -191,15 +192,15 @@ export default function PricingTab() {
                 <button onClick={() => setMonthOffset((m) => m - 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]">
                   <ChevronLeft size={16} />
                 </button>
-                <h3 className="text-[15px] font-semibold capitalize text-[#0d2c5c]">{monthName}</h3>
+                <h3 className="text-[15px] font-semibold capitalize text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>{monthName}</h3>
                 <button onClick={() => setMonthOffset((m) => m + 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]">
                   <ChevronRight size={16} />
                 </button>
               </div>
               <div className="flex items-center gap-3 text-[11px] text-[#6b7c99]">
-                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-[#eaf0f9]" /> Disponibil</span>
-                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-[#c69a3f]" /> Preț custom</span>
-                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-red-200" /> Blocat</span>
+                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-[#eaf0f9]" /> Preț standard</span>
+                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-[#f4e5c8]/50 border border-[#c69a3f]/50" /> Preț custom</span>
+                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-red-50 border border-red-200" /> Blocat</span>
               </div>
             </div>
 
@@ -222,25 +223,28 @@ export default function PricingTab() {
                   const cal = getDay(day);
                   const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                   const blocked = cal?.blocked || cal?.available === false;
-                  const hasCustomPrice = cal?.price != null;
+                  const dayPrice = cal?.price != null ? Number(cal.price) : Number(basePrice || 0);
+                  const isCustom = cal?.price != null;
                   return (
                     <button
                       key={day}
                       onClick={() => openRule(dateStr)}
-                      className={`flex h-16 flex-col items-center justify-center rounded-lg border text-[12px] transition-colors ${
+                      className={`flex h-[60px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[11px] transition-all hover:scale-[1.03] ${
                         blocked
                           ? "border-red-200 bg-red-50 text-red-600"
-                          : hasCustomPrice
-                            ? "border-[#c69a3f]/40 bg-[#f4e5c8]/40 text-[#0d2c5c]"
+                          : isCustom
+                            ? "border-[#c69a3f]/50 bg-[#f4e5c8]/50 text-[#0d2c5c]"
                             : "border-[#e1e8f0] bg-[#eaf0f9] text-[#4f6280] hover:border-[#0d2c5c]"
                       }`}
                     >
-                      <span className="font-semibold">{day}</span>
+                      <span className="font-bold leading-none">{day}</span>
                       {blocked ? (
-                        <Lock size={11} className="mt-1 text-red-400" />
-                      ) : hasCustomPrice ? (
-                        <span className="mt-0.5 text-[10px] font-bold text-[#8a6413]">{money(cal!.price)}</span>
-                      ) : null}
+                        <Lock size={11} className="text-red-400" />
+                      ) : (
+                        <span className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#8a6413]" : "text-[#8595aa]"}`}>
+                          {money(dayPrice).replace(",\u00a0", "\u00a0")}
+                        </span>
+                      )}
                     </button>
                   );
                 })}

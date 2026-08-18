@@ -39,9 +39,9 @@ export default function Login() {
         : null;
 
       if (res.ok) {
-        await fetchSession(true);
+        const session = await fetchSession(true);
         notifySessionChange();
-        navigate("/profile");
+        navigate(session?.role === "admin" ? "/admin" : "/profile");
       } else {
         const errorMessage =
           data &&
@@ -95,9 +95,9 @@ export default function Login() {
       });
 
       if (res.ok) {
-        await fetchSession(true);
+        const session = await fetchSession(true);
         notifySessionChange();
-        navigate("/profile");
+        navigate(session?.role === "admin" ? "/admin" : "/profile");
         return;
       }
 

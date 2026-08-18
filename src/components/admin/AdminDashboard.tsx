@@ -146,9 +146,12 @@ export default function AdminDashboard() {
             >
               <Menu size={18} />
             </button>
-            <div className="flex items-center gap-2">
-              <span className="font-['Cormorant_Garamond',serif] text-[22px] font-semibold text-[#0d2c5c]">Casa Esy</span>
-              <span className="rounded-full bg-[#f4e5c8] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#8a6413]">Admin</span>
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0d2c5c] text-[14px] font-bold text-[#c69a3f]">CE</span>
+              <div className="flex flex-col leading-none">
+                <span className="font-['Cormorant_Garamond',serif] text-[19px] font-semibold text-[#0d2c5c]">Casa Esy</span>
+                <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#c69a3f]">Panou administrare</span>
+              </div>
             </div>
           </div>
 
@@ -221,7 +224,10 @@ export default function AdminDashboard() {
             <div className="absolute inset-0 bg-[#07203f]/40 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
             <aside className="absolute left-0 top-0 h-full w-72 border-r border-[#e1e8f0] bg-white">
               <div className="flex h-16 items-center justify-between border-b border-[#eef2f7] px-4">
-                <span className="font-['Cormorant_Garamond',serif] text-[20px] font-semibold text-[#0d2c5c]">Meniu</span>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0d2c5c] text-[12px] font-bold text-[#c69a3f]">CE</span>
+                  <span className="font-['Cormorant_Garamond',serif] text-[18px] font-semibold text-[#0d2c5c]">Meniu</span>
+                </div>
                 <button onClick={() => setSidebarOpen(false)} className="text-[#6b7c99]"><X size={18} /></button>
               </div>
               <SidebarContent

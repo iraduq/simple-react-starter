@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:8000";
 
-let isRefreshing = false;
+/* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
 let refreshPromise: Promise<boolean> | null = null;
 let onSessionExpired: (() => void) | null = null;
 
@@ -8,11 +8,32 @@ export const setSessionExpiredHandler = (handler: () => void) => {
   onSessionExpired = handler;
 };
 
+/** A single shared refresh call — concurrent 401s all await the same promise. */
+function doRefresh(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    try {
+      const r = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+      return r.ok;
+    } catch {
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
+}
+
+/* ─────────────── Fetch wrapper with auto-retry on 401 ─────────────── */
 type RequestOptions = {
   method?: string;
   headers?: Record<string, string>;
   body?: BodyInit | null;
   signal?: AbortSignal;
+  _retry?: boolean;
 };
 
 export async function apiFetch<T>(
@@ -33,51 +54,35 @@ export async function apiFetch<T>(
     return (await res.json()) as T;
   }
 
-  // 401: attempt refresh
-  if (!isRefreshing) {
-    isRefreshing = true;
-    refreshPromise = (async () => {
-      try {
-        const r = await fetch(`${API_URL}/auth/refresh`, {
-          method: "POST",
-          credentials: "include",
-        });
-        return r.ok;
-      } catch {
-        return false;
-      } finally {
-        isRefreshing = false;
-      }
-    })();
+  // 401 received
+  if (options._retry) {
+    // Already retried — refresh token is also invalid
+    if (onSessionExpired) onSessionExpired();
+    throw new ApiError("Session expired", 401);
   }
 
-  const refreshed = await refreshPromise!;
+  // Attempt silent refresh (all concurrent 401s share the same promise)
+  const refreshed = await doRefresh();
   if (!refreshed) {
     if (onSessionExpired) onSessionExpired();
     throw new ApiError("Session expired", 401);
   }
 
-  // Retry original request
-  const retryRes = await fetch(`${API_URL}${path}`, {
-    method: options.method || "GET",
-    headers: { "Content-Type": "application/json", ...options.headers },
-    body: options.body,
-    credentials: "include",
-    signal: options.signal,
-  });
-
-  if (!retryRes.ok) {
-    throw await extractError(retryRes);
-  }
-  if (retryRes.status === 204) return undefined as T;
-  return (await retryRes.json()) as T;
+  // Retry original request with _retry flag
+  return apiFetch<T>(path, { ...options, _retry: true });
 }
 
 async function extractError(res: Response): Promise<ApiError> {
   let message = `Error ${res.status}`;
   try {
     const data = await res.json();
-    if (data && typeof data.detail === "string") message = data.detail;
+    if (data?.detail) {
+      if (typeof data.detail === "string") {
+        message = data.detail;
+      } else if (data.detail?.message) {
+        message = data.detail.message;
+      }
+    }
   } catch {
     // ignore
   }
