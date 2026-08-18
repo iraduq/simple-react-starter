@@ -1,20 +1,33 @@
-import { useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Users,
-  Maximize,
-  BedDouble,
-  Waves,
-  Wifi,
-  Coffee,
-  Bath,
-  Star,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Users, Maximize, BedDouble, Save as Waves, Wifi, Coffee, Bath, Star, ImageOff } from "lucide-react";
 import Footer from "../components/Footer";
+import { apiFetch } from "../lib/api";
 
-type Room = {
-  id: number;
+type RoomImage = { id: number | string; url?: string; image_url?: string };
+
+type ApiRoom = {
+  id: number | string;
+  name: string;
+  slug?: string | null;
+  description?: string | null;
+  base_price?: number | null;
+  capacity?: number | null;
+  size_sqm?: number | null;
+  room_type_id?: number | string | null;
+  bed_type_id?: number | string | null;
+  is_active?: boolean | null;
+  images?: RoomImage[];
+  units?: unknown[];
+  category?: string | null;
+  badge?: string | null;
+  rating?: number | null;
+  reviews?: number | null;
+  bed?: string | null;
+  amenities?: string[] | null;
+};
+
+type DisplayRoom = {
+  id: number | string;
   category: string;
   title: string;
   subtitle: string;
@@ -30,113 +43,30 @@ type Room = {
   images: string[];
 };
 
-const px = (id: string) =>
-  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop`;
+const FALLBACK_IMG =
+  "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop";
 
-const rooms: Room[] = [
-  {
-    id: 1,
-    category: "Deluxe",
-    title: "Cameră Deluxe Vista Mare",
-    subtitle: "Etaj 3 · vedere panoramică la Marea Neagră",
-    price: 320,
-    rating: 4.9,
-    reviews: 48,
-    guests: 2,
-    size: "32 m²",
-    bed: "Pat king-size",
-    badge: "Cel mai ales",
-    description:
-      "Lumina dimineții intră direct din larg, iar balconul privat devine locul preferat pentru cafeaua de la răsărit.",
-    amenities: ["Balcon cu vedere la mare", "Wi-Fi fibră", "Mini-bar inclus", "Baie cu cadă"],
-    images: [px("271624"), px("164595"), px("279746"), px("1743229")],
-  },
-  {
-    id: 2,
-    category: "Suită",
-    title: "Suită Prezidențială",
-    subtitle: "Etaj 5 · terasă privată de 20 m²",
-    price: 680,
-    rating: 5.0,
-    reviews: 31,
-    guests: 4,
-    size: "68 m²",
-    bed: "Pat king-size + canapea extensibilă",
-    badge: "Premium",
-    description:
-      "Cel mai rafinat spațiu al vilei: living separat, terasă cu șezlonguri și priveliște neîntreruptă către orizont.",
-    amenities: ["Terasă privată", "Living separat", "Jacuzzi", "Check-in prioritar"],
-    images: [px("1743229"), px("1329711"), px("1457842"), px("271624")],
-  },
-  {
-    id: 3,
-    category: "Standard",
-    title: "Cameră Standard Confort",
-    subtitle: "Etaj 1–2 · deschidere spre grădină",
-    price: 180,
-    rating: 4.7,
-    reviews: 62,
-    guests: 2,
-    size: "24 m²",
-    bed: "Pat matrimonial",
-    description:
-      "Simplitate caldă, textile naturale și liniștea grădinii interioare — perfectă pentru sejururi scurte.",
-    amenities: ["Vedere la grădină", "Wi-Fi fibră", "Aer condiționat", "Mic dejun opțional"],
-    images: [px("164595"), px("279746"), px("1329711")],
-  },
-  {
-    id: 4,
-    category: "Apartament",
-    title: "Apartament Familial",
-    subtitle: "Etaj 2 · zonă liniștită, două dormitoare",
-    price: 490,
-    rating: 4.8,
-    reviews: 27,
-    guests: 5,
-    size: "54 m²",
-    bed: "2 dormitoare separate",
-    badge: "Recomandat familii",
-    description:
-      "Spațiu generos pentru familii, cu bucătărie utilată și o zonă de zi în care toată lumea încape confortabil.",
-    amenities: ["Bucătărie utilată", "Două băi", "Pătuț la cerere", "Zonă de joacă aproape"],
-    images: [px("1457842"), px("271624"), px("164595"), px("1005456")],
-  },
-  {
-    id: 5,
-    category: "Deluxe",
-    title: "Cameră Deluxe Grădină",
-    subtitle: "Parter · acces direct în grădină",
-    price: 290,
-    rating: 4.8,
-    reviews: 39,
-    guests: 2,
-    size: "30 m²",
-    bed: "Pat king-size",
-    description:
-      "Ușile glisante se deschid direct spre grădina cu pini — dimineți răcoroase și seri lungi sub felinare.",
-    amenities: ["Acces direct grădină", "Terasă proprie", "Wi-Fi fibră", "Duș walk-in"],
-    images: [px("279746"), px("1005456"), px("271624")],
-  },
-  {
-    id: 6,
-    category: "Suită",
-    title: "Suită Junior Mare",
-    subtitle: "Etaj 4 · panoramă spre faleză",
-    price: 520,
-    rating: 4.9,
-    reviews: 22,
-    guests: 3,
-    size: "45 m²",
-    bed: "Pat king-size + fotoliu pat",
-    badge: "Nou",
-    description:
-      "Un colț de lectură lângă fereastra înaltă, cu faleza desfășurată dedesubt și marea în fundal.",
-    amenities: ["Colț de lectură", "Cafetieră premium", "Halate & papuci", "Late check-out"],
-    images: [px("1329711"), px("1743229"), px("1457842")],
-  },
-];
+const imageUrl = (img: RoomImage) => img.url || img.image_url || "";
 
-const tabs = ["Toate", "Standard", "Deluxe", "Suită", "Apartament"];
+function mapRoom(r: ApiRoom): DisplayRoom {
+  const imgs = (r.images || []).map(imageUrl).filter(Boolean);
+  return {
+    id: r.id,
+    category: r.category || "Cameră",
+    title: r.name || "Cameră",
+    subtitle: r.capacity ? `${r.capacity} ${r.capacity === 1 ? "oaspete" : "oaspeți"}` : "",
+    price: Number(r.base_price || 0),
+    rating: Number(r.rating || 0),
+    reviews: Number(r.reviews || 0),
+    guests: Number(r.capacity || 0),
+    size: r.size_sqm ? `${r.size_sqm} m²` : "—",
+    bed: r.bed || "—",
+    badge: r.badge || undefined,
+    description: r.description || "",
+    amenities: r.amenities || [],
+    images: imgs.length > 0 ? imgs : [FALLBACK_IMG],
+  };
+}
 
 const amenityIcon = (label: string) => {
   const l = label.toLowerCase();
@@ -177,7 +107,6 @@ function RoomGallery({
         ))}
       </div>
 
-      {/* gradient bottom for dots legibility */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d2c5c]/60 to-transparent" />
 
       <button
@@ -224,8 +153,54 @@ function RoomGallery({
   );
 }
 
+function RoomSkeleton() {
+  return (
+    <article className="grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white">
+      <div className="h-[300px] md:min-h-[340px] bg-[#f4f7fb] animate-pulse" />
+      <div className="flex flex-col justify-center p-7 md:p-12 gap-4">
+        <div className="h-3 w-24 rounded bg-[#eef2f7] animate-pulse" />
+        <div className="h-7 w-3/4 rounded bg-[#eef2f7] animate-pulse" />
+        <div className="h-3 w-1/2 rounded bg-[#eef2f7] animate-pulse" />
+        <div className="h-16 w-full rounded bg-[#eef2f7] animate-pulse" />
+        <div className="grid grid-cols-3 gap-3">
+          <div className="h-16 rounded-xl bg-[#eef2f7] animate-pulse" />
+          <div className="h-16 rounded-xl bg-[#eef2f7] animate-pulse" />
+          <div className="h-16 rounded-xl bg-[#eef2f7] animate-pulse" />
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function Rooms() {
+  const [rooms, setRooms] = useState<DisplayRoom[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Toate");
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const data = await apiFetch<unknown>("/rooms");
+        const arr = Array.isArray(data)
+          ? (data as ApiRoom[])
+          : (data && typeof data === "object" && Array.isArray((data as Record<string, unknown>).items)
+            ? (data as Record<string, unknown>).items as ApiRoom[]
+            : []);
+        if (!active) return;
+        setRooms(arr.filter((r) => r.is_active !== false).map(mapRoom));
+        setLoading(false);
+      } catch (e) {
+        if (!active) return;
+        setError(e instanceof Error ? e.message : "Nu am putut încărca camerele.");
+        setLoading(false);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  const categories = ["Toate", ...Array.from(new Set(rooms.map((r) => r.category)))];
   const filtered =
     activeTab === "Toate" ? rooms : rooms.filter((r) => r.category === activeTab);
 
@@ -250,8 +225,8 @@ export default function Rooms() {
             <em className="italic text-[#c69a3f]">gândite pentru odihnă</em>
           </h1>
           <p className="font-sans text-white/80 text-[15px] leading-[1.75] font-light max-w-xl">
-            Șase tipuri de spații, de la camere luminoase cu vedere la grădină până
-            la suita prezidențială cu terasă privată. Fiecare cu propria poveste.
+            Spații de la camere luminoase cu vedere la grădină până la suite cu
+            terasă privată. Fiecare cu propria poveste.
           </p>
         </div>
 
@@ -293,130 +268,164 @@ export default function Rooms() {
                 Disponibile acum
               </h2>
             </div>
-            <div className="flex gap-2 flex-wrap">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-5 py-2 rounded-full border text-[12.5px] font-semibold transition-all duration-200 ${
-                    activeTab === tab
-                      ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
-                      : "border-[#e1e8f0] text-[#3c4043] hover:border-[#0d2c5c] hover:text-[#0d2c5c] hover:bg-[#e6efff]"
-                  }`}
-                >
-                  {tab}
-                </button>
+            {!loading && !error && categories.length > 1 && (
+              <div className="flex gap-2 flex-wrap">
+                {categories.map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-5 py-2 rounded-full border text-[12.5px] font-semibold transition-all duration-200 ${
+                      activeTab === tab
+                        ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
+                        : "border-[#e1e8f0] text-[#3c4043] hover:border-[#0d2c5c] hover:text-[#0d2c5c] hover:bg-[#e6efff]"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {error ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-500 mb-4">
+                <ImageOff size={26} />
+              </span>
+              <p className="text-[15px] font-semibold text-[#0d2c5c] mb-1">Nu am putut încărca camerele</p>
+              <p className="text-[13px] text-[#8595aa]">{error}</p>
+            </div>
+          ) : loading ? (
+            <div className="flex flex-col gap-10">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <RoomSkeleton key={i} />
               ))}
             </div>
-          </div>
-
-          <div className="flex flex-col gap-10">
-            {filtered.map((room, idx) => (
-              <article
-                key={room.id}
-                className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white"
-              >
-                <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
-                  <RoomGallery images={room.images} alt={room.title} badge={room.badge} />
-                </div>
-
-                <div className="flex flex-col justify-center p-7 md:p-12">
-                  <div className="flex items-center justify-between mb-4 gap-4">
-                    <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f]">
-                      {room.category}
-                    </p>
-                    <div className="flex items-center gap-1 text-[12.5px] font-semibold">
-                      <Star size={13} fill="#c69a3f" color="#c69a3f" />
-                      {room.rating}
-                      <span className="font-normal text-[#8595aa]">
-                        ({room.reviews})
-                      </span>
-                    </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#f4f7fb] text-[#8595aa] mb-4">
+                <ImageOff size={26} />
+              </span>
+              <p className="text-[15px] font-semibold text-[#0d2c5c]">Nicio cameră disponibilă momentan</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-10">
+              {filtered.map((room, idx) => (
+                <article
+                  key={room.id}
+                  className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white"
+                >
+                  <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
+                    <RoomGallery images={room.images} alt={room.title} badge={room.badge} />
                   </div>
 
-                  <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(1.7rem,2.4vw,2.3rem)] font-normal leading-[1.2] mb-2">
-                    {room.title}
-                  </h3>
-                  <p className="font-sans text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8595aa] mb-5">
-                    {room.subtitle}
-                  </p>
+                  <div className="flex flex-col justify-center p-7 md:p-12">
+                    <div className="flex items-center justify-between mb-4 gap-4">
+                      <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f]">
+                        {room.category}
+                      </p>
+                      {room.rating > 0 && (
+                        <div className="flex items-center gap-1 text-[12.5px] font-semibold">
+                          <Star size={13} fill="#c69a3f" color="#c69a3f" />
+                          {room.rating.toFixed(1)}
+                          {room.reviews > 0 && (
+                            <span className="font-normal text-[#8595aa]">
+                              ({room.reviews})
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
 
-                  <p className="font-sans text-[15px] leading-[1.75] font-light text-[#3d4f6b] mb-7">
-                    {room.description}
-                  </p>
+                    <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(1.7rem,2.4vw,2.3rem)] font-normal leading-[1.2] mb-2">
+                      {room.title}
+                    </h3>
+                    {room.subtitle && (
+                      <p className="font-sans text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8595aa] mb-5">
+                        {room.subtitle}
+                      </p>
+                    )}
 
-                  <div className="grid grid-cols-3 gap-3 mb-7">
-                    {[
-                      { Icon: Users, label: `${room.guests} persoane` },
-                      { Icon: Maximize, label: room.size },
-                      { Icon: BedDouble, label: room.bed },
-                    ].map(({ Icon, label }) => (
-                      <div
-                        key={label}
-                        className="flex flex-col items-center text-center gap-2.5 py-4 px-2 rounded-xl bg-white border border-[#e1e8f0]"
-                      >
-                        <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#0d2c5c]/[0.05] border border-[#c69a3f]/30">
-                          <Icon size={15} strokeWidth={1.6} className="text-[#c69a3f]" />
+                    {room.description && (
+                      <p className="font-sans text-[15px] leading-[1.75] font-light text-[#3d4f6b] mb-7">
+                        {room.description}
+                      </p>
+                    )}
+
+                    <div className="grid grid-cols-3 gap-3 mb-7">
+                      {[
+                        { Icon: Users, label: room.guests ? `${room.guests} ${room.guests === 1 ? "persoană" : "persoane"}` : "—" },
+                        { Icon: Maximize, label: room.size },
+                        { Icon: BedDouble, label: room.bed },
+                      ].map(({ Icon, label }) => (
+                        <div
+                          key={label}
+                          className="flex flex-col items-center text-center gap-2.5 py-4 px-2 rounded-xl bg-white border border-[#e1e8f0]"
+                        >
+                          <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#0d2c5c]/[0.05] border border-[#c69a3f]/30">
+                            <Icon size={15} strokeWidth={1.6} className="text-[#c69a3f]" />
+                          </span>
+                          <span className="font-sans text-[10.5px] font-semibold tracking-[0.1em] uppercase text-[#3d4f6b] leading-tight">
+                            {label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {room.amenities.length > 0 && (
+                      <ul className="flex flex-wrap gap-2 mb-8">
+                        {room.amenities.map((a) => {
+                          const Icon = amenityIcon(a);
+                          return (
+                            <li
+                              key={a}
+                              className="flex items-center gap-2 font-sans text-[12.5px] font-light text-[#3d4f6b] rounded-full border border-[#e1e8f0] bg-[#f6f9fd] px-3.5 py-1.5"
+                            >
+                              <Icon size={13} strokeWidth={1.6} className="text-[#c69a3f] shrink-0" />
+                              {a}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+
+                    <div className="flex items-center justify-between gap-6 pt-6 border-t border-[#e1e8f0] flex-wrap">
+                      <div className="flex flex-col">
+                        <span className="font-sans text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] mb-1.5">
+                          De la
                         </span>
-                        <span className="font-sans text-[10.5px] font-semibold tracking-[0.1em] uppercase text-[#3d4f6b] leading-tight">
-                          {label}
+                        <span className="flex items-baseline gap-1.5">
+                          <span className="font-sans text-[26px] font-bold leading-none tracking-[-0.02em] text-[#0d2c5c]">
+                            {room.price}
+                          </span>
+                          <span className="font-sans text-[12px] font-semibold tracking-[0.08em] uppercase text-[#0d2c5c]">
+                            lei
+                          </span>
+                          <span className="font-sans text-[12px] font-light text-[#8595aa]">
+                            / noapte
+                          </span>
                         </span>
                       </div>
-                    ))}
-                  </div>
 
-                  <ul className="flex flex-wrap gap-2 mb-8">
-                    {room.amenities.map((a) => {
-                      const Icon = amenityIcon(a);
-                      return (
-                        <li
-                          key={a}
-                          className="flex items-center gap-2 font-sans text-[12.5px] font-light text-[#3d4f6b] rounded-full border border-[#e1e8f0] bg-[#f6f9fd] px-3.5 py-1.5"
-                        >
-                          <Icon size={13} strokeWidth={1.6} className="text-[#c69a3f] shrink-0" />
-                          {a}
-                        </li>
-                      );
-                    })}
-                  </ul>
-
-                  <div className="flex items-center justify-between gap-6 pt-6 border-t border-[#e1e8f0] flex-wrap">
-                    <div className="flex flex-col">
-                      <span className="font-sans text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] mb-1.5">
-                        De la
-                      </span>
-                      <span className="flex items-baseline gap-1.5">
-                        <span className="font-sans text-[26px] font-bold leading-none tracking-[-0.02em] text-[#0d2c5c]">
-                          {room.price}
-                        </span>
-                        <span className="font-sans text-[12px] font-semibold tracking-[0.08em] uppercase text-[#0d2c5c]">
-                          lei
-                        </span>
-                        <span className="font-sans text-[12px] font-light text-[#8595aa]">
-                          / noapte
-                        </span>
-                      </span>
-                    </div>
-
-                    <a
-                      href="#rezerva"
-                      className="group/cta inline-flex items-center gap-[18px] text-[#0d2c5c] text-xs tracking-[0.25em] uppercase no-underline"
-                    >
-                      <span>Rezervă acum</span>
-                      <span
-                        className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-[#0d2c5c]/30 text-base transition-colors duration-200 group-hover/cta:bg-[#c69a3f] group-hover/cta:text-white group-hover/cta:border-[#c69a3f]"
-                        aria-hidden="true"
+                      <a
+                        href="#rezerva"
+                        className="group/cta inline-flex items-center gap-[18px] text-[#0d2c5c] text-xs tracking-[0.25em] uppercase no-underline"
                       >
-                        →
-                      </span>
-                    </a>
+                        <span>Rezervă acum</span>
+                        <span
+                          className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-[#0d2c5c]/30 text-base transition-colors duration-200 group-hover/cta:bg-[#c69a3f] group-hover/cta:text-white group-hover/cta:border-[#c69a3f]"
+                          aria-hidden="true"
+                        >
+                          →
+                        </span>
+                      </a>
+                    </div>
                   </div>
-                </div>
-
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
