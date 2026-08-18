@@ -20,6 +20,7 @@ import { ToastProvider, useToast } from "./components/Toast";
 import { setSessionExpiredHandler } from "./lib/api";
 import { clearSession } from "./lib/auth";
 import Contact from "./pages/Contact";
+import AdminDashboard from "./components/admin/AdminDashboard";
 
 const MainLayout = () => {
   return (
@@ -63,6 +64,14 @@ function AppInner() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
