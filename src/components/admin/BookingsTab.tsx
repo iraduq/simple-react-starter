@@ -25,7 +25,13 @@ import {
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
-const STATUSES = ["all", "pending", "confirmed", "completed", "cancelled"] as const;
+const STATUSES = [
+  "all",
+  "pending",
+  "confirmed",
+  "completed",
+  "cancelled",
+] as const;
 
 export default function BookingsTab() {
   const { toast } = useToast();
@@ -46,7 +52,10 @@ export default function BookingsTab() {
   const load = async () => {
     setLoading(true);
     try {
-      const [b, r] = await Promise.all([get<unknown>("/bookings"), get<unknown>("/rooms")]);
+      const [b, r] = await Promise.all([
+        get<unknown>("/bookings"),
+        get<unknown>("/rooms"),
+      ]);
       setBookings(list<Booking>(b));
       setRooms(list<Room>(r));
     } catch (e) {
@@ -67,7 +76,9 @@ export default function BookingsTab() {
           (status === "all" || b.status === status) &&
           (roomId === "all" || String(b.room_id) === roomId) &&
           (!email.trim() ||
-            (b.guest_email || "").toLowerCase().includes(email.trim().toLowerCase())),
+            (b.guest_email || "")
+              .toLowerCase()
+              .includes(email.trim().toLowerCase())),
       ),
     [bookings, status, roomId, email],
   );
@@ -76,7 +87,10 @@ export default function BookingsTab() {
     setBusy(`${b.id}-${kind}`);
     try {
       await post(`/bookings/${b.id}/${kind}`);
-      toast(kind === "confirm" ? "Rezervare confirmată." : "Rezervare finalizată.", "success");
+      toast(
+        kind === "confirm" ? "Rezervare confirmată." : "Rezervare finalizată.",
+        "success",
+      );
       await load();
     } catch (e) {
       toast(errMsg(e), "error");
@@ -156,7 +170,11 @@ export default function BookingsTab() {
       <Card className="mb-5 p-4">
         <div className="grid gap-3 md:grid-cols-3">
           <Field label="Status">
-            <select className={inputCls} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select
+              className={inputCls}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
                   {s === "all" ? "Toate" : s}
@@ -165,7 +183,11 @@ export default function BookingsTab() {
             </select>
           </Field>
           <Field label="Cameră">
-            <select className={inputCls} value={roomId} onChange={(e) => setRoomId(e.target.value)}>
+            <select
+              className={inputCls}
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+            >
               <option value="all">Toate camerele</option>
               {rooms.map((r) => (
                 <option key={r.id} value={String(r.id)}>
@@ -189,7 +211,10 @@ export default function BookingsTab() {
         {loading ? (
           <TableSkeleton rows={6} />
         ) : filtered.length === 0 ? (
-          <EmptyState title="Nicio rezervare găsită" hint="Ajustează filtrele de mai sus." />
+          <EmptyState
+            title="Nicio rezervare găsită"
+            hint="Ajustează filtrele de mai sus."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-left text-sm">
@@ -206,13 +231,18 @@ export default function BookingsTab() {
               </thead>
               <tbody>
                 {filtered.map((b) => (
-                  <tr key={b.id} className="border-b border-[#f4f6f9] last:border-0">
+                  <tr
+                    key={b.id}
+                    className="border-b border-[#f4f6f9] last:border-0"
+                  >
                     <td className="px-5 py-3.5 text-[#6b7c99]">{b.id}</td>
                     <td className="px-5 py-3.5">
                       <span className="block font-semibold text-[#0d2c5c]">
                         {b.guest_name || "—"}
                       </span>
-                      <span className="text-[12px] text-[#6b7c99]">{b.guest_email || "—"}</span>
+                      <span className="text-[12px] text-[#6b7c99]">
+                        {b.guest_email || "—"}
+                      </span>
                     </td>
                     <td className="px-5 py-3.5 text-[#2a3b52]">
                       {b.room_name || `#${b.room_id ?? "—"}`}
@@ -220,7 +250,8 @@ export default function BookingsTab() {
                     <td className="px-5 py-3.5 text-[#2a3b52]">
                       {dateFmt(b.check_in)} → {dateFmt(b.check_out)}
                       <span className="ml-2 text-[12px] text-[#8595aa]">
-                        {nights(b.check_in, b.check_out)} nopți · {b.guests ?? 1} oaspeți
+                        {nights(b.check_in, b.check_out)} nopți ·{" "}
+                        {b.guests ?? 1} oaspeți
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
@@ -250,7 +281,11 @@ export default function BookingsTab() {
                             Finalizează
                           </Button>
                         )}
-                        <Button size="sm" variant="ghost" onClick={() => openEdit(b)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEdit(b)}
+                        >
                           Editează
                         </Button>
                         {b.status !== "cancelled" && (
@@ -331,7 +366,9 @@ export default function BookingsTab() {
               min={1}
               className={inputCls}
               value={form.guests}
-              onChange={(e) => setForm({ ...form, guests: Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({ ...form, guests: Number(e.target.value) })
+              }
             />
           </Field>
         </div>
@@ -339,7 +376,10 @@ export default function BookingsTab() {
           <Button variant="ghost" onClick={() => setEditTarget(null)}>
             Renunță
           </Button>
-          <Button disabled={busy === `${editTarget?.id}-edit`} onClick={() => void submitEdit()}>
+          <Button
+            disabled={busy === `${editTarget?.id}-edit`}
+            onClick={() => void submitEdit()}
+          >
             Salvează
           </Button>
         </div>

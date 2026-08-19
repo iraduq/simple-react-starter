@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus, Pencil, Trash2, Upload, X, BedDouble, Image as ImageIcon } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Upload,
+  X,
+  BedDouble,
+  Image as ImageIcon,
+} from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -64,7 +72,14 @@ export default function RoomsTab() {
 
   const openCreate = () => {
     setEditTarget(null);
-    setForm({ name: "", description: "", base_price: 0, capacity: 2, size_sqm: 0, is_active: true });
+    setForm({
+      name: "",
+      description: "",
+      base_price: 0,
+      capacity: 2,
+      size_sqm: 0,
+      is_active: true,
+    });
     setFormErr({});
     setFormOpen(true);
   };
@@ -93,7 +108,12 @@ export default function RoomsTab() {
 
     setSaving(true);
     try {
-      const body = { ...form, base_price: Number(form.base_price), capacity: Number(form.capacity), size_sqm: Number(form.size_sqm) };
+      const body = {
+        ...form,
+        base_price: Number(form.base_price),
+        capacity: Number(form.capacity),
+        size_sqm: Number(form.size_sqm),
+      };
       if (editTarget) {
         await patch(`/rooms/${editTarget.id}`, body);
         toast("Cameră actualizată.", "success");
@@ -146,7 +166,10 @@ export default function RoomsTab() {
         </div>
       ) : rooms.length === 0 ? (
         <Card>
-          <EmptyState title="Nicio cameră definită" hint="Adaugă prima cameră pentru a începe." />
+          <EmptyState
+            title="Nicio cameră definită"
+            hint="Adaugă prima cameră pentru a începe."
+          />
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -171,47 +194,109 @@ export default function RoomsTab() {
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Nume cameră" error={formErr.name}>
-            <input className={inputCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="ex: Suită Deluxe" />
+            <input
+              className={inputCls}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="ex: Suită Deluxe"
+            />
           </Field>
           <Field label="Preț de bază (RON / noapte)" error={formErr.base_price}>
-            <input type="number" min={0} className={inputCls} value={form.base_price} onChange={(e) => setForm({ ...form, base_price: Number(e.target.value) })} />
+            <input
+              type="number"
+              min={0}
+              className={inputCls}
+              value={form.base_price}
+              onChange={(e) =>
+                setForm({ ...form, base_price: Number(e.target.value) })
+              }
+            />
           </Field>
           <Field label="Capacitate (oaspeți)" error={formErr.capacity}>
-            <input type="number" min={1} className={inputCls} value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} />
+            <input
+              type="number"
+              min={1}
+              className={inputCls}
+              value={form.capacity}
+              onChange={(e) =>
+                setForm({ ...form, capacity: Number(e.target.value) })
+              }
+            />
           </Field>
           <Field label="Suprafață (mp)">
-            <input type="number" min={0} className={inputCls} value={form.size_sqm} onChange={(e) => setForm({ ...form, size_sqm: Number(e.target.value) })} />
+            <input
+              type="number"
+              min={0}
+              className={inputCls}
+              value={form.size_sqm}
+              onChange={(e) =>
+                setForm({ ...form, size_sqm: Number(e.target.value) })
+              }
+            />
           </Field>
           <div className="sm:col-span-2">
             <Field label="Descriere">
-              <textarea className={`${inputCls} min-h-[90px] resize-y`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <textarea
+                className={`${inputCls} min-h-[90px] resize-y`}
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+              />
             </Field>
           </div>
           <label className="flex items-center gap-3 sm:col-span-2">
-            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 accent-[#0d2c5c]" />
-            <span className="text-sm text-[#0d2c5c]">Cameră activă (vizibilă pentru rezervare)</span>
+            <input
+              type="checkbox"
+              checked={form.is_active}
+              onChange={(e) =>
+                setForm({ ...form, is_active: e.target.checked })
+              }
+              className="h-4 w-4 accent-[#0d2c5c]"
+            />
+            <span className="text-sm text-[#0d2c5c]">
+              Cameră activă (vizibilă pentru rezervare)
+            </span>
           </label>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => setFormOpen(false)}>Renunță</Button>
-          <Button disabled={saving} onClick={() => void submitForm()}>{saving ? "Se salvează…" : "Salvează"}</Button>
+          <Button variant="ghost" onClick={() => setFormOpen(false)}>
+            Renunță
+          </Button>
+          <Button disabled={saving} onClick={() => void submitForm()}>
+            {saving ? "Se salvează…" : "Salvează"}
+          </Button>
         </div>
       </Modal>
 
       {/* Delete Confirm */}
-      <Modal open={!!deleteTarget} title="Șterge cameră" onClose={() => setDeleteTarget(null)}>
+      <Modal
+        open={!!deleteTarget}
+        title="Șterge cameră"
+        onClose={() => setDeleteTarget(null)}
+      >
         <p className="text-sm text-[#4f6280]">
-          Sigur vrei să ștergi <strong className="text-[#0d2c5c]">{deleteTarget?.name}</strong>? Acțiunea este ireversibilă.
+          Sigur vrei să ștergi{" "}
+          <strong className="text-[#0d2c5c]">{deleteTarget?.name}</strong>?
+          Acțiunea este ireversibilă.
         </p>
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Anulează</Button>
-          <Button variant="danger" onClick={() => void handleDelete()}>Șterge definitiv</Button>
+          <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+            Anulează
+          </Button>
+          <Button variant="danger" onClick={() => void handleDelete()}>
+            Șterge definitiv
+          </Button>
         </div>
       </Modal>
 
       {/* Media Manager */}
       {mediaRoom && (
-        <MediaManager room={mediaRoom} onClose={() => setMediaRoom(null)} onChanged={load} />
+        <MediaManager
+          room={mediaRoom}
+          onClose={() => setMediaRoom(null)}
+          onChanged={load}
+        />
       )}
     </div>
   );
@@ -234,7 +319,11 @@ function RoomCard({
     <Card className="overflow-hidden">
       <div className="relative h-36 bg-[#f4f7fb]">
         {thumb ? (
-          <img src={imageUrl(thumb)} alt={room.name} className="h-full w-full object-cover" />
+          <img
+            src={imageUrl(thumb)}
+            alt={room.name}
+            className="h-full w-full object-cover"
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[#8595aa]">
             <ImageIcon size={28} />
@@ -249,19 +338,31 @@ function RoomCard({
       <div className="p-4">
         <div className="flex items-center gap-2">
           <BedDouble size={15} className="text-[#c69a3f]" />
-          <h3 className="text-[15px] font-semibold text-[#0d2c5c]">{room.name}</h3>
+          <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
+            {room.name}
+          </h3>
         </div>
-        <p className="mt-1 line-clamp-2 text-[12.5px] text-[#6b7c99]">{room.description || "—"}</p>
+        <p className="mt-1 line-clamp-2 text-[12.5px] text-[#6b7c99]">
+          {room.description || "—"}
+        </p>
         <div className="mt-3 flex items-center gap-4 text-[12px] text-[#4f6280]">
           <span>{money(room.base_price)} / noapte</span>
           <span>{room.capacity || 0} oaspeți</span>
           {room.size_sqm ? <span>{room.size_sqm} mp</span> : null}
-          {room.units && room.units.length > 0 && <span>{room.units.length} unități</span>}
+          {room.units && room.units.length > 0 && (
+            <span>{room.units.length} unități</span>
+          )}
         </div>
         <div className="mt-4 flex gap-2">
-          <Button size="sm" variant="ghost" onClick={onEdit}><Pencil size={12} /> Editează</Button>
-          <Button size="sm" variant="ghost" onClick={onMedia}><Upload size={12} /> Imagini</Button>
-          <Button size="sm" variant="danger" onClick={onDelete}><Trash2 size={12} /></Button>
+          <Button size="sm" variant="ghost" onClick={onEdit}>
+            <Pencil size={12} /> Editează
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onMedia}>
+            <Upload size={12} /> Imagini
+          </Button>
+          <Button size="sm" variant="danger" onClick={onDelete}>
+            <Trash2 size={12} />
+          </Button>
         </div>
       </div>
     </Card>
@@ -269,7 +370,15 @@ function RoomCard({
 }
 
 /* ─────────────── MEDIA MANAGER ─────────────── */
-function MediaManager({ room, onClose, onChanged }: { room: Room; onClose: () => void; onChanged: () => void }) {
+function MediaManager({
+  room,
+  onClose,
+  onChanged,
+}: {
+  room: Room;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
   const { toast } = useToast();
   const [images, setImages] = useState<RoomImage[]>(room.images || []);
   const [units, setUnits] = useState<RoomUnit[]>(room.units || []);
@@ -288,7 +397,9 @@ function MediaManager({ room, onClose, onChanged }: { room: Room; onClose: () =>
         setImages(updated.images || []);
         setUnits(updated.units || []);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleFiles = async (files: FileList | null) => {
@@ -300,10 +411,14 @@ function MediaManager({ room, onClose, onChanged }: { room: Room; onClose: () =>
     }
     setUploading(true);
     try {
-      const fd = new FormData();
-      for (const f of Array.from(files)) fd.append("files", f);
-      await upload(`/rooms/${room.id}/images`, fd);
-      toast("Imagini încărcate.", "success");
+      const uploadPromises = Array.from(files).map((f) => {
+        const fd = new FormData();
+        fd.append("file", f); // <-- Cheia corectă: "file"
+        return upload(`/rooms/${room.id}/images`, fd);
+      });
+
+      await Promise.all(uploadPromises);
+      toast("Imagini încărcate cu succes.", "success");
       await refreshRoom();
       onChanged();
     } catch (e) {
@@ -344,7 +459,10 @@ function MediaManager({ room, onClose, onChanged }: { room: Room; onClose: () =>
     const newActive = !u.is_active;
     try {
       await patch(`/rooms/${room.id}/units/${u.id}`, { is_active: newActive });
-      toast(newActive ? "Unitate activată." : "Unitate pusă în mentenanță.", "success");
+      toast(
+        newActive ? "Unitate activată." : "Unitate pusă în mentenanță.",
+        "success",
+      );
       await refreshRoom();
     } catch (e) {
       toast(errMsg(e), "error");
@@ -352,33 +470,67 @@ function MediaManager({ room, onClose, onChanged }: { room: Room; onClose: () =>
   };
 
   return (
-    <Modal open title={`Media & unități: ${room.name}`} onClose={onClose} width="max-w-2xl">
+    <Modal
+      open
+      title={`Media & unități: ${room.name}`}
+      onClose={onClose}
+      width="max-w-2xl"
+    >
       {/* Upload zone */}
       <div
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => { e.preventDefault(); setDragOver(false); void handleFiles(e.dataTransfer.files); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          void handleFiles(e.dataTransfer.files);
+        }}
         onClick={() => fileRef.current?.click()}
         className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
-          dragOver ? "border-[#c69a3f] bg-[#f4e5c8]/30" : "border-[#e1e8f0] hover:border-[#c69a3f]"
+          dragOver
+            ? "border-[#c69a3f] bg-[#f4e5c8]/30"
+            : "border-[#e1e8f0] hover:border-[#c69a3f]"
         }`}
       >
-        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => void handleFiles(e.target.files)} />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => void handleFiles(e.target.files)}
+        />
         <Upload size={24} className="mx-auto text-[#c69a3f]" />
         <p className="mt-2 text-sm font-semibold text-[#0d2c5c]">
-          {uploading ? "Se încarcă…" : "Trage imagini aici sau click pentru a selecta"}
+          {uploading
+            ? "Se încarcă…"
+            : "Trage imagini aici sau click pentru a selecta"}
         </p>
-        <p className="mt-1 text-[11px] text-[#8595aa]">JPG / PNG, maxim 5MB per fișier</p>
+        <p className="mt-1 text-[11px] text-[#8595aa]">
+          JPG / PNG, maxim 5MB per fișier
+        </p>
       </div>
 
       {/* Gallery */}
       {images.length > 0 ? (
         <div className="mt-5">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#4f6280]">Galerie foto ({images.length})</p>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#4f6280]">
+            Galerie foto ({images.length})
+          </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {images.map((img) => (
-              <div key={img.id} className="group relative overflow-hidden rounded-xl border border-[#e1e8f0]">
-                <img src={imageUrl(img)} alt="" className="h-28 w-full object-cover" />
+              <div
+                key={img.id}
+                className="group relative overflow-hidden rounded-xl border border-[#e1e8f0]"
+              >
+                <img
+                  src={imageUrl(img)}
+                  alt=""
+                  className="h-28 w-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 <button
                   onClick={() => void deleteImage(img)}
@@ -400,28 +552,52 @@ function MediaManager({ room, onClose, onChanged }: { room: Room; onClose: () =>
         </div>
       ) : (
         <div className="mt-5 rounded-xl border border-dashed border-[#e1e8f0] py-8 text-center">
-          <p className="text-[13px] text-[#8595aa]">Nicio imagine încărcată pentru această cameră</p>
+          <p className="text-[13px] text-[#8595aa]">
+            Nicio imagine încărcată pentru această cameră
+          </p>
         </div>
       )}
 
       {/* Units */}
       <div className="mt-6 border-t border-[#eef2f7] pt-5">
-        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#4f6280]">Unități ({units.length})</p>
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#4f6280]">
+          Unități ({units.length})
+        </p>
         <div className="flex gap-2">
-          <input className={inputCls} placeholder="ex: Cabana A — Etaj 1" value={unitName} onChange={(e) => setUnitName(e.target.value)} />
-          <Button variant="gold" disabled={addingUnit || !unitName.trim()} onClick={() => void addUnit()}>
+          <input
+            className={inputCls}
+            placeholder="ex: Cabana A — Etaj 1"
+            value={unitName}
+            onChange={(e) => setUnitName(e.target.value)}
+          />
+          <Button
+            variant="gold"
+            disabled={addingUnit || !unitName.trim()}
+            onClick={() => void addUnit()}
+          >
             <Plus size={14} /> Adaugă
           </Button>
         </div>
         {units.length > 0 && (
           <div className="mt-3 space-y-2">
             {units.map((u) => (
-              <div key={u.id} className="flex items-center justify-between rounded-lg border border-[#e1e8f0] px-4 py-2.5">
+              <div
+                key={u.id}
+                className="flex items-center justify-between rounded-lg border border-[#e1e8f0] px-4 py-2.5"
+              >
                 <div>
-                  <p className="text-sm font-semibold text-[#0d2c5c]">{u.name || u.code || `Unitate #${u.id}`}</p>
-                  <p className="text-[11px] text-[#6b7c99]">{u.is_active === false ? "Mentenanță" : "Activă"}</p>
+                  <p className="text-sm font-semibold text-[#0d2c5c]">
+                    {u.name || u.code || `Unitate #${u.id}`}
+                  </p>
+                  <p className="text-[11px] text-[#6b7c99]">
+                    {u.is_active === false ? "Mentenanță" : "Activă"}
+                  </p>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => void toggleUnit(u)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => void toggleUnit(u)}
+                >
                   {u.is_active === false ? "Activează" : "Dezactivează"}
                 </Button>
               </div>
