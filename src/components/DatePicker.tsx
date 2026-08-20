@@ -21,6 +21,10 @@ interface Props {
   label: string;
   value: string;
   minDate?: string;
+  /** Zile (YYYY-MM-DD) indisponibile — afișate dezactivat în calendar. */
+  disabledDates?: Set<string>;
+  /** `field` = stil de input încadrat (pagini interioare), `bar` = bara din hero. */
+  variant?: "bar" | "field";
   onChange: (val: string) => void;
 }
 
@@ -32,7 +36,14 @@ function toIso(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
-export default function DatePicker({ label, value, minDate, onChange }: Props) {
+export default function DatePicker({
+  label,
+  value,
+  minDate,
+  disabledDates,
+  variant = "bar",
+  onChange,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
@@ -66,7 +77,8 @@ export default function DatePicker({ label, value, minDate, onChange }: Props) {
   ];
 
   const dayIso = (d: number) => toIso(viewYear, viewMonth, d);
-  const isDisabled = (d: number) => !!minDate && dayIso(d) < minDate;
+  const isDisabled = (d: number) =>
+    (!!minDate && dayIso(d) < minDate) || !!disabledDates?.has(dayIso(d));
   const isSelected = (d: number) => !!value && dayIso(d) === value;
   const isToday = (d: number) =>
     dayIso(d) === new Date().toISOString().split("T")[0];
@@ -92,17 +104,31 @@ export default function DatePicker({ label, value, minDate, onChange }: Props) {
 
   return (
     <div
-      className="relative flex-1 flex flex-col justify-center px-6 py-4.5"
+      className={
+        variant === "field"
+          ? "relative flex flex-col"
+          : "relative flex-1 flex flex-col justify-center px-6 py-4.5"
+      }
       ref={ref}
     >
-      <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
+      <span
+        className={
+          variant === "field"
+            ? "mb-1.5 block text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#8595aa] select-none"
+            : "flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none"
+        }
+      >
         {label}
       </span>
 
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`bg-transparent border-none p-0 font-sans text-sm text-left w-full leading-[1.3] transition-colors duration-150 ${
+        className={`font-sans text-left w-full leading-[1.3] transition-colors duration-150 ${
+          variant === "field"
+            ? "rounded-xl border border-[#e1e8f0] bg-white px-3.5 py-2.5 text-[14px] hover:border-[#c69a3f]"
+            : "bg-transparent border-none p-0 text-sm"
+        } ${
           open
             ? "text-[#0d2c5c]"
             : value
