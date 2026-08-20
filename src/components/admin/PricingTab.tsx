@@ -17,8 +17,14 @@ type CalendarDay = {
   date: string;
   price?: number | null;
   available?: boolean | null;
+  is_available?: boolean | null;
   blocked?: boolean | null;
+  is_blocked?: boolean | null;
+  min_stay?: number | null;
 };
+
+const roomLabel = (r: Room) =>
+  r.name || r.title || `Cameră ${String(r.id).slice(0, 6)}`;
 
 type RuleForm = {
   start_date: string;
