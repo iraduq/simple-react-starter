@@ -9,6 +9,7 @@ export type Booking = {
   children?: number | null;
   total_price?: number | null;
   rate_plan?: string | null;
+  plan_code?: string | null;
   created_at?: string | null;
 };
 
