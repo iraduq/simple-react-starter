@@ -168,7 +168,7 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {
+      const response = await fetch(`${API_URL}/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -199,7 +199,7 @@ export default function Register() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await fetch("http://localhost:8000/auth/google", {
+      const res = await fetch(`${API_URL}/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
