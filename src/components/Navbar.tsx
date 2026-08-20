@@ -156,7 +156,7 @@ export default function Navbar() {
             : "bg-white border-[#e1e8f0]"
         }`}
       >
-        <div className="max-w-[1320px] mx-auto h-20 px-10 flex items-center justify-between">
+        <div className="max-w-[1320px] mx-auto h-[68px] sm:h-20 px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-3">
           {/* LOGO */}
           <Link
             to="/"
