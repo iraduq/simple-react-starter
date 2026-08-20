@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:8000";
+import { API_URL } from "./config";
+
 
 /* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
 let refreshPromise: Promise<boolean> | null = null;

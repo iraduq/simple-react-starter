@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/config";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
@@ -168,7 +169,7 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -199,7 +200,7 @@ export default function Register() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await fetch("http://localhost:8000/auth/google", {
+      const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

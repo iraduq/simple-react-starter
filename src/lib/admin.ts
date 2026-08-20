@@ -1,6 +1,7 @@
+import { API_URL } from "./config";
 import { apiFetch } from "./api";
 
-export const API_URL = "http://localhost:8000";
+export { API_URL };
 
 /* ---------------- types ---------------- */
 export type Booking = {

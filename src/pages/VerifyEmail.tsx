@@ -1,8 +1,9 @@
+import { API_URL } from "../lib/config";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Mail, ArrowRight, ArrowLeft, CircleAlert as AlertCircle } from "lucide-react";
 
-const API_URL = "http://localhost:8000";
+
 
 export default function VerifyEmail() {
   const navigate = useNavigate();

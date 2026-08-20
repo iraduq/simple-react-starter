@@ -1,5 +1,6 @@
+import { API_URL } from "./config";
 const SESSION_CHANGED_EVENT = "auth-session-changed";
-const API_URL = "http://localhost:8000";
+
 
 /* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
 let refreshPromise: Promise<boolean> | null = null;

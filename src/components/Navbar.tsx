@@ -7,6 +7,7 @@ import {
   Sparkles,
   Key,
   LogOut,
+  Menu,
 } from "lucide-react";
 import {
   clearSession,
@@ -25,6 +26,14 @@ const LANGS = [
   { code: "DE", label: "Deutsch", flagUrl: "https://flagcdn.com/w20/de.png" },
 ];
 
+const NAV_ITEMS: { to: string; label: string; end?: boolean }[] = [
+  { to: "/", label: "Acasă", end: true },
+  { to: "/camere", label: "Camere" },
+  { to: "/disponibilitate", label: "Disponibilitate" },
+  { to: "/places", label: "Locații" },
+  { to: "/contact", label: "Contact" },
+];
+
 export default function Navbar() {
   const navigate = useNavigate();
   const [lang, setLang] = useState("RO");
@@ -33,6 +42,7 @@ export default function Navbar() {
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
   const [currentUser, setCurrentUser] = useState<SessionUser>(getCachedUser());
 
@@ -148,7 +158,7 @@ export default function Navbar() {
             : "bg-white border-[#e1e8f0]"
         }`}
       >
-        <div className="max-w-[1320px] mx-auto h-20 px-10 flex items-center justify-between">
+        <div className="max-w-[1320px] mx-auto h-[68px] sm:h-20 px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-3">
           {/* LOGO */}
           <Link
             to="/"
@@ -170,22 +180,14 @@ export default function Navbar() {
           </Link>
 
           {/* NAV LINKS */}
-          <nav className="hidden md:flex items-center gap-8">
-            {[
-              { to: "/", label: "Acasă", end: true },
-              { to: "/camere", label: "Camere" },
-              { to: "/places", label: "Locații" },
-              { to: "/oferte", label: "Oferte" },
-              { to: "/restaurant", label: "Restaurant" },
-              { to: "/evenimente-private", label: "Evenimente" },
-              { to: "/contact", label: "Contact" },
-            ].map((item) => (
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+            {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `relative font-sans text-[16px] py-1 transition-colors duration-200 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-[#c69a3f] after:transition-all after:duration-300 ${
+                  `relative font-sans text-[15px] py-1 transition-colors duration-200 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-[#c69a3f] after:transition-all after:duration-300 ${
                     isActive
                       ? "text-[#c69a3f] font-semibold after:w-full"
                       : "text-[#3c4043] hover:text-[#1a1a1a] after:w-0"
@@ -197,8 +199,9 @@ export default function Navbar() {
             ))}
           </nav>
 
+
           {/* TOOLS + CTA */}
-          <div className="flex items-center gap-4 -mt-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4 -mt-0.5">
             {/* LANG SELECTOR */}
             <div className="relative" ref={langRef}>
               <button
@@ -347,15 +350,59 @@ export default function Navbar() {
 
             {/* CTA BUTTON */}
             <Link
-              to="/register"
-              className="group relative inline-flex items-center overflow-hidden ml-2 px-6 py-3 bg-[#c69a3f] hover:bg-[#b58933] text-white text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px"
+              to="/disponibilitate"
+              className="group relative hidden sm:inline-flex items-center overflow-hidden ml-1 lg:ml-2 px-4 lg:px-6 py-2.5 lg:py-3 bg-[#c69a3f] hover:bg-[#b58933] text-white text-[13px] lg:text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px"
             >
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[550ms] ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]" />
-              <span className="relative">Rezervă Acum</span>
+              <span className="relative whitespace-nowrap">Rezervă Acum</span>
             </Link>
+
+            {/* HAMBURGER */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Închide meniul" : "Deschide meniul"}
+              aria-expanded={mobileOpen}
+              className="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded text-[#0d2c5c] transition-colors hover:bg-black/[0.04]"
+            >
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {/* MOBILE PANEL */}
+        {mobileOpen && (
+          <div className="lg:hidden border-t border-[#e1e8f0] bg-white px-4 pb-5 pt-2 shadow-[0_18px_40px_-24px_rgba(13,44,92,0.35)]">
+            <nav className="flex flex-col">
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `border-b border-[#eef2f7] py-3.5 text-[15px] last:border-0 ${
+                      isActive
+                        ? "font-semibold text-[#c69a3f]"
+                        : "text-[#3c4043]"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            <Link
+              to="/disponibilitate"
+              onClick={() => setMobileOpen(false)}
+              className="mt-4 flex items-center justify-center rounded bg-[#c69a3f] px-5 py-3 text-[12px] font-bold uppercase tracking-[0.16em] text-white"
+            >
+              Rezervă Acum
+            </Link>
+          </div>
+        )}
       </header>
+
     </>
   );
 }

@@ -81,9 +81,8 @@ export default function Footer() {
               {[
                 { to: "/", label: "Acasă" },
                 { to: "/camere", label: "Camere" },
-                { to: "/oferte", label: "Oferte" },
-                { to: "/restaurant", label: "Restaurant" },
-                { to: "/evenimente-private", label: "Evenimente" },
+                { to: "/disponibilitate", label: "Disponibilitate" },
+                { to: "/places", label: "Locații" },
                 { to: "/contact", label: "Contact" },
               ].map((item) => (
                 <li key={item.to}>
@@ -128,10 +127,10 @@ export default function Footer() {
               {[
                 { to: "/termeni-si-conditii", label: "Termeni și condiții" },
                 {
-                  to: "/politica-de-confidentialitate",
+                  to: "/confidentialitate",
                   label: "Confidențialitate",
                 },
-                { to: "/politica-de-cookie", label: "Cookie" },
+                { to: "/cookies", label: "Cookie" },
                 { to: "/gdpr", label: "GDPR" },
               ].map((item) => (
                 <li key={item.to}>

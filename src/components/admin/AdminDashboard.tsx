@@ -1,3 +1,4 @@
+import { API_URL } from "../../lib/config";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await fetch("http://localhost:8000/health", { credentials: "include" });
+        const res = await fetch(`${API_URL}/health`, { credentials: "include" });
         setHealth(res.ok ? "online" : "offline");
       } catch {
         setHealth("offline");
