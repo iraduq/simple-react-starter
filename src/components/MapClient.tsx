@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { ClientOnly } from "@tanstack/react-router";
+import { ClientOnly } from "@/lib/router-compat";
 
 const Map = lazy(() => import("./Map"));
 
