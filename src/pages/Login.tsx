@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/config";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
@@ -27,7 +28,7 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch("https://backend-licenta-i0lr.onrender.com/auth/login", {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -64,7 +65,7 @@ export default function Login() {
     setIsLoading(true);
     setResetMessage("");
     try {
-      await fetch("https://backend-licenta-i0lr.onrender.com/auth/forgot-password", {
+      await fetch(`${API_URL}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -85,7 +86,7 @@ export default function Login() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await fetch("https://backend-licenta-i0lr.onrender.com/auth/google", {
+      const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

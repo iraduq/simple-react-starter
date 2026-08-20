@@ -1,4 +1,5 @@
-const API_URL = "https://backend-licenta-i0lr.onrender.com";
+import { API_URL } from "./config";
+
 
 /* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
 let refreshPromise: Promise<boolean> | null = null;

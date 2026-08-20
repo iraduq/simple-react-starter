@@ -1,3 +1,4 @@
+import { API_URL } from "../lib/config";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -41,7 +42,7 @@ import {
 import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
 
-const API_URL = "https://backend-licenta-i0lr.onrender.com";
+
 
 type TabKey =
   | "personal"
