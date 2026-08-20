@@ -348,15 +348,59 @@ export default function Navbar() {
 
             {/* CTA BUTTON */}
             <Link
-              to="/register"
-              className="group relative inline-flex items-center overflow-hidden ml-2 px-6 py-3 bg-[#c69a3f] hover:bg-[#b58933] text-white text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px"
+              to="/disponibilitate"
+              className="group relative hidden sm:inline-flex items-center overflow-hidden ml-1 lg:ml-2 px-4 lg:px-6 py-2.5 lg:py-3 bg-[#c69a3f] hover:bg-[#b58933] text-white text-[13px] lg:text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px"
             >
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[550ms] ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]" />
-              <span className="relative">Rezervă Acum</span>
+              <span className="relative whitespace-nowrap">Rezervă Acum</span>
             </Link>
+
+            {/* HAMBURGER */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Închide meniul" : "Deschide meniul"}
+              aria-expanded={mobileOpen}
+              className="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded text-[#0d2c5c] transition-colors hover:bg-black/[0.04]"
+            >
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {/* MOBILE PANEL */}
+        {mobileOpen && (
+          <div className="lg:hidden border-t border-[#e1e8f0] bg-white px-4 pb-5 pt-2 shadow-[0_18px_40px_-24px_rgba(13,44,92,0.35)]">
+            <nav className="flex flex-col">
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `border-b border-[#eef2f7] py-3.5 text-[15px] last:border-0 ${
+                      isActive
+                        ? "font-semibold text-[#c69a3f]"
+                        : "text-[#3c4043]"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            <Link
+              to="/disponibilitate"
+              onClick={() => setMobileOpen(false)}
+              className="mt-4 flex items-center justify-center rounded bg-[#c69a3f] px-5 py-3 text-[12px] font-bold uppercase tracking-[0.16em] text-white"
+            >
+              Rezervă Acum
+            </Link>
+          </div>
+        )}
       </header>
+
     </>
   );
 }
