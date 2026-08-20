@@ -63,12 +63,28 @@ function AppInner() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/camere" element={<Rooms />} />
+        <Route path="/disponibilitate" element={<Availability />} />
         <Route path="/places" element={<Places />} />
+        <Route path="/places/:placeId" element={<PlaceDetail />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/termeni-si-conditii" element={<Terms />} />
+        <Route path="/confidentialitate" element={<Privacy />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/gdpr" element={<Gdpr />} />
+        <Route
+          path="/rezervarile-mele"
+          element={
+            <ProtectedRoute>
+              <MyBookings />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/profile"
           element={
