@@ -7,6 +7,7 @@ import {
   Sparkles,
   Key,
   LogOut,
+  Menu,
 } from "lucide-react";
 import {
   clearSession,
@@ -41,6 +42,7 @@ export default function Navbar() {
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
   const [currentUser, setCurrentUser] = useState<SessionUser>(getCachedUser());
 
