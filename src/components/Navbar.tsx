@@ -170,22 +170,14 @@ export default function Navbar() {
           </Link>
 
           {/* NAV LINKS */}
-          <nav className="hidden md:flex items-center gap-8">
-            {[
-              { to: "/", label: "Acasă", end: true },
-              { to: "/camere", label: "Camere" },
-              { to: "/places", label: "Locații" },
-              { to: "/oferte", label: "Oferte" },
-              { to: "/restaurant", label: "Restaurant" },
-              { to: "/evenimente-private", label: "Evenimente" },
-              { to: "/contact", label: "Contact" },
-            ].map((item) => (
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+            {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `relative font-sans text-[16px] py-1 transition-colors duration-200 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-[#c69a3f] after:transition-all after:duration-300 ${
+                  `relative font-sans text-[15px] py-1 transition-colors duration-200 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-[#c69a3f] after:transition-all after:duration-300 ${
                     isActive
                       ? "text-[#c69a3f] font-semibold after:w-full"
                       : "text-[#3c4043] hover:text-[#1a1a1a] after:w-0"
@@ -196,6 +188,7 @@ export default function Navbar() {
               </NavLink>
             ))}
           </nav>
+
 
           {/* TOOLS + CTA */}
           <div className="flex items-center gap-4 -mt-0.5">
