@@ -127,10 +127,10 @@ export default function Footer() {
               {[
                 { to: "/termeni-si-conditii", label: "Termeni și condiții" },
                 {
-                  to: "/politica-de-confidentialitate",
+                  to: "/confidentialitate",
                   label: "Confidențialitate",
                 },
-                { to: "/politica-de-cookie", label: "Cookie" },
+                { to: "/cookies", label: "Cookie" },
                 { to: "/gdpr", label: "GDPR" },
               ].map((item) => (
                 <li key={item.to}>
