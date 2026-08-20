@@ -199,7 +199,7 @@ export default function Navbar() {
 
 
           {/* TOOLS + CTA */}
-          <div className="flex items-center gap-4 -mt-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4 -mt-0.5">
             {/* LANG SELECTOR */}
             <div className="relative" ref={langRef}>
               <button
