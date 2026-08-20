@@ -21,6 +21,15 @@ import { setSessionExpiredHandler } from "./lib/api";
 import { clearSession } from "./lib/auth";
 import Contact from "./pages/Contact";
 import AdminDashboard from "./components/admin/AdminDashboard";
+import Availability from "./pages/Availability";
+import MyBookings from "./pages/MyBookings";
+import PlaceDetail from "./pages/PlaceDetail";
+import ForgotPassword from "./pages/ForgotPassword";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Cookies from "./pages/Cookies";
+import Gdpr from "./pages/Gdpr";
+import Footer from "./components/Footer";
 
 const MainLayout = () => {
   return (
