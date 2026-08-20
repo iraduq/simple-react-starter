@@ -10,6 +10,7 @@ import {
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Rooms from "./pages/Rooms";
+import RoomDetail from "./pages/RoomDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
@@ -68,6 +69,7 @@ function AppInner() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/camere" element={<Rooms />} />
+        <Route path="/camere/:roomId" element={<RoomDetail />} />
         <Route path="/disponibilitate" element={<Availability />} />
         <Route path="/places" element={<Places />} />
         <Route path="/places/:placeId" element={<PlaceDetail />} />
