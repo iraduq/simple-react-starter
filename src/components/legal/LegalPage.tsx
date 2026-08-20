@@ -15,22 +15,22 @@ export function LegalSection({
   children: ReactNode;
 }) {
   return (
-    <section className="group relative mb-9 border-b border-dashed border-[#e6ecf4] pb-9 last:mb-0 last:border-0 last:pb-0">
-      <div className="flex items-start gap-3.5 sm:gap-4">
+    <section className="group relative mb-10 last:mb-0">
+      <div className="flex items-start gap-4 sm:gap-5">
         {icon && (
-          <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#ecdcb8] bg-gradient-to-br from-[#fdf7ea] to-[#f6ecd6] text-[#b8862a] shadow-[0_6px_16px_-10px_rgba(198,154,63,0.8)] transition-transform duration-300 group-hover:-translate-y-0.5 sm:h-11 sm:w-11">
+          <span className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ecdcb8]/70 bg-gradient-to-br from-[#fdf7ea] to-[#f4e8cf] text-[#b8862a] shadow-[0_8px_20px_-12px_rgba(198,154,63,0.85)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:shadow-[0_12px_28px_-14px_rgba(198,154,63,1)] sm:h-12 sm:w-12">
             {icon}
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(1.2rem,3.4vw,1.6rem)] font-semibold leading-snug text-[#0d2c5c]">
+          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(1.25rem,3.2vw,1.65rem)] font-semibold leading-snug text-[#0d2c5c]">
             {title}
           </h2>
           <span className="mt-2.5 flex items-center gap-2">
-            <span className="h-px w-8 bg-gradient-to-r from-[#c69a3f] to-transparent" />
-            <span className="h-1 w-1 rotate-45 bg-[#c69a3f]/70" />
+            <span className="h-px w-10 bg-gradient-to-r from-[#c69a3f] to-transparent" />
+            <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]/80" />
           </span>
-          <div className="mt-3.5 space-y-3 text-[14.5px] leading-[1.85] text-[#3d4f6b] [&_strong]:text-[#0d2c5c]">
+          <div className="mt-4 space-y-3 text-[14.5px] leading-[1.85] text-[#3d4f6b] [&_strong]:font-semibold [&_strong]:text-[#0d2c5c]">
             {children}
           </div>
         </div>
@@ -41,13 +41,13 @@ export function LegalSection({
 
 export function LegalList({ items }: { items: string[] }) {
   return (
-    <ul className="m-0 list-none space-y-2 p-0">
+    <ul className="m-0 mt-3 grid list-none gap-2 p-0">
       {items.map((it) => (
         <li
           key={it}
-          className="flex gap-3 rounded-lg border border-transparent bg-[#f8fafc] px-3.5 py-2.5 text-[14.5px] leading-[1.8] text-[#3d4f6b] transition-colors hover:border-[#ecdcb8] hover:bg-[#fdf9f0]"
+          className="flex items-start gap-3 rounded-xl border border-[#eef2f7] bg-[#f8fafc] px-4 py-3 text-[14px] leading-[1.75] text-[#3d4f6b] transition-all duration-200 hover:border-[#ecdcb8]/60 hover:bg-[#fdf9f0]"
         >
-          <span className="mt-[10px] h-1.5 w-1.5 shrink-0 rotate-45 bg-[#c69a3f]" />
+          <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#c69a3f]" />
           <span>{it}</span>
         </li>
       ))}
@@ -123,23 +123,26 @@ export default function LegalPage({
 
       {/* CONTENT */}
       <div className="mx-auto max-w-[900px] px-4 pb-16 sm:px-6 lg:pb-24">
-        <article className="relative -mt-10 overflow-hidden rounded-[22px] border border-[#e1e8f0] bg-white p-5 shadow-[0_30px_70px_-40px_rgba(13,44,92,0.45)] sm:p-9 lg:p-12">
+        <article className="relative -mt-10 overflow-hidden rounded-[24px] border border-[#e1e8f0] bg-white p-6 shadow-[0_30px_70px_-40px_rgba(13,44,92,0.45)] sm:p-10 lg:p-12">
           <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#c69a3f]/0 via-[#c69a3f] to-[#c69a3f]/0" />
 
           {lastUpdated && (
-            <div className="mb-8 flex flex-wrap items-center gap-2.5 border-b border-[#eef2f7] pb-6">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ecdcb8] bg-[#fdf9f0] px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#b8862a]">
-                <ShieldCheck size={13} /> Document oficial
-              </span>
-              <span className="text-[11.5px] font-semibold uppercase tracking-[0.16em] text-[#8595aa]">
-                Ultima actualizare: {lastUpdated}
-              </span>
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-[#eef2f7] pb-6">
+              <div className="flex items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ecdcb8] bg-gradient-to-r from-[#fdf9f0] to-[#f6ecd6] px-3.5 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#9a7318] shadow-[0_4px_12px_-8px_rgba(198,154,63,0.7)]">
+                  <ShieldCheck size={13} /> Document oficial
+                </span>
+                <span className="text-[11.5px] font-semibold uppercase tracking-[0.16em] text-[#8595aa]">
+                  Ultima actualizare: {lastUpdated}
+                </span>
+              </div>
+              <span className="hidden h-px flex-1 bg-gradient-to-r from-[#e1e8f0] to-transparent sm:block" />
             </div>
           )}
           {children}
         </article>
 
-        <div className="relative mt-8 overflow-hidden rounded-[22px] border border-[#0d2c5c]/20 bg-[#0d2c5c] p-7 text-center sm:p-9">
+        <div className="relative mt-8 overflow-hidden rounded-[24px] border border-[#0d2c5c]/20 bg-[#0d2c5c] p-7 text-center sm:p-9">
           <div
             className="absolute inset-0 bg-cover bg-center opacity-[0.18]"
             style={{ backgroundImage: `url(${SEA_IMG})` }}
