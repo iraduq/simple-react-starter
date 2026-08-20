@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Users, Maximize, BedDouble, Save as Waves, Wifi, Coffee, Bath, Star, ImageOff } from "lucide-react";
-import Footer from "../components/Footer";
+import { ChevronLeft, ChevronRight, Users, Maximize, BedDouble, Save as Waves, Wifi, Coffee, Bath, Star, ImageOff, ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { apiFetch } from "../lib/api";
 
 type RoomImage = { id: number | string; url?: string; image_url?: string };
@@ -257,16 +257,29 @@ export default function Rooms() {
       </section>
 
       {/* ── LISTĂ CAMERE ── */}
-      <section className="bg-white py-[60px] md:py-[90px] px-5 md:px-10">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative bg-gradient-to-b from-white via-[#f7fafd] to-white py-[60px] md:py-[90px] px-5 md:px-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.55]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 12% 18%, rgba(198,154,63,0.10) 0%, transparent 45%), radial-gradient(circle at 88% 72%, rgba(13,44,92,0.07) 0%, transparent 50%)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div>
               <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5">
                 Alege-ți spațiul
               </p>
-              <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,4vw,3rem)] font-normal leading-[1.15]">
+              <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,4vw,3rem)] font-normal leading-[1.15] text-[#0d2c5c]">
                 Disponibile acum
               </h2>
+              <span className="mt-4 flex items-center gap-2.5" aria-hidden="true">
+                <span className="h-px w-10 bg-[#c69a3f]/50" />
+                <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]" />
+                <span className="h-px w-16 bg-[#c69a3f]/25" />
+              </span>
             </div>
             {!loading && !error && categories.length > 1 && (
               <div className="flex gap-2 flex-wrap">
@@ -286,6 +299,27 @@ export default function Rooms() {
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="mb-12 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[
+              { Icon: ShieldCheck, title: "Confirmare imediată", text: "Fără plată online acum" },
+              { Icon: Sparkles, title: "Preț dinamic corect", text: "Sezon, weekend și oferte incluse" },
+              { Icon: Waves, title: "La 3 minute de plajă", text: "Eforie Nord, zona centrală" },
+            ].map(({ Icon, title, text }) => (
+              <div
+                key={title}
+                className="flex items-center gap-3 rounded-2xl border border-[#e1e8f0] bg-white/80 px-4 py-3.5 backdrop-blur-sm"
+              >
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0d2c5c]/[0.05] border border-[#c69a3f]/30">
+                  <Icon size={15} strokeWidth={1.6} className="text-[#c69a3f]" />
+                </span>
+                <span className="flex flex-col">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c]">{title}</span>
+                  <span className="text-[12px] font-light text-[#8595aa]">{text}</span>
+                </span>
+              </div>
+            ))}
           </div>
 
           {error ? (
@@ -310,11 +344,11 @@ export default function Rooms() {
               <p className="text-[15px] font-semibold text-[#0d2c5c]">Nicio cameră disponibilă momentan</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-10">
+            <div className="flex flex-col gap-12">
               {filtered.map((room, idx) => (
                 <article
                   key={room.id}
-                  className="group grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-[#e1e8f0] bg-white"
+                  className="group grid grid-cols-1 lg:grid-cols-2 rounded-[26px] overflow-hidden border border-[#e6ecf4] bg-white shadow-[0_2px_6px_rgba(13,44,92,0.04),0_24px_60px_-30px_rgba(13,44,92,0.28)] transition-all duration-500 hover:-translate-y-1 hover:border-[#c69a3f]/45 hover:shadow-[0_2px_8px_rgba(13,44,92,0.06),0_36px_80px_-32px_rgba(13,44,92,0.34)]"
                 >
                   <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
                     <RoomGallery images={room.images} alt={room.title} badge={room.badge} />
@@ -393,7 +427,7 @@ export default function Rooms() {
                     <div className="flex items-center justify-between gap-6 pt-6 border-t border-[#e1e8f0] flex-wrap">
                       <div className="flex flex-col">
                         <span className="font-sans text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] mb-1.5">
-                          De la
+                          Tarif de la
                         </span>
                         <span className="flex items-baseline gap-1.5">
                           <span className="font-sans text-[26px] font-bold leading-none tracking-[-0.02em] text-[#0d2c5c]">
@@ -408,18 +442,21 @@ export default function Rooms() {
                         </span>
                       </div>
 
-                      <a
-                        href="#rezerva"
-                        className="group/cta inline-flex items-center gap-[18px] text-[#0d2c5c] text-xs tracking-[0.25em] uppercase no-underline"
-                      >
-                        <span>Rezervă acum</span>
-                        <span
-                          className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-[#0d2c5c]/30 text-base transition-colors duration-200 group-hover/cta:bg-[#c69a3f] group-hover/cta:text-white group-hover/cta:border-[#c69a3f]"
-                          aria-hidden="true"
+                      <div className="flex items-center gap-3">
+                        <Link
+                          to={`/camere/${room.id}`}
+                          className="inline-flex items-center gap-2 rounded-full border border-[#0d2c5c]/15 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] transition-colors duration-200 hover:border-[#0d2c5c] hover:bg-[#f0f5fc]"
                         >
-                          →
-                        </span>
-                      </a>
+                          Detalii
+                        </Link>
+                        <Link
+                          to={`/camere/${room.id}`}
+                          className="group/cta inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-[0_10px_24px_-12px_rgba(198,154,63,0.9)] transition-all duration-200 hover:from-[#0d2c5c] hover:to-[#12386f] hover:text-white"
+                        >
+                          Rezervă acum
+                          <ArrowRight size={15} className="transition-transform duration-200 group-hover/cta:translate-x-1" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -429,7 +466,6 @@ export default function Rooms() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
