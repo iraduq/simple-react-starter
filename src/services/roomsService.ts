@@ -27,3 +27,33 @@ export const listRooms = () => apiFetch<AvailableRoom[]>("/rooms");
 /** GET /rooms/{id} */
 export const getRoom = (id: string | number) =>
   apiFetch<AvailableRoom>(`/rooms/${id}`);
+
+/** GET /rooms/{id}/calendar — zilele disponibile/blocate pentru o cameră. */
+export type RoomCalendarDay = {
+  date: string;
+  is_available?: boolean | null;
+  is_blocked?: boolean | null;
+  price?: number | null;
+};
+
+export const getRoomCalendar = async (
+  roomId: string | number,
+  startDate: string,
+  endDate: string,
+) => {
+  const data = await apiFetch<RoomCalendarDay[] | { entries: RoomCalendarDay[] }>(
+    `/rooms/${roomId}/calendar?start_date=${startDate}&end_date=${endDate}`,
+  );
+  const entries = Array.isArray(data) ? data : (data?.entries ?? []);
+  return entries.filter((e) => e && typeof e.date === "string");
+};
+
+/** Set de date (YYYY-MM-DD) care NU pot fi rezervate. */
+export const unavailableDates = (entries: RoomCalendarDay[]) => {
+  const set = new Set<string>();
+  for (const e of entries) {
+    const day = e.date.slice(0, 10);
+    if (e.is_blocked === true || e.is_available === false) set.add(day);
+  }
+  return set;
+};
