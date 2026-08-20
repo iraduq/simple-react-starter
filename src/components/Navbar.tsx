@@ -25,6 +25,14 @@ const LANGS = [
   { code: "DE", label: "Deutsch", flagUrl: "https://flagcdn.com/w20/de.png" },
 ];
 
+const NAV_ITEMS: { to: string; label: string; end?: boolean }[] = [
+  { to: "/", label: "Acasă", end: true },
+  { to: "/camere", label: "Camere" },
+  { to: "/disponibilitate", label: "Disponibilitate" },
+  { to: "/places", label: "Locații" },
+  { to: "/contact", label: "Contact" },
+];
+
 export default function Navbar() {
   const navigate = useNavigate();
   const [lang, setLang] = useState("RO");
