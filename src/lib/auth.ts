@@ -1,5 +1,5 @@
 const SESSION_CHANGED_EVENT = "auth-session-changed";
-const API_URL = "http://localhost:8000";
+const API_URL = "https://backend-licenta-i0lr.onrender.com";
 
 /* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
 let refreshPromise: Promise<boolean> | null = null;

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Mail, ArrowRight, ArrowLeft, CircleAlert as AlertCircle } from "lucide-react";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://backend-licenta-i0lr.onrender.com";
 
 export default function VerifyEmail() {
   const navigate = useNavigate();

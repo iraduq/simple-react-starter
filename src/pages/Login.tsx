@@ -27,7 +27,7 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/auth/login", {
+      const res = await fetch("https://backend-licenta-i0lr.onrender.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -64,7 +64,7 @@ export default function Login() {
     setIsLoading(true);
     setResetMessage("");
     try {
-      await fetch("http://localhost:8000/auth/forgot-password", {
+      await fetch("https://backend-licenta-i0lr.onrender.com/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -85,7 +85,7 @@ export default function Login() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await fetch("http://localhost:8000/auth/google", {
+      const res = await fetch("https://backend-licenta-i0lr.onrender.com/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

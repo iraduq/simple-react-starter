@@ -1,6 +1,6 @@
 import { apiFetch } from "./api";
 
-export const API_URL = "http://localhost:8000";
+export const API_URL = "https://backend-licenta-i0lr.onrender.com";
 
 /* ---------------- types ---------------- */
 export type Booking = {
