@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, MapPin, Star, Loader as Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getPlace } from "../services/placesService";
 import { httpErrorMessage } from "../services/apiClient";
 import type { Place } from "../types/places";
 
 /** GET /places/{place_id} */
-export default function PlaceDetail({ placeId }: { placeId: string | number }) {
+export default function PlaceDetail() {
+  const { placeId = "" } = useParams();
   const [place, setPlace] = useState<Place | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
