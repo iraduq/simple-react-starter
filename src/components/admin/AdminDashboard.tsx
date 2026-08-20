@@ -1,4 +1,4 @@
-import { API_URL } from "../lib/config";
+import { API_URL } from "../../lib/config";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
