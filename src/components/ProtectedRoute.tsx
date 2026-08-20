@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "@/lib/router-compat";
 import { fetchSession, type SessionUser } from "../lib/auth";
+import { usePreviewMode } from "../hooks/usePreviewMode";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const preview = usePreviewMode();
   const [user, setUser] = useState<SessionUser | "loading">("loading");
 
   useEffect(() => {
@@ -26,6 +28,17 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }
 
   if (!user) {
+    if (preview) {
+      return (
+        <>
+          <div className="bg-[#fff6e0] border-b border-[#f0dcaa] px-4 py-2.5 text-center text-[12px] text-[#8a6a1f]">
+            Mod preview — vezi interfața de administrare fără autentificare.
+            Datele apar când backendul este pornit.
+          </div>
+          {children}
+        </>
+      );
+    }
     return <Navigate to="/login" replace />;
   }
 

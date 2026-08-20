@@ -254,24 +254,57 @@ export default function InteractiveMap() {
       </svg>
 
       <div className="max-w-[1280px] mx-auto relative">
-        <div className="text-center mb-12">
-          <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5 inline-flex items-center gap-3">
-            <span className="w-8 h-px bg-[#c69a3f]/60" />
+        <div className="text-center mb-12 relative">
+          {/* Linie decorativă verticală stânga */}
+          <div
+            className="absolute left-0 md:left-10 top-1/2 -translate-y-1/2 w-px h-24 hidden lg:block"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent, rgba(198,154,63,0.85) 30%, rgba(198,154,63,0.2) 100%)",
+            }}
+          />
+
+          <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-5 inline-flex items-center gap-3">
+            <span className="w-10 h-px bg-[#c69a3f]" />
             HARTA ZONEI
-            <span className="w-8 h-px bg-[#c69a3f]/60" />
+            <span className="w-10 h-px bg-[#c69a3f]" />
           </p>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-white leading-[1.15] tracking-[-0.01em] drop-shadow-md">
-            Ghidul Zonei <em className="italic text-[#c69a3f]">Eforie Nord</em>
+
+          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,7vw,4.4rem)] font-normal text-white leading-[1.08] tracking-[-0.02em] drop-shadow-md">
+            <span className="block">Ghidul Zonei</span>
+            <span className="block italic text-[#c69a3f] mt-1">Eforie Nord</span>
           </h2>
-          <p className="max-w-[560px] mx-auto mt-5 text-[15px] leading-relaxed text-white/70 font-light">
-            Descoperă Vila Casa Esy și tot ce te așteaptă în jur — de la plaje
-            cu nisip fin, la restaurante cu specific local și punctele de
-            interes care fac din Eforie Nord o destinație aparte.
-          </p>
+
+          {/* Divider ornamental */}
+          <div className="flex items-center justify-center gap-4 mt-6 mb-6">
+            <span className="w-16 h-px bg-[#c69a3f]" />
+            <svg
+              width="28"
+              height="12"
+              viewBox="0 0 28 12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 0C10 0 8 4 4 6C8 8 10 12 14 12C18 12 20 8 24 6C20 4 18 0 14 0Z"
+                fill="rgba(198,154,63,0.6)"
+              />
+              <circle cx="14" cy="6" r="2.5" fill="#c69a3f" />
+            </svg>
+            <span className="w-16 h-px bg-[#c69a3f]/40" />
+          </div>
+
+          <div className="max-w-[620px] mx-auto bg-white/[0.05] backdrop-blur-sm rounded-2xl border border-white/10 p-6 md:p-8">
+            <p className="text-[15.5px] leading-[1.85] text-white/80 font-light m-0">
+              Descoperă Vila Casa Esy și tot ce te așteaptă în jur — de la plaje
+              cu nisip fin, la restaurante cu specific local și punctele de
+              interes care fac din Eforie Nord o destinație aparte.
+            </p>
+          </div>
         </div>
 
         <div className="relative rounded-[28px] p-[2px] bg-gradient-to-br from-[#c69a3f] via-[#e8d5a8] to-[#0d2c5c] shadow-2xl">
-          <div className="h-[580px] w-full rounded-[26px] overflow-hidden relative z-0">
+          <div className="h-[360px] sm:h-[460px] lg:h-[580px] w-full rounded-[18px] sm:rounded-[26px] overflow-hidden relative z-0">
             <MapContainer
               center={[44.0621, 28.6321]}
               zoom={14}

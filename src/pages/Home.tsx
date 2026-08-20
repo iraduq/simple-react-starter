@@ -2,8 +2,7 @@ import Hero from "../components/Hero";
 import ExperienceCategories from "../components/ExperienceCategories";
 import AboutSection from "../components/AboutSection";
 import Features from "../components/Features";
-import Map from "../components/Map";
-import Footer from "../components/Footer";
+import Map from "../components/MapClient";
 
 export default function Home() {
   return (
@@ -13,7 +12,6 @@ export default function Home() {
       <AboutSection />
       <Features />
       <Map />
-      <Footer />
     </main>
   );
 }

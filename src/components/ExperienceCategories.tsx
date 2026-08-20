@@ -94,22 +94,40 @@ export default function ExperienceCategories() {
             />
           </svg>
 
-          <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5">
+          <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-5 inline-flex items-center gap-3">
+            <span className="w-10 h-px bg-[#c69a3f]" />
             DESCOPERĂ · MAMAIA
+            <span className="w-10 h-px bg-[#c69a3f]" />
           </p>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-[#1a1a1a] leading-[1.15] tracking-[-0.01em]">
-            Experiențe care te{" "}
-            <em className="italic text-[#c69a3f]">Inspiră</em>
+
+          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,7vw,4.4rem)] font-normal text-[#1a1a1a] leading-[1.08] tracking-[-0.02em]">
+            <span className="block">Experiențe care te</span>
+            <span className="block italic text-[#c69a3f] mt-1">Inspiră</span>
           </h2>
-          <span
-            className="block w-14 h-0.5 mx-auto mt-5 border-0"
-            style={{
-              background: "linear-gradient(90deg, #c69a3f, transparent)",
-            }}
-          />
-          <p className="max-w-[520px] mx-auto mt-5 text-[15px] text-[#3c4043] leading-[1.75]">
+
+          {/* Divider ornamental */}
+          <div className="flex items-center justify-center gap-4 mt-6 mb-6">
+            <span className="w-16 h-px bg-[#c69a3f]" />
+            <svg
+              width="28"
+              height="12"
+              viewBox="0 0 28 12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 0C10 0 8 4 4 6C8 8 10 12 14 12C18 12 20 8 24 6C20 4 18 0 14 0Z"
+                fill="rgba(198,154,63,0.6)"
+              />
+              <circle cx="14" cy="6" r="2.5" fill="#c69a3f" />
+            </svg>
+            <span className="w-16 h-px bg-[#c69a3f]/40" />
+          </div>
+
+          <p className="max-w-[560px] mx-auto text-[15.5px] text-[#3c4043] leading-[1.85] font-light">
             De la plaje cu nisip fin la gastronomie rafinată — Casa Esy este
-            locul de unde vacanța ta ideală la Marea Neagră începe.
+            locul de unde vacanța ta ideală la Marea Neagră începe, iar fiecare
+            experiență devine o amintire de neprețuit.
           </p>
         </div>
 

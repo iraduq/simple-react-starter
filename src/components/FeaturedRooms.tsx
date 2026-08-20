@@ -1,3 +1,4 @@
+import { Link } from "@/lib/router-compat";
 import { useState } from "react";
 import { Star } from "lucide-react";
 
@@ -149,12 +150,12 @@ export default function FeaturedRooms() {
                   </span>
                   <span className="text-xs text-[#8595aa]"> / noapte</span>
                 </div>
-                <a
-                  href="#rezerva"
+                <Link
+                  to={`/camere/${room.id}`}
                   className="inline-block px-[22px] py-2.5 bg-[#c69a3f] text-[#1a1a1a] text-xs font-bold tracking-[0.06em] rounded uppercase transition-all duration-200 hover:bg-[#1e4d8c] hover:text-white hover:-translate-y-px"
                 >
                   Rezervă
-                </a>
+                </Link>
               </div>
             </div>
           </article>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "@/lib/router-compat";
 import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
@@ -117,9 +117,34 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white font-sans max-[899px]:bg-[radial-gradient(circle_at_top_right,#e6efff,#f4f7fb)]">
+    <div className="flex min-h-screen bg-white font-sans max-[899px]:flex-col max-[899px]:min-h-[100dvh]">
+      {/* mobil: poza pe tot ecranul */}
+      <div
+        className="fixed inset-0 z-0 min-[900px]:hidden h-[100dvh] bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop)",
+        }}
+      >
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(13,44,92,0.55)_0%,rgba(13,44,92,0.82)_100%)]" />
+      </div>
+
+      <div className="relative z-[3] min-[900px]:hidden px-5 pt-3">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-white/85"
+        >
+          <ArrowLeft size={15} /> Înapoi acasă
+        </Link>
+        <h2 className="mt-2 font-['Cormorant_Garamond',serif] text-[1.45rem] leading-[1.15] text-white max-w-[290px]">
+          Vacanța ta perfectă începe aici.
+        </h2>
+      </div>
+
+
       <div
         className="relative flex-[1.2] hidden min-[900px]:block bg-cover bg-center overflow-hidden"
+
         style={{
           backgroundImage:
             "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
@@ -160,8 +185,9 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-[3] max-[899px]:bg-transparent">
-        <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_10px_40px_rgba(13,44,92,0.14)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
+      <div className="flex-1 flex items-center justify-center px-4 py-3 sm:px-5 sm:py-10 relative z-[3] max-[899px]:bg-transparent">
+        <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-5 max-[899px]:rounded-2xl max-[899px]:shadow-[0_24px_60px_-18px_rgba(13,44,92,0.55)] max-[899px]:border max-[899px]:border-white/60 max-[500px]:p-4">
+
           <Link
             to="/"
             className="flex flex-col items-center mb-10 no-underline"
@@ -194,7 +220,7 @@ export default function Login() {
 
               <form
                 onSubmit={handleForgotPassword}
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-4 max-[899px]:gap-3"
               >
                 <div className="relative">
                   <Mail
@@ -208,14 +234,14 @@ export default function Login() {
                     required
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="w-full pl-[50px] pr-[44px] py-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
+                    className="w-full pl-[50px] pr-[44px] py-3.5 max-[899px]:py-3 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex items-center justify-center gap-3 w-full py-[18px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
+                  className="flex items-center justify-center gap-3 w-full py-[16px] max-[899px]:py-[14px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
                 >
                   {isLoading ? "Se trimite..." : "Trimite link-ul"}
                   {!isLoading && <ArrowRight size={18} strokeWidth={2} />}
@@ -224,7 +250,7 @@ export default function Login() {
 
               <div className="flex items-center text-center my-8 text-[#8595aa] text-[11px] font-bold tracking-[0.15em] before:content-[''] before:flex-1 before:border-b before:border-[#e1e8f0] after:content-[''] after:flex-1 after:border-b after:border-[#e1e8f0]" />
 
-              <p className="text-center mt-9 text-sm text-[#3c4043]">
+              <p className="text-center mt-9 max-[899px]:mt-4 text-sm text-[#3c4043]">
                 Ți-ai amintit parola?{" "}
                 <button
                   type="button"
@@ -249,7 +275,7 @@ export default function Login() {
                 </p>
               </div>
 
-              <form onSubmit={handleLocalLogin} className="flex flex-col gap-4">
+              <form onSubmit={handleLocalLogin} className="flex flex-col gap-4 max-[899px]:gap-3">
                 <div className="relative">
                   <Mail
                     className="absolute left-[18px] top-1/2 -translate-y-1/2 text-[#8595aa]"
@@ -264,7 +290,7 @@ export default function Login() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full pl-[50px] pr-[44px] py-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
+                    className="w-full pl-[50px] pr-[44px] py-3.5 max-[899px]:py-3 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
                   />
                 </div>
 
@@ -282,7 +308,7 @@ export default function Login() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="w-full pl-[50px] pr-[44px] py-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
+                    className="w-full pl-[50px] pr-[44px] py-3.5 max-[899px]:py-3 border border-[#e1e8f0] rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]"
                   />
                   <button
                     type="button"
@@ -313,7 +339,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex items-center justify-center gap-3 w-full py-[18px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
+                  className="flex items-center justify-center gap-3 w-full py-[16px] max-[899px]:py-[14px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
                 >
                   {isLoading ? "Se încarcă..." : "Intră în cont"}
                   {!isLoading && <ArrowRight size={18} strokeWidth={2} />}
@@ -330,7 +356,7 @@ export default function Login() {
                 text="continue_with"
               />
 
-              <p className="text-center mt-9 text-sm text-[#3c4043]">
+              <p className="text-center mt-9 max-[899px]:mt-4 text-sm text-[#3c4043]">
                 Nu ai încă un cont?{" "}
                 <Link
                   to="/register"

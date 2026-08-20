@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "@/lib/router-compat";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
 import "react-phone-number-input/style.css";
 import GoogleAuthButton from "../components/GoogleAuthButton";
@@ -253,9 +253,34 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white font-['Albert_Sans',sans-serif] max-[899px]:bg-[radial-gradient(circle_at_top_right,#e6efff,#f4f7fb)] [&_input]:font-['Albert_Sans',sans-serif] [&_button]:font-['Albert_Sans',sans-serif] [&_.PhoneInputInput]:font-['Albert_Sans',sans-serif]">
+    <div className="flex min-h-screen bg-white font-['Albert_Sans',sans-serif] max-[899px]:flex-col [&_input]:font-['Albert_Sans',sans-serif] [&_button]:font-['Albert_Sans',sans-serif] [&_.PhoneInputInput]:font-['Albert_Sans',sans-serif]">
+      {/* mobil: poza pe tot ecranul */}
+      <div
+        className="fixed inset-0 z-0 min-[900px]:hidden h-[100dvh] bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url(https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80)",
+        }}
+      >
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(13,44,92,0.55)_0%,rgba(13,44,92,0.82)_100%)]" />
+      </div>
+
+      <div className="relative z-[3] min-[900px]:hidden px-5 pt-3">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-white/85"
+        >
+          <ArrowLeft size={15} /> Înapoi acasă
+        </Link>
+        <h2 className="max-[899px]:hidden mt-2 font-['Cormorant_Garamond',serif] text-[1.45rem] leading-[1.15] text-white max-w-[290px]">
+          Alătură-te oaspeților noștri.
+        </h2>
+      </div>
+
+
       <div
         className="relative flex-[1.2] hidden min-[900px]:block bg-cover bg-center overflow-hidden"
+
         style={{
           backgroundImage:
             "url(https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80)",
@@ -294,8 +319,8 @@ export default function Register() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-[3] max-[899px]:bg-transparent">
-        <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_10px_40px_rgba(13,44,92,0.14)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
+      <div className="flex-1 flex items-center justify-center px-4 py-3 sm:px-5 sm:py-10 relative z-[3] max-[899px]:bg-transparent">
+        <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-5 max-[899px]:rounded-2xl max-[899px]:shadow-[0_24px_60px_-18px_rgba(13,44,92,0.55)] max-[899px]:border max-[899px]:border-white/60 max-[500px]:p-4">
           <Link
             to="/"
             className="flex flex-col items-center mb-10 no-underline"
@@ -326,10 +351,10 @@ export default function Register() {
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 max-[899px]:gap-2.5"
             noValidate
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-[899px]:gap-2.5">
               <div className="flex flex-col gap-1">
                 <div className="relative">
                   <User
@@ -527,7 +552,7 @@ export default function Register() {
 
               {(passwordFocused || formData.password.length > 0) && (
                 <div className="pt-3 pb-0.5 mt-0.5 animate-[fadeIn_0.2s_ease-in-out]">
-                  <div className="flex gap-1 mb-3">
+                  <div className="flex gap-1 mb-2">
                     {Object.values(passwordRules).map((isMet, index) => (
                       <span
                         key={index}
@@ -615,7 +640,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center justify-center gap-3 w-full py-[18px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
+              className="flex items-center justify-center gap-3 w-full py-[16px] max-[899px]:py-[14px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
             >
               {isLoading ? "Se creează contul..." : "Înregistrează-te"}
               {!isLoading && <ArrowRight size={18} strokeWidth={2} />}
@@ -632,7 +657,7 @@ export default function Register() {
             text="signup_with"
           />
 
-          <p className="text-center mt-9 text-sm text-[#3c4043]">
+          <p className="text-center mt-9 max-[899px]:mt-4 text-sm text-[#3c4043]">
             Ai deja un cont?{" "}
             <Link
               to="/login"

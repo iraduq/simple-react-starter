@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -19,17 +19,19 @@ import {
 import { fetchSession, clearSession, getCachedUser, type SessionUser } from "../../lib/auth";
 import { get, post, list, errMsg, type SessionInfo } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { isPreviewEnv } from "../../lib/preview";
 
 import OverviewTab from "./OverviewTab";
 import BookingsTab from "./BookingsTab";
 import RoomsTab from "./RoomsTab";
 import NomenclatureTab from "./NomenclatureTab";
 import PricingTab from "./PricingTab";
+import PricingDashboardTab from "./PricingDashboardTab";
 import AdminPlacesTab from "./AdminPlacesTab";
 import UsersTab from "./UsersTab";
 import AuditLogsTab from "./AuditLogsTab";
 
-type TabKey = "overview" | "bookings" | "rooms" | "nomenclature" | "pricing" | "places" | "users" | "audit";
+type TabKey = "overview" | "bookings" | "rooms" | "nomenclature" | "pricing" | "dynamic" | "places" | "users" | "audit";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Prezentare generală", icon: LayoutDashboard },
@@ -37,6 +39,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "rooms", label: "Camere & unități", icon: BedDouble },
   { key: "nomenclature", label: "Tipuri & facilități", icon: Tags },
   { key: "pricing", label: "Prețuri & calendar", icon: DollarSign },
+  { key: "dynamic", label: "Dynamic pricing", icon: Activity },
   { key: "places", label: "Atracții locale", icon: MapPin },
   { key: "users", label: "Utilizatori", icon: Users },
   { key: "audit", label: "Jurnal de securitate", icon: Shield },
@@ -61,6 +64,11 @@ export default function AdminDashboard() {
       const s = await fetchSession(true);
       if (!active) return;
       if (!s || s.role !== "admin") {
+        // În preview (Lovable / dev local) lăsăm panoul vizibil fără sesiune.
+        if (isPreviewEnv()) {
+          setLoading(false);
+          return;
+        }
         navigate("/", { replace: true });
         return;
       }
@@ -246,6 +254,7 @@ export default function AdminDashboard() {
             {tab === "rooms" && <RoomsTab />}
             {tab === "nomenclature" && <NomenclatureTab />}
             {tab === "pricing" && <PricingTab />}
+            {tab === "dynamic" && <PricingDashboardTab />}
             {tab === "places" && <AdminPlacesTab />}
             {tab === "users" && <UsersTab />}
             {tab === "audit" && <AuditLogsTab />}
