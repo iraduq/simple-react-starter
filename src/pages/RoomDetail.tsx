@@ -14,7 +14,12 @@ import { apiFetch } from "../lib/api";
 import { httpErrorMessage } from "../services/apiClient";
 import { getRoomPricing, ratePlanFactor } from "../services/pricingService";
 import { createBooking } from "../services/bookingsService";
-import { toUtcIso } from "../services/roomsService";
+import {
+  toUtcIso,
+  getRoomCalendar,
+  unavailableDates,
+} from "../services/roomsService";
+import DatePicker from "../components/DatePicker";
 import { useToast } from "../components/Toast";
 import { ron, toISODate, nightsBetween, dayLabel } from "../lib/format";
 import { hasSession } from "../lib/auth";
@@ -58,7 +63,12 @@ export default function RoomDetail() {
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const nights = nightsBetween(checkIn, checkOut).length;
+  const [blocked, setBlocked] = useState<Set<string>>(new Set());
+
+  const nightList = nightsBetween(checkIn, checkOut);
+  const nights = nightList.length;
+  const conflictNights = nightList.filter((d) => blocked.has(d));
+  const hasConflict = conflictNights.length > 0;
 
   useEffect(() => {
     let active = true;
@@ -79,8 +89,27 @@ export default function RoomDetail() {
     };
   }, [roomId]);
 
+  useEffect(() => {
+    if (!roomId) return;
+    let active = true;
+    const start = toISODate(new Date());
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 8);
+    (async () => {
+      try {
+        const entries = await getRoomCalendar(roomId, start, toISODate(endDate));
+        if (active) setBlocked(unavailableDates(entries));
+      } catch {
+        if (active) setBlocked(new Set());
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [roomId]);
+
   const loadQuote = useCallback(async () => {
-    if (!roomId || nights === 0) {
+    if (!roomId || nights === 0 || hasConflict) {
       setQuote(null);
       return;
     }
@@ -105,7 +134,7 @@ export default function RoomDetail() {
     } finally {
       setQuoting(false);
     }
-  }, [roomId, checkIn, checkOut, nights, plan, adults, room?.room_type?.id]);
+  }, [roomId, checkIn, checkOut, nights, hasConflict, plan, adults, room?.room_type?.id]);
 
   useEffect(() => {
     void loadQuote();
@@ -124,6 +153,13 @@ export default function RoomDetail() {
   const finalize = async () => {
     if (nights === 0) {
       toast("Alege datele de check-in și check-out.", "warning");
+      return;
+    }
+    if (hasConflict) {
+      toast(
+        "Perioada selectată conține zile indisponibile. Vă rugăm să alegeți alte date.",
+        "error",
+      );
       return;
     }
     if (!hasSession()) {
@@ -272,9 +308,13 @@ export default function RoomDetail() {
         <aside className="h-fit rounded-2xl border border-[#e1e8f0] bg-white p-5 lg:sticky lg:top-24">
           <div className="flex items-end gap-2">
             <p className="text-[24px] font-bold text-[#0d2c5c]">
-              {quoting ? "…" : ron(avgNight ?? room.base_price)}
+              {quoting ? "…" : ron(total ?? avgNight ?? room.base_price)}
             </p>
-            <span className="pb-1 text-[12px] text-[#8595aa]">/ noapte</span>
+            <span className="pb-1 text-[12px] text-[#8595aa]">
+              {total != null
+                ? `total · ${nights} ${nights === 1 ? "noapte" : "nopți"}`
+                : "/ noapte"}
+            </span>
             {isDeal && (
               <span className="ml-auto rounded-full bg-[#f3e6c4] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a6516]">
                 Ofertă
@@ -283,14 +323,35 @@ export default function RoomDetail() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <label className="block">
-              <span className={labelCls}>Check-in</span>
-              <input type="date" min={today} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className={inputCls} />
-            </label>
-            <label className="block">
-              <span className={labelCls}>Check-out</span>
-              <input type="date" min={checkIn || today} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className={inputCls} />
-            </label>
+            <DatePicker
+              variant="field"
+              label="Check-in"
+              value={checkIn}
+              minDate={today}
+              disabledDates={blocked}
+              onChange={(v) => {
+                setCheckIn(v);
+                if (checkOut && checkOut <= v) setCheckOut("");
+              }}
+            />
+            <DatePicker
+              variant="field"
+              label="Check-out"
+              value={checkOut}
+              minDate={checkIn || today}
+              disabledDates={blocked}
+              onChange={(v) => {
+                const conflicts = nightsBetween(checkIn, v).filter((d) => blocked.has(d));
+                if (conflicts.length > 0) {
+                  toast(
+                    "Perioada selectată conține zile indisponibile. Vă rugăm să alegeți alte date.",
+                    "error",
+                  );
+                  return;
+                }
+                setCheckOut(v);
+              }}
+            />
             <label className="block">
               <span className={labelCls}>Adulți</span>
               <input type="number" min={1} max={room.max_guests_adults || 10} value={adults} onChange={(e) => setAdults(Number(e.target.value))} className={inputCls} />
@@ -340,6 +401,11 @@ export default function RoomDetail() {
                 {quoteError}
               </p>
             )}
+            {hasConflict && (
+              <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-[12.5px] text-red-700">
+                Perioada selectată conține zile indisponibile. Vă rugăm să alegeți alte date.
+              </p>
+            )}
             {nights === 0 && !quoteError && (
               <p className="text-[12.5px] text-[#8595aa]">Alege datele pentru a vedea prețul total.</p>
             )}
@@ -359,6 +425,11 @@ export default function RoomDetail() {
                   <span>Total</span>
                   <span>{quoting ? "…" : ron(total)}</span>
                 </div>
+                <p className="pt-1 text-[11.5px] leading-relaxed text-[#8595aa]">
+                  Preț total pentru {quote.nights} {quote.nights === 1 ? "noapte" : "nopți"},
+                  incluzând taxele și reducerile aplicate (sezonalitate, weekend, nopți orfane,
+                  plan tarifar).
+                </p>
                 {isDeal && baseTotal != null && (
                   <p className="text-[11.5px] text-[#8595aa]">
                     Preț standard <span className="line-through">{ron(baseTotal)}</span>
@@ -371,7 +442,7 @@ export default function RoomDetail() {
           <button
             type="button"
             onClick={finalize}
-            disabled={submitting || quoting || nights === 0 || !!quoteError}
+            disabled={submitting || quoting || nights === 0 || hasConflict || !!quoteError}
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0d2c5c] px-5 py-3.5 text-[12px] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#c69a3f] hover:text-[#0d2c5c] disabled:opacity-60"
           >
             {submitting ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
