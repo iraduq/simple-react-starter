@@ -200,7 +200,7 @@ export default function PricingTab() {
             <Field label="Selectează cameră">
               <select className={inputCls} value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)}>
                 {rooms.map((r) => (
-                  <option key={r.id} value={String(r.id)}>{r.name}</option>
+                  <option key={r.id} value={String(r.id)}>{roomLabel(r)}</option>
                 ))}
               </select>
             </Field>
