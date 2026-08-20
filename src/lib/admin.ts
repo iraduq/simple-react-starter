@@ -28,7 +28,8 @@ export type RoomUnit = {
 };
 export type Room = {
   id: number | string;
-  name: string;
+  name?: string | null;
+  title?: string | null;
   slug?: string | null;
   description?: string | null;
   base_price?: number | null;

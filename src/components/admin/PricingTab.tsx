@@ -17,8 +17,14 @@ type CalendarDay = {
   date: string;
   price?: number | null;
   available?: boolean | null;
+  is_available?: boolean | null;
   blocked?: boolean | null;
+  is_blocked?: boolean | null;
+  min_stay?: number | null;
 };
+
+const roomLabel = (r: Room) =>
+  r.name || r.title || `Cameră ${String(r.id).slice(0, 6)}`;
 
 type RuleForm = {
   start_date: string;
@@ -75,10 +81,24 @@ export default function PricingTab() {
     if (!selectedRoom) return;
     setCalLoading(true);
     try {
-      const firstDay = new Date(year, month, 1).toISOString().split("T")[0];
-      const lastDay = new Date(year, month + 1, 0).toISOString().split("T")[0];
-      const data = await get<unknown>(`/rooms/${selectedRoom}/calendar?start=${firstDay}&end=${lastDay}`);
-      setCalendar(list<CalendarDay>(data));
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const firstDay = `${year}-${pad(month + 1)}-01`;
+      const lastDay = `${year}-${pad(month + 1)}-${pad(new Date(year, month + 1, 0).getDate())}`;
+      const data = await get<unknown>(
+        `/rooms/${selectedRoom}/calendar?start_date=${firstDay}&end_date=${lastDay}`,
+      );
+      const raw =
+        data && typeof data === "object" && Array.isArray((data as { entries?: unknown }).entries)
+          ? ((data as { entries: CalendarDay[] }).entries)
+          : list<CalendarDay>(data);
+      setCalendar(
+        raw.map((d) => ({
+          ...d,
+          date: String(d.date).slice(0, 10),
+          available: d.available ?? d.is_available,
+          blocked: d.blocked ?? d.is_blocked,
+        })),
+      );
     } catch (e) {
       toast(errMsg(e), "error");
       setCalendar([]);
@@ -180,7 +200,7 @@ export default function PricingTab() {
             <Field label="Selectează cameră">
               <select className={inputCls} value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)}>
                 {rooms.map((r) => (
-                  <option key={r.id} value={String(r.id)}>{r.name}</option>
+                  <option key={r.id} value={String(r.id)}>{roomLabel(r)}</option>
                 ))}
               </select>
             </Field>

@@ -321,7 +321,7 @@ function RoomCard({
         {thumb ? (
           <img
             src={imageUrl(thumb)}
-            alt={room.name}
+            alt={room.name ?? room.title ?? "Cameră"}
             className="h-full w-full object-cover"
           />
         ) : (
