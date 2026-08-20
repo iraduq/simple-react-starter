@@ -37,7 +37,7 @@ import {
   del,
   list,
   errMsg,
-  type Nomenclature,
+
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
