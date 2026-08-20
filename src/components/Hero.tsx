@@ -1,6 +1,8 @@
 import { Search, Users } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DatePicker from "./DatePicker";
+import { useToast } from "./Toast";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -8,10 +10,30 @@ export default function Hero() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleCheckIn = (val: string) => {
     setCheckIn(val);
     if (checkOut && val >= checkOut) setCheckOut("");
+  };
+
+  const handleSearch = () => {
+    if (!checkIn || !checkOut) {
+      toast("Selectează datele de check-in și check-out.", "warning");
+      return;
+    }
+    if (checkOut <= checkIn) {
+      toast("Check-out trebuie să fie după check-in.", "warning");
+      return;
+    }
+    const params = new URLSearchParams({
+      check_in: checkIn,
+      check_out: checkOut,
+      adults: String(guests),
+      children: "0",
+    });
+    navigate(`/disponibilitate?${params.toString()}`);
   };
 
   return (
@@ -119,6 +141,7 @@ export default function Hero() {
 
           <button
             type="button"
+            onClick={handleSearch}
             className="inline-flex items-center justify-center gap-2 bg-[#c69a3f] text-white border-none rounded-xl md:rounded-[10px] px-7 py-4 md:py-0 font-sans text-[13px] font-semibold tracking-wide whitespace-nowrap shrink-0 md:mx-2 md:my-2 w-full md:w-auto transition-all duration-200 hover:bg-[#b8882e]"
           >
             <Search size={15} />
