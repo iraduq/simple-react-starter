@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "@/lib/router-compat";
 import {
   ChevronDown,
   CircleUser,
   X,
+  Menu,
   Sparkles,
   Key,
   LogOut,
 } from "lucide-react";
+import { Shield } from "lucide-react";
+import { usePreviewMode } from "@/hooks/usePreviewMode";
 import {
   clearSession,
   fetchSession,
@@ -28,13 +31,17 @@ const LANGS = [
 export default function Navbar() {
   const navigate = useNavigate();
   const [lang, setLang] = useState("RO");
+  const previewMode = usePreviewMode();
   const [langOpen, setLangOpen] = useState(false);
   const [acctOpen, setAcctOpen] = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
   const [currentUser, setCurrentUser] = useState<SessionUser>(getCachedUser());
+
+  const showAdminLink = previewMode || currentUser?.role === "admin";
 
   const langRef = useRef<HTMLDivElement>(null);
   const acctRef = useRef<HTMLDivElement>(null);
@@ -98,14 +105,14 @@ export default function Navbar() {
       {/* ── PROMO STRIP ── */}
       {!promoDismissed && (
         <div
-          className="relative flex items-center justify-center px-12 py-2.5 bg-[linear-gradient(90deg,rgba(9,24,52,0.91)_0%,rgba(13,44,92,0.88)_50%,rgba(9,24,52,0.91)_100%)] bg-cover bg-center"
+          className="relative flex items-center justify-center px-9 sm:px-12 py-2 sm:py-2.5 bg-[linear-gradient(90deg,rgba(9,24,52,0.91)_0%,rgba(13,44,92,0.88)_50%,rgba(9,24,52,0.91)_100%)] bg-cover bg-center"
           style={{
             backgroundImage:
               "linear-gradient(90deg,rgba(9,24,52,0.91) 0%,rgba(13,44,92,0.88) 50%,rgba(9,24,52,0.91) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=80&fit=crop&crop=bottom)",
           }}
         >
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <span className="flex items-center gap-1.5 text-[11.5px] font-bold tracking-[0.15em] uppercase text-white">
+          <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap text-center">
+            <span className="flex items-center gap-1.5 text-[10px] sm:text-[11.5px] font-bold tracking-[0.12em] sm:tracking-[0.15em] uppercase text-white">
               <Sparkles size={14} className="text-[#c69a3f]" />
               OFERTĂ SPECIALĂ
             </span>
@@ -113,7 +120,7 @@ export default function Navbar() {
             <button
               onClick={copyCode}
               title="Apasă pentru a copia"
-              className={`font-sans text-[13.5px] font-bold tracking-wide text-white border-[1.5px] border-dashed rounded px-3.5 py-1.5 transition-all duration-200 ${
+              className={`font-sans text-[12px] sm:text-[13.5px] font-bold tracking-wide text-white border-[1.5px] border-dashed rounded px-3.5 py-1.5 transition-all duration-200 ${
                 copied
                   ? "bg-green-600 border-green-600"
                   : "bg-white/[0.08] border-[#c69a3f] hover:bg-[#c69a3f]/15"
@@ -122,7 +129,7 @@ export default function Navbar() {
               {copied ? "COPIAT ✓" : "CASAESY15"}
             </button>
 
-            <span className="flex items-center gap-1.5 text-[13.5px] text-slate-200">
+            <span className="flex items-center gap-1.5 text-[11.5px] sm:text-[13.5px] text-slate-200 flex-wrap justify-center">
               pentru{" "}
               <strong className="text-white font-bold">15% reducere</strong> la
               rezervare directă
@@ -133,7 +140,7 @@ export default function Navbar() {
           <button
             onClick={() => setPromoDismissed(true)}
             aria-label="Închide"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-1 transition-colors"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-1 transition-colors"
           >
             <X size={16} strokeWidth={2} />
           </button>
@@ -148,11 +155,11 @@ export default function Navbar() {
             : "bg-white border-[#e1e8f0]"
         }`}
       >
-        <div className="max-w-[1320px] mx-auto h-20 px-10 flex items-center justify-between">
+        <div className="max-w-[1320px] mx-auto h-16 md:h-20 px-4 sm:px-6 md:px-10 flex items-center justify-between gap-2">
           {/* LOGO */}
           <Link
             to="/"
-            className="flex flex-col items-center gap-0.5 group"
+            className="flex shrink-0 flex-col items-center gap-0.5 group"
             aria-label="Vila Casa Esy"
           >
             <span
@@ -161,22 +168,20 @@ export default function Navbar() {
             >
               ★ ★ ★
             </span>
-            <span className="font-['Cormorant_Garamond',serif] text-[22px] font-semibold leading-none tracking-wide text-[#1a1a1a] group-hover:opacity-80 transition-opacity">
+            <span className="font-['Cormorant_Garamond',serif] text-[18px] sm:text-[22px] font-semibold leading-none tracking-wide whitespace-nowrap text-[#1a1a1a] group-hover:opacity-80 transition-opacity">
               CASA ESY
             </span>
-            <span className="text-[9px] font-medium tracking-[0.25em] uppercase text-gray-500 mt-px">
+            <span className="hidden sm:block text-[9px] font-medium tracking-[0.25em] uppercase text-gray-500 mt-px">
               HOTEL · MAMAIA
             </span>
           </Link>
 
           {/* NAV LINKS */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
             {[
               { to: "/", label: "Acasă", end: true },
               { to: "/camere", label: "Camere" },
               { to: "/places", label: "Locații" },
-              { to: "/oferte", label: "Oferte" },
-              { to: "/restaurant", label: "Restaurant" },
               { to: "/evenimente-private", label: "Evenimente" },
               { to: "/contact", label: "Contact" },
             ].map((item) => (
@@ -195,10 +200,24 @@ export default function Navbar() {
                 {item.label}
               </NavLink>
             ))}
+            {showAdminLink && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-sans text-[13px] font-semibold transition-colors duration-200 ${
+                    isActive
+                      ? "border-[#c69a3f] bg-[#c69a3f] text-white"
+                      : "border-[#c69a3f]/50 text-[#0d2c5c] hover:bg-[#c69a3f]/10"
+                  }`
+                }
+              >
+                <Shield size={13} /> Admin
+              </NavLink>
+            )}
           </nav>
 
           {/* TOOLS + CTA */}
-          <div className="flex items-center gap-4 -mt-0.5">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 md:gap-4 md:-mt-0.5">
             {/* LANG SELECTOR */}
             <div className="relative" ref={langRef}>
               <button
@@ -209,7 +228,7 @@ export default function Navbar() {
                 aria-haspopup="true"
                 aria-expanded={langOpen}
                 aria-label="Schimbă limba"
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded border transition-all duration-200 hover:bg-black/[0.04] ${
+                className={`hidden sm:inline-flex items-center gap-2 px-2 sm:px-3 py-2 rounded border transition-all duration-200 hover:bg-black/[0.04] ${
                   langOpen ? "border-[#1a1a1a]" : "border-transparent"
                 }`}
               >
@@ -309,6 +328,20 @@ export default function Navbar() {
                           Vezi profilul
                         </Link>
                       )}
+                      <Link
+                        to="/rezervarile-mele"
+                        onClick={() => setAcctOpen(false)}
+                        className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase text-[#0d2c5c] border border-[#e1e8f0] hover:border-[#0d2c5c] transition-colors duration-200"
+                      >
+                        Rezervările mele
+                      </Link>
+                      <Link
+                        to="/sesiuni"
+                        onClick={() => setAcctOpen(false)}
+                        className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase text-[#0d2c5c] border border-[#e1e8f0] hover:border-[#0d2c5c] transition-colors duration-200"
+                      >
+                        Sesiuni active
+                      </Link>
                       <button
                         type="button"
                         onClick={handleLogout}
@@ -348,13 +381,60 @@ export default function Navbar() {
             {/* CTA BUTTON */}
             <Link
               to="/register"
-              className="group relative inline-flex items-center overflow-hidden ml-2 px-6 py-3 bg-[#c69a3f] hover:bg-[#b58933] text-white text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px"
+              className="group relative hidden sm:inline-flex items-center overflow-hidden md:ml-2 px-4 md:px-6 py-2.5 md:py-3 bg-[#c69a3f] hover:bg-[#b58933] text-white text-[13px] md:text-[14.5px] font-medium rounded whitespace-nowrap transition-all duration-200 hover:-translate-y-px"
             >
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[550ms] ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]" />
               <span className="relative">Rezervă Acum</span>
             </Link>
+            {/* MOBILE MENU TOGGLE */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Închide meniul" : "Deschide meniul"}
+              aria-expanded={mobileOpen}
+              className="lg:hidden p-2 -mr-1 text-[#0d2c5c] rounded hover:bg-black/[0.04] transition-colors"
+            >
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {/* MOBILE NAV PANEL */}
+        {mobileOpen && (
+          <div className="lg:hidden border-t border-[#e1e8f0] bg-white shadow-[0_18px_40px_-18px_rgba(13,44,92,0.3)]">
+            <nav className="flex flex-col px-4 py-3">
+              {[
+                { to: "/", label: "Acasă", end: true },
+                { to: "/camere", label: "Camere" },
+                { to: "/places", label: "Locații" },
+                { to: "/evenimente-private", label: "Evenimente" },
+                { to: "/contact", label: "Contact" },
+                ...(showAdminLink ? [{ to: "/admin", label: "Admin" }] : []),
+              ].map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={(item as { end?: boolean }).end}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }: { isActive: boolean }) =>
+                    `py-3 border-b border-[#eef2f7] last:border-b-0 font-sans text-[15px] transition-colors ${
+                      isActive ? "text-[#c69a3f] font-semibold" : "text-[#3c4043]"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+              <Link
+                to="/register"
+                onClick={() => setMobileOpen(false)}
+                className="mt-4 mb-2 inline-flex items-center justify-center rounded bg-[#c69a3f] px-5 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-white"
+              >
+                Rezervă acum
+              </Link>
+            </nav>
+          </div>
+        )}
       </header>
     </>
   );

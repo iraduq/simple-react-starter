@@ -1,3 +1,4 @@
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -19,6 +20,8 @@ const DAYS_SHORT = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"];
 
 interface Props {
   label: string;
+  icon?: React.ReactNode;
+  hint?: string;
   value: string;
   minDate?: string;
   onChange: (val: string) => void;
@@ -32,7 +35,7 @@ function toIso(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
-export default function DatePicker({ label, value, minDate, onChange }: Props) {
+export default function DatePicker({ label, icon, hint, value, minDate, onChange }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
@@ -92,31 +95,44 @@ export default function DatePicker({ label, value, minDate, onChange }: Props) {
 
   return (
     <div
-      className="relative flex-1 flex flex-col justify-center px-6 py-4.5"
+      className={`relative flex-1 flex flex-col justify-center px-5 py-4 rounded-[14px] transition-colors duration-200 ${
+        open ? "bg-[#f4f7fc]" : "hover:bg-[#f7f9fc]"
+      }`}
       ref={ref}
     >
-      <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
+      <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#0d2c5c] mb-2 select-none">
+        {icon}
         {label}
       </span>
 
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`bg-transparent border-none p-0 font-sans text-sm text-left w-full leading-[1.3] transition-colors duration-150 ${
-          open
-            ? "text-[#0d2c5c]"
-            : value
-              ? "text-[#1a1a1a] font-medium"
-              : "text-[#8595aa]"
-        }`}
+        className="group/date flex w-full items-baseline justify-between gap-2 bg-transparent border-none p-0 font-sans text-left leading-[1.3] cursor-pointer"
       >
-        {displayDate ?? (
-          <span className="text-[#8595aa] font-normal">Selectează data</span>
+        <span
+          className={`text-[15px] transition-colors duration-200 ${
+            value
+              ? "font-medium text-[#0d2c5c]"
+              : "text-[#8595aa] group-hover/date:text-[#0d2c5c]"
+          }`}
+        >
+          {displayDate ?? "Selectează data"}
+        </span>
+        {hint && (
+          <span className="hidden md:inline text-[10px] uppercase tracking-[0.1em] text-[#b6c2d3]">
+            {hint}
+          </span>
         )}
       </button>
+      <span
+        className={`absolute left-5 right-5 bottom-2.5 h-[2px] rounded-full bg-gradient-to-r from-[#c69a3f] to-[#e6c579] transition-transform duration-300 origin-left ${
+          open ? "scale-x-100" : "scale-x-0"
+        }`}
+      />
 
       {open && (
-        <div className="absolute top-[calc(100%+12px)] left-0 z-[200] bg-white border border-[#e1e8f0] rounded-[14px] shadow-[0_4px_8px_rgba(13,44,92,0.06),0_16px_48px_rgba(13,44,92,0.14)] p-5 w-[280px]">
+        <div className="absolute top-[calc(100%+10px)] left-0 z-[200] bg-white border border-[#e1e8f0] rounded-[16px] shadow-[0_4px_8px_rgba(13,44,92,0.06),0_22px_60px_rgba(13,44,92,0.18)] p-5 w-[290px] origin-top animate-in fade-in slide-in-from-top-1 duration-150">
           <div className="flex items-center justify-between mb-4">
             <button
               type="button"
@@ -160,7 +176,7 @@ export default function DatePicker({ label, value, minDate, onChange }: Props) {
                   onClick={() => pick(day)}
                   className={`mx-auto w-[34px] h-[34px] rounded-full bg-transparent border-none font-sans text-[12.5px] flex items-center justify-center transition-colors duration-150 ${
                     isSelected(day)
-                      ? "bg-[#c69a3f] text-white font-semibold"
+                      ? "bg-gradient-to-br from-[#d8ae52] to-[#b8882e] text-white font-semibold shadow-[0_4px_10px_-2px_rgba(198,154,63,0.7)]"
                       : isDisabled(day)
                         ? "text-[#d0d7e3] cursor-not-allowed"
                         : isToday(day)

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import {
   User as UserIcon,
   Shield,
@@ -41,7 +41,7 @@ import {
 import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
 
-const API_URL = "http://localhost:8000";
+
 
 type TabKey =
   | "personal"

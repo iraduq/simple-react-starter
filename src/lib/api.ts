@@ -1,4 +1,7 @@
-const API_URL = "http://localhost:8000";
+/** URL-ul backendului — centralizat aici pentru toată aplicația. */
+export const API_URL =
+  (import.meta.env["VITE_API_URL"] as string | undefined) ??
+  "https://backend-licenta-i0lr.onrender.com";
 
 /* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
 let refreshPromise: Promise<boolean> | null = null;

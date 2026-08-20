@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Send, AlertCircle } from "lucide-react";
 import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
-import Footer from "../components/Footer";
 
 const IconPin = () => (
   <svg
@@ -322,7 +321,6 @@ export default function Contact() {
       {/* Linie subtilă jos, înainte de footer */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-light)]" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--navy)]" />
-      <Footer />
     </section>
   );
 }

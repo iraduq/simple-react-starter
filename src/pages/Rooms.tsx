@@ -1,6 +1,6 @@
+import { Link } from "@/lib/router-compat";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Users, Maximize, BedDouble, Save as Waves, Wifi, Coffee, Bath, Star, ImageOff } from "lucide-react";
-import Footer from "../components/Footer";
 import { apiFetch } from "../lib/api";
 
 type RoomImage = { id: number | string; url?: string; image_url?: string };
@@ -408,8 +408,8 @@ export default function Rooms() {
                         </span>
                       </div>
 
-                      <a
-                        href="#rezerva"
+                      <Link
+                        to={`/camere/${room.id}`}
                         className="group/cta inline-flex items-center gap-[18px] text-[#0d2c5c] text-xs tracking-[0.25em] uppercase no-underline"
                       >
                         <span>Rezervă acum</span>
@@ -419,7 +419,7 @@ export default function Rooms() {
                         >
                           →
                         </span>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </article>
@@ -428,8 +428,6 @@ export default function Rooms() {
           )}
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

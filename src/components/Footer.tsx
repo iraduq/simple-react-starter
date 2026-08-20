@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { MapPin, Phone, Mail, Clock, ChevronUp, Star } from "lucide-react";
 
 export default function Footer() {
@@ -81,8 +81,7 @@ export default function Footer() {
               {[
                 { to: "/", label: "Acasă" },
                 { to: "/camere", label: "Camere" },
-                { to: "/oferte", label: "Oferte" },
-                { to: "/restaurant", label: "Restaurant" },
+                { to: "/places", label: "Locații" },
                 { to: "/evenimente-private", label: "Evenimente" },
                 { to: "/contact", label: "Contact" },
               ].map((item) => (
