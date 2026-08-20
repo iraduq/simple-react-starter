@@ -141,6 +141,7 @@ export default function Hero() {
 
           <button
             type="button"
+            onClick={handleSearch}
             className="inline-flex items-center justify-center gap-2 bg-[#c69a3f] text-white border-none rounded-xl md:rounded-[10px] px-7 py-4 md:py-0 font-sans text-[13px] font-semibold tracking-wide whitespace-nowrap shrink-0 md:mx-2 md:my-2 w-full md:w-auto transition-all duration-200 hover:bg-[#b8882e]"
           >
             <Search size={15} />
