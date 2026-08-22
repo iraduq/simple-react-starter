@@ -1,5 +1,9 @@
 import { API_URL } from "./config";
-
+import {
+  getAccessToken,
+  clearAccessToken,
+  saveTokensFrom,
+} from "./token";
 
 /* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
 let refreshPromise: Promise<boolean> | null = null;
@@ -17,8 +21,15 @@ function doRefresh(): Promise<boolean> {
       const r = await fetch(`${API_URL}/auth/refresh`, {
         method: "POST",
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
       });
-      return r.ok;
+      if (!r.ok) return false;
+      try {
+        saveTokensFrom(await r.json());
+      } catch {
+        /* refresh doar pe cookie */
+      }
+      return true;
     } catch {
       return false;
     } finally {
@@ -37,13 +48,36 @@ type RequestOptions = {
   _retry?: boolean;
 };
 
+const AUTH_BYPASS = [
+  "/auth/login",
+  "/auth/refresh",
+  "/auth/register",
+  "/auth/google",
+  "/auth/verify-email",
+  "/auth/resend-code",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+];
+
 export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+  const headers: Record<string, string> = {
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...options.headers,
+  };
+
+  const token = getAccessToken();
+  if (token && !headers.Authorization) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     method: options.method || "GET",
-    headers: { "Content-Type": "application/json", ...options.headers },
+    headers,
     body: options.body,
     credentials: "include",
     signal: options.signal,
@@ -52,24 +86,27 @@ export async function apiFetch<T>(
   if (res.status !== 401) {
     if (!res.ok) throw await extractError(res);
     if (res.status === 204) return undefined as T;
-    return (await res.json()) as T;
+    const data = (await res.json().catch(() => undefined)) as T;
+    if (path.startsWith("/auth/")) saveTokensFrom(data);
+    return data;
   }
 
-  // 401 received
+  // 401 — nu încercăm refresh pe rutele de autentificare de bază
+  if (AUTH_BYPASS.includes(path)) throw await extractError(res);
+
   if (options._retry) {
-    // Already retried — refresh token is also invalid
+    clearAccessToken();
     if (onSessionExpired) onSessionExpired();
-    throw new ApiError("Session expired", 401);
+    throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
 
-  // Attempt silent refresh (all concurrent 401s share the same promise)
   const refreshed = await doRefresh();
   if (!refreshed) {
+    clearAccessToken();
     if (onSessionExpired) onSessionExpired();
-    throw new ApiError("Session expired", 401);
+    throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
 
-  // Retry original request with _retry flag
   return apiFetch<T>(path, { ...options, _retry: true });
 }
 
@@ -78,11 +115,10 @@ async function extractError(res: Response): Promise<ApiError> {
   try {
     const data = await res.json();
     if (data?.detail) {
-      if (typeof data.detail === "string") {
-        message = data.detail;
-      } else if (data.detail?.message) {
-        message = data.detail.message;
-      }
+      if (typeof data.detail === "string") message = data.detail;
+      else if (data.detail?.message) message = data.detail.message;
+    } else if (typeof data?.message === "string") {
+      message = data.message;
     }
   } catch {
     // ignore
