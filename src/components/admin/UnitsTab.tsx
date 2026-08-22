@@ -172,25 +172,25 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   ).length;
 
   return (
-    <div className="rounded-xl border border-[#e1e8f0] bg-white p-4">
+    <div className="rounded-xl border border-[#e5e5e5] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
           onClick={prev}
-          className="rounded-lg p-1.5 text-[#4f6280] transition-colors hover:bg-[#f4f7fb] hover:text-[#0d2c5c]"
+          className="rounded-lg p-1.5 text-[#525252] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
         >
           <ChevronLeft size={15} />
         </button>
-        <p className="text-[13px] font-semibold text-[#0d2c5c]">
+        <p className="text-[13px] font-semibold text-[#111111]">
           {MONTHS[month]} {year}
-          <span className="ml-2 text-[11px] font-normal text-[#8595aa]">
+          <span className="ml-2 text-[11px] font-normal text-[#8a8a8a]">
             {busyDays} zile ocupate
           </span>
         </p>
         <button
           type="button"
           onClick={next}
-          className="rounded-lg p-1.5 text-[#4f6280] transition-colors hover:bg-[#f4f7fb] hover:text-[#0d2c5c]"
+          className="rounded-lg p-1.5 text-[#525252] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
         >
           <ChevronRight size={15} />
         </button>
@@ -200,7 +200,7 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         {DAYS_SHORT.map((d) => (
           <span
             key={d}
-            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#8595aa]"
+            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#8a8a8a]"
           >
             {d}
           </span>
@@ -230,13 +230,13 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
               className={`flex h-8 items-center justify-center rounded-lg text-[12px] ${
                 b
                   ? b.status === "pending"
-                    ? "bg-[#fdf3dc] font-semibold text-[#8a6d2f]"
-                    : "bg-[#fde8e8] font-semibold text-[#b42318]"
+                    ? "bg-[#ededed] font-semibold text-[#404040]"
+                    : "bg-[#262626] font-semibold text-[#ffffff]"
                   : out
-                    ? "bg-[#fff4ec] font-semibold text-[#c2410c] ring-1 ring-[#fbd3b4]"
+                    ? "bg-[#f5f5f5] font-semibold text-[#525252] ring-1 ring-[#d4d4d4]"
                     : iso === todayIso
-                      ? "font-bold text-[#0d2c5c] ring-1 ring-[#c69a3f]"
-                      : "text-[#4f6280]"
+                      ? "font-bold text-[#111111] ring-1 ring-[#737373]"
+                      : "text-[#525252]"
               }`}
             >
               {d}
@@ -245,19 +245,19 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         })}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#6b7c99]">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#6b6b6b]">
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#fde8e8]" /> Ocupată (noapte)
+          <span className="h-3 w-3 rounded bg-[#262626]" /> Ocupată (noapte)
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#fdf3dc]" /> În așteptare
+          <span className="h-3 w-3 rounded bg-[#ededed]" /> În așteptare
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#fff4ec] ring-1 ring-[#fbd3b4]" />{" "}
+          <span className="h-3 w-3 rounded bg-[#f5f5f5] ring-1 ring-[#d4d4d4]" />{" "}
           Plecare / eliberare
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded ring-1 ring-[#c69a3f]" /> Azi
+          <span className="h-3 w-3 rounded ring-1 ring-[#737373]" /> Azi
         </span>
       </div>
     </div>
@@ -431,16 +431,16 @@ export default function UnitsTab() {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8595aa]">
-            <span className="h-px w-8 bg-[#c69a3f]" /> Inventar
+          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8a8a8a]">
+            <span className="h-px w-8 bg-[#737373]" /> Inventar
           </span>
           <h2
-            className="mt-2 text-[30px] font-semibold text-[#0d2c5c]"
+            className="mt-2 text-[30px] font-semibold text-[#111111]"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Unități fizice
           </h2>
-          <p className="mt-1 text-[13px] text-[#6b7c99]">
+          <p className="mt-1 text-[13px] text-[#6b6b6b]">
             Alege o cameră, vezi statusul fiecărei unități și zilele în care e
             ocupată — cu oaspetele aferent.
           </p>
@@ -451,7 +451,7 @@ export default function UnitsTab() {
               void loadUnits(selectedId);
               void loadBookings(selectedId);
             }}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#f4f7fb]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#e5e5e5] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111111] transition-all hover:bg-[#f5f5f5]"
           >
             <RefreshCw size={13} /> Reîncarcă
           </button>
@@ -468,17 +468,17 @@ export default function UnitsTab() {
       ) : (
         <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
           {/* Room selector */}
-          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-3">
+          <div className="rounded-2xl border border-[#e5e5e5] bg-white p-3">
             <div className="relative mb-3">
               <Search
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8595aa]"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8a8a8a]"
               />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Caută cameră…"
-                className="w-full rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] py-2.5 pl-9 pr-3 text-[13px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
+                className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] py-2.5 pl-9 pr-3 text-[13px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
               />
             </div>
             <div className="max-h-[520px] space-y-1 overflow-y-auto">
@@ -490,15 +490,15 @@ export default function UnitsTab() {
                     onClick={() => setSelectedId(r.id)}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[13px] font-semibold transition-all ${
                       active
-                        ? "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.18)]"
-                        : "text-[#4f6280] hover:bg-[#f4f7fb] hover:text-[#0d2c5c]"
+                        ? "bg-[#111111] text-white shadow-[0_4px_14px_rgba(13,44,92,0.18)]"
+                        : "text-[#525252] hover:bg-[#f5f5f5] hover:text-[#111111]"
                     }`}
                   >
                     <span
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                         active
-                          ? "bg-white/10 text-[#c69a3f]"
-                          : "bg-[#f4f7fb] text-[#0d2c5c]"
+                          ? "bg-white/10 text-[#737373]"
+                          : "bg-[#f5f5f5] text-[#111111]"
                       }`}
                     >
                       <BedDouble size={14} strokeWidth={1.75} />
@@ -511,16 +511,16 @@ export default function UnitsTab() {
           </div>
 
           {/* Units panel */}
-          <div className="rounded-2xl border border-[#e1e8f0] bg-white">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef2f7] px-5 py-4">
+          <div className="rounded-2xl border border-[#e5e5e5] bg-white">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ededed] px-5 py-4">
               <div>
                 <p
-                  className="text-[17px] font-semibold text-[#0d2c5c]"
+                  className="text-[17px] font-semibold text-[#111111]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {selectedRoom ? roomLabel(selectedRoom) : "—"}
                 </p>
-                <p className="text-[12px] text-[#6b7c99]">
+                <p className="text-[12px] text-[#6b6b6b]">
                   {units.length} unități · {activeCount} active ·{" "}
                   {activeBookings.length} rezervări active
                 </p>
@@ -539,12 +539,12 @@ export default function UnitsTab() {
                     if (e.key === "Enter") void addUnit();
                   }}
                   placeholder="Număr unitate — ex: 101"
-                  className="w-full rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
+                  className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
                 />
                 <select
                   value={bedTypeId}
                   onChange={(e) => setBedTypeId(e.target.value)}
-                  className="shrink-0 rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white sm:w-[190px]"
+                  className="shrink-0 rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white sm:w-[190px]"
                 >
                   <option value="">Tip pat (opțional)</option>
                   {bedTypes.map((bt) => (
@@ -556,7 +556,7 @@ export default function UnitsTab() {
                 <button
                   disabled={adding || !unitNumber.trim()}
                   onClick={() => void addUnit()}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0d2c5c] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#123a76] disabled:opacity-50"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#111111] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
                 >
                   <Plus size={14} /> Adaugă unitate
                 </button>
@@ -567,13 +567,13 @@ export default function UnitsTab() {
                   <TableSkeleton />
                 </div>
               ) : units.length === 0 ? (
-                <div className="mt-5 rounded-xl border border-dashed border-[#e1e8f0] bg-[#f9fbfe] py-10 text-center">
+                <div className="mt-5 rounded-xl border border-dashed border-[#e5e5e5] bg-[#fafafa] py-10 text-center">
                   <DoorOpen
                     size={24}
-                    className="mx-auto mb-2 text-[#8595aa]"
+                    className="mx-auto mb-2 text-[#8a8a8a]"
                     strokeWidth={1.5}
                   />
-                  <p className="text-[13px] text-[#6b7c99]">
+                  <p className="text-[13px] text-[#6b6b6b]">
                     Nicio unitate pentru această cameră.
                   </p>
                 </div>
@@ -588,18 +588,18 @@ export default function UnitsTab() {
                     return (
                       <div
                         key={u.id}
-                        className="rounded-xl border border-[#e1e8f0] bg-white"
+                        className="rounded-xl border border-[#e5e5e5] bg-white"
                       >
                         <div
                           onClick={() => setOpenUnit(expanded ? null : uid)}
-                          className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#f9fbfe]"
+                          className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#fafafa]"
                         >
                           <div className="flex items-center gap-3">
-                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f7fb] text-[12px] font-bold text-[#0d2c5c]">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f5f5f5] text-[12px] font-bold text-[#111111]">
                               {i + 1}
                             </span>
                             <div>
-                              <p className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-[#0d2c5c]">
+                              <p className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-[#111111]">
                                 {unitLabel(u, i)}
                                 <Badge tone={statusTone(u.status)}>
                                   {statusLabel(u.status)}
@@ -610,7 +610,7 @@ export default function UnitsTab() {
                                   <Badge tone="green">Liberă acum</Badge>
                                 )}
                               </p>
-                              <p className="text-[12px] text-[#6b7c99]">
+                              <p className="text-[12px] text-[#6b6b6b]">
                                 {u.bed_type?.name
                                   ? `${u.bed_type.name} · `
                                   : ""}
@@ -631,7 +631,7 @@ export default function UnitsTab() {
                               onChange={(e) =>
                                 void changeStatus(u, e.target.value)
                               }
-                              className="rounded-full border border-[#e1e8f0] bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#0d2c5c] outline-none"
+                              className="rounded-full border border-[#e5e5e5] bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#111111] outline-none"
                             >
                               {STATUSES.map((s) => (
                                 <option key={s.value} value={s.value}>
@@ -641,7 +641,7 @@ export default function UnitsTab() {
                             </select>
                             <button
                               onClick={() => setOpenUnit(expanded ? null : uid)}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#f4f7fb]"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-[#e5e5e5] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#111111] transition-all hover:bg-[#f5f5f5]"
                             >
                               <CalendarDays size={12} /> Ocupare ({ub.length})
                               <ChevronDown
@@ -652,7 +652,7 @@ export default function UnitsTab() {
                             <button
                               onClick={() => void removeUnit(u)}
                               title="Șterge unitatea"
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 text-red-600 transition-all hover:bg-red-50"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#111111] text-[#111111] transition-all hover:bg-[#111111] hover:text-white"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -660,9 +660,9 @@ export default function UnitsTab() {
                         </div>
 
                         {expanded && (
-                          <div className="border-t border-[#eef2f7] bg-[#f9fbfe] px-4 py-4">
+                          <div className="border-t border-[#ededed] bg-[#fafafa] px-4 py-4">
                             <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_330px]">
-                              <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e1e8f0] bg-white p-4 sm:grid-cols-3">
+                              <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e5e5e5] bg-white p-4 sm:grid-cols-3">
                                 {[
                                   { l: "Unitate", v: unitLabel(u, i) },
                                   { l: "ID", v: uid.slice(0, 8) },
@@ -705,10 +705,10 @@ export default function UnitsTab() {
                                   },
                                 ].map((f) => (
                                   <div key={f.l}>
-                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8595aa]">
+                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
                                       {f.l}
                                     </p>
-                                    <p className="mt-0.5 text-[13px] font-medium text-[#0d2c5c]">
+                                    <p className="mt-0.5 text-[13px] font-medium text-[#111111]">
                                       {f.v}
                                     </p>
                                   </div>
@@ -717,13 +717,13 @@ export default function UnitsTab() {
                               <UnitCalendar bookings={ub} />
                             </div>
 
-                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8595aa]">
+                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">
                               Rezervări pe această unitate
                             </p>
                             {bookingsLoading ? (
                               <TableSkeleton />
                             ) : ub.length === 0 ? (
-                              <p className="text-[13px] text-[#6b7c99]">
+                              <p className="text-[13px] text-[#6b6b6b]">
                                 Nicio rezervare atribuită acestei unități.
                               </p>
                             ) : (
@@ -731,17 +731,17 @@ export default function UnitsTab() {
                                 {ub.map((b) => (
                                   <div
                                     key={b.id}
-                                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e1e8f0] bg-white px-4 py-3"
+                                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e5e5e5] bg-white px-4 py-3"
                                   >
                                     <div className="flex items-center gap-3">
-                                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f4f7fb] text-[#0d2c5c]">
+                                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f5f5f5] text-[#111111]">
                                         <User size={13} />
                                       </span>
                                       <div>
-                                        <p className="text-[13px] font-semibold text-[#0d2c5c]">
+                                        <p className="text-[13px] font-semibold text-[#111111]">
                                           {guestOf(b)}
                                         </p>
-                                        <p className="text-[12px] text-[#6b7c99]">
+                                        <p className="text-[12px] text-[#6b6b6b]">
                                           {dateFmt(b.check_in)} →{" "}
                                           {dateFmt(b.check_out)} ·{" "}
                                           {nights(b.check_in, b.check_out)}{" "}
@@ -753,7 +753,7 @@ export default function UnitsTab() {
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                      <span className="text-[13px] font-semibold text-[#0d2c5c]">
+                                      <span className="text-[13px] font-semibold text-[#111111]">
                                         {money(b.total_price)}
                                       </span>
                                       <Badge tone={bookingTone(b.status)}>
@@ -776,21 +776,21 @@ export default function UnitsTab() {
               )}
 
               {unassigned.length > 0 && (
-                <div className="mt-6 rounded-xl border border-[#f2e3c2] bg-[#fffaf0] px-4 py-4">
-                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#8a6d2f] mb-3">
+                <div className="mt-6 rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-4">
+                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#404040] mb-3">
                     Rezervări fără unitate atribuită ({unassigned.length})
                   </p>
                   <div className="space-y-2">
                     {unassigned.map((b) => (
                       <div
                         key={b.id}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white px-4 py-3 border border-[#f2e3c2]"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white px-4 py-3 border border-[#e5e5e5]"
                       >
                         <div>
-                          <span className="text-[13px] font-semibold text-[#0d2c5c] block">
+                          <span className="text-[13px] font-semibold text-[#111111] block">
                             {guestOf(b)}
                           </span>
-                          <span className="text-[12px] text-[#6b7c99]">
+                          <span className="text-[12px] text-[#6b6b6b]">
                             {dateFmt(b.check_in)} → {dateFmt(b.check_out)}
                           </span>
                         </div>
@@ -817,7 +817,7 @@ export default function UnitsTab() {
                               }
                             }}
                             defaultValue=""
-                            className="rounded-lg border border-[#e1e8f0] bg-[#f7f9fc] px-3 py-1.5 text-[11px] font-bold text-[#0d2c5c] outline-none"
+                            className="rounded-lg border border-[#e5e5e5] bg-[#fafafa] px-3 py-1.5 text-[11px] font-bold text-[#111111] outline-none"
                           >
                             <option value="" disabled>
                               Atribuie unitate...

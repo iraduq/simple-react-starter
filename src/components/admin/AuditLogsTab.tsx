@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronUp, ChevronDown, Search } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -7,7 +7,9 @@ import {
   Badge,
   TableSkeleton,
   EmptyState,
-  inputCls,
+  SearchBox,
+  Pagination,
+  usePaged,
 } from "./ui";
 import { get, list, dateTimeFmt, errMsg, type AuditLog } from "../../lib/admin";
 import { useToast } from "../Toast";
@@ -66,6 +68,8 @@ export default function AuditLogsTab() {
     return result;
   }, [logs, sortKey, sortDir, search]);
 
+  const paged = usePaged(sorted, 15);
+
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -101,17 +105,14 @@ export default function AuditLogsTab() {
         }
       />
 
-      <Card className="mb-4 p-4">
-        <div className="relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8595aa]" />
-          <input
-            className={`${inputCls} pl-10`}
-            placeholder="Caută după utilizator, acțiune, resursă, IP…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </Card>
+      <div className="mb-4">
+        <SearchBox
+          value={search}
+          onChange={setSearch}
+          placeholder="Caută după utilizator, acțiune, resursă, IP…"
+          className="sm:max-w-md"
+        />
+      </div>
 
       <Card>
         {loading ? (
@@ -122,51 +123,58 @@ export default function AuditLogsTab() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("timestamp")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
+                    <button onClick={() => toggleSort("timestamp")} className="flex items-center gap-1 hover:text-[#111111]">
                       Timestamp <SortIcon col="timestamp" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("user")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
+                    <button onClick={() => toggleSort("user")} className="flex items-center gap-1 hover:text-[#111111]">
                       Utilizator <SortIcon col="user" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("action")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
+                    <button onClick={() => toggleSort("action")} className="flex items-center gap-1 hover:text-[#111111]">
                       Acțiune <SortIcon col="action" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("resource")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
+                    <button onClick={() => toggleSort("resource")} className="flex items-center gap-1 hover:text-[#111111]">
                       Resursă <SortIcon col="resource" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("ip")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
+                    <button onClick={() => toggleSort("ip")} className="flex items-center gap-1 hover:text-[#111111]">
                       IP <SortIcon col="ip" />
                     </button>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((log) => (
-                  <tr key={log.id} className="border-b border-[#f4f6f9] last:border-0">
-                    <td className="px-5 py-3.5 text-[12.5px] text-[#4f6280]">{dateTimeFmt(log.timestamp || log.created_at)}</td>
-                    <td className="px-5 py-3.5 font-semibold text-[#0d2c5c]">{log.user_email || `#${log.user_id}` || "—"}</td>
+                {paged.slice.map((log) => (
+                  <tr key={log.id} className="border-b border-[#f5f5f5] last:border-0">
+                    <td className="px-5 py-3.5 text-[12.5px] text-[#525252]">{dateTimeFmt(log.timestamp || log.created_at)}</td>
+                    <td className="px-5 py-3.5 font-semibold text-[#111111]">{log.user_email || `#${log.user_id}` || "—"}</td>
                     <td className="px-5 py-3.5">
                       <Badge tone={actionTone(log.action)}>{log.action || "—"}</Badge>
                     </td>
-                    <td className="px-5 py-3.5 text-[#4f6280]">
+                    <td className="px-5 py-3.5 text-[#525252]">
                       {log.resource || log.resource_type || "—"}
-                      {log.resource_id && <span className="ml-1 text-[12px] text-[#8595aa]">#{log.resource_id}</span>}
+                      {log.resource_id && <span className="ml-1 text-[12px] text-[#8a8a8a]">#{log.resource_id}</span>}
                     </td>
-                    <td className="px-5 py-3.5 text-[12.5px] text-[#6b7c99]">{log.ip_address || log.ip || "—"}</td>
+                    <td className="px-5 py-3.5 text-[12.5px] text-[#6b6b6b]">{log.ip_address || log.ip || "—"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
           </div>
         )}
       </Card>

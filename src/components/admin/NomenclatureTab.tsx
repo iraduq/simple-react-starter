@@ -22,7 +22,9 @@ import {
 } from "lucide-react";
 import {
   Card,
-  SectionHeader,
+  SearchBox,
+  Pagination,
+  usePaged,
   Button,
   TableSkeleton,
   EmptyState,
@@ -60,16 +62,16 @@ const ICON_MAP: Record<string, { label: string; icon: LucideIcon }> = {
 };
 
 function DynamicIcon({ name }: { name?: string | null }) {
-  if (!name) return <span className="text-[#8595aa]">—</span>;
+  if (!name) return <span className="text-[#8a8a8a]">—</span>;
   const key = name.toLowerCase().trim();
   const entry = ICON_MAP[key];
   if (!entry)
-    return <span className="font-mono text-xs text-[#8595aa]">{name}</span>;
+    return <span className="font-mono text-xs text-[#8a8a8a]">{name}</span>;
   const IconComp = entry.icon;
   return (
-    <div className="flex items-center gap-1.5 text-[#0d2c5c]">
-      <IconComp size={16} className="text-[#c69a3f]" />
-      <span className="text-xs text-[#4f6280]">{entry.label}</span>
+    <div className="flex items-center gap-1.5 text-[#111111]">
+      <IconComp size={16} className="text-[#737373]" />
+      <span className="text-xs text-[#525252]">{entry.label}</span>
     </div>
   );
 }
@@ -102,31 +104,31 @@ function IconPicker({
           <div className="flex items-center gap-2">
             {(() => {
               const Comp = ICON_MAP[value].icon;
-              return <Comp size={16} className="text-[#c69a3f]" />;
+              return <Comp size={16} className="text-[#737373]" />;
             })()}
-            <span className="text-sm text-[#0d2c5c]">
+            <span className="text-sm text-[#111111]">
               {ICON_MAP[value].label}
             </span>
-            <span className="font-mono text-[11px] text-[#8595aa]">
+            <span className="font-mono text-[11px] text-[#8a8a8a]">
               ({value})
             </span>
           </div>
         ) : (
-          <span className="text-sm text-[#8595aa]">Alege o iconiță...</span>
+          <span className="text-sm text-[#8a8a8a]">Alege o iconiță...</span>
         )}
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-xl">
-          <div className="border-b border-[#e1e8f0] p-2">
-            <div className="flex items-center gap-2 rounded-lg bg-[#f4f7fb] px-2 py-1">
-              <Search size={14} className="text-[#8595aa]" />
+        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-xl">
+          <div className="border-b border-[#e5e5e5] p-2">
+            <div className="flex items-center gap-2 rounded-lg bg-[#f5f5f5] px-2 py-1">
+              <Search size={14} className="text-[#8a8a8a]" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Caută iconiță..."
-                className="w-full bg-transparent text-xs outline-none text-[#0d2c5c]"
+                className="w-full bg-transparent text-xs outline-none text-[#111111]"
               />
             </div>
           </div>
@@ -144,15 +146,15 @@ function IconPicker({
                   }}
                   className={`flex items-center justify-between rounded-lg p-2 text-left text-xs transition-colors ${
                     isSelected
-                      ? "bg-[#0d2c5c] text-white"
-                      : "hover:bg-[#f4f7fb] text-[#0d2c5c]"
+                      ? "bg-[#111111] text-white"
+                      : "hover:bg-[#f5f5f5] text-[#111111]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <IconComp
                       size={15}
                       className={
-                        isSelected ? "text-[#c69a3f]" : "text-[#4f6280]"
+                        isSelected ? "text-[#737373]" : "text-[#525252]"
                       }
                     />
                     <span>{item.label}</span>
@@ -203,16 +205,16 @@ export default function NomenclatureTab() {
 
   return (
     <div>
-      <SectionHeader eyebrow={section.eyebrow} title="Nomenclatoare" />
-      <div className="mb-5 inline-flex rounded-xl border border-[#e1e8f0] bg-white p-1">
+      <div className="mb-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-[#e5e5e5] bg-white p-1 sm:w-auto sm:inline-flex">
+
         {SECTIONS.map((s) => (
           <button
             key={s.key}
             onClick={() => setActive(s.key)}
-            className={`rounded-lg px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+            className={`shrink-0 rounded-lg px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors sm:px-4 sm:text-[12px] ${
               active === s.key
-                ? "bg-[#0d2c5c] text-white"
-                : "text-[#4f6280] hover:text-[#0d2c5c]"
+                ? "bg-[#111111] text-white"
+                : "text-[#525252] hover:text-[#111111]"
             }`}
           >
             {s.label}
@@ -246,6 +248,19 @@ function NomenclatureSection({ section }: { section: Section }) {
   });
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return items;
+    return items.filter((it) =>
+      [it.name, it.description, it.icon]
+        .filter(Boolean)
+        .some((f: string) => String(f).toLowerCase().includes(q)),
+    );
+  }, [items, query]);
+
+  const paged = usePaged(filtered, 10);
 
   const load = async () => {
     setLoading(true);
@@ -339,7 +354,8 @@ function NomenclatureSection({ section }: { section: Section }) {
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SearchBox value={query} onChange={setQuery} placeholder="Caută în nomenclator…" />
         <Button variant="gold" size="sm" onClick={openCreate}>
           <Plus size={14} /> Adaugă
         </Button>
@@ -348,7 +364,7 @@ function NomenclatureSection({ section }: { section: Section }) {
       <Card>
         {loading ? (
           <TableSkeleton rows={4} />
-        ) : items.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <EmptyState
             title="Niciun element"
             hint="Adaugă primul element în acest nomenclator."
@@ -357,7 +373,7 @@ function NomenclatureSection({ section }: { section: Section }) {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[520px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
                   <th className="px-5 py-3 font-bold">Nume</th>
                   {section.key === "facilities" && (
                     <th className="px-5 py-3 font-bold">Icon</th>
@@ -375,12 +391,12 @@ function NomenclatureSection({ section }: { section: Section }) {
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => (
+                {paged.slice.map((item) => (
                   <tr
                     key={item.id}
-                    className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#fafbfd]"
+                    className="border-b border-[#f5f5f5] last:border-0 hover:bg-[#fafafa]"
                   >
-                    <td className="px-5 py-3.5 font-semibold text-[#0d2c5c]">
+                    <td className="px-5 py-3.5 font-semibold text-[#111111]">
                       {item.name}
                     </td>
 
@@ -391,19 +407,19 @@ function NomenclatureSection({ section }: { section: Section }) {
                     )}
 
                     {section.key === "room-types" && (
-                      <td className="px-5 py-3.5 font-medium text-[#0d2c5c]">
+                      <td className="px-5 py-3.5 font-medium text-[#111111]">
                         {item.base_price} RON
                       </td>
                     )}
 
                     {section.key === "bed-types" && (
-                      <td className="px-5 py-3.5 text-[#4f6280]">
+                      <td className="px-5 py-3.5 text-[#525252]">
                         {item.capacity} pers.
                       </td>
                     )}
 
                     {section.key !== "bed-types" && (
-                      <td className="px-5 py-3.5 text-[#6b7c99]">
+                      <td className="px-5 py-3.5 text-[#6b6b6b]">
                         {item.description || "—"}
                       </td>
                     )}
@@ -430,6 +446,13 @@ function NomenclatureSection({ section }: { section: Section }) {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
           </div>
         )}
       </Card>
@@ -520,9 +543,9 @@ function NomenclatureSection({ section }: { section: Section }) {
         title="Șterge element"
         onClose={() => setDeleteTarget(null)}
       >
-        <p className="text-sm text-[#4f6280]">
+        <p className="text-sm text-[#525252]">
           Sigur vrei să ștergi{" "}
-          <strong className="text-[#0d2c5c]">{deleteTarget?.name}</strong>?
+          <strong className="text-[#111111]">{deleteTarget?.name}</strong>?
         </p>
         <div className="mt-5 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>

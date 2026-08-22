@@ -523,7 +523,7 @@ export default function BookingsTab() {
                                       setCancelReason("");
                                       setActiveMenu(null);
                                     }}
-                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-black/5 pt-2"
+                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#111111] hover:bg-[#f5f5f5] transition-colors mt-1 border-t border-black/5 pt-2"
                                   >
                                     <Trash2 size={14} /> Anulează
                                   </button>
@@ -596,7 +596,7 @@ export default function BookingsTab() {
             <button
               disabled={busy === `${cancelTarget?.id}-cancel`}
               onClick={() => void submitCancel()}
-              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-red-700 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-full bg-[#111111] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#000000] disabled:opacity-60"
             >
               Confirmă anularea
             </button>
@@ -621,7 +621,7 @@ export default function BookingsTab() {
                 onChange={(e) => setForm({ ...form, check_in: e.target.value })}
               />
               {formErr.check_in && (
-                <span className="text-[11px] text-red-500 mt-1">
+                <span className="text-[11px] text-[#111111] mt-1">
                   {formErr.check_in}
                 </span>
               )}
@@ -636,7 +636,7 @@ export default function BookingsTab() {
                 }
               />
               {formErr.check_out && (
-                <span className="text-[11px] text-red-500 mt-1">
+                <span className="text-[11px] text-[#111111] mt-1">
                   {formErr.check_out}
                 </span>
               )}
@@ -652,7 +652,7 @@ export default function BookingsTab() {
                 }
               />
               {formErr.guests && (
-                <span className="text-[11px] text-red-500 mt-1">
+                <span className="text-[11px] text-[#111111] mt-1">
                   {formErr.guests}
                 </span>
               )}

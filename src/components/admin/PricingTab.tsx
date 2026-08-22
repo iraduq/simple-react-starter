@@ -237,56 +237,56 @@ export default function PricingTab() {
             </Field>
           </Card>
 
-          <Card className="p-5">
-            <div className="mb-4 flex items-center justify-between">
+          <Card className="p-3 sm:p-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setMonthOffset((m) => m - 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <h3
-                  className="text-[15px] font-semibold capitalize text-[#0d2c5c]"
+                  className="text-[15px] font-semibold capitalize text-[#111111]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {monthName}
                 </h3>
                 <button
                   onClick={() => setMonthOffset((m) => m + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
                 >
                   <ChevronRight size={16} />
                 </button>
               </div>
-              <div className="flex items-center gap-3 text-[11px] text-[#6b7c99]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-[#6b6b6b] sm:text-[11px]">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#eaf0f9]" /> Preț
+                  <span className="h-3 w-5 rounded bg-[#ededed]" /> Preț
                   standard
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#f4e5c8]/50 border border-[#c69a3f]/50" />{" "}
+                  <span className="h-3 w-5 rounded bg-[#ededed]/50 border border-[#737373]/50" />{" "}
                   Preț custom
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-red-50 border border-red-200" />{" "}
+                  <span className="h-3 w-5 rounded bg-[#111111]" />{" "}
                   Blocat
                 </span>
               </div>
             </div>
 
             {calLoading ? (
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {Array.from({ length: 35 }).map((_, i) => (
                   <Skeleton key={i} className="h-16" />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
                   <div
                     key={d}
-                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b7c99]"
+                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b6b6b]"
                   >
                     {d}
                   </div>
@@ -314,20 +314,20 @@ export default function PricingTab() {
                     <button
                       key={day}
                       onClick={() => openRule(dateStr)}
-                      className={`flex h-[60px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[11px] transition-all hover:scale-[1.03] ${
+                      className={`flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] transition-all hover:scale-[1.03] sm:h-[60px] sm:text-[11px] ${
                         blocked
-                          ? "border-red-200 bg-red-50 text-red-600"
+                          ? "border-[#111111] bg-[#111111] text-white"
                           : isCustom
-                            ? "border-[#c69a3f]/50 bg-[#f4e5c8]/50 text-[#0d2c5c]"
-                            : "border-[#e1e8f0] bg-[#eaf0f9] text-[#4f6280] hover:border-[#0d2c5c]"
+                            ? "border-[#737373]/50 bg-[#ededed]/50 text-[#111111]"
+                            : "border-[#e5e5e5] bg-[#ededed] text-[#525252] hover:border-[#111111]"
                       }`}
                     >
                       <span className="font-bold leading-none">{day}</span>
                       {blocked ? (
-                        <Lock size={11} className="text-red-400" />
+                        <Lock size={11} className="text-white/70" />
                       ) : (
                         <span
-                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#8a6413]" : "text-[#8595aa]"}`}
+                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#404040]" : "text-[#8a8a8a]"}`}
                         >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
@@ -397,9 +397,9 @@ export default function PricingTab() {
               onChange={(e) =>
                 setRule({ ...rule, is_blocked: e.target.checked })
               }
-              className="h-4 w-4 accent-red-600"
+              className="h-4 w-4 accent-[#111111]"
             />
-            <span className="text-sm text-[#0d2c5c]">
+            <span className="text-sm text-[#111111]">
               Blochează perioada (mentenanță)
             </span>
           </label>

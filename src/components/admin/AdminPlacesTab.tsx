@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus,
   Pencil,
@@ -18,6 +18,9 @@ import {
   Modal,
   Field,
   inputCls,
+  SearchBox,
+  Pagination,
+  usePaged,
 } from "./ui";
 import {
   get,
@@ -61,6 +64,19 @@ export default function AdminPlacesTab() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
   const [mediaPlace, setMediaPlace] = useState<any | null>(null);
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return places;
+    return places.filter((p) =>
+      [p.title, p.name, p.category, p.badge, p.desc, p.description]
+        .filter(Boolean)
+        .some((f: string) => String(f).toLowerCase().includes(q)),
+    );
+  }, [places, query]);
+
+  const paged = usePaged(filtered, 10);
 
   const load = async () => {
     setLoading(true);
@@ -181,10 +197,14 @@ export default function AdminPlacesTab() {
         }
       />
 
+      <div className="mb-4">
+        <SearchBox value={query} onChange={setQuery} placeholder="Caută locație, categorie…" />
+      </div>
+
       <Card>
         {loading ? (
           <TableSkeleton rows={5} />
-        ) : places.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <EmptyState
             title="Nicio locație"
             hint="Adaugă atracții turistice din zonă pentru a le recomanda oaspeților."
@@ -193,7 +213,7 @@ export default function AdminPlacesTab() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
                   <th className="px-5 py-3 font-bold">Nume & Categorie</th>
                   <th className="px-5 py-3 font-bold">Badge</th>
                   <th className="px-5 py-3 font-bold">Rating</th>
@@ -202,10 +222,10 @@ export default function AdminPlacesTab() {
                 </tr>
               </thead>
               <tbody>
-                {places.map((p) => (
+                {paged.slice.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#f9fafc] transition-colors"
+                    className="border-b border-[#f5f5f5] last:border-0 hover:bg-[#fafafa] transition-colors"
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
@@ -213,18 +233,18 @@ export default function AdminPlacesTab() {
                           <img
                             src={p.thumb || p.image_url}
                             alt=""
-                            className="h-10 w-10 rounded-lg object-cover border border-[#e1e8f0]"
+                            className="h-10 w-10 rounded-lg object-cover border border-[#e5e5e5]"
                           />
                         ) : (
-                          <div className="h-10 w-10 rounded-lg bg-[#eef2f7] flex items-center justify-center text-[#8595aa]">
+                          <div className="h-10 w-10 rounded-lg bg-[#ededed] flex items-center justify-center text-[#8a8a8a]">
                             <ImageIcon size={18} />
                           </div>
                         )}
                         <div>
-                          <span className="block font-semibold text-[#0d2c5c]">
+                          <span className="block font-semibold text-[#111111]">
                             {p.title || p.name}
                           </span>
-                          <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#c69a3f]">
+                          <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#737373]">
                             {p.category}
                           </span>
                         </div>
@@ -234,21 +254,21 @@ export default function AdminPlacesTab() {
                       {p.badge ? (
                         <Badge tone="gold">{p.badge}</Badge>
                       ) : (
-                        <span className="text-[#8595aa]">—</span>
+                        <span className="text-[#8a8a8a]">—</span>
                       )}
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="flex items-center gap-1 font-semibold text-[#0d2c5c]">
+                      <span className="flex items-center gap-1 font-semibold text-[#111111]">
                         <Star
                           size={13}
-                          className="text-[#c69a3f] fill-[#c69a3f]"
+                          className="text-[#737373] fill-[#737373]"
                         />
                         {Number(p.rating || 0).toFixed(1)}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-[12px] text-[#6b7c99]">
+                    <td className="px-5 py-3.5 text-[12px] text-[#6b6b6b]">
                       <span className="flex items-center gap-1">
-                        <MapPin size={12} className="text-[#c69a3f]" />
+                        <MapPin size={12} className="text-[#737373]" />
                         {p.lat != null ? `${p.lat}, ${p.lng}` : "—"}
                       </span>
                     </td>
@@ -282,6 +302,13 @@ export default function AdminPlacesTab() {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
           </div>
         )}
       </Card>
@@ -380,7 +407,7 @@ export default function AdminPlacesTab() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4">
+        <div className="mt-6 flex justify-end gap-2 border-t border-[#ededed] pt-4">
           <Button variant="ghost" onClick={() => setFormOpen(false)}>
             Renunță
           </Button>
@@ -396,14 +423,14 @@ export default function AdminPlacesTab() {
         title="Șterge atracție"
         onClose={() => setDeleteTarget(null)}
       >
-        <p className="text-sm text-[#4f6280]">
+        <p className="text-sm text-[#525252]">
           Sigur vrei să ștergi{" "}
-          <strong className="text-[#0d2c5c]">
+          <strong className="text-[#111111]">
             {deleteTarget?.title || deleteTarget?.name}
           </strong>
           ? Această acțiune nu poate fi anulată.
         </p>
-        <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4">
+        <div className="mt-6 flex justify-end gap-2 border-t border-[#ededed] pt-4">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
             Anulează
           </Button>
@@ -486,7 +513,7 @@ function PlaceMediaManager({
     >
       <div className="space-y-5">
         {place.img || place.thumb ? (
-          <div className="relative overflow-hidden rounded-xl border border-[#e1e8f0]">
+          <div className="relative overflow-hidden rounded-xl border border-[#e5e5e5]">
             <img
               src={place.img || place.thumb}
               alt={place.title}
@@ -494,7 +521,7 @@ function PlaceMediaManager({
             />
             <button
               onClick={() => void deleteImage()}
-              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-sm transition-all hover:bg-white hover:scale-110"
+              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#111111] shadow-sm transition-all hover:bg-white hover:scale-110"
               title="Șterge imaginea"
             >
               <Trash2 size={15} />
@@ -517,8 +544,8 @@ function PlaceMediaManager({
             onClick={() => fileRef.current?.click()}
             className={`cursor-pointer rounded-xl border-2 border-dashed p-8 flex flex-col items-center justify-center text-center transition-all duration-200 ${
               dragOver
-                ? "border-[#c69a3f] bg-[#f4e5c8]/30 scale-[1.02]"
-                : "border-[#e1e8f0] bg-[#f9fafc] hover:border-[#c69a3f] hover:bg-white"
+                ? "border-[#737373] bg-[#ededed]/30 scale-[1.02]"
+                : "border-[#e5e5e5] bg-[#fafafa] hover:border-[#737373] hover:bg-white"
             }`}
           >
             <input
@@ -532,17 +559,17 @@ function PlaceMediaManager({
                 }
               }}
             />
-            <Upload size={28} className="text-[#c69a3f] mb-3" />
-            <p className="text-[14px] font-semibold text-[#0d2c5c]">
+            <Upload size={28} className="text-[#737373] mb-3" />
+            <p className="text-[14px] font-semibold text-[#111111]">
               {uploading ? "Se încarcă…" : "Click sau trage imaginea aici"}
             </p>
-            <p className="mt-1 text-[12px] text-[#8595aa]">
+            <p className="mt-1 text-[12px] text-[#8a8a8a]">
               JPG / PNG (max 5MB)
             </p>
           </div>
         )}
       </div>
-      <div className="mt-6 flex justify-end pt-4 border-t border-[#eef2f7]">
+      <div className="mt-6 flex justify-end pt-4 border-t border-[#ededed]">
         <Button variant="ghost" onClick={onClose}>
           Închide
         </Button>
