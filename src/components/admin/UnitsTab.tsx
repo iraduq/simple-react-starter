@@ -274,16 +274,8 @@ export default function UnitsTab() {
     }
   };
 
-  const loadBedTypes = async () => {
-    try {
-      const data = await get<unknown>("/rooms/bed-types");
-      const bt = list<Nomenclature>(data);
-      setBedTypes(bt);
-      if (bt.length) setBedTypeId(String(bt[0].id));
-    } catch {
-      /* opțional */
-    }
-  };
+
+
 
   const loadUnits = async (roomId: string | number) => {
     setUnitsLoading(true);
