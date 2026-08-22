@@ -319,6 +319,8 @@ export default function UnitsTab() {
 
   useEffect(() => {
     void loadRooms();
+    void loadBedTypes();
+
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
