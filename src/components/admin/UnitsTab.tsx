@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, DoorOpen, Search, BedDouble, Trash2 } from "lucide-react";
+import {
+  Plus,
+  DoorOpen,
+  Search,
+  BedDouble,
+  Trash2,
+  ChevronDown,
+  CalendarDays,
+  User,
+  RefreshCw,
+} from "lucide-react";
 import { Badge, TableSkeleton, EmptyState } from "./ui";
 import {
   get,
@@ -8,13 +18,79 @@ import {
   del,
   list,
   errMsg,
+  dateFmt,
+  money,
+  nights,
   type Room,
   type RoomUnit,
+  type RoomBooking,
+  type Nomenclature,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
 const roomLabel = (r: Room) =>
   (r.name as string) || (r as any).title || `Cameră #${r.id}`;
+
+const unitLabel = (u: RoomUnit, i: number) =>
+  u.unit_number || u.name || u.code || `Unitate ${i + 1}`;
+
+const STATUSES: { value: string; label: string }[] = [
+  { value: "active", label: "Activă" },
+  { value: "cleaning", label: "Curățenie" },
+  { value: "maintenance", label: "Mentenanță" },
+];
+
+const statusLabel = (s?: string | null) =>
+  STATUSES.find((x) => x.value === s)?.label ||
+  (s === undefined || s === null ? "Activă" : s);
+
+const statusTone = (s?: string | null): "green" | "amber" | "red" =>
+  !s || s === "active" ? "green" : s === "cleaning" ? "amber" : "red";
+
+const bookingTone = (s?: string | null): "green" | "amber" | "red" | "gray" =>
+  s === "confirmed"
+    ? "green"
+    : s === "pending"
+      ? "amber"
+      : s === "cancelled"
+        ? "red"
+        : "gray";
+
+const bookingStatusLabel = (s?: string | null) =>
+  s === "confirmed"
+    ? "Confirmată"
+    : s === "pending"
+      ? "În așteptare"
+      : s === "cancelled"
+        ? "Anulată"
+        : s === "completed"
+          ? "Finalizată"
+          : s || "—";
+
+const guestOf = (b: RoomBooking) => {
+  const full = [b.user?.first_name, b.user?.last_name].filter(Boolean).join(" ");
+  return (
+    b.guest_name ||
+    (full || null) ||
+    b.user?.email ||
+    b.guest_email ||
+    "Oaspete necunoscut"
+  );
+};
+
+const unitIdOf = (b: RoomBooking) =>
+  String(b.unit_id ?? b.room_unit_id ?? b.unit?.id ?? "");
+
+const isOngoing = (b: RoomBooking) => {
+  if (!b.check_in || !b.check_out) return false;
+  const now = Date.now();
+  return (
+    new Date(b.check_in).getTime() <= now && new Date(b.check_out).getTime() > now
+  );
+};
+
+const isUpcoming = (b: RoomBooking) =>
+  !!b.check_in && new Date(b.check_in).getTime() > Date.now();
 
 export default function UnitsTab() {
   const { toast } = useToast();
@@ -23,9 +99,14 @@ export default function UnitsTab() {
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
   const [units, setUnits] = useState<RoomUnit[]>([]);
   const [unitsLoading, setUnitsLoading] = useState(false);
-  const [unitName, setUnitName] = useState("");
+  const [bookings, setBookings] = useState<RoomBooking[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [bedTypes, setBedTypes] = useState<Nomenclature[]>([]);
+  const [unitNumber, setUnitNumber] = useState("");
+  const [bedTypeId, setBedTypeId] = useState<string>("");
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
+  const [openUnit, setOpenUnit] = useState<string | null>(null);
 
   const loadRooms = async () => {
     setLoading(true);
@@ -38,6 +119,17 @@ export default function UnitsTab() {
       toast(errMsg(e), "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadBedTypes = async () => {
+    try {
+      const data = await get<unknown>("/rooms/bed-types");
+      const bt = list<Nomenclature>(data);
+      setBedTypes(bt);
+      if (bt.length) setBedTypeId(String(bt[0].id));
+    } catch {
+      /* opțional */
     }
   };
 
@@ -54,13 +146,30 @@ export default function UnitsTab() {
     }
   };
 
+  const loadBookings = async (roomId: string | number) => {
+    setBookingsLoading(true);
+    try {
+      const data = await get<unknown>(`/rooms/${roomId}/bookings`);
+      setBookings(list<RoomBooking>(data));
+    } catch {
+      setBookings([]);
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
   useEffect(() => {
     void loadRooms();
+    void loadBedTypes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (selectedId !== null) void loadUnits(selectedId);
+    if (selectedId !== null) {
+      setOpenUnit(null);
+      void loadUnits(selectedId);
+      void loadBookings(selectedId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
@@ -75,13 +184,45 @@ export default function UnitsTab() {
     return rooms.filter((r) => roomLabel(r).toLowerCase().includes(q));
   }, [rooms, query]);
 
+  const activeBookings = useMemo(
+    () => bookings.filter((b) => b.status !== "cancelled"),
+    [bookings],
+  );
+
+  const bookingsByUnit = useMemo(() => {
+    const map = new Map<string, RoomBooking[]>();
+    for (const b of activeBookings) {
+      const key = unitIdOf(b) || "__unassigned__";
+      const arr = map.get(key) || [];
+      arr.push(b);
+      map.set(key, arr);
+    }
+    for (const arr of map.values()) {
+      arr.sort(
+        (a, b) =>
+          new Date(a.check_in || 0).getTime() -
+          new Date(b.check_in || 0).getTime(),
+      );
+    }
+    return map;
+  }, [activeBookings]);
+
+  const unassigned = bookingsByUnit.get("__unassigned__") || [];
+
   const addUnit = async () => {
-    if (!selectedId || !unitName.trim()) return;
+    if (!selectedId || !unitNumber.trim()) return;
+    if (!bedTypeId) {
+      toast("Alege tipul de pat pentru unitate.", "error");
+      return;
+    }
     setAdding(true);
     try {
-      await post(`/rooms/${selectedId}/units`, { name: unitName.trim() });
+      await post(`/rooms/${selectedId}/units`, {
+        unit_number: unitNumber.trim(),
+        bed_type_id: Number(bedTypeId),
+      });
       toast("Unitate adăugată.", "success");
-      setUnitName("");
+      setUnitNumber("");
       await loadUnits(selectedId);
     } catch (e) {
       toast(errMsg(e), "error");
@@ -90,17 +231,11 @@ export default function UnitsTab() {
     }
   };
 
-  const toggleUnit = async (u: RoomUnit) => {
+  const changeStatus = async (u: RoomUnit, status: string) => {
     if (!selectedId) return;
-    const newActive = u.is_active === false;
     try {
-      await patch(`/rooms/${selectedId}/units/${u.id}`, {
-        is_active: newActive,
-      });
-      toast(
-        newActive ? "Unitate activată." : "Unitate pusă în mentenanță.",
-        "success",
-      );
+      await patch(`/rooms/${selectedId}/units/${u.id}`, { status });
+      toast(`Status actualizat: ${statusLabel(status)}.`, "success");
       await loadUnits(selectedId);
     } catch (e) {
       toast(errMsg(e), "error");
@@ -118,24 +253,39 @@ export default function UnitsTab() {
     }
   };
 
-  const activeCount = units.filter((u) => u.is_active !== false).length;
+  const activeCount = units.filter(
+    (u) => !u.status || u.status === "active",
+  ).length;
 
   return (
     <div>
-      <div className="mb-6">
-        <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8595aa]">
-          <span className="h-px w-8 bg-[#c69a3f]" /> Inventar
-        </span>
-        <h2
-          className="mt-2 text-[30px] font-semibold text-[#0d2c5c]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Unități fizice
-        </h2>
-        <p className="mt-1 text-[13px] text-[#6b7c99]">
-          Alege o cameră din listă și gestionează unitățile care pot fi
-          rezervate pentru ea.
-        </p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8595aa]">
+            <span className="h-px w-8 bg-[#c69a3f]" /> Inventar
+          </span>
+          <h2
+            className="mt-2 text-[30px] font-semibold text-[#0d2c5c]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Unități fizice
+          </h2>
+          <p className="mt-1 text-[13px] text-[#6b7c99]">
+            Alege o cameră, vezi statusul fiecărei unități și zilele în care e
+            ocupată — cu oaspetele aferent.
+          </p>
+        </div>
+        {selectedId !== null && (
+          <button
+            onClick={() => {
+              void loadUnits(selectedId);
+              void loadBookings(selectedId);
+            }}
+            className="inline-flex items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#f4f7fb]"
+          >
+            <RefreshCw size={13} /> Reîncarcă
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -143,7 +293,7 @@ export default function UnitsTab() {
       ) : rooms.length === 0 ? (
         <EmptyState
           title="Nicio cameră"
-          hint="Adaugă mai întâi camere din tabul „Camere & unități”."
+          hint="Adaugă mai întâi camere din tabul „Camere & foto”."
         />
       ) : (
         <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
@@ -201,7 +351,8 @@ export default function UnitsTab() {
                   {selectedRoom ? roomLabel(selectedRoom) : "—"}
                 </p>
                 <p className="text-[12px] text-[#6b7c99]">
-                  {units.length} unități · {activeCount} active
+                  {units.length} unități · {activeCount} active ·{" "}
+                  {activeBookings.length} rezervări active
                 </p>
               </div>
               <Badge tone={activeCount > 0 ? "green" : "red"}>
@@ -212,16 +363,28 @@ export default function UnitsTab() {
             <div className="px-5 py-5">
               <div className="flex flex-col gap-2 sm:flex-row">
                 <input
-                  value={unitName}
-                  onChange={(e) => setUnitName(e.target.value)}
+                  value={unitNumber}
+                  onChange={(e) => setUnitNumber(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") void addUnit();
                   }}
-                  placeholder="ex: Camera 101 — Etaj 1"
+                  placeholder="Număr unitate — ex: 101"
                   className="w-full rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
                 />
+                <select
+                  value={bedTypeId}
+                  onChange={(e) => setBedTypeId(e.target.value)}
+                  className="rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
+                >
+                  {bedTypes.length === 0 && <option value="">Tip pat…</option>}
+                  {bedTypes.map((b) => (
+                    <option key={b.id} value={String(b.id)}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
                 <button
-                  disabled={adding || !unitName.trim()}
+                  disabled={adding || !unitNumber.trim()}
                   onClick={() => void addUnit()}
                   className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0d2c5c] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#123a76] disabled:opacity-50"
                 >
@@ -246,50 +409,159 @@ export default function UnitsTab() {
                 </div>
               ) : (
                 <div className="mt-5 space-y-2">
-                  {units.map((u, i) => (
-                    <div
-                      key={u.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e1e8f0] bg-white px-4 py-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f7fb] text-[12px] font-bold text-[#0d2c5c]">
-                          {i + 1}
-                        </span>
-                        <div>
-                          <p className="text-[14px] font-semibold text-[#0d2c5c]">
-                            {u.name ||
-                              u.code ||
-                              (u as any).unit_number ||
-                              `Unitate ${i + 1}`}
-                          </p>
-                          <p className="text-[12px] text-[#6b7c99]">
-                            {u.is_active === false
-                              ? "În mentenanță"
-                              : "Activă, gata de oaspeți"}
-                          </p>
+                  {units.map((u, i) => {
+                    const uid = String(u.id);
+                    const ub = bookingsByUnit.get(uid) || [];
+                    const current = ub.find(isOngoing);
+                    const next = ub.find(isUpcoming);
+                    const expanded = openUnit === uid;
+                    return (
+                      <div
+                        key={u.id}
+                        className="rounded-xl border border-[#e1e8f0] bg-white"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f7fb] text-[12px] font-bold text-[#0d2c5c]">
+                              {i + 1}
+                            </span>
+                            <div>
+                              <p className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-[#0d2c5c]">
+                                {unitLabel(u, i)}
+                                <Badge tone={statusTone(u.status)}>
+                                  {statusLabel(u.status)}
+                                </Badge>
+                                {current ? (
+                                  <Badge tone="red">Ocupată acum</Badge>
+                                ) : (
+                                  <Badge tone="green">Liberă acum</Badge>
+                                )}
+                              </p>
+                              <p className="text-[12px] text-[#6b7c99]">
+                                {u.bed_type?.name
+                                  ? `${u.bed_type.name} · `
+                                  : ""}
+                                {current
+                                  ? `${guestOf(current)} · până ${dateFmt(current.check_out)}`
+                                  : next
+                                    ? `Următoarea sosire: ${dateFmt(next.check_in)} — ${guestOf(next)}`
+                                    : "Fără rezervări viitoare"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={u.status || "active"}
+                              onChange={(e) =>
+                                void changeStatus(u, e.target.value)
+                              }
+                              className="rounded-full border border-[#e1e8f0] bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#0d2c5c] outline-none"
+                            >
+                              {STATUSES.map((s) => (
+                                <option key={s.value} value={s.value}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => setOpenUnit(expanded ? null : uid)}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#f4f7fb]"
+                            >
+                              <CalendarDays size={12} /> Ocupare ({ub.length})
+                              <ChevronDown
+                                size={12}
+                                className={expanded ? "rotate-180" : ""}
+                              />
+                            </button>
+                            <button
+                              onClick={() => void removeUnit(u)}
+                              title="Șterge unitatea"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 text-red-600 transition-all hover:bg-red-50"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         </div>
+
+                        {expanded && (
+                          <div className="border-t border-[#eef2f7] bg-[#f9fbfe] px-4 py-4">
+                            {bookingsLoading ? (
+                              <TableSkeleton />
+                            ) : ub.length === 0 ? (
+                              <p className="text-[13px] text-[#6b7c99]">
+                                Nicio rezervare atribuită acestei unități.
+                              </p>
+                            ) : (
+                              <div className="space-y-2">
+                                {ub.map((b) => (
+                                  <div
+                                    key={b.id}
+                                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e1e8f0] bg-white px-4 py-3"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f4f7fb] text-[#0d2c5c]">
+                                        <User size={13} />
+                                      </span>
+                                      <div>
+                                        <p className="text-[13px] font-semibold text-[#0d2c5c]">
+                                          {guestOf(b)}
+                                        </p>
+                                        <p className="text-[12px] text-[#6b7c99]">
+                                          {dateFmt(b.check_in)} →{" "}
+                                          {dateFmt(b.check_out)} ·{" "}
+                                          {nights(b.check_in, b.check_out)} nopți
+                                          {b.booking_code
+                                            ? ` · ${b.booking_code}`
+                                            : ""}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-[13px] font-semibold text-[#0d2c5c]">
+                                        {money(b.total_price)}
+                                      </span>
+                                      <Badge tone={bookingTone(b.status)}>
+                                        {bookingStatusLabel(b.status)}
+                                      </Badge>
+                                      {isOngoing(b) && (
+                                        <Badge tone="red">În desfășurare</Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => void toggleUnit(u)}
-                          className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] transition-all ${
-                            u.is_active === false
-                              ? "border-[#e1e8f0] text-[#0d2c5c] hover:bg-[#f4f7fb]"
-                              : "border-red-200 text-red-600 hover:bg-red-50"
-                          }`}
-                        >
-                          {u.is_active === false ? "Activează" : "Oprește"}
-                        </button>
-                        <button
-                          onClick={() => void removeUnit(u)}
-                          title="Șterge unitatea"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 text-red-600 transition-all hover:bg-red-50"
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {unassigned.length > 0 && (
+                <div className="mt-6 rounded-xl border border-[#f2e3c2] bg-[#fffaf0] px-4 py-4">
+                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#8a6d2f]">
+                    Rezervări fără unitate atribuită ({unassigned.length})
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {unassigned.map((b) => (
+                      <div
+                        key={b.id}
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white px-4 py-2.5"
+                      >
+                        <span className="text-[13px] font-semibold text-[#0d2c5c]">
+                          {guestOf(b)}
+                        </span>
+                        <span className="text-[12px] text-[#6b7c99]">
+                          {dateFmt(b.check_in)} → {dateFmt(b.check_out)}
+                        </span>
+                        <Badge tone={bookingTone(b.status)}>
+                          {bookingStatusLabel(b.status)}
+                        </Badge>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
