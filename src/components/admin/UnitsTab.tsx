@@ -136,6 +136,17 @@ const occupancyMap = (bs: RoomBooking[]) => {
   return map;
 };
 
+/** Hartă zi de plecare (check-out) → rezervarea care se încheie în ziua respectivă. */
+const departureMap = (bs: RoomBooking[]) => {
+  const map = new Map<string, RoomBooking>();
+  for (const b of bs) {
+    if (!b.check_out) continue;
+    map.set(String(b.check_out).slice(0, 10), b);
+  }
+  return map;
+};
+
+
 function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
