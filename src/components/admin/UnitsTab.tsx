@@ -258,6 +258,9 @@ export default function UnitsTab() {
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
   const [openUnit, setOpenUnit] = useState<string | null>(null);
+  const [bedTypes, setBedTypes] = useState<Nomenclature[]>([]);
+  const [bedTypeId, setBedTypeId] = useState<string>("");
+
 
 
   const loadRooms = async () => {
