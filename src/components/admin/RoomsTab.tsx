@@ -9,7 +9,7 @@ import {
   BedDouble,
   Image as ImageIcon,
 } from "lucide-react";
-import { Badge, TableSkeleton, EmptyState, Modal } from "./ui";
+import { Badge, EmptyState, Modal } from "./ui";
 import {
   get,
   post,
