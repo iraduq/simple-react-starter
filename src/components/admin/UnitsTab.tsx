@@ -613,8 +613,68 @@ export default function UnitsTab() {
 
                         {expanded && (
                           <div className="border-t border-[#eef2f7] bg-[#f9fbfe] px-4 py-4">
+                            <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_330px]">
+                              <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e1e8f0] bg-white p-4 sm:grid-cols-3">
+                                {[
+                                  { l: "Unitate", v: unitLabel(u, i) },
+                                  { l: "ID", v: uid.slice(0, 8) },
+                                  {
+                                    l: "Tip pat",
+                                    v: u.bed_type?.name || "—",
+                                  },
+                                  {
+                                    l: "Capacitate",
+                                    v: u.bed_type?.capacity
+                                      ? `${u.bed_type.capacity} pers.`
+                                      : "—",
+                                  },
+                                  { l: "Status", v: statusLabel(u.status) },
+                                  {
+                                    l: "Rezervări active",
+                                    v: String(ub.length),
+                                  },
+                                  {
+                                    l: "Ocupată acum",
+                                    v: current
+                                      ? `${guestOf(current)} → ${dateFmt(current.check_out)}`
+                                      : "Nu",
+                                  },
+                                  {
+                                    l: "Următoarea sosire",
+                                    v: next
+                                      ? `${dateFmt(next.check_in)} — ${guestOf(next)}`
+                                      : "—",
+                                  },
+                                  {
+                                    l: "Nopți rezervate",
+                                    v: String(
+                                      ub.reduce(
+                                        (s, b) =>
+                                          s + nights(b.check_in, b.check_out),
+                                        0,
+                                      ),
+                                    ),
+                                  },
+                                ].map((f) => (
+                                  <div key={f.l}>
+                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8595aa]">
+                                      {f.l}
+                                    </p>
+                                    <p className="mt-0.5 text-[13px] font-medium text-[#0d2c5c]">
+                                      {f.v}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                              <UnitCalendar bookings={ub} />
+                            </div>
+
+                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8595aa]">
+                              Rezervări pe această unitate
+                            </p>
                             {bookingsLoading ? (
                               <TableSkeleton />
+
                             ) : ub.length === 0 ? (
                               <p className="text-[13px] text-[#6b7c99]">
                                 Nicio rezervare atribuită acestei unități.
