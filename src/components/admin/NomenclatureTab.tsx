@@ -67,9 +67,9 @@ function DynamicIcon({ name }: { name?: string | null }) {
     return <span className="font-mono text-xs text-[#8595aa]">{name}</span>;
   const IconComp = entry.icon;
   return (
-    <div className="flex items-center gap-1.5 text-[#0d2c5c]">
-      <IconComp size={16} className="text-[#c69a3f]" />
-      <span className="text-xs text-[#4f6280]">{entry.label}</span>
+    <div className="flex items-center gap-1.5 text-[#111111]">
+      <IconComp size={16} className="text-[#737373]" />
+      <span className="text-xs text-[#525252]">{entry.label}</span>
     </div>
   );
 }
@@ -102,9 +102,9 @@ function IconPicker({
           <div className="flex items-center gap-2">
             {(() => {
               const Comp = ICON_MAP[value].icon;
-              return <Comp size={16} className="text-[#c69a3f]" />;
+              return <Comp size={16} className="text-[#737373]" />;
             })()}
-            <span className="text-sm text-[#0d2c5c]">
+            <span className="text-sm text-[#111111]">
               {ICON_MAP[value].label}
             </span>
             <span className="font-mono text-[11px] text-[#8595aa]">
@@ -117,16 +117,16 @@ function IconPicker({
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-xl">
-          <div className="border-b border-[#e1e8f0] p-2">
-            <div className="flex items-center gap-2 rounded-lg bg-[#f4f7fb] px-2 py-1">
+        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-xl">
+          <div className="border-b border-[#e5e5e5] p-2">
+            <div className="flex items-center gap-2 rounded-lg bg-[#f5f5f5] px-2 py-1">
               <Search size={14} className="text-[#8595aa]" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Caută iconiță..."
-                className="w-full bg-transparent text-xs outline-none text-[#0d2c5c]"
+                className="w-full bg-transparent text-xs outline-none text-[#111111]"
               />
             </div>
           </div>
@@ -144,15 +144,15 @@ function IconPicker({
                   }}
                   className={`flex items-center justify-between rounded-lg p-2 text-left text-xs transition-colors ${
                     isSelected
-                      ? "bg-[#0d2c5c] text-white"
-                      : "hover:bg-[#f4f7fb] text-[#0d2c5c]"
+                      ? "bg-[#111111] text-white"
+                      : "hover:bg-[#f5f5f5] text-[#111111]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <IconComp
                       size={15}
                       className={
-                        isSelected ? "text-[#c69a3f]" : "text-[#4f6280]"
+                        isSelected ? "text-[#737373]" : "text-[#525252]"
                       }
                     />
                     <span>{item.label}</span>
@@ -204,15 +204,15 @@ export default function NomenclatureTab() {
   return (
     <div>
       <SectionHeader eyebrow={section.eyebrow} title="Nomenclatoare" />
-      <div className="mb-5 inline-flex rounded-xl border border-[#e1e8f0] bg-white p-1">
+      <div className="mb-5 inline-flex rounded-xl border border-[#e5e5e5] bg-white p-1">
         {SECTIONS.map((s) => (
           <button
             key={s.key}
             onClick={() => setActive(s.key)}
             className={`rounded-lg px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.12em] transition-colors ${
               active === s.key
-                ? "bg-[#0d2c5c] text-white"
-                : "text-[#4f6280] hover:text-[#0d2c5c]"
+                ? "bg-[#111111] text-white"
+                : "text-[#525252] hover:text-[#111111]"
             }`}
           >
             {s.label}
@@ -357,7 +357,7 @@ function NomenclatureSection({ section }: { section: Section }) {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[520px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
                   <th className="px-5 py-3 font-bold">Nume</th>
                   {section.key === "facilities" && (
                     <th className="px-5 py-3 font-bold">Icon</th>
@@ -378,9 +378,9 @@ function NomenclatureSection({ section }: { section: Section }) {
                 {items.map((item) => (
                   <tr
                     key={item.id}
-                    className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#fafbfd]"
+                    className="border-b border-[#f5f5f5] last:border-0 hover:bg-[#fafafa]"
                   >
-                    <td className="px-5 py-3.5 font-semibold text-[#0d2c5c]">
+                    <td className="px-5 py-3.5 font-semibold text-[#111111]">
                       {item.name}
                     </td>
 
@@ -391,19 +391,19 @@ function NomenclatureSection({ section }: { section: Section }) {
                     )}
 
                     {section.key === "room-types" && (
-                      <td className="px-5 py-3.5 font-medium text-[#0d2c5c]">
+                      <td className="px-5 py-3.5 font-medium text-[#111111]">
                         {item.base_price} RON
                       </td>
                     )}
 
                     {section.key === "bed-types" && (
-                      <td className="px-5 py-3.5 text-[#4f6280]">
+                      <td className="px-5 py-3.5 text-[#525252]">
                         {item.capacity} pers.
                       </td>
                     )}
 
                     {section.key !== "bed-types" && (
-                      <td className="px-5 py-3.5 text-[#6b7c99]">
+                      <td className="px-5 py-3.5 text-[#6b6b6b]">
                         {item.description || "—"}
                       </td>
                     )}
@@ -520,9 +520,9 @@ function NomenclatureSection({ section }: { section: Section }) {
         title="Șterge element"
         onClose={() => setDeleteTarget(null)}
       >
-        <p className="text-sm text-[#4f6280]">
+        <p className="text-sm text-[#525252]">
           Sigur vrei să ștergi{" "}
-          <strong className="text-[#0d2c5c]">{deleteTarget?.name}</strong>?
+          <strong className="text-[#111111]">{deleteTarget?.name}</strong>?
         </p>
         <div className="mt-5 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>

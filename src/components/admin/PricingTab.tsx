@@ -242,30 +242,30 @@ export default function PricingTab() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setMonthOffset((m) => m - 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <h3
-                  className="text-[15px] font-semibold capitalize text-[#0d2c5c]"
+                  className="text-[15px] font-semibold capitalize text-[#111111]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {monthName}
                 </h3>
                 <button
                   onClick={() => setMonthOffset((m) => m + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
                 >
                   <ChevronRight size={16} />
                 </button>
               </div>
-              <div className="flex items-center gap-3 text-[11px] text-[#6b7c99]">
+              <div className="flex items-center gap-3 text-[11px] text-[#6b6b6b]">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#eaf0f9]" /> Preț
+                  <span className="h-3 w-5 rounded bg-[#ededed]" /> Preț
                   standard
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#f4e5c8]/50 border border-[#c69a3f]/50" />{" "}
+                  <span className="h-3 w-5 rounded bg-[#ededed]/50 border border-[#737373]/50" />{" "}
                   Preț custom
                 </span>
                 <span className="flex items-center gap-1.5">
@@ -286,7 +286,7 @@ export default function PricingTab() {
                 {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
                   <div
                     key={d}
-                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b7c99]"
+                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b6b6b]"
                   >
                     {d}
                   </div>
@@ -318,8 +318,8 @@ export default function PricingTab() {
                         blocked
                           ? "border-red-200 bg-red-50 text-red-600"
                           : isCustom
-                            ? "border-[#c69a3f]/50 bg-[#f4e5c8]/50 text-[#0d2c5c]"
-                            : "border-[#e1e8f0] bg-[#eaf0f9] text-[#4f6280] hover:border-[#0d2c5c]"
+                            ? "border-[#737373]/50 bg-[#ededed]/50 text-[#111111]"
+                            : "border-[#e5e5e5] bg-[#ededed] text-[#525252] hover:border-[#111111]"
                       }`}
                     >
                       <span className="font-bold leading-none">{day}</span>
@@ -327,7 +327,7 @@ export default function PricingTab() {
                         <Lock size={11} className="text-red-400" />
                       ) : (
                         <span
-                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#8a6413]" : "text-[#8595aa]"}`}
+                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#404040]" : "text-[#8595aa]"}`}
                         >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
@@ -399,7 +399,7 @@ export default function PricingTab() {
               }
               className="h-4 w-4 accent-red-600"
             />
-            <span className="text-sm text-[#0d2c5c]">
+            <span className="text-sm text-[#111111]">
               Blochează perioada (mentenanță)
             </span>
           </label>

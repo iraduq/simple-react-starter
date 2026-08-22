@@ -97,7 +97,7 @@ export default function UsersTab() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
                   <th className="px-5 py-3 font-bold">Utilizator</th>
                   <th className="px-5 py-3 font-bold">Rol</th>
                   <th className="px-5 py-3 font-bold">Status</th>
@@ -107,12 +107,12 @@ export default function UsersTab() {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-b border-[#f4f6f9] last:border-0">
+                  <tr key={u.id} className="border-b border-[#f5f5f5] last:border-0">
                     <td className="px-5 py-3.5">
-                      <span className="block font-semibold text-[#0d2c5c]">
+                      <span className="block font-semibold text-[#111111]">
                         {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
                       </span>
-                      <span className="text-[12px] text-[#6b7c99]">{u.email}</span>
+                      <span className="text-[12px] text-[#6b6b6b]">{u.email}</span>
                       {u.provider && <span className="ml-2 text-[10px] uppercase text-[#8595aa]">via {u.provider}</span>}
                     </td>
                     <td className="px-5 py-3.5">
@@ -125,7 +125,7 @@ export default function UsersTab() {
                         <Badge tone="green">Activ</Badge>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 text-[12px] text-[#6b7c99]">{dateFmt(u.created_at)}</td>
+                    <td className="px-5 py-3.5 text-[12px] text-[#6b6b6b]">{dateFmt(u.created_at)}</td>
                     <td className="px-5 py-3.5">
                       <div className="flex justify-end gap-2">
                         <Button size="sm" variant="ghost" onClick={() => openEdit(u)}><Pencil size={12} /></Button>
@@ -150,8 +150,8 @@ export default function UsersTab() {
                   onClick={() => setForm({ ...form, role: r })}
                   className={`flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-[12px] font-semibold capitalize transition-colors ${
                     form.role === r
-                      ? "border-[#0d2c5c] bg-[#0d2c5c] text-white"
-                      : "border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]"
+                      ? "border-[#111111] bg-[#111111] text-white"
+                      : "border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
                   }`}
                 >
                   {r === "admin" ? <ShieldCheck size={13} /> : r === "manager" ? <Shield size={13} /> : <ShieldX size={13} />}
@@ -161,8 +161,8 @@ export default function UsersTab() {
             </div>
           </Field>
           <label className="flex items-center gap-3">
-            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 accent-[#0d2c5c]" />
-            <span className="text-sm text-[#0d2c5c]">Cont activ</span>
+            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 accent-[#111111]" />
+            <span className="text-sm text-[#111111]">Cont activ</span>
           </label>
         </div>
         <div className="mt-5 flex justify-end gap-2">
@@ -172,8 +172,8 @@ export default function UsersTab() {
       </Modal>
 
       <Modal open={!!deleteTarget} title="Șterge utilizator" onClose={() => setDeleteTarget(null)}>
-        <p className="text-sm text-[#4f6280]">
-          Sigur vrei să ștergi contul <strong className="text-[#0d2c5c]">{deleteTarget?.email}</strong>? Toate datele asociate vor fi șterse.
+        <p className="text-sm text-[#525252]">
+          Sigur vrei să ștergi contul <strong className="text-[#111111]">{deleteTarget?.email}</strong>? Toate datele asociate vor fi șterse.
         </p>
         <div className="mt-5 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Anulează</Button>

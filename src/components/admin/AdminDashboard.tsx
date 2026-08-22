@@ -147,7 +147,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7f9fc] text-[#8595aa]">
+      <div className="flex min-h-screen items-center justify-center bg-[#fafafa] text-[#8595aa]">
         <div className="animate-pulse text-sm uppercase tracking-[0.2em]">
           Se încarcă dashboard-ul…
         </div>
@@ -168,10 +168,10 @@ export default function AdminDashboard() {
 
   const healthColor =
     health === "online"
-      ? "bg-emerald-500"
+      ? "bg-neutral-1000"
       : health === "offline"
         ? "bg-red-500"
-        : "bg-amber-500";
+        : "bg-neutral-400";
   const healthLabel =
     health === "online"
       ? "Backend online"
@@ -180,23 +180,23 @@ export default function AdminDashboard() {
         : "Se verifică…";
 
   return (
-    <div className="min-h-screen bg-[#f7f9fc]">
+    <div className="min-h-screen bg-[#fafafa]">
       {/* Topbar */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-[#e1e8f0] bg-white/90 px-4 backdrop-blur lg:px-8">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-[#e5e5e5] bg-white/90 px-4 backdrop-blur lg:px-8">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#e1e8f0] text-[#0d2c5c] lg:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#e5e5e5] text-[#111111] lg:hidden"
             aria-label="Deschide meniul"
           >
             <Menu size={17} />
           </button>
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0d2c5c] text-[12px] font-bold text-[#c69a3f]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#111111] text-[12px] font-bold text-[#737373]">
               CE
             </span>
             <span
-              className="text-[18px] font-semibold text-[#0d2c5c]"
+              className="text-[18px] font-semibold text-[#111111]"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Casa Esy · Admin
@@ -205,34 +205,34 @@ export default function AdminDashboard() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="hidden items-center gap-2 rounded-full border border-[#e1e8f0] px-3 py-1.5 text-[11px] font-semibold text-[#4f6280] sm:flex">
+          <span className="hidden items-center gap-2 rounded-full border border-[#e5e5e5] px-3 py-1.5 text-[11px] font-semibold text-[#525252] sm:flex">
             <span className={`h-2 w-2 rounded-full ${healthColor}`} />
             {healthLabel}
           </span>
           <div className="relative" ref={acctRef}>
             <button
               onClick={() => setAcctOpen((v) => !v)}
-              className="flex items-center gap-2 rounded-full border border-[#e1e8f0] py-1.5 pl-1.5 pr-3 transition-all hover:bg-[#f4f7fb]"
+              className="flex items-center gap-2 rounded-full border border-[#e5e5e5] py-1.5 pl-1.5 pr-3 transition-all hover:bg-[#f5f5f5]"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0d2c5c] text-[11px] font-bold text-white">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#111111] text-[11px] font-bold text-white">
                 {initials}
               </span>
-              <span className="hidden text-[12.5px] font-semibold text-[#0d2c5c] sm:block">
+              <span className="hidden text-[12.5px] font-semibold text-[#111111] sm:block">
                 {fullName}
               </span>
               <ChevronDown size={14} className="text-[#8595aa]" />
             </button>
             {acctOpen && (
-              <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white py-1 shadow-xl">
+              <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white py-1 shadow-xl">
                 <button
                   onClick={() => void openSessions()}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#4f6280] hover:bg-[#f4f7fb]"
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
                 >
                   <Monitor size={14} /> Sesiuni active
                 </button>
                 <button
                   onClick={() => void handleLogoutAll()}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#4f6280] hover:bg-[#f4f7fb]"
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
                 >
                   <Shield size={14} /> Ieși de pe toate
                 </button>
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
 
       <div className="flex">
         {/* Sidebar — desktop */}
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 border-r border-[#e1e8f0] bg-white lg:block">
+        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 border-r border-[#e5e5e5] bg-white lg:block">
           <SidebarContent tab={tab} setTab={setTab} />
         </aside>
 
@@ -258,22 +258,22 @@ export default function AdminDashboard() {
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
-              className="absolute inset-0 bg-[#07203f]/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-[#000000]/40 backdrop-blur-sm"
               onClick={() => setSidebarOpen(false)}
             />
-            <aside className="absolute left-0 top-0 h-full w-72 border-r border-[#e1e8f0] bg-white">
-              <div className="flex h-16 items-center justify-between border-b border-[#eef2f7] px-4">
+            <aside className="absolute left-0 top-0 h-full w-72 border-r border-[#e5e5e5] bg-white">
+              <div className="flex h-16 items-center justify-between border-b border-[#ededed] px-4">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0d2c5c] text-[12px] font-bold text-[#c69a3f]">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] text-[12px] font-bold text-[#737373]">
                     CE
                   </span>
-                  <span className="font-['Cormorant_Garamond',serif] text-[18px] font-semibold text-[#0d2c5c]">
+                  <span className="font-['Cormorant_Garamond',serif] text-[18px] font-semibold text-[#111111]">
                     Meniu
                   </span>
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="text-[#6b7c99]"
+                  className="text-[#6b6b6b]"
                 >
                   <X size={18} />
                 </button>
@@ -307,25 +307,25 @@ export default function AdminDashboard() {
 
       {/* Sessions modal */}
       {sessionsOpen && (
-        <div className="fixed inset-0 z-[500] flex items-start justify-center overflow-y-auto bg-[#07203f]/50 p-4 py-10 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-[#e1e8f0] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#eef2f7] px-6 py-4">
+        <div className="fixed inset-0 z-[500] flex items-start justify-center overflow-y-auto bg-[#000000]/50 p-4 py-10 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-[#e5e5e5] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#ededed] px-6 py-4">
               <h3
-                className="text-lg font-semibold text-[#0d2c5c]"
+                className="text-lg font-semibold text-[#111111]"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 Sesiuni active
               </h3>
               <button
                 onClick={() => setSessionsOpen(false)}
-                className="text-[#6b7c99] hover:text-[#0d2c5c]"
+                className="text-[#6b6b6b] hover:text-[#111111]"
               >
                 <X size={18} />
               </button>
             </div>
             <div className="px-6 py-5">
               {sessions.length === 0 ? (
-                <p className="py-8 text-center text-sm text-[#6b7c99]">
+                <p className="py-8 text-center text-sm text-[#6b6b6b]">
                   Nicio sesiune activă.
                 </p>
               ) : (
@@ -333,24 +333,24 @@ export default function AdminDashboard() {
                   {sessions.map((s) => (
                     <div
                       key={s.id}
-                      className="flex items-center justify-between rounded-xl border border-[#e1e8f0] p-4"
+                      className="flex items-center justify-between rounded-xl border border-[#e5e5e5] p-4"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f7fb] text-[#0d2c5c]">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f5f5f5] text-[#111111]">
                           <Monitor size={16} />
                         </span>
                         <div>
-                          <p className="text-[13px] font-semibold text-[#0d2c5c]">
+                          <p className="text-[13px] font-semibold text-[#111111]">
                             {[s.browser_family, s.os_family]
                               .filter(Boolean)
                               .join(" · ") || "Dispozitiv necunoscut"}
                             {s.is_current && (
-                              <span className="ml-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-600">
+                              <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-800">
                                 Această sesiune
                               </span>
                             )}
                           </p>
-                          <p className="text-[11px] text-[#6b7c99]">
+                          <p className="text-[11px] text-[#6b6b6b]">
                             {s.location || "—"} · {s.ip_address || "—"}
                           </p>
                         </div>
@@ -386,15 +386,15 @@ function SidebarContent({
             onClick={() => setTab(item.key)}
             className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13.5px] font-semibold transition-all duration-200 ${
               active
-                ? "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.2)]"
-                : "text-[#4f6280] hover:bg-[#f4f7fb] hover:text-[#0d2c5c]"
+                ? "bg-[#111111] text-white shadow-[0_4px_14px_rgba(13,44,92,0.2)]"
+                : "text-[#525252] hover:bg-[#f5f5f5] hover:text-[#111111]"
             }`}
           >
             <span
               className={`flex h-7 w-7 items-center justify-center rounded-lg ${
                 active
-                  ? "bg-white/10 text-[#c69a3f]"
-                  : "bg-[#f4f7fb] text-[#0d2c5c]"
+                  ? "bg-white/10 text-[#737373]"
+                  : "bg-[#f5f5f5] text-[#111111]"
               }`}
             >
               <Icon size={15} strokeWidth={1.75} />
@@ -403,7 +403,7 @@ function SidebarContent({
           </button>
         );
       })}
-      <div className="mt-2 border-t border-[#eef2f7] pt-2">
+      <div className="mt-2 border-t border-[#ededed] pt-2">
         <div className="flex items-center gap-2 px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8595aa]">
           <Activity size={12} /> Sistem
         </div>
