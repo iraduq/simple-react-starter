@@ -203,8 +203,8 @@ export default function NomenclatureTab() {
 
   return (
     <div>
-      <SectionHeader eyebrow={section.eyebrow} title="Nomenclatoare" />
-      <div className="mb-5 inline-flex rounded-xl border border-[#e5e5e5] bg-white p-1">
+      <div className="mb-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-[#e5e5e5] bg-white p-1 sm:w-auto sm:inline-flex">
+
         {SECTIONS.map((s) => (
           <button
             key={s.key}
