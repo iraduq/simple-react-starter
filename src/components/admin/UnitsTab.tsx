@@ -263,6 +263,17 @@ export default function UnitsTab() {
   const [bedTypeId, setBedTypeId] = useState<string>("");
 
 
+  const loadBedTypes = async () => {
+    try {
+      const data = await get<unknown>("/nomenclatures/bed-types");
+      const bts = list<Nomenclature>(data);
+      setBedTypes(bts);
+      if (bts.length) setBedTypeId((v) => v || String(bts[0].id));
+    } catch {
+      setBedTypes([]);
+    }
+  };
+
 
   const loadRooms = async () => {
     setLoading(true);
