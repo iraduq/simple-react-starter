@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
+import { saveTokensFrom } from "../lib/token";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function Login() {
         : null;
 
       if (res.ok) {
+        saveTokensFrom(data);
         const session = await fetchSession(true);
         notifySessionChange();
         navigate(session?.role === "admin" ? "/admin" : "/profile");
@@ -96,6 +98,7 @@ export default function Login() {
       });
 
       if (res.ok) {
+        saveTokensFrom(await res.json().catch(() => null));
         const session = await fetchSession(true);
         notifySessionChange();
         navigate(session?.role === "admin" ? "/admin" : "/profile");

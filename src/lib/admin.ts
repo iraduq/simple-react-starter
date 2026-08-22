@@ -28,9 +28,29 @@ export type RoomUnit = {
   id: number | string;
   name?: string | null;
   code?: string | null;
+  unit_number?: string | null;
   status?: string | null;
+  bed_type?: { id?: number | string; name?: string | null; capacity?: number | null } | null;
   is_active?: boolean | null;
 };
+
+export type RoomBooking = {
+  id: number | string;
+  booking_code?: string | null;
+  status?: string | null;
+  check_in?: string | null;
+  check_out?: string | null;
+  unit_id?: string | number | null;
+  room_unit_id?: string | number | null;
+  unit?: { id?: string | number; unit_number?: string | null } | null;
+  guest_name?: string | null;
+  guest_email?: string | null;
+  user?: { email?: string | null; first_name?: string | null; last_name?: string | null } | null;
+  guests_adults?: number | null;
+  guests_children?: number | null;
+  total_price?: number | null;
+};
+
 export type Room = {
   id: number | string;
   name?: string | null;
