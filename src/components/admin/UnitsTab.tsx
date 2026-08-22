@@ -152,6 +152,7 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const occ = useMemo(() => occupancyMap(bookings), [bookings]);
+  const dep = useMemo(() => departureMap(bookings), [bookings]);
 
   const firstDow = new Date(year, month, 1).getDay();
   const offset = firstDow === 0 ? 6 : firstDow - 1;
