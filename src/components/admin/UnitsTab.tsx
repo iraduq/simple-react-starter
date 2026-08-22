@@ -125,11 +125,7 @@ const occupancyMap = (bs: RoomBooking[]) => {
     if (!b.check_in || !b.check_out) continue;
     const start = new Date(String(b.check_in).slice(0, 10) + "T00:00:00");
     const end = new Date(String(b.check_out).slice(0, 10) + "T00:00:00");
-    for (
-      let d = new Date(start);
-      d < end;
-      d.setDate(d.getDate() + 1)
-    ) {
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
       map.set(isoOf(d.getFullYear(), d.getMonth(), d.getDate()), b);
     }
   }
@@ -145,7 +141,6 @@ const departureMap = (bs: RoomBooking[]) => {
   }
   return map;
 };
-
 
 function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   const today = new Date();
@@ -265,7 +260,6 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
           <span className="h-3 w-3 rounded ring-1 ring-[#c69a3f]" /> Azi
         </span>
       </div>
-
     </div>
   );
 }
@@ -286,10 +280,9 @@ export default function UnitsTab() {
   const [bedTypes, setBedTypes] = useState<Nomenclature[]>([]);
   const [bedTypeId, setBedTypeId] = useState<string>("");
 
-
   const loadBedTypes = async () => {
     try {
-      const data = await get<unknown>("/nomenclatures/bed-types");
+      const data = await get<unknown>("/rooms/bed-types");
       const bts = list<Nomenclature>(data);
       setBedTypes(bts);
       if (bts.length) setBedTypeId((v) => v || String(bts[0].id));
@@ -297,7 +290,6 @@ export default function UnitsTab() {
       setBedTypes([]);
     }
   };
-
 
   const loadRooms = async () => {
     setLoading(true);
@@ -312,9 +304,6 @@ export default function UnitsTab() {
       setLoading(false);
     }
   };
-
-
-
 
   const loadUnits = async (roomId: string | number) => {
     setUnitsLoading(true);
@@ -345,7 +334,6 @@ export default function UnitsTab() {
     void loadRooms();
     void loadBedTypes();
 
-    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -398,21 +386,10 @@ export default function UnitsTab() {
     if (!selectedId || !unitNumber.trim()) return;
     setAdding(true);
     try {
-      const roomTypeId =
-        selectedRoom?.room_type_id ??
-        (typeof (selectedRoom as { room_type?: { id?: number | string } } | undefined)
-          ?.room_type === "object"
-          ? (selectedRoom as { room_type?: { id?: number | string } }).room_type?.id
-          : undefined);
-
       await post(`/rooms/${selectedId}/units`, {
         unit_number: unitNumber.trim(),
-        ...(bedTypeId ? { bed_type_id: Number(bedTypeId) } : {}),
-        ...(roomTypeId !== undefined && roomTypeId !== null
-          ? { room_type_id: roomTypeId }
-          : {}),
+        bed_type_id: bedTypeId ? Number(bedTypeId) : 1,
       });
-
 
       toast("Unitate adăugată.", "success");
       setUnitNumber("");
@@ -745,7 +722,6 @@ export default function UnitsTab() {
                             </p>
                             {bookingsLoading ? (
                               <TableSkeleton />
-
                             ) : ub.length === 0 ? (
                               <p className="text-[13px] text-[#6b7c99]">
                                 Nicio rezervare atribuită acestei unități.
