@@ -540,6 +540,18 @@ export default function UnitsTab() {
                   placeholder="Număr unitate — ex: 101"
                   className="w-full rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
                 />
+                <select
+                  value={bedTypeId}
+                  onChange={(e) => setBedTypeId(e.target.value)}
+                  className="shrink-0 rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white sm:w-[190px]"
+                >
+                  <option value="">Tip pat (opțional)</option>
+                  {bedTypes.map((bt) => (
+                    <option key={bt.id} value={String(bt.id)}>
+                      {bt.name}
+                    </option>
+                  ))}
+                </select>
                 <button
                   disabled={adding || !unitNumber.trim()}
                   onClick={() => void addUnit()}
