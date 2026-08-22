@@ -251,19 +251,15 @@ export default function AdminDashboard() {
               className="absolute inset-0 bg-[#000000]/40 backdrop-blur-sm"
               onClick={() => setSidebarOpen(false)}
             />
-            <aside className="absolute left-0 top-0 h-full w-72 border-r border-[#e5e5e5] bg-white">
-              <div className="flex h-16 items-center justify-between border-b border-[#ededed] px-4">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] text-[12px] font-bold text-[#737373]">
-                    CE
-                  </span>
-                  <span className="font-['Cormorant_Garamond',serif] text-[18px] font-semibold text-[#111111]">
-                    Meniu
-                  </span>
-                </div>
+            <aside className="absolute left-0 top-0 h-full w-72 max-w-[85vw] overflow-y-auto border-r border-[#e5e5e5] bg-white">
+              <div className="flex h-14 items-center justify-between border-b border-[#ededed] px-4">
+                <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#111111]">
+                  Meniu
+                </span>
                 <button
                   onClick={() => setSidebarOpen(false)}
                   className="text-[#6b6b6b]"
+                  aria-label="Închide meniul"
                 >
                   <X size={18} />
                 </button>
@@ -274,7 +270,12 @@ export default function AdminDashboard() {
                   setTab(t);
                   setSidebarOpen(false);
                 }}
+                fullName={fullName}
+                initials={initials}
+                healthColor={healthColor}
+                healthLabel={healthLabel}
               />
+
             </aside>
           </div>
         )}
