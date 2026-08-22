@@ -6,6 +6,8 @@ import {
   BedDouble,
   Trash2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CalendarDays,
   User,
   RefreshCw,
@@ -24,8 +26,8 @@ import {
   type Room,
   type RoomUnit,
   type RoomBooking,
-  type Nomenclature,
 } from "../../lib/admin";
+
 import { useToast } from "../Toast";
 
 const roomLabel = (r: Room) =>
@@ -96,6 +98,153 @@ const isOngoing = (b: RoomBooking) => {
 const isUpcoming = (b: RoomBooking) =>
   !!b.check_in && new Date(b.check_in).getTime() > Date.now();
 
+const MONTHS = [
+  "Ianuarie",
+  "Februarie",
+  "Martie",
+  "Aprilie",
+  "Mai",
+  "Iunie",
+  "Iulie",
+  "August",
+  "Septembrie",
+  "Octombrie",
+  "Noiembrie",
+  "Decembrie",
+];
+const DAYS_SHORT = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"];
+
+const isoOf = (y: number, m: number, d: number) =>
+  `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+/** Hartă zi (YYYY-MM-DD) → rezervarea care ocupă noaptea respectivă. */
+const occupancyMap = (bs: RoomBooking[]) => {
+  const map = new Map<string, RoomBooking>();
+  for (const b of bs) {
+    if (!b.check_in || !b.check_out) continue;
+    const start = new Date(String(b.check_in).slice(0, 10) + "T00:00:00");
+    const end = new Date(String(b.check_out).slice(0, 10) + "T00:00:00");
+    for (
+      let d = new Date(start);
+      d < end;
+      d.setDate(d.getDate() + 1)
+    ) {
+      map.set(isoOf(d.getFullYear(), d.getMonth(), d.getDate()), b);
+    }
+  }
+  return map;
+};
+
+function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
+  const today = new Date();
+  const [year, setYear] = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
+  const occ = useMemo(() => occupancyMap(bookings), [bookings]);
+
+  const firstDow = new Date(year, month, 1).getDay();
+  const offset = firstDow === 0 ? 6 : firstDow - 1;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: (number | null)[] = [
+    ...Array(offset).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+  const todayIso = isoOf(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+
+  const prev = () =>
+    month === 0 ? (setMonth(11), setYear(year - 1)) : setMonth(month - 1);
+  const next = () =>
+    month === 11 ? (setMonth(0), setYear(year + 1)) : setMonth(month + 1);
+
+  const busyDays = cells.filter(
+    (d) => d !== null && occ.has(isoOf(year, month, d as number)),
+  ).length;
+
+  return (
+    <div className="rounded-xl border border-[#e1e8f0] bg-white p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={prev}
+          className="rounded-lg p-1.5 text-[#4f6280] transition-colors hover:bg-[#f4f7fb] hover:text-[#0d2c5c]"
+        >
+          <ChevronLeft size={15} />
+        </button>
+        <p className="text-[13px] font-semibold text-[#0d2c5c]">
+          {MONTHS[month]} {year}
+          <span className="ml-2 text-[11px] font-normal text-[#8595aa]">
+            {busyDays} zile ocupate
+          </span>
+        </p>
+        <button
+          type="button"
+          onClick={next}
+          className="rounded-lg p-1.5 text-[#4f6280] transition-colors hover:bg-[#f4f7fb] hover:text-[#0d2c5c]"
+        >
+          <ChevronRight size={15} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7">
+        {DAYS_SHORT.map((d) => (
+          <span
+            key={d}
+            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#8595aa]"
+          >
+            {d}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {cells.map((d, i) => {
+          if (d === null) return <span key={`e-${i}`} />;
+          const iso = isoOf(year, month, d);
+          const b = occ.get(iso);
+          return (
+            <span
+              key={d}
+              title={
+                b
+                  ? `${guestOf(b)} · ${dateFmt(b.check_in)} → ${dateFmt(b.check_out)}${
+                      b.booking_code ? ` · ${b.booking_code}` : ""
+                    }`
+                  : "Liberă"
+              }
+              className={`flex h-8 items-center justify-center rounded-lg text-[12px] ${
+                b
+                  ? b.status === "pending"
+                    ? "bg-[#fdf3dc] font-semibold text-[#8a6d2f]"
+                    : "bg-[#fde8e8] font-semibold text-[#b42318]"
+                  : iso === todayIso
+                    ? "font-bold text-[#0d2c5c] ring-1 ring-[#c69a3f]"
+                    : "text-[#4f6280]"
+              }`}
+            >
+              {d}
+            </span>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#6b7c99]">
+        <span className="flex items-center gap-1.5">
+          <span className="h-3 w-3 rounded bg-[#fde8e8]" /> Ocupată
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-3 w-3 rounded bg-[#fdf3dc]" /> În așteptare
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-3 w-3 rounded ring-1 ring-[#c69a3f]" /> Azi
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function UnitsTab() {
   const { toast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -105,12 +254,11 @@ export default function UnitsTab() {
   const [unitsLoading, setUnitsLoading] = useState(false);
   const [bookings, setBookings] = useState<RoomBooking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
-  const [bedTypes, setBedTypes] = useState<Nomenclature[]>([]);
   const [unitNumber, setUnitNumber] = useState("");
-  const [bedTypeId, setBedTypeId] = useState<string>("");
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
   const [openUnit, setOpenUnit] = useState<string | null>(null);
+
 
   const loadRooms = async () => {
     setLoading(true);
@@ -126,16 +274,8 @@ export default function UnitsTab() {
     }
   };
 
-  const loadBedTypes = async () => {
-    try {
-      const data = await get<unknown>("/rooms/bed-types");
-      const bt = list<Nomenclature>(data);
-      setBedTypes(bt);
-      if (bt.length) setBedTypeId(String(bt[0].id));
-    } catch {
-      /* opțional */
-    }
-  };
+
+
 
   const loadUnits = async (roomId: string | number) => {
     setUnitsLoading(true);
@@ -164,7 +304,7 @@ export default function UnitsTab() {
 
   useEffect(() => {
     void loadRooms();
-    void loadBedTypes();
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -215,16 +355,12 @@ export default function UnitsTab() {
 
   const addUnit = async () => {
     if (!selectedId || !unitNumber.trim()) return;
-    if (!bedTypeId) {
-      toast("Alege tipul de pat pentru unitate.", "error");
-      return;
-    }
     setAdding(true);
     try {
       await post(`/rooms/${selectedId}/units`, {
         unit_number: unitNumber.trim(),
-        bed_type_id: Number(bedTypeId),
       });
+
       toast("Unitate adăugată.", "success");
       setUnitNumber("");
       await loadUnits(selectedId);
@@ -375,18 +511,6 @@ export default function UnitsTab() {
                   placeholder="Număr unitate — ex: 101"
                   className="w-full rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
                 />
-                <select
-                  value={bedTypeId}
-                  onChange={(e) => setBedTypeId(e.target.value)}
-                  className="rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
-                >
-                  {bedTypes.length === 0 && <option value="">Tip pat…</option>}
-                  {bedTypes.map((b) => (
-                    <option key={b.id} value={String(b.id)}>
-                      {b.name}
-                    </option>
-                  ))}
-                </select>
                 <button
                   disabled={adding || !unitNumber.trim()}
                   onClick={() => void addUnit()}
@@ -424,7 +548,10 @@ export default function UnitsTab() {
                         key={u.id}
                         className="rounded-xl border border-[#e1e8f0] bg-white"
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                        <div
+                          onClick={() => setOpenUnit(expanded ? null : uid)}
+                          className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#f9fbfe]"
+                        >
                           <div className="flex items-center gap-3">
                             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f7fb] text-[12px] font-bold text-[#0d2c5c]">
                               {i + 1}
@@ -453,7 +580,10 @@ export default function UnitsTab() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div
+                            className="flex items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <select
                               value={u.status || "active"}
                               onChange={(e) =>
@@ -489,8 +619,68 @@ export default function UnitsTab() {
 
                         {expanded && (
                           <div className="border-t border-[#eef2f7] bg-[#f9fbfe] px-4 py-4">
+                            <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_330px]">
+                              <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e1e8f0] bg-white p-4 sm:grid-cols-3">
+                                {[
+                                  { l: "Unitate", v: unitLabel(u, i) },
+                                  { l: "ID", v: uid.slice(0, 8) },
+                                  {
+                                    l: "Tip pat",
+                                    v: u.bed_type?.name || "—",
+                                  },
+                                  {
+                                    l: "Capacitate",
+                                    v: u.bed_type?.capacity
+                                      ? `${u.bed_type.capacity} pers.`
+                                      : "—",
+                                  },
+                                  { l: "Status", v: statusLabel(u.status) },
+                                  {
+                                    l: "Rezervări active",
+                                    v: String(ub.length),
+                                  },
+                                  {
+                                    l: "Ocupată acum",
+                                    v: current
+                                      ? `${guestOf(current)} → ${dateFmt(current.check_out)}`
+                                      : "Nu",
+                                  },
+                                  {
+                                    l: "Următoarea sosire",
+                                    v: next
+                                      ? `${dateFmt(next.check_in)} — ${guestOf(next)}`
+                                      : "—",
+                                  },
+                                  {
+                                    l: "Nopți rezervate",
+                                    v: String(
+                                      ub.reduce(
+                                        (s, b) =>
+                                          s + nights(b.check_in, b.check_out),
+                                        0,
+                                      ),
+                                    ),
+                                  },
+                                ].map((f) => (
+                                  <div key={f.l}>
+                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8595aa]">
+                                      {f.l}
+                                    </p>
+                                    <p className="mt-0.5 text-[13px] font-medium text-[#0d2c5c]">
+                                      {f.v}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                              <UnitCalendar bookings={ub} />
+                            </div>
+
+                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8595aa]">
+                              Rezervări pe această unitate
+                            </p>
                             {bookingsLoading ? (
                               <TableSkeleton />
+
                             ) : ub.length === 0 ? (
                               <p className="text-[13px] text-[#6b7c99]">
                                 Nicio rezervare atribuită acestei unități.
