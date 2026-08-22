@@ -548,7 +548,10 @@ export default function UnitsTab() {
                         key={u.id}
                         className="rounded-xl border border-[#e1e8f0] bg-white"
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                        <div
+                          onClick={() => setOpenUnit(expanded ? null : uid)}
+                          className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#f9fbfe]"
+                        >
                           <div className="flex items-center gap-3">
                             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f7fb] text-[12px] font-bold text-[#0d2c5c]">
                               {i + 1}
