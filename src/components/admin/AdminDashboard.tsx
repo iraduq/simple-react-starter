@@ -361,12 +361,20 @@ export default function AdminDashboard() {
 function SidebarContent({
   tab,
   setTab,
+  fullName,
+  initials,
+  healthColor,
+  healthLabel,
 }: {
   tab: TabKey;
   setTab: (t: TabKey) => void;
+  fullName: string;
+  initials: string;
+  healthColor: string;
+  healthLabel: string;
 }) {
   return (
-    <nav className="flex flex-col gap-1 p-4">
+    <nav className="flex flex-col gap-1 p-3 sm:p-4">
       {NAV.map((item) => {
         const Icon = item.icon;
         const active = tab === item.key;
@@ -374,17 +382,15 @@ function SidebarContent({
           <button
             key={item.key}
             onClick={() => setTab(item.key)}
-            className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13.5px] font-semibold transition-all duration-200 ${
+            className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold transition-all duration-200 sm:text-[13.5px] ${
               active
-                ? "bg-[#111111] text-white shadow-[0_4px_14px_rgba(13,44,92,0.2)]"
+                ? "bg-[#111111] text-white"
                 : "text-[#525252] hover:bg-[#f5f5f5] hover:text-[#111111]"
             }`}
           >
             <span
-              className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                active
-                  ? "bg-white/10 text-[#737373]"
-                  : "bg-[#f5f5f5] text-[#111111]"
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                active ? "bg-white/15 text-white" : "bg-[#f5f5f5] text-[#111111]"
               }`}
             >
               <Icon size={15} strokeWidth={1.75} />
@@ -393,11 +399,22 @@ function SidebarContent({
           </button>
         );
       })}
-      <div className="mt-2 border-t border-[#ededed] pt-2">
-        <div className="flex items-center gap-2 px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a8a]">
-          <Activity size={12} /> Sistem
+      <div className="mt-3 space-y-2 border-t border-[#ededed] pt-3">
+        <div className="flex items-center gap-2 px-1.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#111111] text-[11px] font-bold text-white">
+            {initials}
+          </span>
+          <span className="truncate text-[12px] font-semibold text-[#525252]">
+            {fullName}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 px-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8a8a8a]">
+          <Activity size={12} />
+          <span className={`h-2 w-2 rounded-full ${healthColor}`} />
+          {healthLabel}
         </div>
       </div>
     </nav>
   );
 }
+
