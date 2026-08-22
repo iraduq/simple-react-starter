@@ -9,7 +9,7 @@ import {
   BedDouble,
   Image as ImageIcon,
 } from "lucide-react";
-import { Badge, TableSkeleton, EmptyState, Modal } from "./ui";
+import { Badge, EmptyState, Modal } from "./ui";
 import {
   get,
   post,
@@ -22,7 +22,6 @@ import {
   imageUrl,
   type Room,
   type RoomImage,
-  type RoomUnit,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
@@ -498,11 +497,8 @@ function MediaManager({
 }) {
   const { toast } = useToast();
   const [images, setImages] = useState<RoomImage[]>(room.images || []);
-  const [units, setUnits] = useState<RoomUnit[]>(room.units || []);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [unitName, setUnitName] = useState("");
-  const [addingUnit, setAddingUnit] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const refreshRoom = async () => {
@@ -512,7 +508,6 @@ function MediaManager({
       const updated = all.find((r) => String(r.id) === String(room.id));
       if (updated) {
         setImages(updated.images || []);
-        setUnits(updated.units || []);
       }
     } catch {
       /* ignore */
@@ -556,40 +551,10 @@ function MediaManager({
     }
   };
 
-  const addUnit = async () => {
-    if (!unitName.trim()) return;
-    setAddingUnit(true);
-    try {
-      await post(`/rooms/${room.id}/units`, { name: unitName.trim() });
-      toast("Unitate adăugată.", "success");
-      setUnitName("");
-      await refreshRoom();
-      onChanged();
-    } catch (e) {
-      toast(errMsg(e), "error");
-    } finally {
-      setAddingUnit(false);
-    }
-  };
-
-  const toggleUnit = async (u: RoomUnit) => {
-    const newActive = !u.is_active;
-    try {
-      await patch(`/rooms/${room.id}/units/${u.id}`, { is_active: newActive });
-      toast(
-        newActive ? "Unitate activată." : "Unitate pusă în mentenanță.",
-        "success",
-      );
-      await refreshRoom();
-    } catch (e) {
-      toast(errMsg(e), "error");
-    }
-  };
-
   const displayTitle = room.title || room.name || "Cameră";
 
   return (
-    <Modal open title={`Media & Unități: ${displayTitle}`} onClose={onClose}>
+    <Modal open title={`Galerie foto: ${displayTitle}`} onClose={onClose}>
       <div className="p-6">
         {/* Upload zone */}
         <div
@@ -676,60 +641,6 @@ function MediaManager({
             </p>
           </div>
         )}
-
-        {/* Units */}
-        <div className="mt-8 border-t border-black/5 pt-6">
-          <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8a8a8a] block mb-3">
-            Unități fizice ({units.length})
-          </span>
-          <div className="flex gap-2">
-            <input
-              className={fieldInput}
-              placeholder="ex: Cabana A — Etaj 1"
-              value={unitName}
-              onChange={(e) => setUnitName(e.target.value)}
-            />
-            <button
-              disabled={addingUnit || !unitName.trim()}
-              onClick={() => void addUnit()}
-              className="inline-flex items-center gap-2 rounded-xl bg-black px-6 text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800 disabled:opacity-50"
-            >
-              <Plus size={14} /> Adaugă
-            </button>
-          </div>
-
-          {units.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {units.map((u) => (
-                <div
-                  key={u.id}
-                  className="flex items-center justify-between rounded-xl border border-black/10 bg-white px-4 py-3"
-                >
-                  <div>
-                    <p className="text-[14px] font-bold text-black">
-                      {u.name || u.code || `Unitate #${u.id}`}
-                    </p>
-                    <p className="text-[12px] text-[#8a8a8a]">
-                      {u.is_active === false
-                        ? "În mentenanță"
-                        : "Activă, gata de oaspeți"}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => void toggleUnit(u)}
-                    className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] transition-all ${
-                      u.is_active === false
-                        ? "border-black/10 text-black hover:bg-black/5"
-                        : "border-red-200 text-red-600 hover:bg-red-50"
-                    }`}
-                  >
-                    {u.is_active === false ? "Activează" : "Oprește"}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
         <div className="mt-8 flex justify-end border-t border-black/5 pt-5">
           <button
