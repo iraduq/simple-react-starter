@@ -169,10 +169,10 @@ export default function AdminDashboard() {
 
   const healthColor =
     health === "online"
-      ? "bg-neutral-1000"
+      ? "bg-[#111111]"
       : health === "offline"
         ? "bg-[#111111]"
-        : "bg-neutral-400";
+        : "bg-[#8a8a8a]";
   const healthLabel =
     health === "online"
       ? "Backend online"
