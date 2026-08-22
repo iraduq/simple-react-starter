@@ -183,7 +183,7 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         </button>
         <p className="text-[13px] font-semibold text-[#111111]">
           {MONTHS[month]} {year}
-          <span className="ml-2 text-[11px] font-normal text-[#8595aa]">
+          <span className="ml-2 text-[11px] font-normal text-[#8a8a8a]">
             {busyDays} zile ocupate
           </span>
         </p>
@@ -200,7 +200,7 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         {DAYS_SHORT.map((d) => (
           <span
             key={d}
-            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#8595aa]"
+            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#8a8a8a]"
           >
             {d}
           </span>
@@ -431,7 +431,7 @@ export default function UnitsTab() {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8595aa]">
+          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8a8a8a]">
             <span className="h-px w-8 bg-[#737373]" /> Inventar
           </span>
           <h2
@@ -472,7 +472,7 @@ export default function UnitsTab() {
             <div className="relative mb-3">
               <Search
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8595aa]"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8a8a8a]"
               />
               <input
                 value={query}
@@ -570,7 +570,7 @@ export default function UnitsTab() {
                 <div className="mt-5 rounded-xl border border-dashed border-[#e5e5e5] bg-[#fafafa] py-10 text-center">
                   <DoorOpen
                     size={24}
-                    className="mx-auto mb-2 text-[#8595aa]"
+                    className="mx-auto mb-2 text-[#8a8a8a]"
                     strokeWidth={1.5}
                   />
                   <p className="text-[13px] text-[#6b6b6b]">
@@ -705,7 +705,7 @@ export default function UnitsTab() {
                                   },
                                 ].map((f) => (
                                   <div key={f.l}>
-                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8595aa]">
+                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
                                       {f.l}
                                     </p>
                                     <p className="mt-0.5 text-[13px] font-medium text-[#111111]">
@@ -717,7 +717,7 @@ export default function UnitsTab() {
                               <UnitCalendar bookings={ub} />
                             </div>
 
-                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8595aa]">
+                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">
                               Rezervări pe această unitate
                             </p>
                             {bookingsLoading ? (

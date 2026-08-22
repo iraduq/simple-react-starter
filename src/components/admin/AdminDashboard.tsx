@@ -147,7 +147,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fafafa] text-[#8595aa]">
+      <div className="flex min-h-screen items-center justify-center bg-[#fafafa] text-[#8a8a8a]">
         <div className="animate-pulse text-sm uppercase tracking-[0.2em]">
           Se încarcă dashboard-ul…
         </div>
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
               <span className="hidden text-[12.5px] font-semibold text-[#111111] sm:block">
                 {fullName}
               </span>
-              <ChevronDown size={14} className="text-[#8595aa]" />
+              <ChevronDown size={14} className="text-[#8a8a8a]" />
             </button>
             {acctOpen && (
               <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white py-1 shadow-xl">
@@ -404,7 +404,7 @@ function SidebarContent({
         );
       })}
       <div className="mt-2 border-t border-[#ededed] pt-2">
-        <div className="flex items-center gap-2 px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8595aa]">
+        <div className="flex items-center gap-2 px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a8a]">
           <Activity size={12} /> Sistem
         </div>
       </div>

@@ -216,7 +216,7 @@ export default function AdminPlacesTab() {
                             className="h-10 w-10 rounded-lg object-cover border border-[#e5e5e5]"
                           />
                         ) : (
-                          <div className="h-10 w-10 rounded-lg bg-[#ededed] flex items-center justify-center text-[#8595aa]">
+                          <div className="h-10 w-10 rounded-lg bg-[#ededed] flex items-center justify-center text-[#8a8a8a]">
                             <ImageIcon size={18} />
                           </div>
                         )}
@@ -234,7 +234,7 @@ export default function AdminPlacesTab() {
                       {p.badge ? (
                         <Badge tone="gold">{p.badge}</Badge>
                       ) : (
-                        <span className="text-[#8595aa]">—</span>
+                        <span className="text-[#8a8a8a]">—</span>
                       )}
                     </td>
                     <td className="px-5 py-3.5">
@@ -536,7 +536,7 @@ function PlaceMediaManager({
             <p className="text-[14px] font-semibold text-[#111111]">
               {uploading ? "Se încarcă…" : "Click sau trage imaginea aici"}
             </p>
-            <p className="mt-1 text-[12px] text-[#8595aa]">
+            <p className="mt-1 text-[12px] text-[#8a8a8a]">
               JPG / PNG (max 5MB)
             </p>
           </div>

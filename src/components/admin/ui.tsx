@@ -106,7 +106,7 @@ export function Field({
 }
 
 export const inputCls =
-  "w-full rounded-xl border border-[#e5e5e5] bg-white px-3.5 py-2.5 text-sm text-[#111111] outline-none transition-colors focus:border-[#111111] placeholder:text-[#8595aa]";
+  "w-full rounded-xl border border-[#e5e5e5] bg-white px-3.5 py-2.5 text-sm text-[#111111] outline-none transition-colors focus:border-[#111111] placeholder:text-[#8a8a8a]";
 
 export function Badge({
   children,

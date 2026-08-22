@@ -113,7 +113,7 @@ export default function UsersTab() {
                         {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
                       </span>
                       <span className="text-[12px] text-[#6b6b6b]">{u.email}</span>
-                      {u.provider && <span className="ml-2 text-[10px] uppercase text-[#8595aa]">via {u.provider}</span>}
+                      {u.provider && <span className="ml-2 text-[10px] uppercase text-[#8a8a8a]">via {u.provider}</span>}
                     </td>
                     <td className="px-5 py-3.5">
                       <Badge tone={roleTone(u.role)}>{u.role || "user"}</Badge>

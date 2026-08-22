@@ -60,11 +60,11 @@ const ICON_MAP: Record<string, { label: string; icon: LucideIcon }> = {
 };
 
 function DynamicIcon({ name }: { name?: string | null }) {
-  if (!name) return <span className="text-[#8595aa]">—</span>;
+  if (!name) return <span className="text-[#8a8a8a]">—</span>;
   const key = name.toLowerCase().trim();
   const entry = ICON_MAP[key];
   if (!entry)
-    return <span className="font-mono text-xs text-[#8595aa]">{name}</span>;
+    return <span className="font-mono text-xs text-[#8a8a8a]">{name}</span>;
   const IconComp = entry.icon;
   return (
     <div className="flex items-center gap-1.5 text-[#111111]">
@@ -107,12 +107,12 @@ function IconPicker({
             <span className="text-sm text-[#111111]">
               {ICON_MAP[value].label}
             </span>
-            <span className="font-mono text-[11px] text-[#8595aa]">
+            <span className="font-mono text-[11px] text-[#8a8a8a]">
               ({value})
             </span>
           </div>
         ) : (
-          <span className="text-sm text-[#8595aa]">Alege o iconiță...</span>
+          <span className="text-sm text-[#8a8a8a]">Alege o iconiță...</span>
         )}
       </div>
 
@@ -120,7 +120,7 @@ function IconPicker({
         <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-xl">
           <div className="border-b border-[#e5e5e5] p-2">
             <div className="flex items-center gap-2 rounded-lg bg-[#f5f5f5] px-2 py-1">
-              <Search size={14} className="text-[#8595aa]" />
+              <Search size={14} className="text-[#8a8a8a]" />
               <input
                 autoFocus
                 value={query}

@@ -103,7 +103,7 @@ export default function AuditLogsTab() {
 
       <Card className="mb-4 p-4">
         <div className="relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8595aa]" />
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a8a8a]" />
           <input
             className={`${inputCls} pl-10`}
             placeholder="Caută după utilizator, acțiune, resursă, IP…"
@@ -160,7 +160,7 @@ export default function AuditLogsTab() {
                     </td>
                     <td className="px-5 py-3.5 text-[#525252]">
                       {log.resource || log.resource_type || "—"}
-                      {log.resource_id && <span className="ml-1 text-[12px] text-[#8595aa]">#{log.resource_id}</span>}
+                      {log.resource_id && <span className="ml-1 text-[12px] text-[#8a8a8a]">#{log.resource_id}</span>}
                     </td>
                     <td className="px-5 py-3.5 text-[12.5px] text-[#6b6b6b]">{log.ip_address || log.ip || "—"}</td>
                   </tr>

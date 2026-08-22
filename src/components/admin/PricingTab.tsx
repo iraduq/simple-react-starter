@@ -327,7 +327,7 @@ export default function PricingTab() {
                         <Lock size={11} className="text-red-400" />
                       ) : (
                         <span
-                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#404040]" : "text-[#8595aa]"}`}
+                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#404040]" : "text-[#8a8a8a]"}`}
                         >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
