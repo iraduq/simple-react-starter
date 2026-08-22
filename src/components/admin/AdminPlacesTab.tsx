@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus,
   Pencil,
@@ -18,6 +18,9 @@ import {
   Modal,
   Field,
   inputCls,
+  SearchBox,
+  Pagination,
+  usePaged,
 } from "./ui";
 import {
   get,
@@ -61,6 +64,19 @@ export default function AdminPlacesTab() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
   const [mediaPlace, setMediaPlace] = useState<any | null>(null);
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return places;
+    return places.filter((p) =>
+      [p.title, p.name, p.category, p.badge, p.desc, p.description]
+        .filter(Boolean)
+        .some((f: string) => String(f).toLowerCase().includes(q)),
+    );
+  }, [places, query]);
+
+  const paged = usePaged(filtered, 10);
 
   const load = async () => {
     setLoading(true);
@@ -181,10 +197,14 @@ export default function AdminPlacesTab() {
         }
       />
 
+      <div className="mb-4">
+        <SearchBox value={query} onChange={setQuery} placeholder="Caută locație, categorie…" />
+      </div>
+
       <Card>
         {loading ? (
           <TableSkeleton rows={5} />
-        ) : places.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <EmptyState
             title="Nicio locație"
             hint="Adaugă atracții turistice din zonă pentru a le recomanda oaspeților."
@@ -202,7 +222,7 @@ export default function AdminPlacesTab() {
                 </tr>
               </thead>
               <tbody>
-                {places.map((p) => (
+                {paged.slice.map((p) => (
                   <tr
                     key={p.id}
                     className="border-b border-[#f5f5f5] last:border-0 hover:bg-[#fafafa] transition-colors"
@@ -282,6 +302,13 @@ export default function AdminPlacesTab() {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
           </div>
         )}
       </Card>

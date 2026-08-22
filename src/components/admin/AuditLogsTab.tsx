@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronUp, ChevronDown, Search } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -7,7 +7,9 @@ import {
   Badge,
   TableSkeleton,
   EmptyState,
-  inputCls,
+  SearchBox,
+  Pagination,
+  usePaged,
 } from "./ui";
 import { get, list, dateTimeFmt, errMsg, type AuditLog } from "../../lib/admin";
 import { useToast } from "../Toast";
@@ -66,6 +68,8 @@ export default function AuditLogsTab() {
     return result;
   }, [logs, sortKey, sortDir, search]);
 
+  const paged = usePaged(sorted, 15);
+
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -101,17 +105,14 @@ export default function AuditLogsTab() {
         }
       />
 
-      <Card className="mb-4 p-4">
-        <div className="relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a8a8a]" />
-          <input
-            className={`${inputCls} pl-10`}
-            placeholder="Caută după utilizator, acțiune, resursă, IP…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </Card>
+      <div className="mb-4">
+        <SearchBox
+          value={search}
+          onChange={setSearch}
+          placeholder="Caută după utilizator, acțiune, resursă, IP…"
+          className="sm:max-w-md"
+        />
+      </div>
 
       <Card>
         {loading ? (
@@ -151,7 +152,7 @@ export default function AuditLogsTab() {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((log) => (
+                {paged.slice.map((log) => (
                   <tr key={log.id} className="border-b border-[#f5f5f5] last:border-0">
                     <td className="px-5 py-3.5 text-[12.5px] text-[#525252]">{dateTimeFmt(log.timestamp || log.created_at)}</td>
                     <td className="px-5 py-3.5 font-semibold text-[#111111]">{log.user_email || `#${log.user_id}` || "—"}</td>
@@ -167,6 +168,13 @@ export default function AuditLogsTab() {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
           </div>
         )}
       </Card>

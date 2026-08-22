@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pencil, Trash2, Shield, ShieldCheck, ShieldX } from "lucide-react";
 import {
   Card,
@@ -9,6 +9,9 @@ import {
   EmptyState,
   Modal,
   Field,
+  SearchBox,
+  Pagination,
+  usePaged,
 } from "./ui";
 import { get, patch, del, list, dateFmt, errMsg, type AdminUser } from "../../lib/admin";
 import { useToast } from "../Toast";
@@ -23,6 +26,19 @@ export default function UsersTab() {
   const [form, setForm] = useState({ role: "user", is_active: true });
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return users;
+    return users.filter((u) =>
+      [u.email, u.first_name, u.last_name, u.role, u.provider]
+        .filter(Boolean)
+        .some((f) => String(f).toLowerCase().includes(q)),
+    );
+  }, [users, query]);
+
+  const paged = usePaged(filtered, 10);
 
   const load = async () => {
     setLoading(true);
@@ -88,10 +104,14 @@ export default function UsersTab() {
         }
       />
 
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SearchBox value={query} onChange={setQuery} placeholder="Caută utilizator, email, rol…" />
+      </div>
+
       <Card>
         {loading ? (
           <TableSkeleton rows={6} />
-        ) : users.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <EmptyState title="Niciun utilizator" />
         ) : (
           <div className="overflow-x-auto">
@@ -106,7 +126,7 @@ export default function UsersTab() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((u) => (
+                {paged.slice.map((u) => (
                   <tr key={u.id} className="border-b border-[#f5f5f5] last:border-0">
                     <td className="px-5 py-3.5">
                       <span className="block font-semibold text-[#111111]">
@@ -136,6 +156,13 @@ export default function UsersTab() {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
           </div>
         )}
       </Card>
