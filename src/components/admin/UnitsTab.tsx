@@ -44,17 +44,17 @@ const statusLabel = (s?: string | null) =>
   STATUSES.find((x) => x.value === s)?.label ||
   (s === undefined || s === null ? "Activă" : s);
 
-const statusTone = (s?: string | null): "green" | "amber" | "red" =>
-  !s || s === "active" ? "green" : s === "cleaning" ? "amber" : "red";
+const statusTone = (s?: string | null): "green" | "gold" | "red" =>
+  !s || s === "active" ? "green" : s === "cleaning" ? "gold" : "red";
 
-const bookingTone = (s?: string | null): "green" | "amber" | "red" | "gray" =>
+const bookingTone = (s?: string | null): "green" | "gold" | "red" | "muted" =>
   s === "confirmed"
     ? "green"
     : s === "pending"
-      ? "amber"
+      ? "gold"
       : s === "cancelled"
         ? "red"
-        : "gray";
+        : "muted";
 
 const bookingStatusLabel = (s?: string | null) =>
   s === "confirmed"
