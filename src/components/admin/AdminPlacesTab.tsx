@@ -7,7 +7,6 @@ import {
   MapPin,
   Upload,
   Image as ImageIcon,
-  X,
 } from "lucide-react";
 import {
   Card,
@@ -28,7 +27,6 @@ import {
   upload,
   list,
   errMsg,
-  type Place,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 

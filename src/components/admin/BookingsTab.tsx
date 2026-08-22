@@ -4,7 +4,6 @@ import {
   Pencil,
   Trash2,
   Check,
-  X,
   RefreshCw,
   Search,
   CheckCircle2,
@@ -21,7 +20,6 @@ import {
   dateFmt,
   nights,
   errMsg,
-  type Booking,
   type Room,
   type AdminUser,
 } from "../../lib/admin";
