@@ -16,6 +16,7 @@ import {
   Monitor,
   X,
   Menu,
+  DoorOpen,
 } from "lucide-react";
 import {
   fetchSession,
@@ -34,11 +35,13 @@ import PricingTab from "./PricingTab";
 import AdminPlacesTab from "./AdminPlacesTab";
 import UsersTab from "./UsersTab";
 import AuditLogsTab from "./AuditLogsTab";
+import UnitsTab from "./UnitsTab";
 
 type TabKey =
   | "overview"
   | "bookings"
   | "rooms"
+  | "units"
   | "nomenclature"
   | "pricing"
   | "places"
@@ -48,7 +51,8 @@ type TabKey =
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Prezentare generală", icon: LayoutDashboard },
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
-  { key: "rooms", label: "Camere & unități", icon: BedDouble },
+  { key: "rooms", label: "Camere & foto", icon: BedDouble },
+  { key: "units", label: "Unități fizice", icon: DoorOpen },
   { key: "nomenclature", label: "Tipuri & facilități", icon: Tags },
   { key: "pricing", label: "Prețuri & calendar", icon: DollarSign },
   { key: "places", label: "Atracții locale", icon: MapPin },
@@ -177,6 +181,73 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f7f9fc]">
+      {/* Topbar */}
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-[#e1e8f0] bg-white/90 px-4 backdrop-blur lg:px-8">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#e1e8f0] text-[#0d2c5c] lg:hidden"
+            aria-label="Deschide meniul"
+          >
+            <Menu size={17} />
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0d2c5c] text-[12px] font-bold text-[#c69a3f]">
+              CE
+            </span>
+            <span
+              className="text-[18px] font-semibold text-[#0d2c5c]"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Casa Esy · Admin
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="hidden items-center gap-2 rounded-full border border-[#e1e8f0] px-3 py-1.5 text-[11px] font-semibold text-[#4f6280] sm:flex">
+            <span className={`h-2 w-2 rounded-full ${healthColor}`} />
+            {healthLabel}
+          </span>
+          <div className="relative" ref={acctRef}>
+            <button
+              onClick={() => setAcctOpen((v) => !v)}
+              className="flex items-center gap-2 rounded-full border border-[#e1e8f0] py-1.5 pl-1.5 pr-3 transition-all hover:bg-[#f4f7fb]"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0d2c5c] text-[11px] font-bold text-white">
+                {initials}
+              </span>
+              <span className="hidden text-[12.5px] font-semibold text-[#0d2c5c] sm:block">
+                {fullName}
+              </span>
+              <ChevronDown size={14} className="text-[#8595aa]" />
+            </button>
+            {acctOpen && (
+              <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white py-1 shadow-xl">
+                <button
+                  onClick={() => void openSessions()}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#4f6280] hover:bg-[#f4f7fb]"
+                >
+                  <Monitor size={14} /> Sesiuni active
+                </button>
+                <button
+                  onClick={() => void handleLogoutAll()}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#4f6280] hover:bg-[#f4f7fb]"
+                >
+                  <Shield size={14} /> Ieși de pe toate
+                </button>
+                <button
+                  onClick={() => void handleLogout()}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-red-600 hover:bg-red-50"
+                >
+                  <LogOut size={14} /> Deconectare
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
       <div className="flex">
         {/* Sidebar — desktop */}
         <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 border-r border-[#e1e8f0] bg-white lg:block">
@@ -224,6 +295,7 @@ export default function AdminDashboard() {
             {tab === "overview" && <OverviewTab />}
             {tab === "bookings" && <BookingsTab />}
             {tab === "rooms" && <RoomsTab />}
+            {tab === "units" && <UnitsTab />}
             {tab === "nomenclature" && <NomenclatureTab />}
             {tab === "pricing" && <PricingTab />}
             {tab === "places" && <AdminPlacesTab />}
