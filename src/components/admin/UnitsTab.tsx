@@ -355,16 +355,12 @@ export default function UnitsTab() {
 
   const addUnit = async () => {
     if (!selectedId || !unitNumber.trim()) return;
-    if (!bedTypeId) {
-      toast("Alege tipul de pat pentru unitate.", "error");
-      return;
-    }
     setAdding(true);
     try {
       await post(`/rooms/${selectedId}/units`, {
         unit_number: unitNumber.trim(),
-        bed_type_id: Number(bedTypeId),
       });
+
       toast("Unitate adăugată.", "success");
       setUnitNumber("");
       await loadUnits(selectedId);
