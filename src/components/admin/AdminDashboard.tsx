@@ -17,6 +17,7 @@ import {
   X,
   Menu,
   DoorOpen,
+  UserRound,
 } from "lucide-react";
 import {
   fetchSession,
