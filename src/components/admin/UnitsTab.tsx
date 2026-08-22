@@ -26,6 +26,7 @@ import {
   type Room,
   type RoomUnit,
   type RoomBooking,
+  type Nomenclature,
 } from "../../lib/admin";
 
 import { useToast } from "../Toast";
