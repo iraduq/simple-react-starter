@@ -26,6 +26,7 @@ import {
   type Room,
   type RoomUnit,
   type RoomBooking,
+  type Nomenclature,
 } from "../../lib/admin";
 
 import { useToast } from "../Toast";
@@ -258,6 +259,20 @@ export default function UnitsTab() {
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
   const [openUnit, setOpenUnit] = useState<string | null>(null);
+  const [bedTypes, setBedTypes] = useState<Nomenclature[]>([]);
+  const [bedTypeId, setBedTypeId] = useState<string>("");
+
+
+  const loadBedTypes = async () => {
+    try {
+      const data = await get<unknown>("/nomenclatures/bed-types");
+      const bts = list<Nomenclature>(data);
+      setBedTypes(bts);
+      if (bts.length) setBedTypeId((v) => v || String(bts[0].id));
+    } catch {
+      setBedTypes([]);
+    }
+  };
 
 
   const loadRooms = async () => {
@@ -304,6 +319,8 @@ export default function UnitsTab() {
 
   useEffect(() => {
     void loadRooms();
+    void loadBedTypes();
+
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -366,6 +383,7 @@ export default function UnitsTab() {
 
       await post(`/rooms/${selectedId}/units`, {
         unit_number: unitNumber.trim(),
+        ...(bedTypeId ? { bed_type_id: Number(bedTypeId) } : {}),
         ...(roomTypeId !== undefined && roomTypeId !== null
           ? { room_type_id: roomTypeId }
           : {}),
@@ -522,6 +540,18 @@ export default function UnitsTab() {
                   placeholder="Număr unitate — ex: 101"
                   className="w-full rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white"
                 />
+                <select
+                  value={bedTypeId}
+                  onChange={(e) => setBedTypeId(e.target.value)}
+                  className="shrink-0 rounded-xl border border-[#e1e8f0] bg-[#f7f9fc] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#c69a3f] focus:bg-white sm:w-[190px]"
+                >
+                  <option value="">Tip pat (opțional)</option>
+                  {bedTypes.map((bt) => (
+                    <option key={bt.id} value={String(bt.id)}>
+                      {bt.name}
+                    </option>
+                  ))}
+                </select>
                 <button
                   disabled={adding || !unitNumber.trim()}
                   onClick={() => void addUnit()}
