@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 export function Card({
   children,
@@ -195,6 +195,94 @@ export function Modal({
           </button>
         </div>
         <div className="px-6 py-5">{children}</div>
+      </div>
+    </div>
+  );
+}
+/* ─────────────── SEARCH + PAGINARE ─────────────── */
+export function SearchBox({
+  value,
+  onChange,
+  placeholder = "Caută…",
+  className = "",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <div className={`relative w-full sm:max-w-xs ${className}`}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8a8a8a]"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </svg>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`${inputCls} pl-10`}
+      />
+    </div>
+  );
+}
+
+export function usePaged<T>(items: T[], perPage = 10) {
+  const [page, setPage] = useState(1);
+  const pages = Math.max(1, Math.ceil(items.length / perPage));
+  const current = Math.min(page, pages);
+  useEffect(() => {
+    if (page !== current) setPage(current);
+  }, [page, current]);
+  const slice = items.slice((current - 1) * perPage, current * perPage);
+  return { slice, page: current, pages, setPage, total: items.length, perPage };
+}
+
+export function Pagination({
+  page,
+  pages,
+  total,
+  perPage,
+  onPage,
+}: {
+  page: number;
+  pages: number;
+  total: number;
+  perPage: number;
+  onPage: (p: number) => void;
+}) {
+  if (total === 0) return null;
+  const from = (page - 1) * perPage + 1;
+  const to = Math.min(page * perPage, total);
+  return (
+    <div className="flex flex-col items-center justify-between gap-3 border-t border-[#ededed] px-4 py-3 sm:flex-row sm:px-5">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b6b6b]">
+        {from}–{to} din {total}
+      </span>
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={() => onPage(page - 1)}
+          disabled={page <= 1}
+          className="rounded-lg border border-[#e5e5e5] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111111] transition-colors hover:bg-[#f5f5f5] disabled:opacity-40"
+        >
+          ‹ Anterior
+        </button>
+        <span className="px-2 text-[12px] font-semibold text-[#111111]">
+          {page} / {pages}
+        </span>
+        <button
+          onClick={() => onPage(page + 1)}
+          disabled={page >= pages}
+          className="rounded-lg border border-[#e5e5e5] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111111] transition-colors hover:bg-[#f5f5f5] disabled:opacity-40"
+        >
+          Următor ›
+        </button>
       </div>
     </div>
   );
