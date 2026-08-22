@@ -71,7 +71,7 @@ export function Button({
     primary: "bg-[#111111] text-white hover:bg-[#000000]",
     gold: "bg-[#737373] text-white hover:bg-[#525252]",
     ghost: "border border-[#e5e5e5] text-[#111111] bg-white hover:border-[#111111]",
-    danger: "border border-red-200 text-red-700 bg-red-50 hover:bg-red-100",
+    danger: "border border-[#111111] text-[#111111] bg-white hover:bg-[#111111] hover:text-white",
   };
   return (
     <button
@@ -119,7 +119,7 @@ export function Badge({
     navy: "bg-[#ededed] text-[#111111]",
     gold: "bg-[#ededed] text-[#404040]",
     green: "bg-neutral-100 text-neutral-800",
-    red: "bg-red-50 text-red-700",
+    red: "bg-[#111111] text-white",
     muted: "bg-[#f5f5f5] text-[#525252]",
   };
   return (

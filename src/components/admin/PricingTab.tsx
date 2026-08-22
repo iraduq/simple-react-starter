@@ -397,7 +397,7 @@ export default function PricingTab() {
               onChange={(e) =>
                 setRule({ ...rule, is_blocked: e.target.checked })
               }
-              className="h-4 w-4 accent-red-600"
+              className="h-4 w-4 accent-[#111111]"
             />
             <span className="text-sm text-[#111111]">
               Blochează perioada (mentenanță)

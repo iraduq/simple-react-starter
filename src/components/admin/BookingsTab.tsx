@@ -523,7 +523,7 @@ export default function BookingsTab() {
                                       setCancelReason("");
                                       setActiveMenu(null);
                                     }}
-                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-black/5 pt-2"
+                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#111111] hover:bg-[#f5f5f5] transition-colors mt-1 border-t border-black/5 pt-2"
                                   >
                                     <Trash2 size={14} /> Anulează
                                   </button>

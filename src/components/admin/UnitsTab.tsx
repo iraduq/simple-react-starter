@@ -652,7 +652,7 @@ export default function UnitsTab() {
                             <button
                               onClick={() => void removeUnit(u)}
                               title="Șterge unitatea"
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 text-red-600 transition-all hover:bg-red-50"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#111111] text-[#111111] transition-all hover:bg-[#111111] hover:text-white"
                             >
                               <Trash2 size={13} />
                             </button>
