@@ -383,6 +383,7 @@ export default function UnitsTab() {
 
       await post(`/rooms/${selectedId}/units`, {
         unit_number: unitNumber.trim(),
+        ...(bedTypeId ? { bed_type_id: Number(bedTypeId) } : {}),
         ...(roomTypeId !== undefined && roomTypeId !== null
           ? { room_type_id: roomTypeId }
           : {}),
