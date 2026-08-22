@@ -68,10 +68,13 @@ const bookingStatusLabel = (s?: string | null) =>
           : s || "—";
 
 const guestOf = (b: RoomBooking) => {
-  const full = [b.user?.first_name, b.user?.last_name].filter(Boolean).join(" ");
+  const full = [b.user?.first_name, b.user?.last_name]
+    .filter(Boolean)
+    .join(" ");
   return (
     b.guest_name ||
-    (full || null) ||
+    full ||
+    null ||
     b.user?.email ||
     b.guest_email ||
     "Oaspete necunoscut"
@@ -85,7 +88,8 @@ const isOngoing = (b: RoomBooking) => {
   if (!b.check_in || !b.check_out) return false;
   const now = Date.now();
   return (
-    new Date(b.check_in).getTime() <= now && new Date(b.check_out).getTime() > now
+    new Date(b.check_in).getTime() <= now &&
+    new Date(b.check_out).getTime() > now
   );
 };
 
@@ -509,7 +513,8 @@ export default function UnitsTab() {
                                         <p className="text-[12px] text-[#6b7c99]">
                                           {dateFmt(b.check_in)} →{" "}
                                           {dateFmt(b.check_out)} ·{" "}
-                                          {nights(b.check_in, b.check_out)} nopți
+                                          {nights(b.check_in, b.check_out)}{" "}
+                                          nopți
                                           {b.booking_code
                                             ? ` · ${b.booking_code}`
                                             : ""}
@@ -541,24 +546,61 @@ export default function UnitsTab() {
 
               {unassigned.length > 0 && (
                 <div className="mt-6 rounded-xl border border-[#f2e3c2] bg-[#fffaf0] px-4 py-4">
-                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#8a6d2f]">
+                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#8a6d2f] mb-3">
                     Rezervări fără unitate atribuită ({unassigned.length})
                   </p>
-                  <div className="mt-3 space-y-2">
+                  <div className="space-y-2">
                     {unassigned.map((b) => (
                       <div
                         key={b.id}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white px-4 py-2.5"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white px-4 py-3 border border-[#f2e3c2]"
                       >
-                        <span className="text-[13px] font-semibold text-[#0d2c5c]">
-                          {guestOf(b)}
-                        </span>
-                        <span className="text-[12px] text-[#6b7c99]">
-                          {dateFmt(b.check_in)} → {dateFmt(b.check_out)}
-                        </span>
-                        <Badge tone={bookingTone(b.status)}>
-                          {bookingStatusLabel(b.status)}
-                        </Badge>
+                        <div>
+                          <span className="text-[13px] font-semibold text-[#0d2c5c] block">
+                            {guestOf(b)}
+                          </span>
+                          <span className="text-[12px] text-[#6b7c99]">
+                            {dateFmt(b.check_in)} → {dateFmt(b.check_out)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <select
+                            onChange={async (e) => {
+                              const targetUnitId = e.target.value;
+                              if (!targetUnitId) return;
+                              try {
+                                await patch(`/bookings/${b.id}`, {
+                                  room_unit_id: targetUnitId,
+                                });
+                                toast(
+                                  "Unitate atribuită cu succes.",
+                                  "success",
+                                );
+                                if (selectedId) {
+                                  await loadUnits(selectedId);
+                                  await loadBookings(selectedId);
+                                }
+                              } catch (err) {
+                                toast(errMsg(err), "error");
+                              }
+                            }}
+                            defaultValue=""
+                            className="rounded-lg border border-[#e1e8f0] bg-[#f7f9fc] px-3 py-1.5 text-[11px] font-bold text-[#0d2c5c] outline-none"
+                          >
+                            <option value="" disabled>
+                              Atribuie unitate...
+                            </option>
+                            {units.map((u, idx) => (
+                              <option key={u.id} value={u.id}>
+                                {unitLabel(u, idx)}
+                              </option>
+                            ))}
+                          </select>
+                          <Badge tone={bookingTone(b.status)}>
+                            {bookingStatusLabel(b.status)}
+                          </Badge>
+                        </div>
                       </div>
                     ))}
                   </div>
