@@ -181,78 +181,68 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      {/* Topbar */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-[#e5e5e5] bg-white/90 px-4 backdrop-blur lg:px-8">
-        <div className="flex items-center gap-3">
+      {/* Topbar — minimal, monocrom */}
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-[#e5e5e5] bg-white/90 px-3 backdrop-blur sm:px-4 lg:h-16 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2.5">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#e5e5e5] text-[#111111] lg:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#e5e5e5] text-[#111111] lg:hidden"
             aria-label="Deschide meniul"
           >
             <Menu size={17} />
           </button>
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#111111] text-[12px] font-bold text-[#737373]">
-              CE
-            </span>
-            <span
-              className="text-[18px] font-semibold text-[#111111]"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Casa Esy · Admin
-            </span>
-          </div>
+          <span className="truncate text-[13px] font-bold uppercase tracking-[0.18em] text-[#111111] sm:text-[14px]">
+            {NAV.find((n) => n.key === tab)?.label ?? "Admin"}
+          </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="hidden items-center gap-2 rounded-full border border-[#e5e5e5] px-3 py-1.5 text-[11px] font-semibold text-[#525252] sm:flex">
-            <span className={`h-2 w-2 rounded-full ${healthColor}`} />
-            {healthLabel}
-          </span>
-          <div className="relative" ref={acctRef}>
-            <button
-              onClick={() => setAcctOpen((v) => !v)}
-              className="flex items-center gap-2 rounded-full border border-[#e5e5e5] py-1.5 pl-1.5 pr-3 transition-all hover:bg-[#f5f5f5]"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#111111] text-[11px] font-bold text-white">
-                {initials}
-              </span>
-              <span className="hidden text-[12.5px] font-semibold text-[#111111] sm:block">
-                {fullName}
-              </span>
-              <ChevronDown size={14} className="text-[#8a8a8a]" />
-            </button>
-            {acctOpen && (
-              <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white py-1 shadow-xl">
-                <button
-                  onClick={() => void openSessions()}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
-                >
-                  <Monitor size={14} /> Sesiuni active
-                </button>
-                <button
-                  onClick={() => void handleLogoutAll()}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
-                >
-                  <Shield size={14} /> Ieși de pe toate
-                </button>
-                <button
-                  onClick={() => void handleLogout()}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-red-600 hover:bg-red-50"
-                >
-                  <LogOut size={14} /> Deconectare
-                </button>
-              </div>
-            )}
-          </div>
+        <div className="relative shrink-0" ref={acctRef}>
+          <button
+            onClick={() => setAcctOpen((v) => !v)}
+            className="flex h-9 items-center gap-1.5 rounded-xl border border-[#e5e5e5] px-2.5 text-[#111111] transition-colors hover:bg-[#f5f5f5]"
+            aria-label="Cont"
+          >
+            <UserRound size={16} />
+            <ChevronDown size={13} className="text-[#8a8a8a]" />
+          </button>
+          {acctOpen && (
+            <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white py-1 shadow-xl">
+              <button
+                onClick={() => void openSessions()}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
+              >
+                <Monitor size={14} /> Sesiuni active
+              </button>
+              <button
+                onClick={() => void handleLogoutAll()}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
+              >
+                <Shield size={14} /> Ieși de pe toate
+              </button>
+              <button
+                onClick={() => void handleLogout()}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#111111] hover:bg-[#f5f5f5]"
+              >
+                <LogOut size={14} /> Deconectare
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
       <div className="flex">
         {/* Sidebar — desktop */}
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 border-r border-[#e5e5e5] bg-white lg:block">
-          <SidebarContent tab={tab} setTab={setTab} />
+        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-[#e5e5e5] bg-white lg:block">
+          <SidebarContent
+            tab={tab}
+            setTab={setTab}
+            fullName={fullName}
+            initials={initials}
+            healthColor={healthColor}
+            healthLabel={healthLabel}
+          />
         </aside>
+
 
         {/* Sidebar — mobile drawer */}
         {sidebarOpen && (
