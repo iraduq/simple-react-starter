@@ -217,6 +217,7 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
           if (d === null) return <span key={`e-${i}`} />;
           const iso = isoOf(year, month, d);
           const b = occ.get(iso);
+          const out = !b ? dep.get(iso) : undefined;
           return (
             <span
               key={d}
@@ -225,16 +226,22 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
                   ? `${guestOf(b)} · ${dateFmt(b.check_in)} → ${dateFmt(b.check_out)}${
                       b.booking_code ? ` · ${b.booking_code}` : ""
                     }`
-                  : "Liberă"
+                  : out
+                    ? `Plecare (check-out) · ${guestOf(out)} · camera se eliberează în această zi${
+                        out.booking_code ? ` · ${out.booking_code}` : ""
+                      }`
+                    : "Liberă"
               }
               className={`flex h-8 items-center justify-center rounded-lg text-[12px] ${
                 b
                   ? b.status === "pending"
                     ? "bg-[#fdf3dc] font-semibold text-[#8a6d2f]"
                     : "bg-[#fde8e8] font-semibold text-[#b42318]"
-                  : iso === todayIso
-                    ? "font-bold text-[#0d2c5c] ring-1 ring-[#c69a3f]"
-                    : "text-[#4f6280]"
+                  : out
+                    ? "bg-[#fff4ec] font-semibold text-[#c2410c] ring-1 ring-[#fbd3b4]"
+                    : iso === todayIso
+                      ? "font-bold text-[#0d2c5c] ring-1 ring-[#c69a3f]"
+                      : "text-[#4f6280]"
               }`}
             >
               {d}
@@ -245,15 +252,20 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
 
       <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#6b7c99]">
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#fde8e8]" /> Ocupată
+          <span className="h-3 w-3 rounded bg-[#fde8e8]" /> Ocupată (noapte)
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-3 w-3 rounded bg-[#fdf3dc]" /> În așteptare
         </span>
         <span className="flex items-center gap-1.5">
+          <span className="h-3 w-3 rounded bg-[#fff4ec] ring-1 ring-[#fbd3b4]" />{" "}
+          Plecare / eliberare
+        </span>
+        <span className="flex items-center gap-1.5">
           <span className="h-3 w-3 rounded ring-1 ring-[#c69a3f]" /> Azi
         </span>
       </div>
+
     </div>
   );
 }
