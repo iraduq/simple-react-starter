@@ -22,7 +22,9 @@ import {
 } from "lucide-react";
 import {
   Card,
-  SectionHeader,
+  SearchBox,
+  Pagination,
+  usePaged,
   Button,
   TableSkeleton,
   EmptyState,
@@ -209,7 +211,7 @@ export default function NomenclatureTab() {
           <button
             key={s.key}
             onClick={() => setActive(s.key)}
-            className={`rounded-lg px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+            className={`shrink-0 rounded-lg px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors sm:px-4 sm:text-[12px] ${
               active === s.key
                 ? "bg-[#111111] text-white"
                 : "text-[#525252] hover:text-[#111111]"
@@ -246,6 +248,19 @@ function NomenclatureSection({ section }: { section: Section }) {
   });
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return items;
+    return items.filter((it) =>
+      [it.name, it.description, it.icon]
+        .filter(Boolean)
+        .some((f: string) => String(f).toLowerCase().includes(q)),
+    );
+  }, [items, query]);
+
+  const paged = usePaged(filtered, 10);
 
   const load = async () => {
     setLoading(true);
@@ -339,7 +354,8 @@ function NomenclatureSection({ section }: { section: Section }) {
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SearchBox value={query} onChange={setQuery} placeholder="Caută în nomenclator…" />
         <Button variant="gold" size="sm" onClick={openCreate}>
           <Plus size={14} /> Adaugă
         </Button>
@@ -348,7 +364,7 @@ function NomenclatureSection({ section }: { section: Section }) {
       <Card>
         {loading ? (
           <TableSkeleton rows={4} />
-        ) : items.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <EmptyState
             title="Niciun element"
             hint="Adaugă primul element în acest nomenclator."
@@ -375,7 +391,7 @@ function NomenclatureSection({ section }: { section: Section }) {
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => (
+                {paged.slice.map((item) => (
                   <tr
                     key={item.id}
                     className="border-b border-[#f5f5f5] last:border-0 hover:bg-[#fafafa]"
@@ -430,6 +446,13 @@ function NomenclatureSection({ section }: { section: Section }) {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
           </div>
         )}
       </Card>
