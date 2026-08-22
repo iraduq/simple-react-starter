@@ -16,6 +16,9 @@ import { useToast } from "../Toast";
 type CalendarDay = {
   date: string;
   price?: number | null;
+  price_override?: number | null;
+  custom_price?: number | null;
+  rate?: number | null;
   available?: boolean | null;
   is_available?: boolean | null;
   blocked?: boolean | null;
@@ -87,17 +90,29 @@ export default function PricingTab() {
       const data = await get<unknown>(
         `/rooms/${selectedRoom}/calendar?start_date=${firstDay}&end_date=${lastDay}`,
       );
+
+      // Verificăm exact structura obiectelor venite din API în consolă
+      console.log("Calendar API Response:", data);
+
       const raw =
-        data && typeof data === "object" && Array.isArray((data as { entries?: unknown }).entries)
-          ? ((data as { entries: CalendarDay[] }).entries)
+        data &&
+        typeof data === "object" &&
+        Array.isArray((data as { entries?: unknown }).entries)
+          ? (data as { entries: CalendarDay[] }).entries
           : list<CalendarDay>(data);
+
       setCalendar(
-        raw.map((d) => ({
-          ...d,
-          date: String(d.date).slice(0, 10),
-          available: d.available ?? d.is_available,
-          blocked: d.blocked ?? d.is_blocked,
-        })),
+        raw.map((d) => {
+          const resolvedPrice =
+            d.price_override ?? d.custom_price ?? d.price ?? d.rate ?? null;
+          return {
+            ...d,
+            date: String(d.date).slice(0, 10),
+            price: resolvedPrice != null ? Number(resolvedPrice) : null,
+            available: d.available ?? d.is_available,
+            blocked: d.blocked ?? d.is_blocked,
+          };
+        }),
       );
     } catch (e) {
       toast(errMsg(e), "error");
@@ -136,7 +151,10 @@ export default function PricingTab() {
     if (!rule.end_date) errs.end_date = "Selectează data de sfârșit.";
     if (rule.start_date && rule.end_date && rule.start_date > rule.end_date)
       errs.end_date = "Data de sfârșit trebuie să fie după cea de start.";
-    if (!rule.is_blocked && (rule.price_override === null || rule.price_override < 0))
+    if (
+      !rule.is_blocked &&
+      (rule.price_override === null || rule.price_override < 0)
+    )
       errs.price_override = "Introdu un preț valid sau marchează ca blocat.";
     setRuleErr(errs);
     if (Object.keys(errs).length) return;
@@ -159,8 +177,13 @@ export default function PricingTab() {
     }
   };
 
-  const monthName = monthDate.toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
-  const basePrice = rooms.find((r) => String(r.id) === selectedRoom)?.base_price;
+  const monthName = monthDate.toLocaleDateString("ro-RO", {
+    month: "long",
+    year: "numeric",
+  });
+  const basePrice = rooms.find(
+    (r) => String(r.id) === selectedRoom,
+  )?.base_price;
 
   if (loading) {
     return (
@@ -193,14 +216,22 @@ export default function PricingTab() {
       />
 
       {rooms.length === 0 ? (
-        <Card><EmptyState title="Nicio cameră" hint="Adaugă camere mai întâi." /></Card>
+        <Card>
+          <EmptyState title="Nicio cameră" hint="Adaugă camere mai întâi." />
+        </Card>
       ) : (
         <>
           <Card className="mb-5 p-4">
             <Field label="Selectează cameră">
-              <select className={inputCls} value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)}>
+              <select
+                className={inputCls}
+                value={selectedRoom}
+                onChange={(e) => setSelectedRoom(e.target.value)}
+              >
                 {rooms.map((r) => (
-                  <option key={r.id} value={String(r.id)}>{roomLabel(r)}</option>
+                  <option key={r.id} value={String(r.id)}>
+                    {roomLabel(r)}
+                  </option>
                 ))}
               </select>
             </Field>
@@ -209,18 +240,38 @@ export default function PricingTab() {
           <Card className="p-5">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <button onClick={() => setMonthOffset((m) => m - 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]">
+                <button
+                  onClick={() => setMonthOffset((m) => m - 1)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]"
+                >
                   <ChevronLeft size={16} />
                 </button>
-                <h3 className="text-[15px] font-semibold capitalize text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>{monthName}</h3>
-                <button onClick={() => setMonthOffset((m) => m + 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]">
+                <h3
+                  className="text-[15px] font-semibold capitalize text-[#0d2c5c]"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  {monthName}
+                </h3>
+                <button
+                  onClick={() => setMonthOffset((m) => m + 1)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c]"
+                >
                   <ChevronRight size={16} />
                 </button>
               </div>
               <div className="flex items-center gap-3 text-[11px] text-[#6b7c99]">
-                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-[#eaf0f9]" /> Preț standard</span>
-                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-[#f4e5c8]/50 border border-[#c69a3f]/50" /> Preț custom</span>
-                <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded bg-red-50 border border-red-200" /> Blocat</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-3 w-5 rounded bg-[#eaf0f9]" /> Preț
+                  standard
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-3 w-5 rounded bg-[#f4e5c8]/50 border border-[#c69a3f]/50" />{" "}
+                  Preț custom
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-3 w-5 rounded bg-red-50 border border-red-200" />{" "}
+                  Blocat
+                </span>
               </div>
             </div>
 
@@ -233,7 +284,12 @@ export default function PricingTab() {
             ) : (
               <div className="grid grid-cols-7 gap-2">
                 {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
-                  <div key={d} className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b7c99]">{d}</div>
+                  <div
+                    key={d}
+                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b7c99]"
+                  >
+                    {d}
+                  </div>
                 ))}
                 {Array.from({ length: firstWeekday }).map((_, i) => (
                   <div key={`empty-${i}`} />
@@ -243,8 +299,17 @@ export default function PricingTab() {
                   const cal = getDay(day);
                   const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                   const blocked = cal?.blocked || cal?.available === false;
-                  const dayPrice = cal?.price != null ? Number(cal.price) : Number(basePrice || 0);
-                  const isCustom = cal?.price != null;
+
+                  // Calcul corectat pentru prețuri
+                  const rawPrice =
+                    cal?.price ?? cal?.price_override ?? cal?.custom_price;
+                  const isCustom =
+                    rawPrice != null && Number(rawPrice) !== Number(basePrice);
+                  const dayPrice =
+                    rawPrice != null
+                      ? Number(rawPrice)
+                      : Number(basePrice || 0);
+
                   return (
                     <button
                       key={day}
@@ -261,7 +326,9 @@ export default function PricingTab() {
                       {blocked ? (
                         <Lock size={11} className="text-red-400" />
                       ) : (
-                        <span className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#8a6413]" : "text-[#8595aa]"}`}>
+                        <span
+                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#8a6413]" : "text-[#8595aa]"}`}
+                        >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
                       )}
@@ -274,35 +341,76 @@ export default function PricingTab() {
         </>
       )}
 
-      <Modal open={ruleOpen} title="Regulă tarifară / blocare" onClose={() => setRuleOpen(false)} width="max-w-md">
+      <Modal
+        open={ruleOpen}
+        title="Regulă tarifară / blocare"
+        onClose={() => setRuleOpen(false)}
+        width="max-w-md"
+      >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <Field label="Data start" error={ruleErr.start_date}>
-              <input type="date" className={inputCls} value={rule.start_date} onChange={(e) => setRule({ ...rule, start_date: e.target.value })} />
+              <input
+                type="date"
+                className={inputCls}
+                value={rule.start_date}
+                onChange={(e) =>
+                  setRule({ ...rule, start_date: e.target.value })
+                }
+              />
             </Field>
             <Field label="Data sfârșit" error={ruleErr.end_date}>
-              <input type="date" className={inputCls} value={rule.end_date} onChange={(e) => setRule({ ...rule, end_date: e.target.value })} />
+              <input
+                type="date"
+                className={inputCls}
+                value={rule.end_date}
+                onChange={(e) => setRule({ ...rule, end_date: e.target.value })}
+              />
             </Field>
           </div>
-          <Field label="Preț suprascriere (RON / noapte)" error={ruleErr.price_override}>
+          <Field
+            label="Preț suprascriere (RON / noapte)"
+            error={ruleErr.price_override}
+          >
             <input
               type="number"
               min={0}
               className={inputCls}
               value={rule.price_override ?? ""}
-              onChange={(e) => setRule({ ...rule, price_override: e.target.value === "" ? null : Number(e.target.value) })}
+              onChange={(e) =>
+                setRule({
+                  ...rule,
+                  price_override:
+                    e.target.value === "" ? null : Number(e.target.value),
+                })
+              }
               disabled={rule.is_blocked}
-              placeholder={rule.is_blocked ? "Blocat pentru mentenanță" : "ex: 450"}
+              placeholder={
+                rule.is_blocked ? "Blocat pentru mentenanță" : "ex: 450"
+              }
             />
           </Field>
           <label className="flex items-center gap-3">
-            <input type="checkbox" checked={rule.is_blocked} onChange={(e) => setRule({ ...rule, is_blocked: e.target.checked })} className="h-4 w-4 accent-red-600" />
-            <span className="text-sm text-[#0d2c5c]">Blochează perioada (mentenanță)</span>
+            <input
+              type="checkbox"
+              checked={rule.is_blocked}
+              onChange={(e) =>
+                setRule({ ...rule, is_blocked: e.target.checked })
+              }
+              className="h-4 w-4 accent-red-600"
+            />
+            <span className="text-sm text-[#0d2c5c]">
+              Blochează perioada (mentenanță)
+            </span>
           </label>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => setRuleOpen(false)}>Renunță</Button>
-          <Button disabled={saving} onClick={() => void submitRule()}>{saving ? "Se aplică…" : "Aplică regula"}</Button>
+          <Button variant="ghost" onClick={() => setRuleOpen(false)}>
+            Renunță
+          </Button>
+          <Button disabled={saving} onClick={() => void submitRule()}>
+            {saving ? "Se aplică…" : "Aplică regula"}
+          </Button>
         </div>
       </Modal>
     </div>

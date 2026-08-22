@@ -9,6 +9,7 @@ export type Booking = {
   status: "pending" | "confirmed" | "completed" | "cancelled" | string;
   room_id?: number | string | null;
   room_name?: string | null;
+  user_id?: string | number | null;
   guest_email?: string | null;
   guest_name?: string | null;
   check_in?: string | null;
@@ -18,7 +19,11 @@ export type Booking = {
   created_at?: string | null;
 };
 
-export type RoomImage = { id: number | string; url?: string; image_url?: string };
+export type RoomImage = {
+  id: number | string;
+  url?: string;
+  image_url?: string;
+};
 export type RoomUnit = {
   id: number | string;
   name?: string | null;
@@ -99,7 +104,7 @@ export type SessionInfo = {
 };
 
 /* ---------------- helpers ---------------- */
-export const list = <T,>(v: unknown): T[] => {
+export const list = <T>(v: unknown): T[] => {
   if (Array.isArray(v)) return v as T[];
   if (v && typeof v === "object") {
     const o = v as Record<string, unknown>;
@@ -112,14 +117,17 @@ export const list = <T,>(v: unknown): T[] => {
 
 export const json = (body: unknown) => JSON.stringify(body);
 
-export const get = <T,>(path: string) => apiFetch<T>(path);
-export const post = <T,>(path: string, body?: unknown) =>
-  apiFetch<T>(path, { method: "POST", body: body === undefined ? null : json(body) });
-export const patch = <T,>(path: string, body: unknown) =>
+export const get = <T>(path: string) => apiFetch<T>(path);
+export const post = <T>(path: string, body?: unknown) =>
+  apiFetch<T>(path, {
+    method: "POST",
+    body: body === undefined ? null : json(body),
+  });
+export const patch = <T>(path: string, body: unknown) =>
   apiFetch<T>(path, { method: "PATCH", body: json(body) });
-export const put = <T,>(path: string, body: unknown) =>
+export const put = <T>(path: string, body: unknown) =>
   apiFetch<T>(path, { method: "PUT", body: json(body) });
-export const del = <T,>(path: string) => apiFetch<T>(path, { method: "DELETE" });
+export const del = <T>(path: string) => apiFetch<T>(path, { method: "DELETE" });
 
 /** multipart upload (nu setăm Content-Type, îl pune browserul) */
 export async function upload<T>(path: string, form: FormData): Promise<T> {
@@ -145,12 +153,20 @@ export async function upload<T>(path: string, form: FormData): Promise<T> {
 export const imageUrl = (img: RoomImage) => img.url || img.image_url || "";
 
 export const money = (v?: number | null) =>
-  new Intl.NumberFormat("ro-RO", { style: "currency", currency: "RON", maximumFractionDigits: 0 }).format(
-    Number(v || 0),
-  );
+  new Intl.NumberFormat("ro-RO", {
+    style: "currency",
+    currency: "RON",
+    maximumFractionDigits: 0,
+  }).format(Number(v || 0));
 
 export const dateFmt = (v?: string | null) =>
-  v ? new Date(v).toLocaleDateString("ro-RO", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+  v
+    ? new Date(v).toLocaleDateString("ro-RO", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
 
 export const dateTimeFmt = (v?: string | null) =>
   v
@@ -169,4 +185,5 @@ export const nights = (a?: string | null, b?: string | null) => {
   return d > 0 ? Math.round(d) : 0;
 };
 
-export const errMsg = (e: unknown) => (e instanceof Error ? e.message : "A apărut o eroare");
+export const errMsg = (e: unknown) =>
+  e instanceof Error ? e.message : "A apărut o eroare";

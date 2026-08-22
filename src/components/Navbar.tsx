@@ -29,7 +29,6 @@ const LANGS = [
 const NAV_ITEMS: { to: string; label: string; end?: boolean }[] = [
   { to: "/", label: "Acasă", end: true },
   { to: "/camere", label: "Camere" },
-  { to: "/disponibilitate", label: "Disponibilitate" },
   { to: "/places", label: "Locații" },
   { to: "/contact", label: "Contact" },
 ];
@@ -198,7 +197,6 @@ export default function Navbar() {
               </NavLink>
             ))}
           </nav>
-
 
           {/* TOOLS + CTA */}
           <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4 -mt-0.5">
@@ -402,7 +400,6 @@ export default function Navbar() {
           </div>
         )}
       </header>
-
     </>
   );
 }
