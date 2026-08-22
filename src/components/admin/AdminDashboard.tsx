@@ -171,7 +171,7 @@ export default function AdminDashboard() {
     health === "online"
       ? "bg-neutral-1000"
       : health === "offline"
-        ? "bg-red-500"
+        ? "bg-[#111111]"
         : "bg-neutral-400";
   const healthLabel =
     health === "online"

@@ -521,7 +521,7 @@ function PlaceMediaManager({
             />
             <button
               onClick={() => void deleteImage()}
-              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-sm transition-all hover:bg-white hover:scale-110"
+              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#111111] shadow-sm transition-all hover:bg-white hover:scale-110"
               title="Șterge imaginea"
             >
               <Trash2 size={15} />

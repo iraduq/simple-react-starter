@@ -239,7 +239,7 @@ export default function RoomsTab() {
                   placeholder="ex: Suită Deluxe"
                 />
                 {formErr.title && (
-                  <span className="text-[11px] text-red-500 mt-1">
+                  <span className="text-[11px] text-[#111111] mt-1">
                     {formErr.title}
                   </span>
                 )}
@@ -257,7 +257,7 @@ export default function RoomsTab() {
                 }
               />
               {formErr.room_type_id && (
-                <span className="text-[11px] text-red-500 mt-1">
+                <span className="text-[11px] text-[#111111] mt-1">
                   {formErr.room_type_id}
                 </span>
               )}
@@ -274,7 +274,7 @@ export default function RoomsTab() {
                 }
               />
               {formErr.base_price && (
-                <span className="text-[11px] text-red-500 mt-1">
+                <span className="text-[11px] text-[#111111] mt-1">
                   {formErr.base_price}
                 </span>
               )}
@@ -294,7 +294,7 @@ export default function RoomsTab() {
                 }
               />
               {formErr.max_guests_adults && (
-                <span className="text-[11px] text-red-500 mt-1">
+                <span className="text-[11px] text-[#111111] mt-1">
                   {formErr.max_guests_adults}
                 </span>
               )}
@@ -381,7 +381,7 @@ export default function RoomsTab() {
             </button>
             <button
               onClick={() => void handleDelete()}
-              className="rounded-full bg-red-600 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-red-700"
+              className="rounded-full bg-[#111111] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#000000]"
             >
               Șterge definitiv
             </button>
@@ -474,7 +474,7 @@ function RoomCard({
           </button>
           <button
             onClick={onDelete}
-            className="inline-flex items-center justify-center rounded-full border border-red-200 bg-white px-3 py-2 text-red-600 transition-all hover:bg-red-50"
+            className="inline-flex items-center justify-center rounded-full border border-[#e5e5e5] bg-white px-3 py-2 text-[#111111] transition-all hover:bg-[#f5f5f5]"
             title="Șterge"
           >
             <Trash2 size={14} />
@@ -618,7 +618,7 @@ function MediaManager({
                   <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100" />
                   <button
                     onClick={() => void deleteImage(img)}
-                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-600 shadow-sm transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#111111] shadow-sm transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
                   >
                     <X size={14} strokeWidth={2.5} />
                   </button>

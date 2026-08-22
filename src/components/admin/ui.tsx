@@ -100,7 +100,7 @@ export function Field({
         {label}
       </span>
       {children}
-      {error && <span className="block mt-1 text-[11px] text-red-600">{error}</span>}
+      {error && <span className="block mt-1 text-[11px] text-[#111111]">{error}</span>}
     </label>
   );
 }
