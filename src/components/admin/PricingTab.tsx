@@ -237,8 +237,8 @@ export default function PricingTab() {
             </Field>
           </Card>
 
-          <Card className="p-5">
-            <div className="mb-4 flex items-center justify-between">
+          <Card className="p-3 sm:p-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setMonthOffset((m) => m - 1)}
@@ -259,7 +259,7 @@ export default function PricingTab() {
                   <ChevronRight size={16} />
                 </button>
               </div>
-              <div className="flex items-center gap-3 text-[11px] text-[#6b6b6b]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-[#6b6b6b] sm:text-[11px]">
                 <span className="flex items-center gap-1.5">
                   <span className="h-3 w-5 rounded bg-[#ededed]" /> Preț
                   standard
@@ -269,20 +269,20 @@ export default function PricingTab() {
                   Preț custom
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-red-50 border border-red-200" />{" "}
+                  <span className="h-3 w-5 rounded bg-[#111111]" />{" "}
                   Blocat
                 </span>
               </div>
             </div>
 
             {calLoading ? (
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {Array.from({ length: 35 }).map((_, i) => (
                   <Skeleton key={i} className="h-16" />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
                   <div
                     key={d}
@@ -314,9 +314,9 @@ export default function PricingTab() {
                     <button
                       key={day}
                       onClick={() => openRule(dateStr)}
-                      className={`flex h-[60px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[11px] transition-all hover:scale-[1.03] ${
+                      className={`flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] transition-all hover:scale-[1.03] sm:h-[60px] sm:text-[11px] ${
                         blocked
-                          ? "border-red-200 bg-red-50 text-red-600"
+                          ? "border-[#111111] bg-[#111111] text-white"
                           : isCustom
                             ? "border-[#737373]/50 bg-[#ededed]/50 text-[#111111]"
                             : "border-[#e5e5e5] bg-[#ededed] text-[#525252] hover:border-[#111111]"
@@ -324,7 +324,7 @@ export default function PricingTab() {
                     >
                       <span className="font-bold leading-none">{day}</span>
                       {blocked ? (
-                        <Lock size={11} className="text-red-400" />
+                        <Lock size={11} className="text-white/70" />
                       ) : (
                         <span
                           className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#404040]" : "text-[#8a8a8a]"}`}
