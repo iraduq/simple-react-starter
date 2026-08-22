@@ -357,9 +357,20 @@ export default function UnitsTab() {
     if (!selectedId || !unitNumber.trim()) return;
     setAdding(true);
     try {
+      const roomTypeId =
+        selectedRoom?.room_type_id ??
+        (typeof (selectedRoom as { room_type?: { id?: number | string } } | undefined)
+          ?.room_type === "object"
+          ? (selectedRoom as { room_type?: { id?: number | string } }).room_type?.id
+          : undefined);
+
       await post(`/rooms/${selectedId}/units`, {
         unit_number: unitNumber.trim(),
+        ...(roomTypeId !== undefined && roomTypeId !== null
+          ? { room_type_id: roomTypeId }
+          : {}),
       });
+
 
       toast("Unitate adăugată.", "success");
       setUnitNumber("");
