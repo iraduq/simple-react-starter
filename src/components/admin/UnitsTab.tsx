@@ -89,6 +89,59 @@ const guestOf = (b: RoomBooking) => {
   );
 };
 
+function GuestCell({
+  b,
+  info,
+  note,
+  onCopy,
+}: {
+  b: RoomBooking;
+  info: { name: string; email: string; userId: string | number | null };
+  note?: string;
+  onCopy: (v: string | number | null | undefined, label: string) => void;
+}) {
+  return (
+    <span className="block">
+      <button
+        onClick={() => onCopy(info.userId, "ID Client")}
+        title="Click pentru a copia ID-ul clientului"
+        className="group inline-flex items-center gap-1.5 text-left hover:opacity-70"
+      >
+        <span className="text-[13px] font-semibold text-[#111111]">
+          {info.name}
+        </span>
+        {info.userId && (
+          <Copy
+            size={10}
+            className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+          />
+        )}
+      </button>
+      {info.email && (
+        <span className="block text-[11px] leading-tight text-[#8a8a8a]">
+          {info.email}
+        </span>
+      )}
+      <button
+        onClick={() => onCopy(b.id, "ID Rezervare")}
+        title="Click pentru a copia ID-ul rezervării"
+        className="group inline-flex items-center gap-1 text-left hover:opacity-70"
+      >
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+          #{String(b.id).slice(0, 8)}
+        </span>
+        <Copy
+          size={9}
+          className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+        />
+      </button>
+      {note && (
+        <span className="block text-[11px] text-[#6b6b6b]">{note}</span>
+      )}
+    </span>
+  );
+}
+
 const unitIdOf = (b: RoomBooking) =>
   String(b.unit_id ?? b.room_unit_id ?? b.unit?.id ?? "");
 
