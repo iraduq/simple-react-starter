@@ -5,10 +5,10 @@ import {
   CircleUser,
   X,
   Sparkles,
-  Key,
   LogOut,
   Menu,
 } from "lucide-react";
+
 import {
   clearSession,
   fetchSession,
@@ -39,7 +39,7 @@ export default function Navbar() {
   const [langOpen, setLangOpen] = useState(false);
   const [acctOpen, setAcctOpen] = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
-  const [copied, setCopied] = useState(false);
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
@@ -80,11 +80,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const copyCode = () => {
-    navigator.clipboard.writeText("CASAESY15");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
+
 
   const { toast } = useToast();
 
@@ -104,50 +100,38 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── PROMO STRIP ── */}
+      {/* ── ANNOUNCEMENT STRIP ── */}
       {!promoDismissed && (
-        <div
-          className="relative flex items-center justify-center px-12 py-2.5 bg-[linear-gradient(90deg,rgba(9,24,52,0.91)_0%,rgba(13,44,92,0.88)_50%,rgba(9,24,52,0.91)_100%)] bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg,rgba(9,24,52,0.91) 0%,rgba(13,44,92,0.88) 50%,rgba(9,24,52,0.91) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=80&fit=crop&crop=bottom)",
-          }}
-        >
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <span className="flex items-center gap-1.5 text-[11.5px] font-bold tracking-[0.15em] uppercase text-white">
-              <Sparkles size={14} className="text-[#c69a3f]" />
-              OFERTĂ SPECIALĂ
+        <div className="relative flex items-center justify-center px-12 py-2 bg-white border-b border-[#c69a3f]/25">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c69a3f]/70 to-transparent"
+          />
+          <div className="flex items-center justify-center gap-3 flex-wrap text-center">
+            <Sparkles size={13} className="text-[#c69a3f] shrink-0" />
+            <span className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f]">
+              Vila Casa Esy
             </span>
-
-            <button
-              onClick={copyCode}
-              title="Apasă pentru a copia"
-              className={`font-sans text-[13.5px] font-bold tracking-wide text-white border-[1.5px] border-dashed rounded px-3.5 py-1.5 transition-all duration-200 ${
-                copied
-                  ? "bg-green-600 border-green-600"
-                  : "bg-white/[0.08] border-[#c69a3f] hover:bg-[#c69a3f]/15"
-              }`}
-            >
-              {copied ? "COPIAT ✓" : "CASAESY15"}
-            </button>
-
-            <span className="flex items-center gap-1.5 text-[13.5px] text-slate-200">
-              pentru{" "}
-              <strong className="text-white font-bold">15% reducere</strong> la
-              rezervare directă
-              <Key size={14} className="text-[#c69a3f]" />
+            <span aria-hidden="true" className="h-3 w-px bg-[#c69a3f]/40" />
+            <span className="font-sans text-[12.5px] text-[#0d2c5c]">
+              Rezervări directe la{" "}
+              <strong className="font-bold text-[#0d2c5c]">
+                cel mai bun preț garantat
+              </strong>{" "}
+              — check-in prietenos, la doi pași de mare.
             </span>
           </div>
 
           <button
             onClick={() => setPromoDismissed(true)}
             aria-label="Închide"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-1 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0d2c5c]/40 hover:text-[#0d2c5c] p-1 transition-colors"
           >
-            <X size={16} strokeWidth={2} />
+            <X size={15} strokeWidth={2} />
           </button>
         </div>
       )}
+
 
       {/* ── HEADER ── */}
       <header
