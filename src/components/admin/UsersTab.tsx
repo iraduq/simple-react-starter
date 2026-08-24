@@ -30,6 +30,19 @@ import { useToast } from "../Toast";
 
 const ROLES = ["user", "manager", "admin"];
 
+/** Rolul real al utilizatorului, indiferent de forma trimisă de backend. */
+export const resolveRole = (u: AdminUser): string => {
+  if (u.is_superuser || u.is_admin) return "admin";
+  const raw =
+    u.role ?? u.user_role ?? (Array.isArray(u.roles) ? u.roles[0] : null);
+  const val = String(raw ?? "").toLowerCase().trim();
+  if (["admin", "administrator", "superuser", "owner"].includes(val))
+    return "admin";
+  if (["manager", "staff", "moderator"].includes(val)) return "manager";
+  if (u.is_staff) return "manager";
+  return val || "user";
+};
+
 export default function UsersTab() {
   const { toast } = useToast();
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -99,7 +112,7 @@ export default function UsersTab() {
 
   const openEdit = (u: AdminUser) => {
     setEditTarget(u);
-    setForm({ role: u.role || "user", is_active: u.is_active ?? true });
+    setForm({ role: resolveRole(u), is_active: u.is_active ?? true });
   };
 
   const submitEdit = async () => {
@@ -181,7 +194,7 @@ export default function UsersTab() {
                       {u.provider && <span className="ml-2 text-[10px] uppercase text-[#8a8a8a]">via {u.provider}</span>}
                     </td>
                     <td className="px-5 py-3.5">
-                      <Badge tone={roleTone(u.role)}>{u.role || "user"}</Badge>
+                      <Badge tone={roleTone(resolveRole(u))}>{resolveRole(u)}</Badge>
                     </td>
                     <td className="px-5 py-3.5">
                       {u.is_active === false ? (
