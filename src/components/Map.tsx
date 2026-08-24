@@ -221,37 +221,10 @@ export default function InteractiveMap() {
   };
 
   return (
-    <section
-      className="relative py-24 md:py-32 px-5 md:px-10 overflow-hidden font-sans"
-      style={{
-        background:
-          "linear-gradient(to right, rgba(13,44,92,0.92) 0%, rgba(13,44,92,0.98) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {/* VAL SUS — tranziția de la secțiunea albă anterioară spre fundalul navy, identic ca stil cu Hero */}
-      <svg
-        className="absolute top-0 left-0 w-full h-[70px] md:h-[100px] pointer-events-none z-[3] block"
-        viewBox="0 0 1440 130"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M0 0 L1440 0 L1440 70 C1260 100, 1080 55, 900 75 S540 110, 360 78 S120 50, 0 82 Z"
-          fill="#c69a3f"
-          opacity="0.35"
-        />
-        <path
-          d="M0 0 L1440 0 L1440 55 C1260 90, 1080 40, 900 62 S540 100, 360 65 S120 35, 0 68 Z"
-          fill="#0d2c5c"
-          opacity="0.5"
-        />
-        <path
-          d="M0 0 L1440 0 L1440 45 C1260 80, 1080 28, 900 52 S540 92, 360 55 S120 22, 0 58 Z"
-          fill="#fdfcf9"
-        />
-      </svg>
+    <section className="relative py-24 md:py-32 px-5 md:px-10 overflow-hidden font-sans bg-white">
+      {/* accent auriu sus, în stilul paginilor Contact / Camere */}
+      <div className="absolute top-0 left-0 w-full h-px bg-[#e8e2d5]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-[2px] bg-gradient-to-r from-transparent via-[#c69a3f] to-transparent" />
 
       <div className="max-w-[1280px] mx-auto relative">
         <div className="text-center mb-12">
@@ -260,15 +233,16 @@ export default function InteractiveMap() {
             HARTA ZONEI
             <span className="w-8 h-px bg-[#c69a3f]/60" />
           </p>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-white leading-[1.15] tracking-[-0.01em] drop-shadow-md">
+          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4rem)] font-normal text-[#0d2c5c] leading-[1.15] tracking-[-0.01em]">
             Ghidul Zonei <em className="italic text-[#c69a3f]">Eforie Nord</em>
           </h2>
-          <p className="max-w-[560px] mx-auto mt-5 text-[15px] leading-relaxed text-white/70 font-light">
+          <p className="max-w-[560px] mx-auto mt-5 text-[15px] leading-relaxed text-[#0d2c5c]/70 font-light">
             Descoperă Vila Casa Esy și tot ce te așteaptă în jur — de la plaje
             cu nisip fin, la restaurante cu specific local și punctele de
             interes care fac din Eforie Nord o destinație aparte.
           </p>
         </div>
+
 
         <div className="relative rounded-[28px] p-[2px] bg-gradient-to-br from-[#c69a3f] via-[#e8d5a8] to-[#0d2c5c] shadow-2xl">
           <div className="h-[580px] w-full rounded-[26px] overflow-hidden relative z-0">
@@ -375,7 +349,7 @@ export default function InteractiveMap() {
         </div>
 
         <div className="text-center mt-10 max-w-[560px] mx-auto">
-          <p className="text-[15px] leading-relaxed text-white/70 font-light">
+          <p className="text-[15px] leading-relaxed text-[#0d2c5c]/70 font-light">
             Fiecare locație de pe hartă a fost aleasă cu grijă de echipa
             noastră, pentru ca timpul petrecut la Vila Casa Esy să fie cât mai
             plăcut — de la plaja liniștită de dimineață, la o cină cu fructe de
