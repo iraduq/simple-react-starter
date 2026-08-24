@@ -1,4 +1,4 @@
-import { API_URL } from "../../lib/config";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,7 +11,7 @@ import {
   Users,
   Shield,
   LogOut,
-  Activity,
+
   X,
   Menu,
   DoorOpen,
@@ -20,7 +20,6 @@ import {
   fetchSession,
   clearSession,
   getCachedUser,
-  type SessionUser,
 } from "../../lib/auth";
 import { useToast } from "../Toast";
 
@@ -57,13 +56,10 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<SessionUser>(getCachedUser());
-  const [loading, setLoading] = useState(!user);
+  const [loading, setLoading] = useState(!getCachedUser());
   const [tab, setTab] = useState<TabKey>("bookings");
-  const [health, setHealth] = useState<"online" | "offline" | "checking">(
-    "checking",
-  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
   useEffect(() => {
     let active = true;
@@ -74,7 +70,7 @@ export default function AdminDashboard() {
         navigate("/", { replace: true });
         return;
       }
-      setUser(s);
+
       setLoading(false);
     })();
     return () => {
@@ -82,21 +78,6 @@ export default function AdminDashboard() {
     };
   }, [navigate]);
 
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const res = await fetch(`${API_URL}/health`, {
-          credentials: "include",
-        });
-        setHealth(res.ok ? "online" : "offline");
-      } catch {
-        setHealth("offline");
-      }
-    };
-    void checkHealth();
-    const interval = setInterval(checkHealth, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleLogout = async () => {
     await clearSession();
@@ -114,43 +95,13 @@ export default function AdminDashboard() {
     );
   }
 
-  const fullName =
-    [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
-    user?.email ||
-    "Admin";
-  const initials = fullName
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  const healthColor =
-    health === "online"
-      ? "bg-[#111111]"
-      : health === "offline"
-        ? "bg-[#111111]"
-        : "bg-[#8a8a8a]";
-  const healthLabel =
-    health === "online"
-      ? "Backend online"
-      : health === "offline"
-        ? "Backend offline"
-        : "Se verifică…";
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="flex">
         {/* Sidebar — desktop */}
         <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-[#e5e5e5] bg-white lg:block">
-          <SidebarContent
-            tab={tab}
-            setTab={setTab}
-            fullName={fullName}
-            initials={initials}
-            healthColor={healthColor}
-            healthLabel={healthLabel}
-          />
+          <SidebarContent tab={tab} setTab={setTab} onLogout={handleLogout} />
         </aside>
 
         {/* Sidebar — mobile drawer */}
@@ -179,10 +130,7 @@ export default function AdminDashboard() {
                   setTab(t);
                   setSidebarOpen(false);
                 }}
-                fullName={fullName}
-                initials={initials}
-                healthColor={healthColor}
-                healthLabel={healthLabel}
+                onLogout={handleLogout}
               />
             </aside>
           </div>
@@ -191,6 +139,12 @@ export default function AdminDashboard() {
         {/* Main content */}
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
           <div className="mx-auto max-w-[1200px]">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="mb-4 inline-flex items-center gap-2 rounded-xl border border-[#e5e5e5] bg-white px-3.5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[#111111] lg:hidden"
+            >
+              <Menu size={15} /> Meniu
+            </button>
             {tab === "bookings" && <BookingsTab />}
             {tab === "rooms" && <RoomsTab />}
             {tab === "units" && <UnitsTab />}
@@ -201,6 +155,7 @@ export default function AdminDashboard() {
             {tab === "audit" && <AuditLogsTab />}
           </div>
         </main>
+
       </div>
     </div>
   );
@@ -210,18 +165,13 @@ export default function AdminDashboard() {
 function SidebarContent({
   tab,
   setTab,
-  fullName,
-  initials,
-  healthColor,
-  healthLabel,
+  onLogout,
 }: {
   tab: TabKey;
   setTab: (t: TabKey) => void;
-  fullName: string;
-  initials: string;
-  healthColor: string;
-  healthLabel: string;
+  onLogout: () => void | Promise<void>;
 }) {
+
   return (
     <nav className="flex flex-col gap-1 p-3 sm:p-4">
       {NAV.map((item) => {
@@ -250,21 +200,18 @@ function SidebarContent({
           </button>
         );
       })}
-      <div className="mt-3 space-y-2 border-t border-[#ededed] pt-3">
-        <div className="flex items-center gap-2 px-1.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#111111] text-[11px] font-bold text-white">
-            {initials}
+      <div className="mt-3 border-t border-[#ededed] pt-3">
+        <button
+          onClick={() => void onLogout()}
+          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold text-[#525252] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f5f5f5] text-[#111111]">
+            <LogOut size={15} strokeWidth={1.75} />
           </span>
-          <span className="truncate text-[12px] font-semibold text-[#525252]">
-            {fullName}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 px-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8a8a8a]">
-          <Activity size={12} />
-          <span className={`h-2 w-2 rounded-full ${healthColor}`} />
-          {healthLabel}
-        </div>
+          Deconectare
+        </button>
       </div>
+
     </nav>
   );
 }

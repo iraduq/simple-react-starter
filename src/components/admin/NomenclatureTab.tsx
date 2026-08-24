@@ -1,21 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
+import * as LucideIcons from "lucide-react";
 import {
   Plus,
   Trash2,
   Pencil,
-  Wifi,
-  Wind,
-  Bath,
-  Tv,
-  Wine,
-  ShieldCheck,
-  Phone,
-  Sparkles,
-  Trees,
-  Coffee,
-  Car,
-  Utensils,
-  Flame,
   Search,
   Check,
   type LucideIcon,
@@ -43,61 +31,67 @@ import {
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
-/* ─────────────── ICON CATALOG ─────────────── */
-const ICON_MAP: Record<string, { label: string; icon: LucideIcon }> = {
-  wifi: { label: "Wi-Fi", icon: Wifi },
-  air: { label: "Aer Condiționat", icon: Wind },
-  bath: { label: "Baie privată", icon: Bath },
-  tv: { label: "Televizor", icon: Tv },
-  drink: { label: "Minibar / Băuturi", icon: Wine },
-  safe: { label: "Seif", icon: ShieldCheck },
-  phone: { label: "Telefon", icon: Phone },
-  hairdryer: { label: "Uscător de păr", icon: Sparkles },
-  soap: { label: "Articole toaletă", icon: Sparkles },
-  garden: { label: "Vedere grădină", icon: Trees },
-  coffee: { label: "Cafetieră", icon: Coffee },
-  parking: { label: "Parcare", icon: Car },
-  kitchen: { label: "Bucătărie", icon: Utensils },
-  fireplace: { label: "Șemineu", icon: Flame },
+/* ─────────────── ICON LIBRARY (lucide-react) ─────────────── */
+const LEGACY_ALIASES: Record<string, string> = {
+  wifi: "Wifi",
+  air: "Wind",
+  bath: "Bath",
+  tv: "Tv",
+  drink: "Wine",
+  safe: "ShieldCheck",
+  phone: "Phone",
+  hairdryer: "Sparkles",
+  soap: "Sparkles",
+  garden: "Trees",
+  coffee: "Coffee",
+  parking: "Car",
+  kitchen: "Utensils",
+  fireplace: "Flame",
 };
+
+const ICON_LIBRARY: { name: string; icon: LucideIcon }[] = Object.entries(
+  LucideIcons as unknown as Record<string, unknown>,
+)
+  .filter(
+    ([k, v]) =>
+      /^[A-Z][A-Za-z0-9]*$/.test(k) &&
+      !k.endsWith("Icon") &&
+      !["Icon", "LucideIcon", "createLucideIcon"].includes(k) &&
+      (typeof v === "function" ||
+        (typeof v === "object" && v !== null && "render" in (v as object))),
+  )
+  .map(([k, v]) => ({ name: k, icon: v as LucideIcon }));
+
+const ICON_BY_NAME = new Map(
+  ICON_LIBRARY.map((i) => [i.name.toLowerCase(), i]),
+);
+
+function resolveIcon(name?: string | null) {
+  if (!name) return null;
+  const raw = name.trim();
+  const alias = LEGACY_ALIASES[raw.toLowerCase()];
+  return (
+    ICON_BY_NAME.get((alias ?? raw).toLowerCase()) ??
+    ICON_BY_NAME.get(raw.replace(/[\s_-]+/g, "").toLowerCase()) ??
+    null
+  );
+}
 
 function DynamicIcon({ name }: { name?: string | null }) {
   if (!name) return <span className="text-[#8a8a8a]">—</span>;
-  const key = name.toLowerCase().trim();
-  const entry = ICON_MAP[key];
+  const entry = resolveIcon(name);
   if (!entry)
     return <span className="font-mono text-xs text-[#8a8a8a]">{name}</span>;
   const IconComp = entry.icon;
   return (
     <div className="flex items-center gap-1.5 text-[#111111]">
       <IconComp size={16} className="text-[#737373]" />
-      <span className="text-xs text-[#525252]">{entry.label}</span>
+      <span className="text-xs text-[#525252]">{entry.name}</span>
     </div>
   );
 }
 
 /* ─────────────── PRESETURI NOMENCLATOR ─────────────── */
-const FACILITY_PRESETS: { name: string; icon: string }[] = [
-  { name: "Wi-Fi gratuit", icon: "wifi" },
-  { name: "Aer condiționat", icon: "air" },
-  { name: "Baie privată", icon: "bath" },
-  { name: "Duș cu apă caldă", icon: "bath" },
-  { name: "Televizor Smart TV", icon: "tv" },
-  { name: "Minibar", icon: "drink" },
-  { name: "Seif în cameră", icon: "safe" },
-  { name: "Telefon", icon: "phone" },
-  { name: "Uscător de păr", icon: "hairdryer" },
-  { name: "Articole de toaletă", icon: "soap" },
-  { name: "Vedere la grădină", icon: "garden" },
-  { name: "Cafetieră / ceainic", icon: "coffee" },
-  { name: "Parcare gratuită", icon: "parking" },
-  { name: "Bucătărie utilată", icon: "kitchen" },
-  { name: "Șemineu", icon: "fireplace" },
-  { name: "Terasă privată", icon: "garden" },
-  { name: "Grătar (BBQ)", icon: "fireplace" },
-  { name: "Mic dejun inclus", icon: "coffee" },
-];
-
 const PRESETS: Record<string, string[]> = {
   "room-types": [
     "Cameră Single",
@@ -122,7 +116,7 @@ const PRESETS: Record<string, string[]> = {
   ],
 };
 
-/* ─────────────── ICON PICKER COMPONENT ─────────────── */
+/* ─────────────── ICON PICKER (toată librăria lucide) ─────────────── */
 function IconPicker({
   value,
   onChange,
@@ -134,11 +128,14 @@ function IconPicker({
   const [isOpen, setIsOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    const q = query.toLowerCase().trim();
-    return Object.entries(ICON_MAP).filter(
-      ([k, v]) => k.includes(q) || v.label.toLowerCase().includes(q),
-    );
+    const q = query.toLowerCase().replace(/[\s_-]+/g, "").trim();
+    const base = q
+      ? ICON_LIBRARY.filter((i) => i.name.toLowerCase().includes(q))
+      : ICON_LIBRARY;
+    return base.slice(0, 120);
   }, [query]);
+
+  const selected = resolveIcon(value);
 
   return (
     <div className="relative">
@@ -146,26 +143,23 @@ function IconPicker({
         onClick={() => setIsOpen(!isOpen)}
         className={`${inputCls} flex cursor-pointer items-center justify-between`}
       >
-        {value && ICON_MAP[value] ? (
+        {selected ? (
           <div className="flex items-center gap-2">
             {(() => {
-              const Comp = ICON_MAP[value].icon;
+              const Comp = selected.icon;
               return <Comp size={16} className="text-[#737373]" />;
             })()}
-            <span className="text-sm text-[#111111]">
-              {ICON_MAP[value].label}
-            </span>
-            <span className="font-mono text-[11px] text-[#8a8a8a]">
-              ({value})
-            </span>
+            <span className="text-sm text-[#111111]">{selected.name}</span>
           </div>
         ) : (
-          <span className="text-sm text-[#8a8a8a]">Alege o iconiță...</span>
+          <span className="text-sm text-[#8a8a8a]">
+            Caută o iconiță (ex: wifi, bed, car)…
+          </span>
         )}
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-xl">
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-xl">
           <div className="border-b border-[#e5e5e5] p-2">
             <div className="flex items-center gap-2 rounded-lg bg-[#f5f5f5] px-2 py-1">
               <Search size={14} className="text-[#8a8a8a]" />
@@ -173,48 +167,50 @@ function IconPicker({
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Caută iconiță..."
+                placeholder={`Caută în ${ICON_LIBRARY.length} iconițe…`}
                 className="w-full bg-transparent text-xs outline-none text-[#111111]"
               />
             </div>
           </div>
-          <div className="max-h-48 overflow-y-auto p-1.5 grid grid-cols-2 gap-1">
-            {filtered.map(([k, item]) => {
+          <div className="grid max-h-56 grid-cols-4 gap-1 overflow-y-auto p-1.5 sm:grid-cols-6">
+            {filtered.map((item) => {
               const IconComp = item.icon;
-              const isSelected = value === k;
+              const isSelected = value === item.name;
               return (
                 <button
                   type="button"
-                  key={k}
+                  key={item.name}
+                  title={item.name}
                   onClick={() => {
-                    onChange(k);
+                    onChange(item.name);
                     setIsOpen(false);
                   }}
-                  className={`flex items-center justify-between rounded-lg p-2 text-left text-xs transition-colors ${
+                  className={`flex flex-col items-center gap-1 rounded-lg p-2 text-[9px] transition-colors ${
                     isSelected
                       ? "bg-[#111111] text-white"
-                      : "hover:bg-[#f5f5f5] text-[#111111]"
+                      : "text-[#525252] hover:bg-[#f5f5f5]"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <IconComp
-                      size={15}
-                      className={
-                        isSelected ? "text-[#737373]" : "text-[#525252]"
-                      }
-                    />
-                    <span>{item.label}</span>
-                  </div>
-                  {isSelected && <Check size={13} className="text-white" />}
+                  <IconComp size={16} />
+                  <span className="w-full truncate text-center">
+                    {item.name}
+                  </span>
+                  {isSelected && <Check size={10} />}
                 </button>
               );
             })}
+            {filtered.length === 0 && (
+              <span className="col-span-full p-3 text-center text-xs text-[#8a8a8a]">
+                Nicio iconiță găsită
+              </span>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 }
+
 
 /* ─────────────── SECTIONS CONFIG ─────────────── */
 type Section = {
@@ -514,28 +510,8 @@ function NomenclatureSection({ section }: { section: Section }) {
         onClose={() => setFormOpen(false)}
       >
         <div className="space-y-4">
-          {section.key === "facilities" ? (
-            <Field label="Alege dintr-o listă predefinită">
-              <select
-                className={inputCls}
-                value=""
-                onChange={(e) => {
-                  const preset = FACILITY_PRESETS.find(
-                    (pp) => pp.name === e.target.value,
-                  );
-                  if (preset)
-                    setForm({ ...form, name: preset.name, icon: preset.icon });
-                }}
-              >
-                <option value="">— Selectează o facilitate —</option>
-                {FACILITY_PRESETS.map((pp) => (
-                  <option key={pp.name} value={pp.name}>
-                    {pp.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          ) : PRESETS[section.key] ? (
+          {section.key !== "facilities" && PRESETS[section.key] ? (
+
             <Field label="Alege dintr-o listă predefinită">
               <select
                 className={inputCls}

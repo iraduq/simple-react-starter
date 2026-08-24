@@ -97,6 +97,11 @@ export type AdminUser = {
   first_name?: string | null;
   last_name?: string | null;
   role?: string | null;
+  is_admin?: boolean | null;
+  is_superuser?: boolean | null;
+  is_staff?: boolean | null;
+  user_role?: string | null;
+  roles?: string[] | null;
   is_active?: boolean | null;
   provider?: string | null;
   created_at?: string | null;
