@@ -779,7 +779,7 @@ export default function UnitsTab() {
 
   // FUNCȚII PENTRU REZERVĂRI (Atribuire și Anulare via Dropdown)
   const assignUnitToBooking = async (
-    bookingId: string,
+    bookingId: string | number,
     unitId: string | null,
   ) => {
     try {
@@ -799,7 +799,7 @@ export default function UnitsTab() {
     }
   };
 
-  const handleCancelBooking = async (bookingId: string) => {
+  const handleCancelBooking = async (bookingId: string | number) => {
     if (!window.confirm("Ești sigur că vrei să anulezi această rezervare?"))
       return;
     try {
