@@ -20,7 +20,6 @@ import {
   fetchSession,
   clearSession,
   getCachedUser,
-  type SessionUser,
 } from "../../lib/auth";
 import { useToast } from "../Toast";
 
