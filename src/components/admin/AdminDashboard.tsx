@@ -207,18 +207,13 @@ export default function AdminDashboard() {
 function SidebarContent({
   tab,
   setTab,
-  fullName,
-  initials,
-  healthColor,
-  healthLabel,
+  onLogout,
 }: {
   tab: TabKey;
   setTab: (t: TabKey) => void;
-  fullName: string;
-  initials: string;
-  healthColor: string;
-  healthLabel: string;
+  onLogout: () => void | Promise<void>;
 }) {
+
   return (
     <nav className="flex flex-col gap-1 p-3 sm:p-4">
       {NAV.map((item) => {
