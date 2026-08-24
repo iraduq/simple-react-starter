@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Pencil, Trash2, Shield, ShieldCheck, ShieldX, Copy } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Shield,
+  ShieldCheck,
+  ShieldX,
+  Copy,
+} from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -30,17 +37,19 @@ import { useToast } from "../Toast";
 
 const ROLES = ["user", "manager", "admin"];
 
-/** Rolul real al utilizatorului, indiferent de forma trimisă de backend. */
-export const resolveRole = (u: AdminUser): string => {
-  if (u.is_superuser || u.is_admin) return "admin";
-  const raw =
-    u.role ?? u.user_role ?? (Array.isArray(u.roles) ? u.roles[0] : null);
-  const val = String(raw ?? "").toLowerCase().trim();
-  if (["admin", "administrator", "superuser", "owner"].includes(val))
-    return "admin";
-  if (["manager", "staff", "moderator"].includes(val)) return "manager";
-  if (u.is_staff) return "manager";
-  return val || "user";
+/** Rolul real al utilizatorului, citit dinamic din backend. */
+export const resolveRole = (u: any): string => {
+  // 1. Dacă backend-ul ne trimite numele din baza de date (cum am setat adineauri)
+  if (u.role_name) {
+    return String(u.role_name).toLowerCase().trim();
+  }
+
+  // 2. Fallback dacă avem doar role_id
+  if (u.role_id === 1) return "admin";
+  if (u.role_id === 2) return "manager";
+  if (u.role_id === 3) return "user";
+
+  return "user";
 };
 
 export default function UsersTab() {
@@ -60,7 +69,7 @@ export default function UsersTab() {
     const q = query.toLowerCase().trim();
     if (!q) return users;
     return users.filter((u) =>
-      [u.email, u.first_name, u.last_name, u.role, u.provider]
+      [u.email, u.first_name, u.last_name, resolveRole(u), u.provider]
         .filter(Boolean)
         .some((f) => String(f).toLowerCase().includes(q)),
     );
@@ -119,10 +128,16 @@ export default function UsersTab() {
     if (!editTarget) return;
     setSaving(true);
     try {
+      // Transformăm textul înapoi în număr (role_id) pentru baza de date
+      let newRoleId = 3; // user
+      if (form.role === "admin") newRoleId = 1;
+      else if (form.role === "manager") newRoleId = 2;
+
       await patch(`/users/admin/${editTarget.id}`, {
-        role: form.role,
+        role_id: newRoleId, // Trimitem role_id către backend!
         is_active: form.is_active,
       });
+
       toast("Utilizator actualizat.", "success");
       setEditTarget(null);
       await load();
@@ -146,7 +161,11 @@ export default function UsersTab() {
   };
 
   const roleTone = (role?: string | null) =>
-    role === "admin" ? "gold" : role === "manager" ? "navy" : ("muted" as const);
+    role === "admin"
+      ? "gold"
+      : role === "manager"
+        ? "navy"
+        : ("muted" as const);
 
   return (
     <div>
@@ -154,12 +173,18 @@ export default function UsersTab() {
         eyebrow="Securitate"
         title="Utilizatori"
         action={
-          <Button variant="ghost" size="sm" onClick={() => void load()}>Reîmprospătează</Button>
+          <Button variant="ghost" size="sm" onClick={() => void load()}>
+            Reîmprospătează
+          </Button>
         }
       />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SearchBox value={query} onChange={setQuery} placeholder="Caută utilizator, email, rol…" />
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+          placeholder="Caută utilizator, email, rol…"
+        />
       </div>
 
       <Card>
@@ -188,13 +213,23 @@ export default function UsersTab() {
                   >
                     <td className="px-5 py-3.5">
                       <span className="block font-semibold text-[#111111]">
-                        {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
+                        {[u.first_name, u.last_name]
+                          .filter(Boolean)
+                          .join(" ") || u.email}
                       </span>
-                      <span className="text-[12px] text-[#6b6b6b]">{u.email}</span>
-                      {u.provider && <span className="ml-2 text-[10px] uppercase text-[#8a8a8a]">via {u.provider}</span>}
+                      <span className="text-[12px] text-[#6b6b6b]">
+                        {u.email}
+                      </span>
+                      {u.provider && (
+                        <span className="ml-2 text-[10px] uppercase text-[#8a8a8a]">
+                          via {u.provider}
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5">
-                      <Badge tone={roleTone(resolveRole(u))}>{resolveRole(u)}</Badge>
+                      <Badge tone={roleTone(resolveRole(u))}>
+                        {resolveRole(u)}
+                      </Badge>
                     </td>
                     <td className="px-5 py-3.5">
                       {u.is_active === false ? (
@@ -203,14 +238,28 @@ export default function UsersTab() {
                         <Badge tone="green">Activ</Badge>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 text-[12px] text-[#6b6b6b]">{dateFmt(u.created_at)}</td>
+                    <td className="px-5 py-3.5 text-[12px] text-[#6b6b6b]">
+                      {dateFmt(u.created_at)}
+                    </td>
                     <td className="px-5 py-3.5">
                       <div
                         className="flex justify-end gap-2"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Button size="sm" variant="ghost" onClick={() => openEdit(u)}><Pencil size={12} /></Button>
-                        <Button size="sm" variant="danger" onClick={() => setDeleteTarget(u)}><Trash2 size={12} /></Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEdit(u)}
+                        >
+                          <Pencil size={12} />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          onClick={() => setDeleteTarget(u)}
+                        >
+                          <Trash2 size={12} />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -346,7 +395,12 @@ export default function UsersTab() {
         )}
       </Modal>
 
-      <Modal open={!!editTarget} title={`Editare: ${editTarget?.email ?? ""}`} onClose={() => setEditTarget(null)} width="max-w-md">
+      <Modal
+        open={!!editTarget}
+        title={`Editare: ${editTarget?.email ?? ""}`}
+        onClose={() => setEditTarget(null)}
+        width="max-w-md"
+      >
         <div className="space-y-4">
           <Field label="Rol">
             <div className="flex gap-2">
@@ -360,30 +414,57 @@ export default function UsersTab() {
                       : "border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
                   }`}
                 >
-                  {r === "admin" ? <ShieldCheck size={13} /> : r === "manager" ? <Shield size={13} /> : <ShieldX size={13} />}
+                  {r === "admin" ? (
+                    <ShieldCheck size={13} />
+                  ) : r === "manager" ? (
+                    <Shield size={13} />
+                  ) : (
+                    <ShieldX size={13} />
+                  )}
                   {r}
                 </button>
               ))}
             </div>
           </Field>
           <label className="flex items-center gap-3">
-            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 accent-[#111111]" />
+            <input
+              type="checkbox"
+              checked={form.is_active}
+              onChange={(e) =>
+                setForm({ ...form, is_active: e.target.checked })
+              }
+              className="h-4 w-4 accent-[#111111]"
+            />
             <span className="text-sm text-[#111111]">Cont activ</span>
           </label>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => setEditTarget(null)}>Renunță</Button>
-          <Button disabled={saving} onClick={() => void submitEdit()}>{saving ? "Se salvează…" : "Salvează"}</Button>
+          <Button variant="ghost" onClick={() => setEditTarget(null)}>
+            Renunță
+          </Button>
+          <Button disabled={saving} onClick={() => void submitEdit()}>
+            {saving ? "Se salvează…" : "Salvează"}
+          </Button>
         </div>
       </Modal>
 
-      <Modal open={!!deleteTarget} title="Șterge utilizator" onClose={() => setDeleteTarget(null)}>
+      <Modal
+        open={!!deleteTarget}
+        title="Șterge utilizator"
+        onClose={() => setDeleteTarget(null)}
+      >
         <p className="text-sm text-[#525252]">
-          Sigur vrei să ștergi contul <strong className="text-[#111111]">{deleteTarget?.email}</strong>? Toate datele asociate vor fi șterse.
+          Sigur vrei să ștergi contul{" "}
+          <strong className="text-[#111111]">{deleteTarget?.email}</strong>?
+          Toate datele asociate vor fi șterse.
         </p>
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => setDeleteTarget(null)}>Anulează</Button>
-          <Button variant="danger" onClick={() => void handleDelete()}>Șterge definitiv</Button>
+          <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+            Anulează
+          </Button>
+          <Button variant="danger" onClick={() => void handleDelete()}>
+            Șterge definitiv
+          </Button>
         </div>
       </Modal>
     </div>
