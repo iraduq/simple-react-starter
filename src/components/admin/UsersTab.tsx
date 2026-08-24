@@ -244,7 +244,7 @@ export default function UsersTab() {
             <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4 sm:grid-cols-3">
               {[
                 { l: "Email", v: detail.email },
-                { l: "Rol", v: detail.role || "user" },
+                { l: "Rol", v: resolveRole(detail) },
                 {
                   l: "Status",
                   v: detail.is_active === false ? "Inactiv" : "Activ",
