@@ -753,7 +753,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
               <button
                 type="submit"
                 disabled={!strong || saving}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#111111] hover:text-[#111111] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#404040] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Shield size={15} />
                 {saving ? "Se salvează…" : "Actualizează parola"}
