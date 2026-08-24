@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Pencil, Trash2, Shield, ShieldCheck, ShieldX } from "lucide-react";
+import { Pencil, Trash2, Shield, ShieldCheck, ShieldX, Copy } from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -13,7 +13,19 @@ import {
   Pagination,
   usePaged,
 } from "./ui";
-import { get, patch, del, list, dateFmt, errMsg, type AdminUser } from "../../lib/admin";
+import {
+  get,
+  patch,
+  del,
+  list,
+  dateFmt,
+  dateTimeFmt,
+  money,
+  nights,
+  errMsg,
+  type AdminUser,
+  type RoomBooking,
+} from "../../lib/admin";
 import { useToast } from "../Toast";
 
 const ROLES = ["user", "manager", "admin"];
@@ -27,6 +39,9 @@ export default function UsersTab() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [query, setQuery] = useState("");
+  const [detail, setDetail] = useState<AdminUser | null>(null);
+  const [bookings, setBookings] = useState<RoomBooking[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -55,6 +70,32 @@ export default function UsersTab() {
   useEffect(() => {
     void load();
   }, []);
+
+  const openDetail = async (u: AdminUser) => {
+    setDetail(u);
+    setBookingsLoading(true);
+    try {
+      const data = await get<unknown>("/bookings");
+      setBookings(
+        list<RoomBooking>(data).filter(
+          (b) =>
+            String((b as any).user_id ?? "") === String(u.id) ||
+            (b.guest_email || b.user_email || "").toLowerCase() ===
+              (u.email || "").toLowerCase(),
+        ),
+      );
+    } catch (e) {
+      toast(errMsg(e), "error");
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
+  const copy = (v: string | number | null | undefined, label: string) => {
+    if (!v) return;
+    navigator.clipboard.writeText(String(v));
+    toast(`${label} copiat în clipboard!`, "success");
+  };
 
   const openEdit = (u: AdminUser) => {
     setEditTarget(u);
@@ -127,7 +168,11 @@ export default function UsersTab() {
               </thead>
               <tbody>
                 {paged.slice.map((u) => (
-                  <tr key={u.id} className="border-b border-[#f5f5f5] last:border-0">
+                  <tr
+                    key={u.id}
+                    onClick={() => void openDetail(u)}
+                    className="cursor-pointer border-b border-[#f5f5f5] last:border-0 transition-colors hover:bg-[#fafafa]"
+                  >
                     <td className="px-5 py-3.5">
                       <span className="block font-semibold text-[#111111]">
                         {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
@@ -147,7 +192,10 @@ export default function UsersTab() {
                     </td>
                     <td className="px-5 py-3.5 text-[12px] text-[#6b6b6b]">{dateFmt(u.created_at)}</td>
                     <td className="px-5 py-3.5">
-                      <div className="flex justify-end gap-2">
+                      <div
+                        className="flex justify-end gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button size="sm" variant="ghost" onClick={() => openEdit(u)}><Pencil size={12} /></Button>
                         <Button size="sm" variant="danger" onClick={() => setDeleteTarget(u)}><Trash2 size={12} /></Button>
                       </div>
@@ -166,6 +214,124 @@ export default function UsersTab() {
           </div>
         )}
       </Card>
+
+      <Modal
+        open={!!detail}
+        title={
+          detail
+            ? [detail.first_name, detail.last_name].filter(Boolean).join(" ") ||
+              detail.email
+            : ""
+        }
+        onClose={() => setDetail(null)}
+        width="max-w-2xl"
+      >
+        {detail && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4 sm:grid-cols-3">
+              {[
+                { l: "Email", v: detail.email },
+                { l: "Rol", v: detail.role || "user" },
+                {
+                  l: "Status",
+                  v: detail.is_active === false ? "Inactiv" : "Activ",
+                },
+                { l: "Autentificare", v: detail.provider || "email" },
+                { l: "Înregistrat", v: dateFmt(detail.created_at) },
+                { l: "Rezervări", v: String(bookings.length) },
+              ].map((f) => (
+                <div key={f.l}>
+                  <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+                    {f.l}
+                  </p>
+                  <p className="mt-0.5 break-words text-[13px] font-medium text-[#111111]">
+                    {f.v}
+                  </p>
+                </div>
+              ))}
+              <div>
+                <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+                  ID Client
+                </p>
+                <button
+                  onClick={() => copy(detail.id, "ID Client")}
+                  className="group mt-0.5 inline-flex items-center gap-1.5 hover:opacity-70"
+                  title="Copiază ID-ul"
+                >
+                  <span className="text-[13px] font-medium text-[#111111]">
+                    {String(detail.id).slice(0, 8)}…
+                  </span>
+                  <Copy size={11} className="text-[#8a8a8a]" />
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">
+                Rezervările clientului
+              </p>
+              {bookingsLoading ? (
+                <TableSkeleton rows={3} />
+              ) : bookings.length === 0 ? (
+                <p className="text-[13px] text-[#6b6b6b]">
+                  Acest client nu are rezervări.
+                </p>
+              ) : (
+                <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+                  {bookings.map((b) => (
+                    <div
+                      key={b.id}
+                      className="flex flex-col gap-1 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div>
+                        <button
+                          onClick={() => copy(b.id, "ID Rezervare")}
+                          className="group inline-flex items-center gap-1.5 hover:opacity-70"
+                          title="Copiază ID-ul rezervării"
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+                            #{String(b.id).slice(0, 8)}
+                          </span>
+                          <Copy size={9} className="text-[#8a8a8a]" />
+                        </button>
+                        <p className="text-[13px] font-semibold text-[#111111]">
+                          {dateFmt(b.check_in)} → {dateFmt(b.check_out)}{" "}
+                          <span className="text-[11px] font-normal text-[#6b6b6b]">
+                            ({nights(b.check_in, b.check_out)} nopți)
+                          </span>
+                        </p>
+                        <p className="text-[11px] text-[#8a8a8a]">
+                          Creată: {dateTimeFmt((b as any).created_at)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge tone="muted">{b.status || "—"}</Badge>
+                        <span className="text-[13px] font-semibold text-[#111111]">
+                          {money(b.total_price)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-[#ededed] pt-4">
+              <Button variant="ghost" onClick={() => setDetail(null)}>
+                Închide
+              </Button>
+              <Button
+                onClick={() => {
+                  openEdit(detail);
+                  setDetail(null);
+                }}
+              >
+                Modifică rol / status
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <Modal open={!!editTarget} title={`Editare: ${editTarget?.email ?? ""}`} onClose={() => setEditTarget(null)} width="max-w-md">
         <div className="space-y-4">
