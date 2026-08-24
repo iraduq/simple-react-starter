@@ -1,5 +1,5 @@
 import { API_URL } from "../../lib/config";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -11,13 +11,10 @@ import {
   Users,
   Shield,
   LogOut,
-  ChevronDown,
   Activity,
-  Monitor,
   X,
   Menu,
   DoorOpen,
-  UserRound,
 } from "lucide-react";
 import {
   fetchSession,
