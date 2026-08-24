@@ -1,5 +1,5 @@
 import { Search, Users } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "./DatePicker";
 import { useToast } from "./Toast";
@@ -11,8 +11,20 @@ export default function Hero() {
   const [checkOut, setCheckOut] = useState("");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
+  const [guestsOpen, setGuestsOpen] = useState(false);
+  const guestsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!guestsOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (!guestsRef.current?.contains(e.target as Node)) setGuestsOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [guestsOpen]);
+
 
   const handleCheckIn = (val: string) => {
     setCheckIn(val);
