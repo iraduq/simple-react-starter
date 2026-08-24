@@ -1,4 +1,4 @@
-import { API_URL } from "../../lib/config";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,7 +11,7 @@ import {
   Users,
   Shield,
   LogOut,
-  Activity,
+
   X,
   Menu,
   DoorOpen,
@@ -57,12 +57,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<SessionUser>(getCachedUser());
-  const [loading, setLoading] = useState(!user);
-  const [tab, setTab] = useState<TabKey>("bookings");
-  const [health, setHealth] = useState<"online" | "offline" | "checking">(
-    "checking",
-  );
+  const [loading, setLoading] = useState(!getCachedUser());
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -74,7 +69,7 @@ export default function AdminDashboard() {
         navigate("/", { replace: true });
         return;
       }
-      setUser(s);
+
       setLoading(false);
     })();
     return () => {
@@ -82,21 +77,6 @@ export default function AdminDashboard() {
     };
   }, [navigate]);
 
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const res = await fetch(`${API_URL}/health`, {
-          credentials: "include",
-        });
-        setHealth(res.ok ? "online" : "offline");
-      } catch {
-        setHealth("offline");
-      }
-    };
-    void checkHealth();
-    const interval = setInterval(checkHealth, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleLogout = async () => {
     await clearSession();
@@ -114,29 +94,6 @@ export default function AdminDashboard() {
     );
   }
 
-  const fullName =
-    [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
-    user?.email ||
-    "Admin";
-  const initials = fullName
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  const healthColor =
-    health === "online"
-      ? "bg-[#111111]"
-      : health === "offline"
-        ? "bg-[#111111]"
-        : "bg-[#8a8a8a]";
-  const healthLabel =
-    health === "online"
-      ? "Backend online"
-      : health === "offline"
-        ? "Backend offline"
-        : "Se verifică…";
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
