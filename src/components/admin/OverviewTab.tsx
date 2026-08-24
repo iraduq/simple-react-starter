@@ -163,6 +163,7 @@ export default function OverviewTab() {
   }, [bookings, rooms]);
 
   const pending = bookings.filter((b) => b.status === "pending");
+  const pendingPaged = usePaged(pending, 5);
 
   const act = async (id: Booking["id"], kind: "confirm" | "cancel") => {
     setBusy(`${id}-${kind}`);
