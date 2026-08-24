@@ -52,10 +52,10 @@ type TabKey =
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Prezentare generală", icon: LayoutDashboard },
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
-  { key: "rooms", label: "Camere & foto", icon: BedDouble },
+  { key: "rooms", label: "Camere", icon: BedDouble },
   { key: "units", label: "Unități fizice", icon: DoorOpen },
-  { key: "nomenclature", label: "Tipuri & facilități", icon: Tags },
-  { key: "pricing", label: "Prețuri & calendar", icon: DollarSign },
+  { key: "nomenclature", label: "Facilități", icon: Tags },
+  { key: "pricing", label: "Prețuri", icon: DollarSign },
   { key: "places", label: "Atracții locale", icon: MapPin },
   { key: "users", label: "Utilizatori", icon: Users },
   { key: "audit", label: "Jurnal de securitate", icon: Shield },
@@ -244,7 +244,6 @@ export default function AdminDashboard() {
           />
         </aside>
 
-
         {/* Sidebar — mobile drawer */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
@@ -276,7 +275,6 @@ export default function AdminDashboard() {
                 healthColor={healthColor}
                 healthLabel={healthLabel}
               />
-
             </aside>
           </div>
         )}
@@ -392,7 +390,9 @@ function SidebarContent({
           >
             <span
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                active ? "bg-white/15 text-white" : "bg-[#f5f5f5] text-[#111111]"
+                active
+                  ? "bg-white/15 text-white"
+                  : "bg-[#f5f5f5] text-[#111111]"
               }`}
             >
               <Icon size={15} strokeWidth={1.75} />
@@ -419,4 +419,3 @@ function SidebarContent({
     </nav>
   );
 }
-

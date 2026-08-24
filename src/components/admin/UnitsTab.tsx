@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus,
   DoorOpen,
@@ -9,8 +9,12 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
-  User,
   RefreshCw,
+  MoreVertical,
+  Pencil,
+  X,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Badge, TableSkeleton, EmptyState } from "./ui";
 import {
@@ -27,6 +31,7 @@ import {
   type RoomUnit,
   type RoomBooking,
   type Nomenclature,
+  type AdminUser,
 } from "../../lib/admin";
 
 import { useToast } from "../Toast";
@@ -98,6 +103,21 @@ const isOngoing = (b: RoomBooking) => {
 
 const isUpcoming = (b: RoomBooking) =>
   !!b.check_in && new Date(b.check_in).getTime() > Date.now();
+
+/** Verifică dacă două intervale [check_in, check_out) se suprapun. */
+const rangesOverlap = (
+  aStart?: string | null,
+  aEnd?: string | null,
+  bStart?: string | null,
+  bEnd?: string | null,
+) => {
+  if (!aStart || !aEnd || !bStart || !bEnd) return false;
+  const as = new Date(aStart).getTime();
+  const ae = new Date(aEnd).getTime();
+  const bs = new Date(bStart).getTime();
+  const be = new Date(bEnd).getTime();
+  return as < be && bs < ae;
+};
 
 const MONTHS = [
   "Ianuarie",
@@ -264,9 +284,288 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   );
 }
 
+/** Modal de editare pentru o unitate (număr, tip pat, status). */
+function EditUnitModal({
+  unit,
+  index,
+  bedTypes,
+  onClose,
+  onSave,
+}: {
+  unit: RoomUnit;
+  index: number;
+  bedTypes: Nomenclature[];
+  onClose: () => void;
+  onSave: (payload: {
+    unitNumber: string;
+    bedTypeId: string;
+    status: string;
+  }) => Promise<void>;
+}) {
+  const [unitNumber, setUnitNumber] = useState(unitLabel(unit, index));
+  const [bedTypeId, setBedTypeId] = useState(
+    unit.bed_type?.id ? String(unit.bed_type.id) : "",
+  );
+  const [status, setStatus] = useState(unit.status || "active");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!unitNumber.trim()) return;
+    setSaving(true);
+    try {
+      await onSave({ unitNumber: unitNumber.trim(), bedTypeId, status });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm rounded-2xl border border-[#e5e5e5] bg-white p-5 shadow-xl"
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <p
+            className="text-[16px] font-semibold text-[#111111]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Editează unitatea
+          </p>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-[#8a8a8a] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+              Număr unitate
+            </label>
+            <input
+              value={unitNumber}
+              onChange={(e) => setUnitNumber(e.target.value)}
+              className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+              Tip pat
+            </label>
+            <select
+              value={bedTypeId}
+              onChange={(e) => setBedTypeId(e.target.value)}
+              className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+            >
+              <option value="">Fără tip specificat</option>
+              {bedTypes.map((bt) => (
+                <option key={bt.id} value={String(bt.id)}>
+                  {bt.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+            >
+              {STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            disabled={saving}
+            className="rounded-xl border border-[#e5e5e5] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111111] transition-all hover:bg-[#f5f5f5] disabled:opacity-50"
+          >
+            Anulează
+          </button>
+          <button
+            onClick={() => void handleSave()}
+            disabled={saving || !unitNumber.trim()}
+            className="rounded-xl bg-[#111111] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
+          >
+            {saving ? "Se salvează…" : "Salvează"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Dropdown cu search pentru atribuirea unei rezervări la o unitate.
+ * Arată întâi unitățile libere pentru perioada rezervării, apoi pe cele ocupate
+ * (marcate vizual, dar tot selectabile — pentru cazuri de suprascriere manuală).
+ */
+function AssignUnitDropdown({
+  booking,
+  units,
+  bookingsByUnit,
+  onAssign,
+  onCancelBooking,
+}: {
+  booking: RoomBooking;
+  units: RoomUnit[];
+  bookingsByUnit: Map<string, RoomBooking[]>;
+  onAssign: (unitId: string) => void;
+  onCancelBooking: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", close);
+    return () => window.removeEventListener("mousedown", close);
+  }, [open]);
+
+  const ranked = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const withAvailability = units.map((u, idx) => {
+      const uBookings = bookingsByUnit.get(String(u.id)) || [];
+      const conflict = uBookings.some(
+        (b) =>
+          String(b.id) !== String(booking.id) &&
+          b.status !== "cancelled" &&
+          b.status !== "completed" &&
+          rangesOverlap(
+            booking.check_in,
+            booking.check_out,
+            b.check_in,
+            b.check_out,
+          ),
+      );
+      return {
+        unit: u,
+        label: unitLabel(u, idx),
+        available: !conflict && (!u.status || u.status === "active"),
+      };
+    });
+    const filtered = q
+      ? withAvailability.filter((x) => x.label.toLowerCase().includes(q))
+      : withAvailability;
+    return filtered.sort((a, b) => {
+      if (a.available !== b.available) return a.available ? -1 : 1;
+      return a.label.localeCompare(b.label);
+    });
+  }, [units, bookingsByUnit, booking, query]);
+
+  return (
+    <div className="relative" ref={wrapRef}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#8a8a8a] transition-all hover:bg-[#e5e5e5] hover:text-[#111111]"
+      >
+        <MoreVertical size={14} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-7 z-50 w-56 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-lg">
+          <div className="border-b border-[#ededed] p-2">
+            <div className="relative">
+              <Search
+                size={12}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8a8a8a]"
+              />
+              <input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Caută unitate…"
+                className="w-full rounded-lg border border-[#e5e5e5] bg-[#fafafa] py-1.5 pl-7 pr-2 text-[12px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+              />
+            </div>
+          </div>
+
+          <div className="max-h-52 overflow-y-auto py-1">
+            {ranked.length === 0 ? (
+              <p className="px-3 py-2 text-[12px] text-[#8a8a8a]">
+                Nicio unitate găsită.
+              </p>
+            ) : (
+              ranked.map(({ unit, label, available }) => (
+                <button
+                  key={unit.id}
+                  onClick={() => {
+                    onAssign(String(unit.id));
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] font-medium text-[#111111] hover:bg-[#f5f5f5]"
+                >
+                  <span className="truncate">{label}</span>
+                  {available ? (
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-[#16a34a]">
+                      <Check size={11} /> liberă
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-[#b91c1c]">
+                      ocupată
+                    </span>
+                  )}
+                </button>
+              ))
+            )}
+          </div>
+
+          <div className="border-t border-[#ededed] p-1">
+            {booking.status === "completed" ||
+            booking.status === "cancelled" ? (
+              <p className="px-2 py-1.5 text-[11px] text-[#8a8a8a]">
+                {booking.status === "completed"
+                  ? "Rezervare finalizată — nu mai poate fi anulată."
+                  : "Rezervare deja anulată."}
+              </p>
+            ) : (
+              <button
+                onClick={() => {
+                  onCancelBooking();
+                  setOpen(false);
+                }}
+                className="w-full rounded-lg px-2 py-1.5 text-left text-[12px] font-medium text-[#b91c1c] hover:bg-[#fef2f2]"
+              >
+                Anulează rezervarea
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function UnitsTab() {
   const { toast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
   const [units, setUnits] = useState<RoomUnit[]>([]);
@@ -280,6 +579,17 @@ export default function UnitsTab() {
   const [bedTypes, setBedTypes] = useState<Nomenclature[]>([]);
   const [bedTypeId, setBedTypeId] = useState<string>("");
 
+  // State-uri pentru meniuri Dropdown
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null); // Meniul unității
+  const [bookingMenuOpenId, setBookingMenuOpenId] = useState<string | null>(
+    null,
+  ); // Meniul din rezervări (atribuite)
+
+  const [editingUnit, setEditingUnit] = useState<{
+    unit: RoomUnit;
+    index: number;
+  } | null>(null);
+
   const loadBedTypes = async () => {
     try {
       const data = await get<unknown>("/rooms/bed-types");
@@ -291,12 +601,16 @@ export default function UnitsTab() {
     }
   };
 
-  const loadRooms = async () => {
+  const loadRoomsAndUsers = async () => {
     setLoading(true);
     try {
-      const data = await get<unknown>("/rooms");
-      const rs = list<Room>(data);
+      const [r, u] = await Promise.all([
+        get<unknown>("/rooms"),
+        get<unknown>("/users/admin/all"),
+      ]);
+      const rs = list<Room>(r);
       setRooms(rs);
+      setUsers(list<AdminUser>(u));
       if (rs.length && selectedId === null) setSelectedId(rs[0].id);
     } catch (e) {
       toast(errMsg(e), "error");
@@ -331,9 +645,8 @@ export default function UnitsTab() {
   };
 
   useEffect(() => {
-    void loadRooms();
+    void loadRoomsAndUsers();
     void loadBedTypes();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -345,6 +658,17 @@ export default function UnitsTab() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
+
+  // Închide meniurile de 3 puncte la click în exterior
+  useEffect(() => {
+    if (!menuOpenId && !bookingMenuOpenId) return;
+    const close = () => {
+      setMenuOpenId(null);
+      setBookingMenuOpenId(null);
+    };
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [menuOpenId, bookingMenuOpenId]);
 
   const selectedRoom = useMemo(
     () => rooms.find((r) => String(r.id) === String(selectedId)) || null,
@@ -423,8 +747,85 @@ export default function UnitsTab() {
     }
   };
 
+  const saveUnitEdits = async (
+    u: RoomUnit,
+    payload: { unitNumber: string; bedTypeId: string; status: string },
+  ) => {
+    if (!selectedId) return;
+    try {
+      const body: Record<string, unknown> = {};
+      if (payload.unitNumber && payload.unitNumber !== u.unit_number) {
+        body.unit_number = payload.unitNumber;
+      }
+      if (
+        payload.bedTypeId &&
+        payload.bedTypeId !== String(u.bed_type?.id ?? "")
+      ) {
+        body.bed_type_id = Number(payload.bedTypeId);
+      }
+      if (payload.status && payload.status !== (u.status || "active")) {
+        body.status = payload.status;
+      }
+      if (Object.keys(body).length > 0) {
+        await patch(`/rooms/${selectedId}/units/${u.id}`, body);
+        toast("Unitate actualizată.", "success");
+        await loadUnits(selectedId);
+      }
+      setEditingUnit(null);
+    } catch (e) {
+      toast(errMsg(e), "error");
+    }
+  };
+
+  // FUNCȚII PENTRU REZERVĂRI (Atribuire și Anulare via Dropdown)
+  const assignUnitToBooking = async (
+    bookingId: string,
+    unitId: string | null,
+  ) => {
+    try {
+      await patch(`/bookings/${bookingId}`, { room_unit_id: unitId });
+      toast(
+        unitId
+          ? "Unitate atribuită cu succes."
+          : "Rezervare scoasă de pe unitate.",
+        "success",
+      );
+      if (selectedId) {
+        await loadUnits(selectedId);
+        await loadBookings(selectedId);
+      }
+    } catch (err) {
+      toast(errMsg(err), "error");
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!window.confirm("Ești sigur că vrei să anulezi această rezervare?"))
+      return;
+    try {
+      // Endpoint-ul POST /bookings/:id/cancel verifică ownership-ul
+      // (guest-ul propriu) și respinge cu 403 apelurile de admin.
+      // PATCH /bookings/:id merge deja cu drepturi de admin (folosit și
+      // pentru room_unit_id), deci trecem și anularea prin el.
+      await patch(`/bookings/${bookingId}`, { status: "cancelled" });
+      toast("Rezervare anulată.", "success");
+      if (selectedId) {
+        await loadUnits(selectedId);
+        await loadBookings(selectedId);
+      }
+    } catch (err) {
+      toast(errMsg(err), "error");
+    }
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    toast(`${label} copiat în clipboard!`, "success");
+  };
+
   const activeCount = units.filter(
-    (u) => !u.status || u.status === "active",
+    (u) => !u.status || u.status === "active" || u.status === "cleaning",
   ).length;
 
   return (
@@ -585,6 +986,8 @@ export default function UnitsTab() {
                     const current = ub.find(isOngoing);
                     const next = ub.find(isUpcoming);
                     const expanded = openUnit === uid;
+                    const menuOpen = menuOpenId === uid;
+
                     return (
                       <div
                         key={u.id}
@@ -599,8 +1002,14 @@ export default function UnitsTab() {
                               {i + 1}
                             </span>
                             <div>
-                              <p className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-[#111111]">
-                                {unitLabel(u, i)}
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-[14px] font-semibold text-[#111111]">
+                                  {unitLabel(u, i)}
+                                </span>
+                                <span className="text-[13px] font-medium text-[#525252]">
+                                  {u.bed_type?.name || "Fără pat specificat"}
+                                </span>
+
                                 <Badge tone={statusTone(u.status)}>
                                   {statusLabel(u.status)}
                                 </Badge>
@@ -609,11 +1018,8 @@ export default function UnitsTab() {
                                 ) : (
                                   <Badge tone="green">Liberă acum</Badge>
                                 )}
-                              </p>
-                              <p className="text-[12px] text-[#6b6b6b]">
-                                {u.bed_type?.name
-                                  ? `${u.bed_type.name} · `
-                                  : ""}
+                              </div>
+                              <p className="text-[12px] text-[#6b6b6b] mt-1 pl-2">
                                 {current
                                   ? `${guestOf(current)} · până ${dateFmt(current.check_out)}`
                                   : next
@@ -649,16 +1055,47 @@ export default function UnitsTab() {
                                 className={expanded ? "rotate-180" : ""}
                               />
                             </button>
-                            <button
-                              onClick={() => void removeUnit(u)}
-                              title="Șterge unitatea"
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#111111] text-[#111111] transition-all hover:bg-[#111111] hover:text-white"
-                            >
-                              <Trash2 size={13} />
-                            </button>
+
+                            {/* Meniu cu 3 puncte: Editează / Șterge UNITATE */}
+                            <div className="relative">
+                              <button
+                                onClick={() =>
+                                  setMenuOpenId(menuOpen ? null : uid)
+                                }
+                                title="Mai multe acțiuni"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e5e5e5] text-[#525252] transition-all hover:bg-[#f5f5f5] hover:text-[#111111]"
+                              >
+                                <MoreVertical size={15} />
+                              </button>
+                              {menuOpen && (
+                                <div className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-lg py-1">
+                                  <button
+                                    onClick={() => {
+                                      setMenuOpenId(null);
+                                      setEditingUnit({ unit: u, index: i });
+                                    }}
+                                    className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-[#111111] transition-colors hover:bg-[#f5f5f5]"
+                                  >
+                                    <Pencil size={13} /> Editează
+                                  </button>
+                                  <div className="border-t border-[#ededed] mt-1 pt-1">
+                                    <button
+                                      onClick={() => {
+                                        setMenuOpenId(null);
+                                        void removeUnit(u);
+                                      }}
+                                      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-[#b91c1c] transition-colors hover:bg-[#fef2f2]"
+                                    >
+                                      <Trash2 size={13} /> Șterge unitatea
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
 
+                        {/* DETALII REZERVĂRI ATRIBUITE UNITĂȚII */}
                         {expanded && (
                           <div className="border-t border-[#ededed] bg-[#fafafa] px-4 py-4">
                             <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_330px]">
@@ -728,43 +1165,174 @@ export default function UnitsTab() {
                               </p>
                             ) : (
                               <div className="space-y-2">
-                                {ub.map((b) => (
-                                  <div
-                                    key={b.id}
-                                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e5e5e5] bg-white px-4 py-3"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f5f5f5] text-[#111111]">
-                                        <User size={13} />
-                                      </span>
-                                      <div>
-                                        <p className="text-[13px] font-semibold text-[#111111]">
-                                          {guestOf(b)}
-                                        </p>
-                                        <p className="text-[12px] text-[#6b6b6b]">
-                                          {dateFmt(b.check_in)} →{" "}
-                                          {dateFmt(b.check_out)} ·{" "}
-                                          {nights(b.check_in, b.check_out)}{" "}
-                                          nopți
-                                          {b.booking_code
-                                            ? ` · ${b.booking_code}`
-                                            : ""}
-                                        </p>
+                                {ub.map((b) => {
+                                  const userObj = users.find(
+                                    (uObj: any) =>
+                                      String(uObj.id) === String(b.user_id),
+                                  );
+                                  const shortBookingId =
+                                    String(b.id).length > 8
+                                      ? String(b.id).substring(0, 8) + "..."
+                                      : String(b.id);
+                                  const rawEmail =
+                                    b.user_email ||
+                                    b.guest_email ||
+                                    userObj?.email ||
+                                    "";
+                                  const displayEmail = rawEmail || "—";
+                                  let displayName =
+                                    b.guest_name || b.user_name || "";
+
+                                  if (!displayName && userObj) {
+                                    displayName =
+                                      `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
+                                  }
+                                  if (!displayName && rawEmail) {
+                                    displayName = rawEmail.split("@")[0];
+                                    displayName =
+                                      displayName.charAt(0).toUpperCase() +
+                                      displayName.slice(1);
+                                  } else if (!displayName) {
+                                    displayName = "Client Necunoscut";
+                                  }
+
+                                  const bMenuOpen =
+                                    bookingMenuOpenId === String(b.id);
+
+                                  return (
+                                    <div
+                                      key={b.id}
+                                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2.5"
+                                    >
+                                      <div className="flex items-start gap-2">
+                                        <div className="flex flex-col items-start gap-0.5">
+                                          {/* ID REZERVARE */}
+                                          <button
+                                            onClick={() =>
+                                              copyToClipboard(
+                                                String(b.id),
+                                                "ID Rezervare",
+                                              )
+                                            }
+                                            className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                            title="Click pentru a copia ID-ul rezervării"
+                                          >
+                                            <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+                                              #{shortBookingId}
+                                            </span>
+                                            <Copy
+                                              size={9}
+                                              className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                            />
+                                          </button>
+
+                                          {/* NUME */}
+                                          <button
+                                            onClick={() =>
+                                              copyToClipboard(
+                                                b.user_id,
+                                                "ID Client",
+                                              )
+                                            }
+                                            className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                            title="Click pentru a copia ID-ul clientului"
+                                          >
+                                            <span className="block text-[13px] font-semibold text-black">
+                                              {displayName}
+                                            </span>
+                                            {b.user_id && (
+                                              <Copy
+                                                size={10}
+                                                className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                              />
+                                            )}
+                                          </button>
+
+                                          {/* EMAIL */}
+                                          {rawEmail && (
+                                            <span className="text-[12px] text-[#8a8a8a] block leading-tight">
+                                              {displayEmail}
+                                            </span>
+                                          )}
+
+                                          {/* PERIOADA */}
+                                          <p className="text-[11px] text-[#6b6b6b] mt-0.5">
+                                            {dateFmt(b.check_in)} →{" "}
+                                            {dateFmt(b.check_out)} ·{" "}
+                                            {nights(b.check_in, b.check_out)}{" "}
+                                            nopți
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-[12px] font-semibold text-[#111111] mr-1">
+                                          {money(b.total_price)}
+                                        </span>
+                                        <Badge tone={bookingTone(b.status)}>
+                                          {bookingStatusLabel(b.status)}
+                                        </Badge>
+                                        {isOngoing(b) && (
+                                          <Badge tone="red">Live</Badge>
+                                        )}
+
+                                        {/* DROPDOWN REZERVARE ATRIBUITA */}
+                                        <div className="relative ml-1">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setBookingMenuOpenId(
+                                                bMenuOpen ? null : String(b.id),
+                                              );
+                                            }}
+                                            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#8a8a8a] transition-all hover:bg-[#f5f5f5] hover:text-[#111111]"
+                                          >
+                                            <MoreVertical size={14} />
+                                          </button>
+
+                                          {bMenuOpen && (
+                                            <div className="absolute right-0 top-7 z-50 w-44 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-lg py-1">
+                                              <button
+                                                onClick={() => {
+                                                  assignUnitToBooking(
+                                                    b.id,
+                                                    null,
+                                                  );
+                                                  setBookingMenuOpenId(null);
+                                                }}
+                                                className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-[#111111] hover:bg-[#f5f5f5]"
+                                              >
+                                                Dez-atribuie unitatea
+                                              </button>
+
+                                              <div className="border-t border-[#ededed] mt-1 pt-1">
+                                                {b.status === "completed" ||
+                                                b.status === "cancelled" ? (
+                                                  <p className="px-3 py-1.5 text-[11px] text-[#8a8a8a]">
+                                                    {b.status === "completed"
+                                                      ? "Finalizată — nu mai poate fi anulată."
+                                                      : "Deja anulată."}
+                                                  </p>
+                                                ) : (
+                                                  <button
+                                                    onClick={() => {
+                                                      handleCancelBooking(b.id);
+                                                      setBookingMenuOpenId(
+                                                        null,
+                                                      );
+                                                    }}
+                                                    className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-[#b91c1c] hover:bg-[#fef2f2]"
+                                                  >
+                                                    Anulează rezervarea
+                                                  </button>
+                                                )}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-[13px] font-semibold text-[#111111]">
-                                        {money(b.total_price)}
-                                      </span>
-                                      <Badge tone={bookingTone(b.status)}>
-                                        {bookingStatusLabel(b.status)}
-                                      </Badge>
-                                      {isOngoing(b) && (
-                                        <Badge tone="red">În desfășurare</Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
@@ -781,65 +1349,125 @@ export default function UnitsTab() {
                     Rezervări fără unitate atribuită ({unassigned.length})
                   </p>
                   <div className="space-y-2">
-                    {unassigned.map((b) => (
-                      <div
-                        key={b.id}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white px-4 py-3 border border-[#e5e5e5]"
-                      >
-                        <div>
-                          <span className="text-[13px] font-semibold text-[#111111] block">
-                            {guestOf(b)}
-                          </span>
-                          <span className="text-[12px] text-[#6b6b6b]">
-                            {dateFmt(b.check_in)} → {dateFmt(b.check_out)}
-                          </span>
-                        </div>
+                    {unassigned.map((b) => {
+                      const userObj = users.find(
+                        (uObj: any) => String(uObj.id) === String(b.user_id),
+                      );
+                      const shortBookingId =
+                        String(b.id).length > 8
+                          ? String(b.id).substring(0, 8) + "..."
+                          : String(b.id);
+                      const rawEmail =
+                        b.user_email || b.guest_email || userObj?.email || "";
+                      const displayEmail = rawEmail || "—";
+                      let displayName = b.guest_name || b.user_name || "";
 
-                        <div className="flex items-center gap-2">
-                          <select
-                            onChange={async (e) => {
-                              const targetUnitId = e.target.value;
-                              if (!targetUnitId) return;
-                              try {
-                                await patch(`/bookings/${b.id}`, {
-                                  room_unit_id: targetUnitId,
-                                });
-                                toast(
-                                  "Unitate atribuită cu succes.",
-                                  "success",
-                                );
-                                if (selectedId) {
-                                  await loadUnits(selectedId);
-                                  await loadBookings(selectedId);
+                      if (!displayName && userObj) {
+                        displayName =
+                          `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
+                      }
+                      if (!displayName && rawEmail) {
+                        displayName = rawEmail.split("@")[0];
+                        displayName =
+                          displayName.charAt(0).toUpperCase() +
+                          displayName.slice(1);
+                      } else if (!displayName) {
+                        displayName = "Client Necunoscut";
+                      }
+
+                      return (
+                        <div
+                          key={b.id}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-white px-3 py-2.5 border border-[#e5e5e5]"
+                        >
+                          <div className="flex items-start gap-2">
+                            <div className="flex flex-col items-start gap-0.5">
+                              {/* ID REZERVARE */}
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(String(b.id), "ID Rezervare")
                                 }
-                              } catch (err) {
-                                toast(errMsg(err), "error");
+                                className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                title="Click pentru a copia ID-ul rezervării"
+                              >
+                                <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+                                  #{shortBookingId}
+                                </span>
+                                <Copy
+                                  size={9}
+                                  className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                />
+                              </button>
+
+                              {/* NUME */}
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(b.user_id, "ID Client")
+                                }
+                                className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                title="Click pentru a copia ID-ul clientului"
+                              >
+                                <span className="block text-[13px] font-semibold text-black">
+                                  {displayName}
+                                </span>
+                                {b.user_id && (
+                                  <Copy
+                                    size={10}
+                                    className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                  />
+                                )}
+                              </button>
+
+                              {/* EMAIL */}
+                              {rawEmail && (
+                                <span className="text-[12px] text-[#8a8a8a] block leading-tight">
+                                  {displayEmail}
+                                </span>
+                              )}
+
+                              {/* PERIOADA & NOPTI */}
+                              <p className="text-[11px] text-[#6b6b6b] mt-0.5">
+                                {dateFmt(b.check_in)} → {dateFmt(b.check_out)} ·{" "}
+                                {nights(b.check_in, b.check_out)} nopți
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Badge tone={bookingTone(b.status)}>
+                              {bookingStatusLabel(b.status)}
+                            </Badge>
+
+                            {/* DROPDOWN CU SEARCH: ATRIBUIE LA UNITATE */}
+                            <AssignUnitDropdown
+                              booking={b}
+                              units={units}
+                              bookingsByUnit={bookingsByUnit}
+                              onAssign={(unitId) =>
+                                assignUnitToBooking(b.id, unitId)
                               }
-                            }}
-                            defaultValue=""
-                            className="rounded-lg border border-[#e5e5e5] bg-[#fafafa] px-3 py-1.5 text-[11px] font-bold text-[#111111] outline-none"
-                          >
-                            <option value="" disabled>
-                              Atribuie unitate...
-                            </option>
-                            {units.map((u, idx) => (
-                              <option key={u.id} value={u.id}>
-                                {unitLabel(u, idx)}
-                              </option>
-                            ))}
-                          </select>
-                          <Badge tone={bookingTone(b.status)}>
-                            {bookingStatusLabel(b.status)}
-                          </Badge>
+                              onCancelBooking={() => handleCancelBooking(b.id)}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
             </div>
           </div>
         </div>
+      )}
+
+      {editingUnit && (
+        <EditUnitModal
+          unit={editingUnit.unit}
+          index={editingUnit.index}
+          bedTypes={bedTypes}
+          onClose={() => setEditingUnit(null)}
+          onSave={(payload) => saveUnitEdits(editingUnit.unit, payload)}
+        />
       )}
     </div>
   );

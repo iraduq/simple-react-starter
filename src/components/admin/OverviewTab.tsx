@@ -10,6 +10,7 @@ import {
   Check,
   X,
   RefreshCw,
+  Copy, // <-- Importat Copy
 } from "lucide-react";
 import { Badge, statusTone, TableSkeleton, EmptyState, Skeleton } from "./ui";
 import {
@@ -182,6 +183,13 @@ export default function OverviewTab() {
     }
   };
 
+  // FUNCȚIA DE COPIERE
+  const copyToClipboard = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    toast(`${label} copiat în clipboard!`, "success");
+  };
+
   // ── Perioada afișată în calendarul de disponibilitate ──
   const rangeDays = useMemo(() => {
     if (viewMode === "week") {
@@ -325,9 +333,10 @@ export default function OverviewTab() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-left text-sm">
+              <table className="w-full min-w-[900px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#8a8a8a]">
+                    <th className="px-6 py-4 font-bold"># ID</th>
                     <th className="px-6 py-4 font-bold">Client</th>
                     <th className="px-6 py-4 font-bold">Cameră</th>
                     <th className="px-6 py-4 font-bold">Perioadă</th>
@@ -336,56 +345,144 @@ export default function OverviewTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pending.map((b) => (
-                    <tr
-                      key={b.id}
-                      className="border-b border-black/5 last:border-0 transition-colors hover:bg-black/[0.01]"
-                    >
-                      <td className="px-6 py-4">
-                        <span className="block font-semibold text-black">
-                          {b.guest_name || "—"}
-                        </span>
-                        <span className="text-[12px] text-[#8a8a8a] mt-0.5 block">
-                          {b.guest_email || "—"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-[13px] font-medium text-black">
-                        {b.room_name || `#${b.room_id ?? "—"}`}
-                      </td>
-                      <td className="px-6 py-4 text-[13px] text-[#666]">
-                        <span className="font-semibold text-black">
-                          {dateFmt(b.check_in)}
-                        </span>
-                        <span className="mx-2 text-[#ccc]">→</span>
-                        <span className="font-semibold text-black">
-                          {dateFmt(b.check_out)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-lg bg-black/5 font-semibold text-black text-[13px]">
-                          {money(b.total_price)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-end gap-2">
+                  {pending.map((b: any) => {
+                    const roomObj = rooms.find(
+                      (r: any) => String(r.id) === String(b.room_id),
+                    );
+                    const displayRoomName =
+                      b.room_name ||
+                      (roomObj as any)?.title ||
+                      roomObj?.name ||
+                      `#${b.room_id ?? "—"}`;
+
+                    const userObj = users.find(
+                      (u: any) => String(u.id) === String(b.user_id),
+                    );
+
+                    const shortBookingId =
+                      String(b.id).length > 8
+                        ? String(b.id).substring(0, 8) + "..."
+                        : String(b.id);
+
+                    const rawEmail =
+                      b.user_email || b.guest_email || userObj?.email || "";
+                    const displayEmail = rawEmail || "—";
+
+                    let displayName = b.guest_name || b.user_name || "";
+                    if (!displayName && userObj) {
+                      displayName =
+                        `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
+                    }
+
+                    if (!displayName && rawEmail) {
+                      displayName = rawEmail.split("@")[0];
+                      displayName =
+                        displayName.charAt(0).toUpperCase() +
+                        displayName.slice(1);
+                    } else if (!displayName) {
+                      displayName = "Client Necunoscut";
+                    }
+
+                    return (
+                      <tr
+                        key={b.id}
+                        className="border-b border-black/5 last:border-0 transition-colors hover:bg-black/[0.01]"
+                      >
+                        <td className="px-6 py-4">
                           <button
-                            disabled={busy === `${b.id}-confirm`}
-                            onClick={() => void act(b.id, "confirm")}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
+                            onClick={() =>
+                              copyToClipboard(String(b.id), "ID Rezervare")
+                            }
+                            className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                            title="Click pentru a copia ID-ul rezervării"
                           >
-                            <Check size={12} strokeWidth={2.5} /> Confirmă
+                            <span className="text-[13px] font-medium text-[#8a8a8a]">
+                              {shortBookingId}
+                            </span>
+                            <Copy
+                              size={12}
+                              className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                            />
                           </button>
-                          <button
-                            disabled={busy === `${b.id}-cancel`}
-                            onClick={() => void act(b.id, "cancel")}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5 disabled:opacity-60"
-                          >
-                            <X size={12} strokeWidth={2.5} /> Anulează
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col items-start gap-1">
+                            <button
+                              onClick={() =>
+                                copyToClipboard(b.user_id, "ID Client")
+                              }
+                              className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                              title="Click pentru a copia ID-ul clientului"
+                            >
+                              <span className="block text-[14px] font-semibold text-black">
+                                {displayName}
+                              </span>
+                              {b.user_id && (
+                                <Copy
+                                  size={12}
+                                  className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                />
+                              )}
+                            </button>
+
+                            <span className="text-[13px] text-[#8a8a8a] block">
+                              {displayEmail}
+                            </span>
+
+                            {b.booking_code && (
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    b.booking_code,
+                                    "Cod rezervare",
+                                  )
+                                }
+                                title="Click pentru a copia codul"
+                                className="mt-0.5 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a] transition-colors hover:bg-black/10 hover:text-black cursor-pointer"
+                              >
+                                COD: {b.booking_code}
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-[13px] font-medium text-black">
+                          {displayRoomName}
+                        </td>
+                        <td className="px-6 py-4 text-[13px] text-[#666]">
+                          <span className="font-semibold text-black">
+                            {dateFmt(b.check_in)}
+                          </span>
+                          <span className="mx-2 text-[#ccc]">→</span>
+                          <span className="font-semibold text-black">
+                            {dateFmt(b.check_out)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center px-3 py-1 rounded-lg bg-black/5 font-semibold text-black text-[13px]">
+                            {money(b.total_price)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              disabled={busy === `${b.id}-confirm`}
+                              onClick={() => void act(b.id, "confirm")}
+                              className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
+                            >
+                              <Check size={12} strokeWidth={2.5} /> Confirmă
+                            </button>
+                            <button
+                              disabled={busy === `${b.id}-cancel`}
+                              onClick={() => void act(b.id, "cancel")}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5 disabled:opacity-60"
+                            >
+                              <X size={12} strokeWidth={2.5} /> Anulează
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
