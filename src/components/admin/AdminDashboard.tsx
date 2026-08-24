@@ -57,7 +57,9 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(!getCachedUser());
+  const [tab, setTab] = useState<TabKey>("bookings");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
   useEffect(() => {
     let active = true;
