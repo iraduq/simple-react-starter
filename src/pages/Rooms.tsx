@@ -252,50 +252,35 @@ export default function Rooms() {
       : rooms.filter((r) => r.category === activeTab);
 
   return (
-    <div className="text-[#1a1a1a] bg-white">
-      {/* ── HERO ── */}
-      {/* ── HERO ── */}
-      {/* ── HERO ── */}
-      <section
-        className="relative flex items-center justify-center min-h-[45vh] md:min-h-[55vh] px-5 pt-12 pb-32 md:pb-48 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
-        }}
-      >
-        {/* Overlay elegant, bleumarin-închis, pentru contrast excelent cu textul */}
-        <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/40 via-transparent to-[#0d2c5c]/80"></div>
+    <div className="text-[#1a1a1a] bg-white relative">
+      {/* Linie subtilă sus */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-[var(--border-light)]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--gold)]" />
 
+      {/* ── HEADER ── */}
+      <section className="max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-36 pb-10 md:pb-14 text-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 max-w-4xl mx-auto text-center"
         >
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <span className="w-12 h-px bg-[#c69a3f]/60" />
-            <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] m-0">
-              Cazare · Vila Casa Esy
-            </p>
-            <span className="w-12 h-px bg-[#c69a3f]/60" />
-          </div>
-
-          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.8rem,5vw,4.5rem)] font-normal text-white leading-[1.1] mb-6 drop-shadow-md">
-            Camerele noastre, <br className="hidden md:block" />
-            <em className="italic text-[#c69a3f]">gândite pentru odihnă</em>
+          <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[var(--gold)] mb-4 flex items-center justify-center gap-3">
+            <span className="w-8 h-px bg-[var(--gold)]/60" />
+            Cazare · Vila Casa Esy
+            <span className="w-8 h-px bg-[var(--gold)]/60" />
+          </p>
+          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4.2rem)] font-normal text-[var(--text-primary)] leading-[1.1] tracking-[-0.01em] mb-6">
+            Camerele noastre,{" "}
+            <em className="italic text-[var(--gold)]">gândite pentru odihnă</em>
           </h1>
-
-          <p className="font-sans text-white/90 text-[15px] md:text-[17px] leading-[1.8] font-light max-w-2xl mx-auto">
+          <p className="max-w-[620px] mx-auto text-[15px] text-[var(--text-secondary)] leading-[1.8] font-light">
             De la camere luminoase cu vedere la grădină, până la suite cu terasă
             privată. Fiecare spațiu are propria poveste și este pregătit să
             devină refugiul tău.
           </p>
         </motion.div>
-
-        {/* Fade elegant către secțiunea de jos (albă) */}
-        <div className="absolute bottom-0 left-0 w-full h-32 md:h-40 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
       </section>
+
       {/* ── LISTĂ CAMERE ── */}
       <section className="relative bg-white py-[60px] md:py-[90px] px-5 md:px-10 overflow-hidden">
         <div className="relative max-w-7xl mx-auto">
