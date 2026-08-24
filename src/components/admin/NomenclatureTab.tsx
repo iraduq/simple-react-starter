@@ -94,7 +94,7 @@ const FACILITY_PRESETS: { name: string; icon: string }[] = [
   { name: "Bucătărie utilată", icon: "kitchen" },
   { name: "Șemineu", icon: "fireplace" },
   { name: "Terasă privată", icon: "garden" },
-  { name: "Grătar (BBQ)", icon: "flame" },
+  { name: "Grătar (BBQ)", icon: "fireplace" },
   { name: "Mic dejun inclus", icon: "coffee" },
 ];
 
