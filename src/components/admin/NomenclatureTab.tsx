@@ -116,7 +116,7 @@ const PRESETS: Record<string, string[]> = {
   ],
 };
 
-/* ─────────────── ICON PICKER COMPONENT ─────────────── */
+/* ─────────────── ICON PICKER (toată librăria lucide) ─────────────── */
 function IconPicker({
   value,
   onChange,
@@ -128,11 +128,14 @@ function IconPicker({
   const [isOpen, setIsOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    const q = query.toLowerCase().trim();
-    return Object.entries(ICON_MAP).filter(
-      ([k, v]) => k.includes(q) || v.label.toLowerCase().includes(q),
-    );
+    const q = query.toLowerCase().replace(/[\s_-]+/g, "").trim();
+    const base = q
+      ? ICON_LIBRARY.filter((i) => i.name.toLowerCase().includes(q))
+      : ICON_LIBRARY;
+    return base.slice(0, 120);
   }, [query]);
+
+  const selected = resolveIcon(value);
 
   return (
     <div className="relative">
@@ -140,26 +143,23 @@ function IconPicker({
         onClick={() => setIsOpen(!isOpen)}
         className={`${inputCls} flex cursor-pointer items-center justify-between`}
       >
-        {value && ICON_MAP[value] ? (
+        {selected ? (
           <div className="flex items-center gap-2">
             {(() => {
-              const Comp = ICON_MAP[value].icon;
+              const Comp = selected.icon;
               return <Comp size={16} className="text-[#737373]" />;
             })()}
-            <span className="text-sm text-[#111111]">
-              {ICON_MAP[value].label}
-            </span>
-            <span className="font-mono text-[11px] text-[#8a8a8a]">
-              ({value})
-            </span>
+            <span className="text-sm text-[#111111]">{selected.name}</span>
           </div>
         ) : (
-          <span className="text-sm text-[#8a8a8a]">Alege o iconiță...</span>
+          <span className="text-sm text-[#8a8a8a]">
+            Caută o iconiță (ex: wifi, bed, car)…
+          </span>
         )}
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-xl">
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-xl">
           <div className="border-b border-[#e5e5e5] p-2">
             <div className="flex items-center gap-2 rounded-lg bg-[#f5f5f5] px-2 py-1">
               <Search size={14} className="text-[#8a8a8a]" />
@@ -167,48 +167,50 @@ function IconPicker({
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Caută iconiță..."
+                placeholder={`Caută în ${ICON_LIBRARY.length} iconițe…`}
                 className="w-full bg-transparent text-xs outline-none text-[#111111]"
               />
             </div>
           </div>
-          <div className="max-h-48 overflow-y-auto p-1.5 grid grid-cols-2 gap-1">
-            {filtered.map(([k, item]) => {
+          <div className="grid max-h-56 grid-cols-4 gap-1 overflow-y-auto p-1.5 sm:grid-cols-6">
+            {filtered.map((item) => {
               const IconComp = item.icon;
-              const isSelected = value === k;
+              const isSelected = value === item.name;
               return (
                 <button
                   type="button"
-                  key={k}
+                  key={item.name}
+                  title={item.name}
                   onClick={() => {
-                    onChange(k);
+                    onChange(item.name);
                     setIsOpen(false);
                   }}
-                  className={`flex items-center justify-between rounded-lg p-2 text-left text-xs transition-colors ${
+                  className={`flex flex-col items-center gap-1 rounded-lg p-2 text-[9px] transition-colors ${
                     isSelected
                       ? "bg-[#111111] text-white"
-                      : "hover:bg-[#f5f5f5] text-[#111111]"
+                      : "text-[#525252] hover:bg-[#f5f5f5]"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <IconComp
-                      size={15}
-                      className={
-                        isSelected ? "text-[#737373]" : "text-[#525252]"
-                      }
-                    />
-                    <span>{item.label}</span>
-                  </div>
-                  {isSelected && <Check size={13} className="text-white" />}
+                  <IconComp size={16} />
+                  <span className="w-full truncate text-center">
+                    {item.name}
+                  </span>
+                  {isSelected && <Check size={10} />}
                 </button>
               );
             })}
+            {filtered.length === 0 && (
+              <span className="col-span-full p-3 text-center text-xs text-[#8a8a8a]">
+                Nicio iconiță găsită
+              </span>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 }
+
 
 /* ─────────────── SECTIONS CONFIG ─────────────── */
 type Section = {
