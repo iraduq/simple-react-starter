@@ -1,21 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
+import * as LucideIcons from "lucide-react";
 import {
   Plus,
   Trash2,
   Pencil,
-  Wifi,
-  Wind,
-  Bath,
-  Tv,
-  Wine,
-  ShieldCheck,
-  Phone,
-  Sparkles,
-  Trees,
-  Coffee,
-  Car,
-  Utensils,
-  Flame,
   Search,
   Check,
   type LucideIcon,
@@ -43,61 +31,67 @@ import {
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
-/* ─────────────── ICON CATALOG ─────────────── */
-const ICON_MAP: Record<string, { label: string; icon: LucideIcon }> = {
-  wifi: { label: "Wi-Fi", icon: Wifi },
-  air: { label: "Aer Condiționat", icon: Wind },
-  bath: { label: "Baie privată", icon: Bath },
-  tv: { label: "Televizor", icon: Tv },
-  drink: { label: "Minibar / Băuturi", icon: Wine },
-  safe: { label: "Seif", icon: ShieldCheck },
-  phone: { label: "Telefon", icon: Phone },
-  hairdryer: { label: "Uscător de păr", icon: Sparkles },
-  soap: { label: "Articole toaletă", icon: Sparkles },
-  garden: { label: "Vedere grădină", icon: Trees },
-  coffee: { label: "Cafetieră", icon: Coffee },
-  parking: { label: "Parcare", icon: Car },
-  kitchen: { label: "Bucătărie", icon: Utensils },
-  fireplace: { label: "Șemineu", icon: Flame },
+/* ─────────────── ICON LIBRARY (lucide-react) ─────────────── */
+const LEGACY_ALIASES: Record<string, string> = {
+  wifi: "Wifi",
+  air: "Wind",
+  bath: "Bath",
+  tv: "Tv",
+  drink: "Wine",
+  safe: "ShieldCheck",
+  phone: "Phone",
+  hairdryer: "Sparkles",
+  soap: "Sparkles",
+  garden: "Trees",
+  coffee: "Coffee",
+  parking: "Car",
+  kitchen: "Utensils",
+  fireplace: "Flame",
 };
+
+const ICON_LIBRARY: { name: string; icon: LucideIcon }[] = Object.entries(
+  LucideIcons as unknown as Record<string, unknown>,
+)
+  .filter(
+    ([k, v]) =>
+      /^[A-Z][A-Za-z0-9]*$/.test(k) &&
+      !k.endsWith("Icon") &&
+      !["Icon", "LucideIcon", "createLucideIcon"].includes(k) &&
+      (typeof v === "function" ||
+        (typeof v === "object" && v !== null && "render" in (v as object))),
+  )
+  .map(([k, v]) => ({ name: k, icon: v as LucideIcon }));
+
+const ICON_BY_NAME = new Map(
+  ICON_LIBRARY.map((i) => [i.name.toLowerCase(), i]),
+);
+
+function resolveIcon(name?: string | null) {
+  if (!name) return null;
+  const raw = name.trim();
+  const alias = LEGACY_ALIASES[raw.toLowerCase()];
+  return (
+    ICON_BY_NAME.get((alias ?? raw).toLowerCase()) ??
+    ICON_BY_NAME.get(raw.replace(/[\s_-]+/g, "").toLowerCase()) ??
+    null
+  );
+}
 
 function DynamicIcon({ name }: { name?: string | null }) {
   if (!name) return <span className="text-[#8a8a8a]">—</span>;
-  const key = name.toLowerCase().trim();
-  const entry = ICON_MAP[key];
+  const entry = resolveIcon(name);
   if (!entry)
     return <span className="font-mono text-xs text-[#8a8a8a]">{name}</span>;
   const IconComp = entry.icon;
   return (
     <div className="flex items-center gap-1.5 text-[#111111]">
       <IconComp size={16} className="text-[#737373]" />
-      <span className="text-xs text-[#525252]">{entry.label}</span>
+      <span className="text-xs text-[#525252]">{entry.name}</span>
     </div>
   );
 }
 
 /* ─────────────── PRESETURI NOMENCLATOR ─────────────── */
-const FACILITY_PRESETS: { name: string; icon: string }[] = [
-  { name: "Wi-Fi gratuit", icon: "wifi" },
-  { name: "Aer condiționat", icon: "air" },
-  { name: "Baie privată", icon: "bath" },
-  { name: "Duș cu apă caldă", icon: "bath" },
-  { name: "Televizor Smart TV", icon: "tv" },
-  { name: "Minibar", icon: "drink" },
-  { name: "Seif în cameră", icon: "safe" },
-  { name: "Telefon", icon: "phone" },
-  { name: "Uscător de păr", icon: "hairdryer" },
-  { name: "Articole de toaletă", icon: "soap" },
-  { name: "Vedere la grădină", icon: "garden" },
-  { name: "Cafetieră / ceainic", icon: "coffee" },
-  { name: "Parcare gratuită", icon: "parking" },
-  { name: "Bucătărie utilată", icon: "kitchen" },
-  { name: "Șemineu", icon: "fireplace" },
-  { name: "Terasă privată", icon: "garden" },
-  { name: "Grătar (BBQ)", icon: "fireplace" },
-  { name: "Mic dejun inclus", icon: "coffee" },
-];
-
 const PRESETS: Record<string, string[]> = {
   "room-types": [
     "Cameră Single",
