@@ -5,10 +5,10 @@ import {
   CircleUser,
   X,
   Sparkles,
-  Key,
   LogOut,
   Menu,
 } from "lucide-react";
+
 import {
   clearSession,
   fetchSession,
