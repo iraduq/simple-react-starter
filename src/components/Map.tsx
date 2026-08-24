@@ -349,7 +349,7 @@ export default function InteractiveMap() {
         </div>
 
         <div className="text-center mt-10 max-w-[560px] mx-auto">
-          <p className="text-[15px] leading-relaxed text-white/70 font-light">
+          <p className="text-[15px] leading-relaxed text-[#0d2c5c]/70 font-light">
             Fiecare locație de pe hartă a fost aleasă cu grijă de echipa
             noastră, pentru ca timpul petrecut la Vila Casa Esy să fie cât mai
             plăcut — de la plaja liniștită de dimineață, la o cină cu fructe de
