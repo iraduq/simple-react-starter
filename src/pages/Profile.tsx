@@ -121,14 +121,14 @@ export default function Profile() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center text-[#8595aa] text-sm tracking-wide uppercase">
+      <div className="min-h-[70vh] flex items-center justify-center text-[#737373] text-sm tracking-wide uppercase">
         Se încarcă profilul…
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f9fc]">
+    <div className="min-h-screen bg-[#fafafa]">
       {/* Hero band */}
       <ProfileHero user={user} />
 
@@ -136,7 +136,7 @@ export default function Profile() {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
           <SideNav tab={tab} setTab={setTab} onLogout={handleLogout} />
 
-          <section className="bg-white border border-[#e6ecf3] rounded-[18px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
+          <section className="bg-white border border-[#e5e5e5] rounded-[18px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
             {tab === "personal" && (
               <PersonalTab user={user} setUser={setUser} />
             )}
@@ -164,16 +164,16 @@ function ProfileHero({ user }: { user: NonNullable<SessionUser> }) {
       className="relative h-[260px] bg-cover bg-center"
       style={{
         backgroundImage:
-          "linear-gradient(180deg, rgba(9,24,52,0.75) 0%, rgba(13,44,92,0.9) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=400&fit=crop)",
+          "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=400&fit=crop)",
       }}
     >
       <div className="max-w-[1240px] mx-auto h-full px-6 lg:px-10 flex items-end pb-24">
         <div className="flex items-center gap-5 text-white">
-          <div className="w-[92px] h-[92px] rounded-full bg-[#c69a3f] border-[3px] border-white/90 shadow-lg flex items-center justify-center font-['Cormorant_Garamond',serif] text-[34px] font-semibold text-white">
+          <div className="w-[92px] h-[92px] rounded-full bg-[#111111] border-[3px] border-white/90 shadow-lg flex items-center justify-center font-['Cormorant_Garamond',serif] text-[34px] font-semibold text-white">
             {initials}
           </div>
           <div>
-            <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+            <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#111111] mb-1.5">
               Contul meu
             </p>
             <h1 className="font-['Cormorant_Garamond',serif] text-[36px] leading-none font-medium">
@@ -198,7 +198,7 @@ function SideNav({
   onLogout: () => void;
 }) {
   return (
-    <aside className="bg-white border border-[#e6ecf3] rounded-[18px] p-3 h-fit shadow-[0_10px_40px_rgba(13,44,92,0.06)] sticky top-24">
+    <aside className="bg-white border border-[#e5e5e5] rounded-[18px] p-3 h-fit shadow-[0_10px_40px_rgba(13,44,92,0.06)] sticky top-24">
       <nav className="flex flex-col gap-1">
         {TABS.map((t) => {
           const Icon = t.icon;
@@ -212,10 +212,10 @@ function SideNav({
                 active
                   ? danger
                     ? "bg-red-50 text-red-700"
-                    : "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.2)]"
+                    : "bg-[#111111] text-white shadow-[0_4px_14px_rgba(13,44,92,0.2)]"
                   : danger
                     ? "text-red-600 hover:bg-red-50/60"
-                    : "text-[#3c4043] hover:bg-[#f4f7fb]"
+                    : "text-[#262626] hover:bg-[#f5f5f5]"
               }`}
             >
               <span
@@ -223,10 +223,10 @@ function SideNav({
                   active
                     ? danger
                       ? "bg-red-100 text-red-700"
-                      : "bg-white/10 text-[#c69a3f]"
+                      : "bg-white/10 text-[#111111]"
                     : danger
                       ? "bg-red-50 text-red-500"
-                      : "bg-[#f4f7fb] text-[#0d2c5c]"
+                      : "bg-[#f5f5f5] text-[#111111]"
                 }`}
               >
                 <Icon size={16} strokeWidth={1.75} />
@@ -241,7 +241,7 @@ function SideNav({
                       ? danger
                         ? "text-red-500"
                         : "text-white/60"
-                      : "text-[#8595aa]"
+                      : "text-[#737373]"
                   }`}
                 >
                   {t.hint}
@@ -258,10 +258,10 @@ function SideNav({
         })}
       </nav>
 
-      <div className="mt-3 pt-3 border-t border-[#e6ecf3]">
+      <div className="mt-3 pt-3 border-t border-[#e5e5e5]">
         <button
           onClick={onLogout}
-          className="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-[10px] text-[13px] font-semibold text-[#3c4043] hover:bg-[#f4f7fb] transition-colors"
+          className="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-[10px] text-[13px] font-semibold text-[#262626] hover:bg-[#f5f5f5] transition-colors"
         >
           <LogOut size={15} /> Deloghează-te
         </button>
@@ -281,14 +281,14 @@ function SectionHead({
   description: string;
 }) {
   return (
-    <header className="px-8 pt-8 pb-6 border-b border-[#eef2f7]">
-      <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-2">
+    <header className="px-8 pt-8 pb-6 border-b border-[#ededed]">
+      <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#111111] mb-2">
         {eyebrow}
       </p>
-      <h2 className="font-['Cormorant_Garamond',serif] text-[28px] font-medium text-[#0d2c5c] leading-tight">
+      <h2 className="font-['Cormorant_Garamond',serif] text-[28px] font-medium text-[#111111] leading-tight">
         {title}
       </h2>
-      <p className="text-[13.5px] text-[#5a6b85] mt-2 max-w-[560px]">
+      <p className="text-[13.5px] text-[#525252] mt-2 max-w-[560px]">
         {description}
       </p>
     </header>
@@ -363,14 +363,14 @@ function PersonalTab({
       <form onSubmit={handleSubmit} className="p-8 space-y-8">
         {/* Monogram */}
         <div className="flex items-center gap-5">
-          <div className="w-[86px] h-[86px] rounded-full bg-[#0d2c5c] text-white flex items-center justify-center font-['Cormorant_Garamond',serif] text-[30px] font-semibold">
+          <div className="w-[86px] h-[86px] rounded-full bg-[#111111] text-white flex items-center justify-center font-['Cormorant_Garamond',serif] text-[30px] font-semibold">
             {initials}
           </div>
           <div>
-            <p className="text-[14px] font-semibold text-[#0d2c5c]">
+            <p className="text-[14px] font-semibold text-[#111111]">
               Monograma ta
             </p>
-            <p className="text-[12.5px] text-[#8595aa] mt-0.5">
+            <p className="text-[12.5px] text-[#737373] mt-0.5">
               Se generează automat din numele tău.
             </p>
           </div>
@@ -405,13 +405,13 @@ function PersonalTab({
             <div className="relative">
               <Mail
                 size={16}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8595aa]"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#737373]"
               />
               <input
                 type="email"
                 value={user.email}
                 disabled
-                className={`${fieldInput} pl-11 bg-[#f4f7fb] text-[#5a6b85] cursor-not-allowed`}
+                className={`${fieldInput} pl-11 bg-[#f5f5f5] text-[#525252] cursor-not-allowed`}
               />
             </div>
           </Field>
@@ -419,7 +419,7 @@ function PersonalTab({
             <div className="relative">
               <Phone
                 size={16}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8595aa]"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#737373]"
               />
               <input
                 type="tel"
@@ -449,7 +449,7 @@ function PersonalTab({
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#111111] hover:text-[#111111] transition-colors disabled:opacity-60"
           >
             <Save size={15} />
             {saving ? "Se salvează…" : "Salvează modificările"}
@@ -592,8 +592,8 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
 
       <div className="p-8 space-y-10">
         {/* ── Auth provider — premium banner ── */}
-        <div className="relative overflow-hidden rounded-[18px] bg-[linear-gradient(120deg,#07203f_0%,#0d2c5c_55%,#123a75_100%)] text-white p-7">
-          <div className="absolute -right-16 -top-20 w-64 h-64 rounded-full bg-[#c69a3f]/15 blur-2xl" />
+        <div className="relative overflow-hidden rounded-[18px] bg-[linear-gradient(120deg,#111111 0%,#262626 55%,#404040 100%)] text-white p-7">
+          <div className="absolute -right-16 -top-20 w-64 h-64 rounded-full bg-[#111111]/15 blur-2xl" />
           <div className="absolute right-8 -bottom-24 w-52 h-52 rounded-full bg-white/5" />
           <div className="relative flex flex-col md:flex-row md:items-center gap-6 md:justify-between">
             <div className="flex items-start gap-5">
@@ -618,11 +618,11 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                     />
                   </svg>
                 ) : (
-                  <KeyRound size={22} className="text-[#0d2c5c]" />
+                  <KeyRound size={22} className="text-[#111111]" />
                 )}
               </div>
               <div>
-                <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+                <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#111111] mb-1.5">
                   Metodă de autentificare
                 </p>
                 <h3 className="font-['Cormorant_Garamond',serif] text-[26px] leading-tight font-medium">
@@ -655,15 +655,15 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
 
         {/* ── Password ── */}
         {isGoogle ? (
-          <div className="flex items-start gap-4 p-6 rounded-[16px] border border-[#e6ecf3] bg-[#fafbfd]">
-            <div className="w-10 h-10 rounded-full bg-white border border-[#e6ecf3] flex items-center justify-center shrink-0">
-              <Lock size={16} className="text-[#8595aa]" />
+          <div className="flex items-start gap-4 p-6 rounded-[16px] border border-[#e5e5e5] bg-[#fafafa]">
+            <div className="w-10 h-10 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center shrink-0">
+              <Lock size={16} className="text-[#737373]" />
             </div>
             <div>
-              <p className="text-[14px] font-semibold text-[#0d2c5c]">
+              <p className="text-[14px] font-semibold text-[#111111]">
                 Nu există parolă pentru acest cont
               </p>
-              <p className="text-[13px] text-[#5a6b85] mt-1 max-w-[560px]">
+              <p className="text-[13px] text-[#525252] mt-1 max-w-[560px]">
                 Contul tău folosește exclusiv autentificarea Google, așa că nu
                 ai o parolă Casa Esy de schimbat. Pentru parolă, verificare în
                 doi pași sau dispozitive de încredere, folosește setările de
@@ -674,14 +674,14 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
         ) : (
           <form onSubmit={submit} className="space-y-5">
             <div className="flex items-center gap-3">
-              <span className="w-9 h-9 rounded-full bg-[#f4f7fb] text-[#0d2c5c] flex items-center justify-center">
+              <span className="w-9 h-9 rounded-full bg-[#f5f5f5] text-[#111111] flex items-center justify-center">
                 <KeyRound size={16} />
               </span>
               <div>
-                <h3 className="text-[15px] font-semibold text-[#0d2c5c] leading-tight">
+                <h3 className="text-[15px] font-semibold text-[#111111] leading-tight">
                   Schimbă parola
                 </h3>
-                <p className="text-[12px] text-[#8595aa] mt-0.5">
+                <p className="text-[12px] text-[#737373] mt-0.5">
                   Recomandăm o parolă unică, folosită doar pentru Casa Esy.
                 </p>
               </div>
@@ -727,7 +727,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                   return (
                     <li
                       key={k}
-                      className={`flex items-center gap-1.5 ${ok ? "text-emerald-600" : "text-[#8595aa]"}`}
+                      className={`flex items-center gap-1.5 ${ok ? "text-emerald-600" : "text-[#737373]"}`}
                     >
                       <Check size={13} className={ok ? "" : "opacity-30"} />
                       {label}
@@ -753,7 +753,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
               <button
                 type="submit"
                 disabled={!strong || saving}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#111111] hover:text-[#111111] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Shield size={15} />
                 {saving ? "Se salvează…" : "Actualizează parola"}
@@ -768,13 +768,13 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
         <div>
           <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
             <div>
-              <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+              <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#111111] mb-1.5">
                 Dispozitive
               </p>
-              <h3 className="font-['Cormorant_Garamond',serif] text-[24px] font-medium text-[#0d2c5c] leading-tight">
+              <h3 className="font-['Cormorant_Garamond',serif] text-[24px] font-medium text-[#111111] leading-tight">
                 Sesiuni active
               </h3>
-              <p className="text-[12.5px] text-[#8595aa] mt-1">
+              <p className="text-[12.5px] text-[#737373] mt-1">
                 {sessionsLoading
                   ? "Se verifică dispozitivele conectate…"
                   : `${sessions.length} ${sessions.length === 1 ? "dispozitiv conectat" : "dispozitive conectate"}`}
@@ -783,7 +783,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
             <div className="flex items-center gap-2">
               <button
                 onClick={loadSessions}
-                className="inline-flex items-center gap-2 text-[12px] font-semibold text-[#0d2c5c] border border-[#e1e8f0] px-3.5 py-2 rounded-full hover:border-[#c69a3f] transition-colors"
+                className="inline-flex items-center gap-2 text-[12px] font-semibold text-[#111111] border border-[#e5e5e5] px-3.5 py-2 rounded-full hover:border-[#111111] transition-colors"
               >
                 <RefreshCw size={13} /> Reîmprospătează
               </button>
@@ -803,7 +803,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
               {[0, 1].map((i) => (
                 <div
                   key={i}
-                  className="h-[116px] rounded-[16px] border border-[#eef2f7] bg-[#fafbfd] animate-pulse"
+                  className="h-[116px] rounded-[16px] border border-[#ededed] bg-[#fafafa] animate-pulse"
                 />
               ))}
             </div>
@@ -830,23 +830,23 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                     key={s.id}
                     className={`relative p-5 rounded-[16px] border transition-colors ${
                       s.is_current
-                        ? "border-[#c69a3f]/50 bg-[#fffdf7]"
-                        : "border-[#e6ecf3] bg-white hover:border-[#c69a3f]/40"
+                        ? "border-[#111111]/50 bg-[#fafafa]"
+                        : "border-[#e5e5e5] bg-white hover:border-[#111111]/40"
                     }`}
                   >
                     <div className="flex items-start gap-4">
                       <div
                         className={`w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 ${
                           s.is_current
-                            ? "bg-[#c69a3f] text-white"
-                            : "bg-[#f4f7fb] text-[#0d2c5c]"
+                            ? "bg-[#111111] text-white"
+                            : "bg-[#f5f5f5] text-[#111111]"
                         }`}
                       >
                         <DeviceIcon size={20} strokeWidth={1.6} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-[14px] font-semibold text-[#0d2c5c] truncate">
+                          <p className="text-[14px] font-semibold text-[#111111] truncate">
                             {browser || meta.label}
                           </p>
                           {s.is_current && (
@@ -855,21 +855,21 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#8595aa] mt-1">
+                        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#737373] mt-1">
                           {meta.label}
                           {os ? ` · ${os}` : ""}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-[12px] text-[#5a6b85]">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-[12px] text-[#525252]">
                           <span className="inline-flex items-center gap-1.5">
-                            <MapPin size={12} className="text-[#c69a3f]" />
+                            <MapPin size={12} className="text-[#111111]" />
                             {[s.city, s.country_code]
                               .filter(Boolean)
                               .join(", ") || "Locație necunoscută"}
                           </span>
                           {s.created_at && (
                             <span className="inline-flex items-center gap-1.5">
-                              <Clock size={12} className="text-[#c69a3f]" />
+                              <Clock size={12} className="text-[#111111]" />
                               {new Date(s.created_at).toLocaleDateString(
                                 "ro-RO",
                                 {
@@ -881,7 +881,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                             </span>
                           )}
                           {s.ip_address && (
-                            <span className="font-mono text-[11.5px] text-[#8595aa]">
+                            <span className="font-mono text-[11.5px] text-[#737373]">
                               {s.ip_address}
                             </span>
                           )}
@@ -890,7 +890,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                     </div>
 
                     {!s.is_current && (
-                      <div className="mt-4 pt-4 border-t border-[#eef2f7] flex justify-end">
+                      <div className="mt-4 pt-4 border-t border-[#ededed] flex justify-end">
                         <button
                           onClick={() => revokeSession(s.id)}
                           className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-red-600 border border-red-200 px-3.5 py-2 rounded-full hover:bg-red-50 transition-colors"
@@ -949,7 +949,7 @@ function ReservationsTab() {
       />
 
       <div className="p-8">
-        <div className="inline-flex p-1 bg-[#f4f7fb] rounded-full mb-6">
+        <div className="inline-flex p-1 bg-[#f5f5f5] rounded-full mb-6">
           {[
             { k: "upcoming" as const, label: "Viitoare / Active" },
             { k: "past" as const, label: "Trecute" },
@@ -959,8 +959,8 @@ function ReservationsTab() {
               onClick={() => setScope(t.k)}
               className={`px-5 py-2 text-[12.5px] font-semibold rounded-full transition-all ${
                 scope === t.k
-                  ? "bg-white text-[#0d2c5c] shadow-sm"
-                  : "text-[#5a6b85] hover:text-[#0d2c5c]"
+                  ? "bg-white text-[#111111] shadow-sm"
+                  : "text-[#525252] hover:text-[#111111]"
               }`}
             >
               {t.label}
@@ -979,28 +979,28 @@ function ReservationsTab() {
             {items.map((r) => (
               <article
                 key={r.id}
-                className="group grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 p-5 rounded-[14px] border border-[#e6ecf3] hover:border-[#c69a3f]/50 hover:shadow-[0_6px_24px_rgba(13,44,92,0.06)] transition-all"
+                className="group grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 p-5 rounded-[14px] border border-[#e5e5e5] hover:border-[#111111]/50 hover:shadow-[0_6px_24px_rgba(13,44,92,0.06)] transition-all"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#8595aa]">
+                    <span className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#737373]">
                       #{r.id}
                     </span>
                     <StatusPill status={r.status} />
                   </div>
-                  <h4 className="font-['Cormorant_Garamond',serif] text-[22px] text-[#0d2c5c] leading-tight">
+                  <h4 className="font-['Cormorant_Garamond',serif] text-[22px] text-[#111111] leading-tight">
                     {r.room}
                   </h4>
-                  <p className="text-[13px] text-[#5a6b85] mt-2">
+                  <p className="text-[13px] text-[#525252] mt-2">
                     {r.checkIn} → {r.checkOut} · {r.nights} nopți
                   </p>
                 </div>
-                <div className="flex md:flex-col items-end md:items-end justify-between md:justify-center gap-3 md:border-l md:border-[#eef2f7] md:pl-6">
-                  <p className="font-['Cormorant_Garamond',serif] text-[24px] text-[#0d2c5c]">
+                <div className="flex md:flex-col items-end md:items-end justify-between md:justify-center gap-3 md:border-l md:border-[#ededed] md:pl-6">
+                  <p className="font-['Cormorant_Garamond',serif] text-[24px] text-[#111111]">
                     {r.total}
                   </p>
                   <div className="flex gap-2">
-                    <button className="px-4 py-2 text-[12px] font-semibold text-[#0d2c5c] border border-[#e1e8f0] rounded-lg hover:border-[#c69a3f] transition-colors">
+                    <button className="px-4 py-2 text-[12px] font-semibold text-[#111111] border border-[#e5e5e5] rounded-lg hover:border-[#111111] transition-colors">
                       Detalii
                     </button>
                     {scope === "upcoming" && (
@@ -1024,7 +1024,7 @@ function StatusPill({ status }: { status: string }) {
     Confirmat: "text-emerald-700 bg-emerald-50 border-emerald-200",
     "În așteptare": "text-amber-700 bg-amber-50 border-amber-200",
     Anulat: "text-red-700 bg-red-50 border-red-200",
-    Finalizat: "text-[#0d2c5c] bg-[#eef2f7] border-[#dfe6ef]",
+    Finalizat: "text-[#111111] bg-[#ededed] border-[#e5e5e5]",
   };
   return (
     <span
@@ -1066,28 +1066,28 @@ function DownloadsTab() {
             text="Facturile și voucherele tale vor apărea aici."
           />
         ) : (
-          <ul className="divide-y divide-[#eef2f7] border border-[#e6ecf3] rounded-[14px] overflow-hidden">
+          <ul className="divide-y divide-[#ededed] border border-[#e5e5e5] rounded-[14px] overflow-hidden">
             {files.map((f) => (
               <li
                 key={f.name}
-                className="flex items-center justify-between p-4 hover:bg-[#fafbfc] transition-colors"
+                className="flex items-center justify-between p-4 hover:bg-[#fafafa] transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-md bg-[#f4f7fb] flex items-center justify-center text-[#0d2c5c]">
+                  <div className="w-10 h-10 rounded-md bg-[#f5f5f5] flex items-center justify-center text-[#111111]">
                     <FileText size={17} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[13.5px] font-semibold text-[#0d2c5c] truncate">
+                    <p className="text-[13.5px] font-semibold text-[#111111] truncate">
                       {f.name}
                     </p>
-                    <p className="text-[11.5px] text-[#8595aa] mt-0.5">
+                    <p className="text-[11.5px] text-[#737373] mt-0.5">
                       {f.date} · {f.size}
                     </p>
                   </div>
                 </div>
                 <a
                   href={f.href}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold text-[#0d2c5c] border border-[#e1e8f0] rounded-lg hover:border-[#c69a3f] hover:text-[#c69a3f] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold text-[#111111] border border-[#e5e5e5] rounded-lg hover:border-[#111111] hover:text-[#111111] transition-colors"
                 >
                   <Download size={14} /> Descarcă
                 </a>
@@ -1121,8 +1121,8 @@ function SettingsTab() {
       <div className="p-8 space-y-8">
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <Bell size={15} className="text-[#c69a3f]" />
-            <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
+            <Bell size={15} className="text-[#111111]" />
+            <h3 className="text-[15px] font-semibold text-[#111111]">
               Notificări
             </h3>
           </div>
@@ -1158,8 +1158,8 @@ function SettingsTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Globe size={15} className="text-[#c69a3f]" />
-              <h3 className="text-[15px] font-semibold text-[#0d2c5c]">
+              <Globe size={15} className="text-[#111111]" />
+              <h3 className="text-[15px] font-semibold text-[#111111]">
                 Limbă
               </h3>
             </div>
@@ -1170,8 +1170,8 @@ function SettingsTab() {
                   onClick={() => setPrefs({ ...prefs, language: l })}
                   className={`px-4 py-2 rounded-lg text-[12.5px] font-semibold border transition-colors ${
                     prefs.language === l
-                      ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
-                      : "border-[#e1e8f0] text-[#3c4043] hover:border-[#c69a3f]"
+                      ? "bg-[#111111] text-white border-[#111111]"
+                      : "border-[#e5e5e5] text-[#262626] hover:border-[#111111]"
                   }`}
                 >
                   {l}
@@ -1181,8 +1181,8 @@ function SettingsTab() {
           </div>
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Moon size={15} className="text-[#c69a3f]" />
-              <h3 className="text-[15px] font-semibold text-[#0d2c5c]">Temă</h3>
+              <Moon size={15} className="text-[#111111]" />
+              <h3 className="text-[15px] font-semibold text-[#111111]">Temă</h3>
             </div>
             <div className="flex gap-2">
               {[
@@ -1194,8 +1194,8 @@ function SettingsTab() {
                   onClick={() => setPrefs({ ...prefs, theme: t.k })}
                   className={`px-4 py-2 rounded-lg text-[12.5px] font-semibold border transition-colors ${
                     prefs.theme === t.k
-                      ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
-                      : "border-[#e1e8f0] text-[#3c4043] hover:border-[#c69a3f]"
+                      ? "bg-[#111111] text-white border-[#111111]"
+                      : "border-[#e5e5e5] text-[#262626] hover:border-[#111111]"
                   }`}
                 >
                   {t.l}
@@ -1316,7 +1316,7 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
                     setPw("");
                     setErr("");
                   }}
-                  className="px-5 py-2.5 text-[12.5px] font-semibold text-[#3c4043] border border-[#e1e8f0] rounded-lg hover:bg-[#f4f7fb] transition-colors"
+                  className="px-5 py-2.5 text-[12.5px] font-semibold text-[#262626] border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f5] transition-colors"
                 >
                   Renunță
                 </button>
@@ -1339,7 +1339,7 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
 
 /* ─────────────────── PRIMITIVES ─────────────────── */
 const fieldInput =
-  "w-full py-3 px-4 border border-[#e1e8f0] rounded-[10px] font-sans text-[14px] text-[#1a1a1a] bg-white outline-none transition-all duration-200 focus:border-[#1e4d8c] focus:shadow-[0_0_0_3px_rgba(30,77,140,0.08)] placeholder:text-[#a4b0c1]";
+  "w-full py-3 px-4 border border-[#e5e5e5] rounded-[10px] font-sans text-[14px] text-[#111111] bg-white outline-none transition-all duration-200 focus:border-[#111111] focus:shadow-[0_0_0_3px_rgba(30,77,140,0.08)] placeholder:text-[#a3a3a3]";
 
 function Field({
   label,
@@ -1352,11 +1352,11 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-[#5a6b85]">
+      <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-[#525252]">
         {label}
       </span>
       {children}
-      {hint && <span className="text-[11.5px] text-[#8595aa]">{hint}</span>}
+      {hint && <span className="text-[11.5px] text-[#737373]">{hint}</span>}
     </label>
   );
 }
@@ -1384,7 +1384,7 @@ function PwInput({
       <button
         type="button"
         onClick={onToggle}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8595aa] hover:text-[#0d2c5c] p-1"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#111111] p-1"
       >
         {show ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
@@ -1404,16 +1404,16 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-4 p-4 rounded-[12px] border border-[#e6ecf3] hover:border-[#c69a3f]/40 transition-colors cursor-pointer">
+    <label className="flex items-center justify-between gap-4 p-4 rounded-[12px] border border-[#e5e5e5] hover:border-[#111111]/40 transition-colors cursor-pointer">
       <div>
-        <p className="text-[13.5px] font-semibold text-[#0d2c5c]">{label}</p>
-        {hint && <p className="text-[12px] text-[#8595aa] mt-0.5">{hint}</p>}
+        <p className="text-[13.5px] font-semibold text-[#111111]">{label}</p>
+        {hint && <p className="text-[12px] text-[#737373] mt-0.5">{hint}</p>}
       </div>
       <button
         type="button"
         onClick={() => onChange(!value)}
         className={`relative w-11 h-6 rounded-full transition-colors ${
-          value ? "bg-[#0d2c5c]" : "bg-[#dfe6ef]"
+          value ? "bg-[#111111]" : "bg-[#e5e5e5]"
         }`}
         aria-pressed={value}
       >
@@ -1428,7 +1428,7 @@ function Toggle({
 }
 
 function Divider() {
-  return <div className="h-px bg-[#eef2f7]" />;
+  return <div className="h-px bg-[#ededed]" />;
 }
 
 function EmptyState({
@@ -1442,13 +1442,13 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-16">
-      <div className="w-14 h-14 rounded-full bg-[#f4f7fb] text-[#0d2c5c] flex items-center justify-center mx-auto mb-4">
+      <div className="w-14 h-14 rounded-full bg-[#f5f5f5] text-[#111111] flex items-center justify-center mx-auto mb-4">
         <Icon size={22} />
       </div>
-      <p className="font-['Cormorant_Garamond',serif] text-[22px] text-[#0d2c5c]">
+      <p className="font-['Cormorant_Garamond',serif] text-[22px] text-[#111111]">
         {title}
       </p>
-      <p className="text-[13px] text-[#8595aa] mt-1.5">{text}</p>
+      <p className="text-[13px] text-[#737373] mt-1.5">{text}</p>
     </div>
   );
 }
