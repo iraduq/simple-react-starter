@@ -127,6 +127,7 @@ export default function Login() {
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoginError(null);
     try {
       const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
@@ -140,24 +141,32 @@ export default function Login() {
       if (res.ok) {
         saveTokensFrom(await res.json().catch(() => null));
         const session = await fetchSession(true);
+        if (session && (session as any).is_active === false) {
+          clearAccessToken();
+          notifySessionChange();
+          setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
+          return;
+        }
         notifySessionChange();
         navigate(session?.role === "admin" ? "/admin" : "/profile");
         return;
       }
 
       const contentType = res.headers.get("content-type");
-      let errorMsg = `Eroare server (${res.status})`;
+      let detail: string | undefined;
       if (contentType && contentType.includes("application/json")) {
         const data = (await res.json()) as Record<string, unknown>;
-        if (data && typeof data.detail === "string") {
-          errorMsg = data.detail;
-        }
+        if (data && typeof data.detail === "string") detail = data.detail;
       }
-      alert(errorMsg);
+      handleAuthFailure(res.status, detail);
     } catch (error) {
       console.error("Eroare detaliată Google Login:", error);
-      alert("A apărut o problemă de conexiune cu serverul.");
+      setLoginError({
+        message: "A apărut o problemă de conexiune cu serverul.",
+        deactivated: false,
+      });
     }
+
   };
 
   return (
