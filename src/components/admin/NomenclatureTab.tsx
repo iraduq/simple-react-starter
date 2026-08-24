@@ -508,28 +508,8 @@ function NomenclatureSection({ section }: { section: Section }) {
         onClose={() => setFormOpen(false)}
       >
         <div className="space-y-4">
-          {section.key === "facilities" ? (
-            <Field label="Alege dintr-o listă predefinită">
-              <select
-                className={inputCls}
-                value=""
-                onChange={(e) => {
-                  const preset = FACILITY_PRESETS.find(
-                    (pp) => pp.name === e.target.value,
-                  );
-                  if (preset)
-                    setForm({ ...form, name: preset.name, icon: preset.icon });
-                }}
-              >
-                <option value="">— Selectează o facilitate —</option>
-                {FACILITY_PRESETS.map((pp) => (
-                  <option key={pp.name} value={pp.name}>
-                    {pp.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          ) : PRESETS[section.key] ? (
+          {section.key !== "facilities" && PRESETS[section.key] ? (
+
             <Field label="Alege dintr-o listă predefinită">
               <select
                 className={inputCls}
