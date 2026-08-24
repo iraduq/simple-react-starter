@@ -19,6 +19,7 @@ import { apiFetch } from "../lib/api";
 
 type RoomImage = { id: number | string; url?: string; image_url?: string };
 
+// 🌟 Am adăugat tipul corect pentru facilities care vin din backend
 type ApiRoom = {
   id: number | string;
   name?: string | null;
@@ -33,12 +34,13 @@ type ApiRoom = {
   is_active?: boolean | null;
   images?: RoomImage[];
   units?: unknown[];
+  facilities?: { id: number | string; name: string; icon?: string }[] | null; // <-- AICI
   category?: string | null;
   badge?: string | null;
   rating?: number | null;
   reviews?: number | null;
   bed?: string | null;
-  amenities?: string[] | null;
+  amenities?: string[] | null; // Păstrat ca rezervă
   max_guests_adults?: number;
   max_guests_children?: number;
 };
@@ -69,6 +71,14 @@ function mapRoom(r: ApiRoom): DisplayRoom {
   const imgs = (r.images || []).map(imageUrl).filter(Boolean);
   const totalGuests = (r.max_guests_adults || 2) + (r.max_guests_children || 0);
 
+  // 🌟 Aici tragem facilitățile REALE din baza de date, nu pe cele hardcodate
+  let finalAmenities: string[] = ["WiFi", "Aer condiționat", "Baie privată"];
+  if (r.facilities && r.facilities.length > 0) {
+    finalAmenities = r.facilities.map((f) => f.name);
+  } else if (r.amenities && r.amenities.length > 0) {
+    finalAmenities = r.amenities;
+  }
+
   return {
     id: r.id,
     category: r.category || "Cameră",
@@ -89,26 +99,33 @@ function mapRoom(r: ApiRoom): DisplayRoom {
     bed: r.bed || "Pat King",
     badge: r.badge || undefined,
     description: r.description || "",
-    amenities: r.amenities?.length
-      ? r.amenities
-      : ["WiFi", "Aer condiționat", "Baie privată"],
+    amenities: finalAmenities, // 🌟 Pasăm facilitățile corecte
     images: imgs.length > 0 ? imgs : [FALLBACK_IMG],
   };
 }
 
+// 🌟 Am adăugat mai multe cuvinte cheie pentru a potrivi corect iconițele
 const amenityIcon = (label: string) => {
   const l = label.toLowerCase();
-  if (l.includes("mare") || l.includes("grădin") || l.includes("teras"))
+  if (
+    l.includes("mare") ||
+    l.includes("grădin") ||
+    l.includes("teras") ||
+    l.includes("piscin")
+  )
     return Waves;
-  if (l.includes("wi-fi")) return Wifi;
+  if (l.includes("wi-fi") || l.includes("wifi") || l.includes("internet"))
+    return Wifi;
   if (
     l.includes("baie") ||
     l.includes("duș") ||
     l.includes("jacuzzi") ||
-    l.includes("băi")
+    l.includes("băi") ||
+    l.includes("toalet")
   )
     return Bath;
-  return Coffee;
+
+  return Coffee; // Fallback elegant (folosit pt Minibar, Mic dejun, etc)
 };
 
 function RoomGallery({
@@ -467,15 +484,12 @@ export default function Rooms() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* Butonul de Detalii rămâne conectat la pagina camerei */}
                         <Link
                           to={`/camere/${room.id}`}
                           className="inline-flex items-center gap-2 rounded-full border border-[#0d2c5c]/15 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] transition-all duration-200 hover:border-[#0d2c5c] hover:bg-[#f0f5fc] hover:-translate-y-0.5"
                         >
                           Detalii
                         </Link>
-
-                        {/* Butonul secundar duce către Verificare disponibilitate */}
                         <Link
                           to="/disponibilitate"
                           className="group/cta inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-[0_10px_24px_-12px_rgba(198,154,63,0.9)] transition-all duration-200 hover:from-[#0d2c5c] hover:to-[#12386f] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-12px_rgba(13,44,92,0.5)]"

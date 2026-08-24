@@ -8,6 +8,7 @@ import {
   X,
   BedDouble,
   Image as ImageIcon,
+  Check, // <-- Import nou pentru iconița de bifat facilități
 } from "lucide-react";
 import { Badge, EmptyState, Modal } from "./ui";
 import {
@@ -31,11 +32,12 @@ const fieldInput =
 export default function RoomsTab() {
   const { toast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [facilities, setFacilities] = useState<any[]>([]); // 🌟 State pentru facilități
   const [loading, setLoading] = useState(true);
   const [editTarget, setEditTarget] = useState<Room | null>(null);
   const [formOpen, setFormOpen] = useState(false);
 
-  // 🌟 Formular actualizat conform cerințelor backend-ului Pydantic
+  // 🌟 Am adăugat facility_ids în form state
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -43,7 +45,8 @@ export default function RoomsTab() {
     max_guests_adults: 2,
     max_guests_children: 0,
     size_sqm: 0,
-    room_type_id: 1, // backend cere asta obligatoriu
+    room_type_id: 1,
+    facility_ids: [] as number[],
   });
 
   const [formErr, setFormErr] = useState<Record<string, string>>({});
@@ -54,8 +57,14 @@ export default function RoomsTab() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await get<unknown>("/rooms");
-      setRooms(list<Room>(data));
+      // 🌟 Încărcăm camerele și facilitățile simultan
+      const [roomsRes, facRes] = await Promise.allSettled([
+        get<unknown>("/rooms"),
+        get<unknown>("/rooms/facilities"),
+      ]);
+
+      if (roomsRes.status === "fulfilled") setRooms(list<Room>(roomsRes.value));
+      if (facRes.status === "fulfilled") setFacilities(list<any>(facRes.value));
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
@@ -77,6 +86,7 @@ export default function RoomsTab() {
       max_guests_children: 0,
       size_sqm: 0,
       room_type_id: 1,
+      facility_ids: [], // Resetăm selecția
     });
     setFormErr({});
     setFormOpen(true);
@@ -92,9 +102,26 @@ export default function RoomsTab() {
       max_guests_children: Number(r.max_guests_children || 0),
       size_sqm: Number(r.size_sqm || 0),
       room_type_id: Number(r.room_type_id || 1),
+      // 🌟 Extragem ID-urile facilităților deja existente pe cameră
+      facility_ids: r.facilities ? r.facilities.map((f: any) => f.id) : [],
     });
     setFormErr({});
     setFormOpen(true);
+  };
+
+  // 🌟 Funcție pentru a bifa / debifa o facilitate
+  const toggleFacility = (id: number) => {
+    setForm((prev) => {
+      const exists = prev.facility_ids.includes(id);
+      if (exists) {
+        return {
+          ...prev,
+          facility_ids: prev.facility_ids.filter((fid) => fid !== id),
+        };
+      } else {
+        return { ...prev, facility_ids: [...prev.facility_ids, id] };
+      }
+    });
   };
 
   const submitForm = async () => {
@@ -110,7 +137,6 @@ export default function RoomsTab() {
 
     setSaving(true);
     try {
-      // 🌟 Trimitem EXACT ce cere Pydantic, fără "name", "capacity" sau "is_active"
       const body = {
         title: form.title.trim(),
         description: form.description.trim(),
@@ -119,6 +145,7 @@ export default function RoomsTab() {
         max_guests_children: Number(form.max_guests_children),
         size_sqm: Number(form.size_sqm),
         room_type_id: Number(form.room_type_id),
+        facility_ids: form.facility_ids, // 🌟 Trimitem ID-urile către backend
       };
 
       if (editTarget) {
@@ -227,6 +254,7 @@ export default function RoomsTab() {
             : "Cameră nouă"
         }
         onClose={() => setFormOpen(false)}
+        width="max-w-2xl" /* 🌟 Un pic mai lat pentru a încăpea facilitățile frumos */
       >
         <div className="p-6">
           <div className="grid gap-5 sm:grid-cols-2">
@@ -315,17 +343,52 @@ export default function RoomsTab() {
               />
             </FormField>
 
-            <FormField label="Suprafață (mp) - Opțional">
-              <input
-                type="number"
-                min={0}
-                className={`${fieldInput} mt-2`}
-                value={form.size_sqm}
-                onChange={(e) =>
-                  setForm({ ...form, size_sqm: Number(e.target.value) })
-                }
-              />
-            </FormField>
+            <div className="sm:col-span-2">
+              <FormField label="Suprafață (mp) - Opțional">
+                <input
+                  type="number"
+                  min={0}
+                  className={`${fieldInput} mt-2`}
+                  value={form.size_sqm}
+                  onChange={(e) =>
+                    setForm({ ...form, size_sqm: Number(e.target.value) })
+                  }
+                />
+              </FormField>
+            </div>
+
+            {/* 🌟 GRILA DE FACILITĂȚI AICI 🌟 */}
+            <div className="sm:col-span-2">
+              <FormField label="Facilități Cameră">
+                {facilities.length === 0 ? (
+                  <p className="text-[12px] text-[#8a8a8a] mt-2">
+                    Nu există facilități definite în sistem. Adaugă din meniul
+                    principal.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {facilities.map((fac) => {
+                      const isSelected = form.facility_ids.includes(fac.id);
+                      return (
+                        <button
+                          key={fac.id}
+                          type="button"
+                          onClick={() => toggleFacility(fac.id)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12px] font-semibold transition-all ${
+                            isSelected
+                              ? "bg-black text-white border-black shadow-md"
+                              : "bg-black/[0.02] text-[#525252] border-black/10 hover:border-black/30 hover:bg-white"
+                          }`}
+                        >
+                          {isSelected && <Check size={12} strokeWidth={3} />}
+                          {fac.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </FormField>
+            </div>
 
             <div className="sm:col-span-2">
               <FormField label="Descriere">
@@ -458,6 +521,25 @@ function RoomCard({
           )}
           {room.size_sqm ? <span>{room.size_sqm} mp</span> : null}
         </div>
+
+        {/* 🌟 Afișează facilitățile pe card, sub detalii */}
+        {room.facilities && room.facilities.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1">
+            {room.facilities.slice(0, 4).map((f: any) => (
+              <span
+                key={f.id}
+                className="text-[9px] uppercase tracking-wider font-bold text-[#8a8a8a] bg-black/5 px-2 py-1 rounded-md"
+              >
+                {f.name}
+              </span>
+            ))}
+            {room.facilities.length > 4 && (
+              <span className="text-[9px] uppercase tracking-wider font-bold text-[#8a8a8a] bg-black/5 px-2 py-1 rounded-md">
+                +{room.facilities.length - 4}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="mt-auto pt-6 flex gap-2">
           <button
