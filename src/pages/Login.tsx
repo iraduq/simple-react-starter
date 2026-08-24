@@ -1,10 +1,20 @@
 import { API_URL } from "../lib/config";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  AlertCircle,
+} from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
-import { saveTokensFrom } from "../lib/token";
+import { saveTokensFrom, clearAccessToken } from "../lib/token";
+
 
 export default function Login() {
   const navigate = useNavigate();
