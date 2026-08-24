@@ -1,10 +1,20 @@
 import { API_URL } from "../lib/config";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  AlertCircle,
+} from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
-import { saveTokensFrom } from "../lib/token";
+import { saveTokensFrom, clearAccessToken } from "../lib/token";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -24,10 +34,40 @@ export default function Login() {
   const [isForgotPasswordView, setIsForgotPasswordView] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetMessage, setResetMessage] = useState("");
+  const [loginError, setLoginError] = useState<{
+    message: string;
+    deactivated: boolean;
+  } | null>(null);
+
+  /** Detectează dacă backendul a refuzat login-ul pentru cont dezactivat. */
+  const isDeactivated = (status: number, detail?: string) => {
+    const d = (detail || "").toLowerCase();
+    return (
+      status === 403 ||
+      /dezactiv|inactiv|deactivat|disabled|suspend|blocat|not active|banned/.test(
+        d,
+      )
+    );
+  };
+
+  const DEACTIVATED_MSG =
+    "Contul tău a fost dezactivat. Nu te poți autentifica momentan — te rugăm să contactezi echipa Casa Esy pentru reactivare.";
+
+  const handleAuthFailure = (status: number, detail?: string) => {
+    if (isDeactivated(status, detail)) {
+      setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
+    } else {
+      setLoginError({
+        message: detail || `Eroare la autentificare (${status}).`,
+        deactivated: false,
+      });
+    }
+  };
 
   const handleLocalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError(null);
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
@@ -43,24 +83,34 @@ export default function Login() {
       if (res.ok) {
         saveTokensFrom(data);
         const session = await fetchSession(true);
+        if (session && (session as any).is_active === false) {
+          clearAccessToken();
+          notifySessionChange();
+          setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
+          return;
+        }
         notifySessionChange();
         navigate(session?.role === "admin" ? "/admin" : "/profile");
       } else {
-        const errorMessage =
+        const detail =
           data &&
           typeof data === "object" &&
           "detail" in data &&
           typeof data.detail === "string"
             ? data.detail
-            : "Eroare la autentificare.";
-        alert(errorMessage);
+            : undefined;
+        handleAuthFailure(res.status, detail);
       }
     } catch {
-      alert("A apărut o problemă de conexiune.");
+      setLoginError({
+        message: "A apărut o problemă de conexiune.",
+        deactivated: false,
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +137,7 @@ export default function Login() {
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoginError(null);
     try {
       const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
@@ -100,24 +151,32 @@ export default function Login() {
       if (res.ok) {
         saveTokensFrom(await res.json().catch(() => null));
         const session = await fetchSession(true);
+        if (session && (session as any).is_active === false) {
+          clearAccessToken();
+          notifySessionChange();
+          setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
+          return;
+        }
         notifySessionChange();
         navigate(session?.role === "admin" ? "/admin" : "/profile");
         return;
       }
 
       const contentType = res.headers.get("content-type");
-      let errorMsg = `Eroare server (${res.status})`;
+      let detail: string | undefined;
       if (contentType && contentType.includes("application/json")) {
         const data = (await res.json()) as Record<string, unknown>;
-        if (data && typeof data.detail === "string") {
-          errorMsg = data.detail;
-        }
+        if (data && typeof data.detail === "string") detail = data.detail;
       }
-      alert(errorMsg);
+      handleAuthFailure(res.status, detail);
     } catch (error) {
       console.error("Eroare detaliată Google Login:", error);
-      alert("A apărut o problemă de conexiune cu serverul.");
+      setLoginError({
+        message: "A apărut o problemă de conexiune cu serverul.",
+        deactivated: false,
+      });
     }
+
   };
 
   return (
@@ -253,7 +312,42 @@ export default function Login() {
                 </p>
               </div>
 
+              {loginError && (
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className={`flex items-start gap-3 px-4 py-3.5 rounded-[10px] border text-[13.5px] mb-5 ${
+                    loginError.deactivated
+                      ? "bg-amber-50 border-amber-200 text-amber-900"
+                      : "bg-red-50 border-red-200 text-red-800"
+                  }`}
+                >
+                  {loginError.deactivated ? (
+                    <ShieldAlert size={18} className="mt-0.5 shrink-0" />
+                  ) : (
+                    <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                  )}
+                  <div>
+                    {loginError.deactivated && (
+                      <p className="font-bold mb-0.5">Cont dezactivat</p>
+                    )}
+                    <p className="leading-snug font-medium">
+                      {loginError.message}
+                    </p>
+                    {loginError.deactivated && (
+                      <Link
+                        to="/contact"
+                        className="inline-block mt-2 font-bold underline"
+                      >
+                        Contactează-ne
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleLocalLogin} className="flex flex-col gap-4">
+
                 <div className="relative">
                   <Mail
                     className="absolute left-[18px] top-1/2 -translate-y-1/2 text-[#8595aa]"
