@@ -247,21 +247,18 @@ function SidebarContent({
           </button>
         );
       })}
-      <div className="mt-3 space-y-2 border-t border-[#ededed] pt-3">
-        <div className="flex items-center gap-2 px-1.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#111111] text-[11px] font-bold text-white">
-            {initials}
+      <div className="mt-3 border-t border-[#ededed] pt-3">
+        <button
+          onClick={() => void onLogout()}
+          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold text-[#525252] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f5f5f5] text-[#111111]">
+            <LogOut size={15} strokeWidth={1.75} />
           </span>
-          <span className="truncate text-[12px] font-semibold text-[#525252]">
-            {fullName}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 px-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8a8a8a]">
-          <Activity size={12} />
-          <span className={`h-2 w-2 rounded-full ${healthColor}`} />
-          {healthLabel}
-        </div>
+          Deconectare
+        </button>
       </div>
+
     </nav>
   );
 }
