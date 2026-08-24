@@ -65,7 +65,7 @@ export default function Hero() {
         className="pointer-events-none absolute top-40 -right-32 w-[520px] h-[520px] rounded-full bg-[#0d2c5c]/6 blur-3xl"
       />
 
-      <div className="relative max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-32 pb-16 md:pb-24">
+      <div className="relative max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-32 pb-24 md:pb-32">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
