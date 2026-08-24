@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Lock, TrendingUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import {
   Card,
   SectionHeader,

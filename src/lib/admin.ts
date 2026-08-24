@@ -45,6 +45,11 @@ export type RoomBooking = {
   unit?: { id?: string | number; unit_number?: string | null } | null;
   guest_name?: string | null;
   guest_email?: string | null;
+  user_id?: string | number | null;
+  user_email?: string | null;
+  user_name?: string | null;
+  room_id?: string | number | null;
+  created_at?: string | null;
   user?: { email?: string | null; first_name?: string | null; last_name?: string | null } | null;
   guests_adults?: number | null;
   guests_children?: number | null;

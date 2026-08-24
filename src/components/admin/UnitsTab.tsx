@@ -818,7 +818,7 @@ export default function UnitsTab() {
     }
   };
 
-  const copyToClipboard = (text: string, label: string) => {
+  const copyToClipboard = (text: string | number | null | undefined, label: string) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
     toast(`${label} copiat în clipboard!`, "success");
