@@ -449,7 +449,7 @@ function PersonalTab({
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#111111] hover:text-[#111111] transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#404040] transition-colors disabled:opacity-60"
           >
             <Save size={15} />
             {saving ? "Se salvează…" : "Salvează modificările"}
