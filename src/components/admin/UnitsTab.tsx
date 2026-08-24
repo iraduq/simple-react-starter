@@ -16,7 +16,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { Badge, TableSkeleton, EmptyState } from "./ui";
+import { Badge, TableSkeleton, EmptyState, Pagination } from "./ui";
 import {
   get,
   post,
@@ -633,6 +633,7 @@ export default function UnitsTab() {
   const [bedTypeId, setBedTypeId] = useState<string>("");
 
   // State-uri pentru meniuri Dropdown
+  const [ubPages, setUbPages] = useState<Record<string, number>>({});
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null); // Meniul unității
   const [bookingMenuOpenId, setBookingMenuOpenId] = useState<string | null>(
     null,
@@ -1061,6 +1062,16 @@ export default function UnitsTab() {
                     const current = ub.find(isOngoing);
                     const next = ub.find(isUpcoming);
                     const expanded = openUnit === uid;
+                    const UB_PER_PAGE = 5;
+                    const ubTotalPages = Math.max(
+                      1,
+                      Math.ceil(ub.length / UB_PER_PAGE),
+                    );
+                    const ubPage = Math.min(ubPages[uid] || 1, ubTotalPages);
+                    const ubSlice = ub.slice(
+                      (ubPage - 1) * UB_PER_PAGE,
+                      ubPage * UB_PER_PAGE,
+                    );
                     const menuOpen = menuOpenId === uid;
 
                     return (
@@ -1254,7 +1265,7 @@ export default function UnitsTab() {
                               </p>
                             ) : (
                               <div className="space-y-2">
-                                {ub.map((b) => {
+                                {ubSlice.map((b) => {
                                   const userObj = users.find(
                                     (uObj: any) =>
                                       String(uObj.id) === String(b.user_id),
@@ -1422,6 +1433,15 @@ export default function UnitsTab() {
                                     </div>
                                   );
                                 })}
+                                <Pagination
+                                  page={ubPage}
+                                  pages={ubTotalPages}
+                                  total={ub.length}
+                                  perPage={UB_PER_PAGE}
+                                  onPage={(p) =>
+                                    setUbPages((prev) => ({ ...prev, [uid]: p }))
+                                  }
+                                />
                               </div>
                             )}
                           </div>
