@@ -65,7 +65,7 @@ export default function Hero() {
         className="pointer-events-none absolute top-40 -right-32 w-[520px] h-[520px] rounded-full bg-[#0d2c5c]/6 blur-3xl"
       />
 
-      <div className="relative max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-32 pb-16 md:pb-24">
+      <div className="relative max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-32 pb-24 md:pb-32">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,7 +124,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-20 mt-14 mx-auto bg-white rounded-2xl md:rounded-full border border-[var(--border-light)] shadow-[0_2px_8px_rgba(13,44,92,0.05),0_28px_60px_-30px_rgba(13,44,92,0.28)] flex flex-col md:flex-row md:items-center w-full max-w-[1120px] md:pl-2 md:pr-2 md:py-2"
+          className="relative z-20 mt-14 mb-6 mx-auto bg-white rounded-2xl md:rounded-full border border-[var(--border-light)] shadow-[0_2px_8px_rgba(13,44,92,0.05),0_28px_60px_-30px_rgba(13,44,92,0.28)] flex flex-col md:flex-row md:items-center w-full max-w-[1120px] md:pl-2 md:pr-2 md:py-2"
         >
           <DatePicker
             label="Check-in"

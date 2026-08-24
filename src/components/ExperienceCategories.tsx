@@ -39,8 +39,12 @@ export default function ExperienceCategories() {
   return (
     <section
       id="descopera"
-      className="relative py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden"
+      className="relative mt-10 md:mt-14 py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden bg-white z-10"
     >
+      {/* Linie decorativă de separare */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-[var(--border-light)]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--gold)]" />
+
       <div className="max-w-[1280px] mx-auto">
         <div className="relative text-center mb-16">
           {/* Decorative wave SVGs */}
