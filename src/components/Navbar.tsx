@@ -39,7 +39,7 @@ export default function Navbar() {
   const [langOpen, setLangOpen] = useState(false);
   const [acctOpen, setAcctOpen] = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
-  const [copied, setCopied] = useState(false);
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
