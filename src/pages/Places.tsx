@@ -379,6 +379,10 @@ export default function Places() {
           onCancel={() => setDeleteTarget(null)}
         />
       )}
+
+      {/* Linie subtilă jos */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-light)]" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--navy)]" />
     </div>
   );
 }
