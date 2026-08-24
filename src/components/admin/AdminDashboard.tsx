@@ -140,29 +140,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      {/* Topbar — minimal, monocrom */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-[#e5e5e5] bg-white/90 px-3 backdrop-blur sm:px-4 lg:h-16 lg:px-8">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#e5e5e5] text-[#111111] lg:hidden"
-            aria-label="Deschide meniul"
-          >
-            <Menu size={17} />
-          </button>
-          <span className="truncate text-[13px] font-bold uppercase tracking-[0.18em] text-[#111111] sm:text-[14px]">
-            {NAV.find((n) => n.key === tab)?.label ?? "Admin"}
-          </span>
-        </div>
-
-        <button
-          onClick={() => void handleLogout()}
-          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-[#e5e5e5] px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#111111] transition-colors hover:bg-[#f5f5f5]"
-        >
-          <LogOut size={14} /> Ieși
-        </button>
-      </header>
-
       <div className="flex">
         {/* Sidebar — desktop */}
         <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-[#e5e5e5] bg-white lg:block">
@@ -225,7 +202,6 @@ export default function AdminDashboard() {
           </div>
         </main>
       </div>
-
     </div>
   );
 }
