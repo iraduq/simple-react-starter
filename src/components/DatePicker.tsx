@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MONTHS = [
@@ -44,20 +45,57 @@ export default function DatePicker({
   variant = "bar",
   onChange,
 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
 
   const base = value ? isoToDate(value) : new Date();
   const [viewYear, setViewYear] = useState(base.getFullYear());
   const [viewMonth, setViewMonth] = useState(base.getMonth());
 
+  const measurePosition = () => {
+    const rect = wrapperRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const width = Math.min(280, window.innerWidth - 32);
+    let left = rect.left + rect.width / 2 - width / 2;
+    left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+    const top = rect.bottom + 10;
+    setPos({ top, left });
+  };
+
+  useLayoutEffect(() => {
+    if (open) measurePosition();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onResize = () => measurePosition();
+    window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onResize, true);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onResize, true);
+    };
+  }, [open]);
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
-        setOpen(false);
+      const target = e.target as Node;
+      const insideTrigger = wrapperRef.current?.contains(target);
+      const insideCalendar = portalRef.current?.contains(target);
+      if (!insideTrigger && !insideCalendar) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, []);
 
   const displayDate = value
@@ -102,6 +140,77 @@ export default function DatePicker({
     setOpen(false);
   };
 
+  const calendar = (
+    <div
+      ref={portalRef}
+      style={{ top: pos.top, left: pos.left }}
+      className="fixed z-[9999] w-[min(280px,calc(100vw-32px))] bg-white border border-[#e1e8f0] rounded-[16px] shadow-[0_8px_20px_rgba(13,44,92,0.08),0_24px_60px_rgba(13,44,92,0.16)] p-5"
+    >
+      {/* Mic vârf indicator către trigger */}
+      <span
+        aria-hidden="true"
+        className="absolute -top-[7px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-l border-t border-[#e1e8f0] rotate-45"
+      />
+
+      <div className="relative flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={prevMonth}
+          className="bg-transparent border-none cursor-pointer p-[6px] rounded-lg text-[#3c4043] flex items-center transition-colors duration-150 hover:bg-[#f3e6c4] hover:text-[#0d2c5c]"
+        >
+          <ChevronLeft size={16} />
+        </button>
+        <span className="text-[14px] font-semibold text-[#1a1a1a]">
+          {MONTHS[viewMonth]} {viewYear}
+        </span>
+        <button
+          type="button"
+          onClick={nextMonth}
+          className="bg-transparent border-none cursor-pointer p-[6px] rounded-lg text-[#3c4043] flex items-center transition-colors duration-150 hover:bg-[#f3e6c4] hover:text-[#0d2c5c]"
+        >
+          <ChevronRight size={16} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 mb-2">
+        {DAYS_SHORT.map((d) => (
+          <span
+            key={d}
+            className="text-center text-[10px] font-bold tracking-wide text-[#8595aa] py-1"
+          >
+            {d}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {cells.map((day, i) =>
+          day === null ? (
+            <span key={`empty-${i}`} />
+          ) : (
+            <button
+              type="button"
+              key={day}
+              disabled={isDisabled(day)}
+              onClick={() => pick(day)}
+              className={`mx-auto w-[34px] h-[34px] rounded-full bg-transparent border-none font-sans text-[13px] flex items-center justify-center transition-colors duration-150 ${
+                isSelected(day)
+                  ? "bg-gradient-to-br from-[#c69a3f] to-[#b3862f] text-white font-semibold shadow-[0_4px_10px_rgba(198,154,63,0.35)]"
+                  : isDisabled(day)
+                    ? "text-[#d0d7e3] cursor-not-allowed"
+                    : isToday(day)
+                      ? "text-[#0d2c5c] font-bold ring-1 ring-[#c69a3f]/60 hover:bg-[#f3e6c4] hover:text-[#0d2c5c]"
+                      : "text-[#1a1a1a] hover:bg-[#f3e6c4] hover:text-[#0d2c5c]"
+              }`}
+            >
+              {day}
+            </button>
+          ),
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div
       className={
@@ -109,7 +218,7 @@ export default function DatePicker({
           ? "relative flex flex-col"
           : "relative flex-1 flex flex-col justify-center px-6 py-4.5"
       }
-      ref={ref}
+      ref={wrapperRef}
     >
       <span
         className={
@@ -141,66 +250,7 @@ export default function DatePicker({
         )}
       </button>
 
-      {open && (
-        <div className="absolute top-[calc(100%+12px)] left-0 z-[200] bg-white border border-[#e1e8f0] rounded-[14px] shadow-[0_4px_8px_rgba(13,44,92,0.06),0_16px_48px_rgba(13,44,92,0.14)] p-5 w-[280px]">
-          <div className="flex items-center justify-between mb-4">
-            <button
-              type="button"
-              onClick={prevMonth}
-              className="bg-transparent border-none cursor-pointer p-[5px] rounded-lg text-[#3c4043] flex items-center transition-colors duration-150 hover:bg-[#e6efff] hover:text-[#0d2c5c]"
-            >
-              <ChevronLeft size={15} />
-            </button>
-            <span className="text-[13.5px] font-semibold text-[#1a1a1a]">
-              {MONTHS[viewMonth]} {viewYear}
-            </span>
-            <button
-              type="button"
-              onClick={nextMonth}
-              className="bg-transparent border-none cursor-pointer p-[5px] rounded-lg text-[#3c4043] flex items-center transition-colors duration-150 hover:bg-[#e6efff] hover:text-[#0d2c5c]"
-            >
-              <ChevronRight size={15} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-7 mb-1.5">
-            {DAYS_SHORT.map((d) => (
-              <span
-                key={d}
-                className="text-center text-[9.5px] font-bold tracking-wide text-[#8595aa] py-1"
-              >
-                {d}
-              </span>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-0.5">
-            {cells.map((day, i) =>
-              day === null ? (
-                <span key={`empty-${i}`} />
-              ) : (
-                <button
-                  type="button"
-                  key={day}
-                  disabled={isDisabled(day)}
-                  onClick={() => pick(day)}
-                  className={`mx-auto w-[34px] h-[34px] rounded-full bg-transparent border-none font-sans text-[12.5px] flex items-center justify-center transition-colors duration-150 ${
-                    isSelected(day)
-                      ? "bg-[#c69a3f] text-white font-semibold"
-                      : isDisabled(day)
-                        ? "text-[#d0d7e3] cursor-not-allowed"
-                        : isToday(day)
-                          ? "text-[#1e4d8c] font-bold hover:bg-[#f3e6c4] hover:text-[#0d2c5c]"
-                          : "text-[#1a1a1a] hover:bg-[#f3e6c4] hover:text-[#0d2c5c]"
-                  }`}
-                >
-                  {day}
-                </button>
-              ),
-            )}
-          </div>
-        </div>
-      )}
+      {open && createPortal(calendar, document.body)}
     </div>
   );
 }
