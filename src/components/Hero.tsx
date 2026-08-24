@@ -227,10 +227,13 @@ export default function Hero() {
           <button
             type="button"
             onClick={handleSearch}
-            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#c69a3f] to-[#b3862f] text-[#0d2c5c] border-none rounded-xl md:rounded-full px-7 py-3.5 font-sans text-[12px] font-bold tracking-[0.14em] uppercase whitespace-nowrap shrink-0 m-2 md:m-0 md:ml-1 w-[calc(100%-16px)] md:w-auto shadow-[0_10px_24px_-12px_rgba(198,154,63,0.9)] transition-all duration-200 hover:from-[#0d2c5c] hover:to-[#12386f] hover:text-white"
+            className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#c69a3f] to-[#b3862f] text-[#0d2c5c] border-none rounded-xl md:rounded-full px-7 py-3.5 font-sans text-[12px] font-bold tracking-[0.14em] uppercase whitespace-nowrap shrink-0 m-2 md:m-0 md:ml-1 w-[calc(100%-16px)] md:w-auto shadow-[0_10px_24px_-12px_rgba(198,154,63,0.9)] transition-all duration-200 hover:from-[#0d2c5c] hover:to-[#12386f] hover:text-white"
           >
-            <Search size={15} />
-            Verifică disponibilitate
+            Rezervă acum
+            <ArrowRight
+              size={15}
+              className="transition-transform duration-200 group-hover:translate-x-1"
+            />
           </button>
         </motion.div>
 
