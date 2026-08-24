@@ -92,8 +92,8 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* CONTAINER BARA DE CĂUTARE — Acum stă cuminte în fluxul normal, deasupra valului */}
-        <div className="relative z-20 bg-white rounded-2xl md:rounded-[14px] shadow-[0_15px_40px_rgba(0,0,0,0.15)] flex flex-col md:flex-row items-stretch w-[calc(100vw-32px)] md:w-[min(960px,calc(100vw-48px))] border border-[#e1e8f0] mx-4 md:mx-0 mb-6">
+        {/* BARA DE CĂUTARE — alungită și subțire */}
+        <div className="relative z-20 bg-white rounded-2xl md:rounded-full shadow-[0_15px_40px_rgba(0,0,0,0.15)] flex flex-col md:flex-row md:items-center w-[calc(100vw-32px)] md:w-[min(1120px,calc(100vw-48px))] border border-[#e1e8f0] mx-4 md:mx-0 mb-6 md:pl-2 md:pr-2 md:py-2">
           <DatePicker
             label="Check-in"
             value={checkIn}
@@ -101,7 +101,7 @@ export default function Hero() {
             onChange={handleCheckIn}
           />
 
-          <div className="hidden md:block w-px bg-[#e1e8f0] my-3.5" />
+          <div className="hidden md:block w-px self-stretch bg-[#e1e8f0] my-1" />
 
           <DatePicker
             label="Check-out"
@@ -110,82 +110,98 @@ export default function Hero() {
             onChange={setCheckOut}
           />
 
-          <div className="hidden md:block w-px bg-[#e1e8f0] my-3.5" />
+          <div className="hidden md:block w-px self-stretch bg-[#e1e8f0] my-1" />
 
-          <div className="flex-none md:w-[260px] flex flex-col justify-center px-6 py-4.5">
-            <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-2 select-none">
-              <Users size={11} className="text-[#c69a3f] shrink-0" />
-              Oaspeți
-            </span>
-
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#3c4043]">
-                Adulți
+          {/* OASPEȚI — popover compact */}
+          <div ref={guestsRef} className="relative flex-1 md:max-w-[240px]">
+            <button
+              type="button"
+              onClick={() => setGuestsOpen((o) => !o)}
+              className="w-full text-left px-6 py-3.5 rounded-2xl md:rounded-full transition-colors hover:bg-[#f7f9fc]"
+            >
+              <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a]">
+                <Users size={11} className="text-[#c69a3f] shrink-0" />
+                Oaspeți
               </span>
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  disabled={adults <= 1}
-                  onClick={() => setAdults((g) => Math.max(1, g - 1))}
-                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
-                >
-                  −
-                </button>
-                <span className="text-sm font-medium text-[#1a1a1a] w-4 text-center">
-                  {adults}
-                </span>
-                <button
-                  type="button"
-                  disabled={adults >= 6}
-                  onClick={() => setAdults((g) => Math.min(6, g + 1))}
-                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#3c4043]">
-                Copii
+              <span className="mt-0.5 block text-[13.5px] font-medium text-[#3c4043]">
+                {adults} {adults === 1 ? "adult" : "adulți"}
+                {children > 0 &&
+                  ` · ${children} ${children === 1 ? "copil" : "copii"}`}
               </span>
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  disabled={children <= 0}
-                  onClick={() => setChildren((g) => Math.max(0, g - 1))}
-                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
-                >
-                  −
-                </button>
-                <span className="text-sm font-medium text-[#1a1a1a] w-4 text-center">
-                  {children}
-                </span>
-                <button
-                  type="button"
-                  disabled={children >= 4}
-                  onClick={() => setChildren((g) => Math.min(4, g + 1))}
-                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
-                >
-                  +
-                </button>
-              </div>
-            </div>
+            </button>
 
-            <p className="mt-1.5 text-[10px] leading-snug text-[#8595aa]">
-              Copil = până la 12 ani inclusiv. De la 13 ani se consideră adult.
-            </p>
+            {guestsOpen && (
+              <div className="absolute left-0 right-0 md:left-auto md:right-0 md:w-[280px] top-[calc(100%+10px)] z-30 rounded-2xl border border-[#e1e8f0] bg-white p-4 shadow-[0_18px_44px_rgba(13,44,92,0.18)]">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[12px] font-semibold text-[#1a1a1a]">
+                    Adulți
+                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      disabled={adults <= 1}
+                      onClick={() => setAdults((g) => Math.max(1, g - 1))}
+                      className="w-7 h-7 rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30"
+                    >
+                      −
+                    </button>
+                    <span className="text-sm font-medium text-[#1a1a1a] w-4 text-center">
+                      {adults}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={adults >= 6}
+                      onClick={() => setAdults((g) => Math.min(6, g + 1))}
+                      className="w-7 h-7 rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-start justify-between gap-3">
+                  <span className="text-[12px] font-semibold text-[#1a1a1a]">
+                    Copii
+                    <span className="mt-0.5 block text-[10.5px] font-normal leading-snug text-[#8595aa]">
+                      Până la 12 ani inclusiv. De la 13 ani se consideră adult.
+                    </span>
+                  </span>
+                  <div className="flex items-center gap-2.5 pt-0.5">
+                    <button
+                      type="button"
+                      disabled={children <= 0}
+                      onClick={() => setChildren((g) => Math.max(0, g - 1))}
+                      className="w-7 h-7 rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30"
+                    >
+                      −
+                    </button>
+                    <span className="text-sm font-medium text-[#1a1a1a] w-4 text-center">
+                      {children}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={children >= 4}
+                      onClick={() => setChildren((g) => Math.min(4, g + 1))}
+                      className="w-7 h-7 rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <button
             type="button"
             onClick={handleSearch}
-            className="inline-flex items-center justify-center gap-2 bg-[#c69a3f] text-white border-none rounded-xl md:rounded-[10px] px-7 py-4 md:py-0 font-sans text-[13px] font-semibold tracking-wide whitespace-nowrap shrink-0 md:mx-2 md:my-2 w-full md:w-auto transition-all duration-200 hover:bg-[#b8882e]"
+            className="inline-flex items-center justify-center gap-2 bg-[#c69a3f] text-white border-none rounded-xl md:rounded-full px-7 py-3.5 font-sans text-[13px] font-semibold tracking-wide whitespace-nowrap shrink-0 m-2 md:m-0 md:ml-1 w-[calc(100%-16px)] md:w-auto transition-all duration-200 hover:bg-[#b8882e]"
           >
             <Search size={15} />
             Verifică disponibilitate
           </button>
         </div>
+
 
         {/* WAVE DIVIDER — Lipit de fundul absolut al secțiunii, randat frumos sub bara albă */}
         <svg
