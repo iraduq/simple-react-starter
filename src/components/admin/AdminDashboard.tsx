@@ -1,5 +1,5 @@
 import { API_URL } from "../../lib/config";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -11,13 +11,10 @@ import {
   Users,
   Shield,
   LogOut,
-  ChevronDown,
   Activity,
-  Monitor,
   X,
   Menu,
   DoorOpen,
-  UserRound,
 } from "lucide-react";
 import {
   fetchSession,
@@ -25,10 +22,8 @@ import {
   getCachedUser,
   type SessionUser,
 } from "../../lib/auth";
-import { get, post, list, errMsg, type SessionInfo } from "../../lib/admin";
 import { useToast } from "../Toast";
 
-import OverviewTab from "./OverviewTab";
 import BookingsTab from "./BookingsTab";
 import RoomsTab from "./RoomsTab";
 import NomenclatureTab from "./NomenclatureTab";
@@ -39,7 +34,6 @@ import AuditLogsTab from "./AuditLogsTab";
 import UnitsTab from "./UnitsTab";
 
 type TabKey =
-  | "overview"
   | "bookings"
   | "rooms"
   | "units"
@@ -50,7 +44,6 @@ type TabKey =
   | "audit";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
-  { key: "overview", label: "Prezentare generală", icon: LayoutDashboard },
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
   { key: "rooms", label: "Camere", icon: BedDouble },
   { key: "units", label: "Unități fizice", icon: DoorOpen },
@@ -66,15 +59,11 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [user, setUser] = useState<SessionUser>(getCachedUser());
   const [loading, setLoading] = useState(!user);
-  const [tab, setTab] = useState<TabKey>("overview");
+  const [tab, setTab] = useState<TabKey>("bookings");
   const [health, setHealth] = useState<"online" | "offline" | "checking">(
     "checking",
   );
-  const [acctOpen, setAcctOpen] = useState(false);
-  const [sessionsOpen, setSessionsOpen] = useState(false);
-  const [sessions, setSessions] = useState<SessionInfo[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const acctRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -109,41 +98,10 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (acctRef.current && !acctRef.current.contains(e.target as Node))
-        setAcctOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
   const handleLogout = async () => {
     await clearSession();
     toast("Te-ai deloghat cu succes.", "success");
     navigate("/");
-  };
-
-  const handleLogoutAll = async () => {
-    try {
-      await post("/auth/logout-all", {});
-      toast("Deconectat de pe toate dispozitivele.", "success");
-    } catch (e) {
-      toast(errMsg(e), "error");
-    }
-    await clearSession();
-    navigate("/");
-  };
-
-  const openSessions = async () => {
-    setAcctOpen(false);
-    setSessionsOpen(true);
-    try {
-      const data = await get<unknown>("/users/me/sessions");
-      setSessions(list<SessionInfo>(data));
-    } catch (e) {
-      toast(errMsg(e), "error");
-    }
   };
 
   if (loading) {
@@ -197,38 +155,12 @@ export default function AdminDashboard() {
           </span>
         </div>
 
-        <div className="relative shrink-0" ref={acctRef}>
-          <button
-            onClick={() => setAcctOpen((v) => !v)}
-            className="flex h-9 items-center gap-1.5 rounded-xl border border-[#e5e5e5] px-2.5 text-[#111111] transition-colors hover:bg-[#f5f5f5]"
-            aria-label="Cont"
-          >
-            <UserRound size={16} />
-            <ChevronDown size={13} className="text-[#8a8a8a]" />
-          </button>
-          {acctOpen && (
-            <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white py-1 shadow-xl">
-              <button
-                onClick={() => void openSessions()}
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
-              >
-                <Monitor size={14} /> Sesiuni active
-              </button>
-              <button
-                onClick={() => void handleLogoutAll()}
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#525252] hover:bg-[#f5f5f5]"
-              >
-                <Shield size={14} /> Ieși de pe toate
-              </button>
-              <button
-                onClick={() => void handleLogout()}
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-[#111111] hover:bg-[#f5f5f5]"
-              >
-                <LogOut size={14} /> Deconectare
-              </button>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => void handleLogout()}
+          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-[#e5e5e5] px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#111111] transition-colors hover:bg-[#f5f5f5]"
+        >
+          <LogOut size={14} /> Ieși
+        </button>
       </header>
 
       <div className="flex">
@@ -282,7 +214,6 @@ export default function AdminDashboard() {
         {/* Main content */}
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
           <div className="mx-auto max-w-[1200px]">
-            {tab === "overview" && <OverviewTab />}
             {tab === "bookings" && <BookingsTab />}
             {tab === "rooms" && <RoomsTab />}
             {tab === "units" && <UnitsTab />}
@@ -295,64 +226,6 @@ export default function AdminDashboard() {
         </main>
       </div>
 
-      {/* Sessions modal */}
-      {sessionsOpen && (
-        <div className="fixed inset-0 z-[500] flex items-start justify-center overflow-y-auto bg-[#000000]/50 p-4 py-10 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-[#e5e5e5] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#ededed] px-6 py-4">
-              <h3
-                className="text-lg font-semibold text-[#111111]"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Sesiuni active
-              </h3>
-              <button
-                onClick={() => setSessionsOpen(false)}
-                className="text-[#6b6b6b] hover:text-[#111111]"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <div className="px-6 py-5">
-              {sessions.length === 0 ? (
-                <p className="py-8 text-center text-sm text-[#6b6b6b]">
-                  Nicio sesiune activă.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {sessions.map((s) => (
-                    <div
-                      key={s.id}
-                      className="flex items-center justify-between rounded-xl border border-[#e5e5e5] p-4"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f5f5f5] text-[#111111]">
-                          <Monitor size={16} />
-                        </span>
-                        <div>
-                          <p className="text-[13px] font-semibold text-[#111111]">
-                            {[s.browser_family, s.os_family]
-                              .filter(Boolean)
-                              .join(" · ") || "Dispozitiv necunoscut"}
-                            {s.is_current && (
-                              <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-800">
-                                Această sesiune
-                              </span>
-                            )}
-                          </p>
-                          <p className="text-[11px] text-[#6b6b6b]">
-                            {s.location || "—"} · {s.ip_address || "—"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -73,7 +73,14 @@ function mapRoom(r: ApiRoom): DisplayRoom {
     id: r.id,
     category: r.category || "Cameră",
     title: r.name || r.title || "Cameră",
-    subtitle: totalGuests ? `${totalGuests} oaspeți` : "",
+    subtitle: [
+      `${r.max_guests_adults || 2} ${(r.max_guests_adults || 2) === 1 ? "adult" : "adulți"}`,
+      (r.max_guests_children || 0) > 0
+        ? `${r.max_guests_children} ${r.max_guests_children === 1 ? "copil" : "copii"}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" · "),
     price: Number(r.base_price || 0),
     rating: Number(r.rating || 5.0),
     reviews: Number(r.reviews || 12),
@@ -411,7 +418,7 @@ export default function Rooms() {
                         {
                           Icon: Users,
                           label: room.guests
-                            ? `${room.guests} ${room.guests === 1 ? "persoană" : "persoane"}`
+                            ? `max ${room.guests} oaspeți`
                             : "—",
                         },
                         { Icon: Maximize, label: room.size },

@@ -12,7 +12,7 @@ import {
   RefreshCw,
   Copy, // <-- Importat Copy
 } from "lucide-react";
-import { Badge, statusTone, TableSkeleton, EmptyState, Skeleton } from "./ui";
+import { Badge, statusTone, TableSkeleton, EmptyState, Skeleton, Pagination, usePaged } from "./ui";
 import {
   get,
   post,
@@ -162,7 +162,8 @@ export default function OverviewTab() {
     };
   }, [bookings, rooms]);
 
-  const pending = bookings.filter((b) => b.status === "pending").slice(0, 5);
+  const pending = bookings.filter((b) => b.status === "pending");
+  const pendingPaged = usePaged(pending, 5);
 
   const act = async (id: Booking["id"], kind: "confirm" | "cancel") => {
     setBusy(`${id}-${kind}`);
@@ -345,7 +346,7 @@ export default function OverviewTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pending.map((b: any) => {
+                  {pendingPaged.slice.map((b: any) => {
                     const roomObj = rooms.find(
                       (r: any) => String(r.id) === String(b.room_id),
                     );
@@ -485,6 +486,13 @@ export default function OverviewTab() {
                   })}
                 </tbody>
               </table>
+              <Pagination
+                page={pendingPaged.page}
+                pages={pendingPaged.pages}
+                total={pendingPaged.total}
+                perPage={pendingPaged.perPage}
+                onPage={pendingPaged.setPage}
+              />
             </div>
           )}
         </div>

@@ -16,7 +16,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { Badge, TableSkeleton, EmptyState } from "./ui";
+import { Badge, TableSkeleton, EmptyState, Pagination } from "./ui";
 import {
   get,
   post,
@@ -88,6 +88,59 @@ const guestOf = (b: RoomBooking) => {
     "Oaspete necunoscut"
   );
 };
+
+function GuestCell({
+  b,
+  info,
+  note,
+  onCopy,
+}: {
+  b: RoomBooking;
+  info: { name: string; email: string; userId: string | number | null };
+  note?: string;
+  onCopy: (v: string | number | null | undefined, label: string) => void;
+}) {
+  return (
+    <span className="block">
+      <button
+        onClick={() => onCopy(info.userId, "ID Client")}
+        title="Click pentru a copia ID-ul clientului"
+        className="group inline-flex items-center gap-1.5 text-left hover:opacity-70"
+      >
+        <span className="text-[13px] font-semibold text-[#111111]">
+          {info.name}
+        </span>
+        {info.userId && (
+          <Copy
+            size={10}
+            className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+          />
+        )}
+      </button>
+      {info.email && (
+        <span className="block text-[11px] leading-tight text-[#8a8a8a]">
+          {info.email}
+        </span>
+      )}
+      <button
+        onClick={() => onCopy(b.id, "ID Rezervare")}
+        title="Click pentru a copia ID-ul rezervării"
+        className="group inline-flex items-center gap-1 text-left hover:opacity-70"
+      >
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+          #{String(b.id).slice(0, 8)}
+        </span>
+        <Copy
+          size={9}
+          className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+        />
+      </button>
+      {note && (
+        <span className="block text-[11px] text-[#6b6b6b]">{note}</span>
+      )}
+    </span>
+  );
+}
 
 const unitIdOf = (b: RoomBooking) =>
   String(b.unit_id ?? b.room_unit_id ?? b.unit?.id ?? "");
@@ -580,6 +633,7 @@ export default function UnitsTab() {
   const [bedTypeId, setBedTypeId] = useState<string>("");
 
   // State-uri pentru meniuri Dropdown
+  const [ubPages, setUbPages] = useState<Record<string, number>>({});
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null); // Meniul unității
   const [bookingMenuOpenId, setBookingMenuOpenId] = useState<string | null>(
     null,
@@ -779,7 +833,7 @@ export default function UnitsTab() {
 
   // FUNCȚII PENTRU REZERVĂRI (Atribuire și Anulare via Dropdown)
   const assignUnitToBooking = async (
-    bookingId: string,
+    bookingId: string | number,
     unitId: string | null,
   ) => {
     try {
@@ -799,7 +853,7 @@ export default function UnitsTab() {
     }
   };
 
-  const handleCancelBooking = async (bookingId: string) => {
+  const handleCancelBooking = async (bookingId: string | number) => {
     if (!window.confirm("Ești sigur că vrei să anulezi această rezervare?"))
       return;
     try {
@@ -818,10 +872,32 @@ export default function UnitsTab() {
     }
   };
 
-  const copyToClipboard = (text: string, label: string) => {
+  const copyToClipboard = (text: string | number | null | undefined, label: string) => {
     if (!text) return;
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(String(text));
     toast(`${label} copiat în clipboard!`, "success");
+  };
+
+  const guestInfo = (b: RoomBooking) => {
+    const userObj = users.find(
+      (u: any) => String(u.id) === String((b as any).user_id),
+    ) as any;
+    const email =
+      b.user_email || b.guest_email || b.user?.email || userObj?.email || "";
+    let name =
+      b.guest_name ||
+      b.user_name ||
+      [b.user?.first_name, b.user?.last_name].filter(Boolean).join(" ").trim() ||
+      [userObj?.first_name, userObj?.last_name].filter(Boolean).join(" ").trim();
+    if (!name && email) {
+      const local = email.split("@")[0];
+      name = local.charAt(0).toUpperCase() + local.slice(1);
+    }
+    return {
+      name: name || "Oaspete necunoscut",
+      email: email || "",
+      userId: (b as any).user_id ?? userObj?.id ?? null,
+    };
   };
 
   const activeCount = units.filter(
@@ -986,6 +1062,16 @@ export default function UnitsTab() {
                     const current = ub.find(isOngoing);
                     const next = ub.find(isUpcoming);
                     const expanded = openUnit === uid;
+                    const UB_PER_PAGE = 5;
+                    const ubTotalPages = Math.max(
+                      1,
+                      Math.ceil(ub.length / UB_PER_PAGE),
+                    );
+                    const ubPage = Math.min(ubPages[uid] || 1, ubTotalPages);
+                    const ubSlice = ub.slice(
+                      (ubPage - 1) * UB_PER_PAGE,
+                      ubPage * UB_PER_PAGE,
+                    );
                     const menuOpen = menuOpenId === uid;
 
                     return (
@@ -1021,9 +1107,9 @@ export default function UnitsTab() {
                               </div>
                               <p className="text-[12px] text-[#6b6b6b] mt-1 pl-2">
                                 {current
-                                  ? `${guestOf(current)} · până ${dateFmt(current.check_out)}`
+                                  ? `${guestInfo(current).name} · până ${dateFmt(current.check_out)}`
                                   : next
-                                    ? `Următoarea sosire: ${dateFmt(next.check_in)} — ${guestOf(next)}`
+                                    ? `Următoarea sosire: ${dateFmt(next.check_in)} — ${guestInfo(next).name}`
                                     : "Fără rezervări viitoare"}
                               </p>
                             </div>
@@ -1120,15 +1206,29 @@ export default function UnitsTab() {
                                   },
                                   {
                                     l: "Ocupată acum",
-                                    v: current
-                                      ? `${guestOf(current)} → ${dateFmt(current.check_out)}`
-                                      : "Nu",
+                                    v: current ? (
+                                      <GuestCell
+                                        b={current}
+                                        info={guestInfo(current)}
+                                        note={`până ${dateFmt(current.check_out)}`}
+                                        onCopy={copyToClipboard}
+                                      />
+                                    ) : (
+                                      "Nu"
+                                    ),
                                   },
                                   {
                                     l: "Următoarea sosire",
-                                    v: next
-                                      ? `${dateFmt(next.check_in)} — ${guestOf(next)}`
-                                      : "—",
+                                    v: next ? (
+                                      <GuestCell
+                                        b={next}
+                                        info={guestInfo(next)}
+                                        note={`sosire ${dateFmt(next.check_in)}`}
+                                        onCopy={copyToClipboard}
+                                      />
+                                    ) : (
+                                      "—"
+                                    ),
                                   },
                                   {
                                     l: "Nopți rezervate",
@@ -1140,7 +1240,7 @@ export default function UnitsTab() {
                                       ),
                                     ),
                                   },
-                                ].map((f) => (
+                                ].map((f: { l: string; v: any }) => (
                                   <div key={f.l}>
                                     <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
                                       {f.l}
@@ -1165,7 +1265,7 @@ export default function UnitsTab() {
                               </p>
                             ) : (
                               <div className="space-y-2">
-                                {ub.map((b) => {
+                                {ubSlice.map((b) => {
                                   const userObj = users.find(
                                     (uObj: any) =>
                                       String(uObj.id) === String(b.user_id),
@@ -1333,6 +1433,15 @@ export default function UnitsTab() {
                                     </div>
                                   );
                                 })}
+                                <Pagination
+                                  page={ubPage}
+                                  pages={ubTotalPages}
+                                  total={ub.length}
+                                  perPage={UB_PER_PAGE}
+                                  onPage={(p) =>
+                                    setUbPages((prev) => ({ ...prev, [uid]: p }))
+                                  }
+                                />
                               </div>
                             )}
                           </div>

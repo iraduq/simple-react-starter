@@ -9,7 +9,8 @@ const today = new Date().toISOString().split("T")[0];
 export default function Hero() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(2);
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -30,8 +31,8 @@ export default function Hero() {
     const params = new URLSearchParams({
       check_in: checkIn,
       check_out: checkOut,
-      adults: String(guests),
-      children: "0",
+      adults: String(adults),
+      children: String(children),
     });
     navigate(`/disponibilitate?${params.toString()}`);
   };
@@ -111,32 +112,69 @@ export default function Hero() {
 
           <div className="hidden md:block w-px bg-[#e1e8f0] my-3.5" />
 
-          <div className="flex-none md:w-[200px] flex flex-col justify-center px-6 py-4.5">
-            <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
+          <div className="flex-none md:w-[260px] flex flex-col justify-center px-6 py-4.5">
+            <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-2 select-none">
               <Users size={11} className="text-[#c69a3f] shrink-0" />
-              Persoane
+              Oaspeți
             </span>
-            <div className="flex items-center gap-3 mt-0.5">
-              <button
-                type="button"
-                disabled={guests <= 1}
-                onClick={() => setGuests((g) => Math.max(1, g - 1))}
-                className="w-7 h-7 rounded-full border-[1.5px] border-[#e1e8f0] bg-transparent flex items-center justify-center text-base text-[#3c4043] shrink-0 transition-all disabled:opacity-30"
-              >
-                −
-              </button>
-              <span className="text-sm font-medium text-[#1a1a1a] whitespace-nowrap min-w-[80px]">
-                {guests} {guests === 1 ? "persoană" : "persoane"}
+
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#3c4043]">
+                Adulți
               </span>
-              <button
-                type="button"
-                disabled={guests >= 6}
-                onClick={() => setGuests((g) => Math.min(6, g + 1))}
-                className="w-7 h-7 rounded-full border-[1.5px] border-[#e1e8f0] bg-transparent flex items-center justify-center text-base text-[#3c4043] shrink-0 transition-all disabled:opacity-30"
-              >
-                +
-              </button>
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  disabled={adults <= 1}
+                  onClick={() => setAdults((g) => Math.max(1, g - 1))}
+                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
+                >
+                  −
+                </button>
+                <span className="text-sm font-medium text-[#1a1a1a] w-4 text-center">
+                  {adults}
+                </span>
+                <button
+                  type="button"
+                  disabled={adults >= 6}
+                  onClick={() => setAdults((g) => Math.min(6, g + 1))}
+                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
+                >
+                  +
+                </button>
+              </div>
             </div>
+
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#3c4043]">
+                Copii
+              </span>
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  disabled={children <= 0}
+                  onClick={() => setChildren((g) => Math.max(0, g - 1))}
+                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
+                >
+                  −
+                </button>
+                <span className="text-sm font-medium text-[#1a1a1a] w-4 text-center">
+                  {children}
+                </span>
+                <button
+                  type="button"
+                  disabled={children >= 4}
+                  onClick={() => setChildren((g) => Math.min(4, g + 1))}
+                  className="w-6.5 h-6.5 min-w-[26px] min-h-[26px] rounded-full border-[1.5px] border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] transition-all disabled:opacity-30"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <p className="mt-1.5 text-[10px] leading-snug text-[#8595aa]">
+              Copil = până la 12 ani inclusiv. De la 13 ani se consideră adult.
+            </p>
           </div>
 
           <button

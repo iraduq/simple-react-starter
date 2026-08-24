@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Lock, TrendingUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -203,17 +203,7 @@ export default function PricingTab() {
 
   return (
     <div>
-      <SectionHeader
-        eyebrow="Tarife"
-        title="Prețuri & calendar"
-        action={
-          selectedRoom ? (
-            <Button variant="gold" size="sm" onClick={() => openRule()}>
-              <TrendingUp size={14} /> Regulă tarifară
-            </Button>
-          ) : undefined
-        }
-      />
+      <SectionHeader eyebrow="Tarife" title="Prețuri & calendar" />
 
       {rooms.length === 0 ? (
         <Card>
