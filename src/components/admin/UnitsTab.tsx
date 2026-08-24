@@ -824,6 +824,28 @@ export default function UnitsTab() {
     toast(`${label} copiat în clipboard!`, "success");
   };
 
+  const guestInfo = (b: RoomBooking) => {
+    const userObj = users.find(
+      (u: any) => String(u.id) === String((b as any).user_id),
+    ) as any;
+    const email =
+      b.user_email || b.guest_email || b.user?.email || userObj?.email || "";
+    let name =
+      b.guest_name ||
+      b.user_name ||
+      [b.user?.first_name, b.user?.last_name].filter(Boolean).join(" ").trim() ||
+      [userObj?.first_name, userObj?.last_name].filter(Boolean).join(" ").trim();
+    if (!name && email) {
+      const local = email.split("@")[0];
+      name = local.charAt(0).toUpperCase() + local.slice(1);
+    }
+    return {
+      name: name || "Oaspete necunoscut",
+      email: email || "",
+      userId: (b as any).user_id ?? userObj?.id ?? null,
+    };
+  };
+
   const activeCount = units.filter(
     (u) => !u.status || u.status === "active" || u.status === "cleaning",
   ).length;
@@ -1021,9 +1043,9 @@ export default function UnitsTab() {
                               </div>
                               <p className="text-[12px] text-[#6b6b6b] mt-1 pl-2">
                                 {current
-                                  ? `${guestOf(current)} · până ${dateFmt(current.check_out)}`
+                                  ? `${guestInfo(current).name} · până ${dateFmt(current.check_out)}`
                                   : next
-                                    ? `Următoarea sosire: ${dateFmt(next.check_in)} — ${guestOf(next)}`
+                                    ? `Următoarea sosire: ${dateFmt(next.check_in)} — ${guestInfo(next).name}`
                                     : "Fără rezervări viitoare"}
                               </p>
                             </div>
@@ -1120,15 +1142,29 @@ export default function UnitsTab() {
                                   },
                                   {
                                     l: "Ocupată acum",
-                                    v: current
-                                      ? `${guestOf(current)} → ${dateFmt(current.check_out)}`
-                                      : "Nu",
+                                    v: current ? (
+                                      <GuestCell
+                                        b={current}
+                                        info={guestInfo(current)}
+                                        note={`până ${dateFmt(current.check_out)}`}
+                                        onCopy={copyToClipboard}
+                                      />
+                                    ) : (
+                                      "Nu"
+                                    ),
                                   },
                                   {
                                     l: "Următoarea sosire",
-                                    v: next
-                                      ? `${dateFmt(next.check_in)} — ${guestOf(next)}`
-                                      : "—",
+                                    v: next ? (
+                                      <GuestCell
+                                        b={next}
+                                        info={guestInfo(next)}
+                                        note={`sosire ${dateFmt(next.check_in)}`}
+                                        onCopy={copyToClipboard}
+                                      />
+                                    ) : (
+                                      "—"
+                                    ),
                                   },
                                   {
                                     l: "Nopți rezervate",
@@ -1140,7 +1176,7 @@ export default function UnitsTab() {
                                       ),
                                     ),
                                   },
-                                ].map((f) => (
+                                ].map((f: { l: string; v: any }) => (
                                   <div key={f.l}>
                                     <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
                                       {f.l}
