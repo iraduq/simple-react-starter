@@ -143,14 +143,7 @@ export default function AdminDashboard() {
       <div className="flex">
         {/* Sidebar — desktop */}
         <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-[#e5e5e5] bg-white lg:block">
-          <SidebarContent
-            tab={tab}
-            setTab={setTab}
-            fullName={fullName}
-            initials={initials}
-            healthColor={healthColor}
-            healthLabel={healthLabel}
-          />
+          <SidebarContent tab={tab} setTab={setTab} onLogout={handleLogout} />
         </aside>
 
         {/* Sidebar — mobile drawer */}
@@ -179,10 +172,7 @@ export default function AdminDashboard() {
                   setTab(t);
                   setSidebarOpen(false);
                 }}
-                fullName={fullName}
-                initials={initials}
-                healthColor={healthColor}
-                healthLabel={healthLabel}
+                onLogout={handleLogout}
               />
             </aside>
           </div>
@@ -191,6 +181,12 @@ export default function AdminDashboard() {
         {/* Main content */}
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
           <div className="mx-auto max-w-[1200px]">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="mb-4 inline-flex items-center gap-2 rounded-xl border border-[#e5e5e5] bg-white px-3.5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[#111111] lg:hidden"
+            >
+              <Menu size={15} /> Meniu
+            </button>
             {tab === "bookings" && <BookingsTab />}
             {tab === "rooms" && <RoomsTab />}
             {tab === "units" && <UnitsTab />}
@@ -201,6 +197,7 @@ export default function AdminDashboard() {
             {tab === "audit" && <AuditLogsTab />}
           </div>
         </main>
+
       </div>
     </div>
   );
