@@ -24,10 +24,40 @@ export default function Login() {
   const [isForgotPasswordView, setIsForgotPasswordView] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetMessage, setResetMessage] = useState("");
+  const [loginError, setLoginError] = useState<{
+    message: string;
+    deactivated: boolean;
+  } | null>(null);
+
+  /** Detectează dacă backendul a refuzat login-ul pentru cont dezactivat. */
+  const isDeactivated = (status: number, detail?: string) => {
+    const d = (detail || "").toLowerCase();
+    return (
+      status === 403 ||
+      /dezactiv|inactiv|deactivat|disabled|suspend|blocat|not active|banned/.test(
+        d,
+      )
+    );
+  };
+
+  const DEACTIVATED_MSG =
+    "Contul tău a fost dezactivat. Nu te poți autentifica momentan — te rugăm să contactezi echipa Casa Esy pentru reactivare.";
+
+  const handleAuthFailure = (status: number, detail?: string) => {
+    if (isDeactivated(status, detail)) {
+      setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
+    } else {
+      setLoginError({
+        message: detail || `Eroare la autentificare (${status}).`,
+        deactivated: false,
+      });
+    }
+  };
 
   const handleLocalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError(null);
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
@@ -43,24 +73,34 @@ export default function Login() {
       if (res.ok) {
         saveTokensFrom(data);
         const session = await fetchSession(true);
+        if (session && (session as any).is_active === false) {
+          clearAccessToken();
+          notifySessionChange();
+          setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
+          return;
+        }
         notifySessionChange();
         navigate(session?.role === "admin" ? "/admin" : "/profile");
       } else {
-        const errorMessage =
+        const detail =
           data &&
           typeof data === "object" &&
           "detail" in data &&
           typeof data.detail === "string"
             ? data.detail
-            : "Eroare la autentificare.";
-        alert(errorMessage);
+            : undefined;
+        handleAuthFailure(res.status, detail);
       }
     } catch {
-      alert("A apărut o problemă de conexiune.");
+      setLoginError({
+        message: "A apărut o problemă de conexiune.",
+        deactivated: false,
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
