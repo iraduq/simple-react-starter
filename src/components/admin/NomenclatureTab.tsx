@@ -76,6 +76,52 @@ function DynamicIcon({ name }: { name?: string | null }) {
   );
 }
 
+/* ─────────────── PRESETURI NOMENCLATOR ─────────────── */
+const FACILITY_PRESETS: { name: string; icon: string }[] = [
+  { name: "Wi-Fi gratuit", icon: "wifi" },
+  { name: "Aer condiționat", icon: "air" },
+  { name: "Baie privată", icon: "bath" },
+  { name: "Duș cu apă caldă", icon: "bath" },
+  { name: "Televizor Smart TV", icon: "tv" },
+  { name: "Minibar", icon: "drink" },
+  { name: "Seif în cameră", icon: "safe" },
+  { name: "Telefon", icon: "phone" },
+  { name: "Uscător de păr", icon: "hairdryer" },
+  { name: "Articole de toaletă", icon: "soap" },
+  { name: "Vedere la grădină", icon: "garden" },
+  { name: "Cafetieră / ceainic", icon: "coffee" },
+  { name: "Parcare gratuită", icon: "parking" },
+  { name: "Bucătărie utilată", icon: "kitchen" },
+  { name: "Șemineu", icon: "fireplace" },
+  { name: "Terasă privată", icon: "garden" },
+  { name: "Grătar (BBQ)", icon: "flame" },
+  { name: "Mic dejun inclus", icon: "coffee" },
+];
+
+const PRESETS: Record<string, string[]> = {
+  "room-types": [
+    "Cameră Single",
+    "Cameră Dublă",
+    "Cameră Twin",
+    "Cameră Triplă",
+    "Apartament",
+    "Suită",
+    "Suită Deluxe",
+    "Garsonieră",
+    "Cameră Familie",
+  ],
+  "bed-types": [
+    "Pat single",
+    "Pat dublu (matrimonial)",
+    "Pat Queen",
+    "Pat King",
+    "Două paturi single",
+    "Canapea extensibilă",
+    "Pat suprapus",
+    "Pătuț pentru copii",
+  ],
+};
+
 /* ─────────────── ICON PICKER COMPONENT ─────────────── */
 function IconPicker({
   value,
@@ -468,6 +514,47 @@ function NomenclatureSection({ section }: { section: Section }) {
         onClose={() => setFormOpen(false)}
       >
         <div className="space-y-4">
+          {section.key === "facilities" ? (
+            <Field label="Alege dintr-o listă predefinită">
+              <select
+                className={inputCls}
+                value=""
+                onChange={(e) => {
+                  const preset = FACILITY_PRESETS.find(
+                    (pp) => pp.name === e.target.value,
+                  );
+                  if (preset)
+                    setForm({ ...form, name: preset.name, icon: preset.icon });
+                }}
+              >
+                <option value="">— Selectează o facilitate —</option>
+                {FACILITY_PRESETS.map((pp) => (
+                  <option key={pp.name} value={pp.name}>
+                    {pp.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : PRESETS[section.key] ? (
+            <Field label="Alege dintr-o listă predefinită">
+              <select
+                className={inputCls}
+                value=""
+                onChange={(e) => {
+                  if (e.target.value)
+                    setForm({ ...form, name: e.target.value });
+                }}
+              >
+                <option value="">— Selectează —</option>
+                {PRESETS[section.key].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
+
           <Field label="Nume">
             <input
               className={inputCls}
