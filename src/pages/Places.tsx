@@ -171,67 +171,49 @@ export default function Places() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* ── HERO ── */}
-      <section
-        className="relative flex items-center justify-center min-h-[45vh] md:min-h-[55vh] px-5 pt-12 pb-32 md:pb-48 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
-        }}
-      >
-        <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/40 via-transparent to-[#0d2c5c]/80"></div>
+    <div className="min-h-screen bg-white relative">
+      {/* Linie subtilă sus */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-[var(--border-light)]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--gold)]" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 max-w-4xl mx-auto text-center"
-        >
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <span className="w-12 h-px bg-[#c69a3f]/60" />
-            <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] m-0">
-              Explorare · Vila Casa Esy
-            </p>
-            <span className="w-12 h-px bg-[#c69a3f]/60" />
-          </div>
-
-          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.8rem,5vw,4.5rem)] font-normal text-white leading-[1.1] mb-6 drop-shadow-md">
-            Locații & destinații, <br className="hidden md:block" />
-            <em className="italic text-[#c69a3f]">de neratat în zonă</em>
-          </h1>
-
-          <p className="font-sans text-white/90 text-[15px] md:text-[17px] leading-[1.8] font-light max-w-2xl mx-auto">
-            Descoperă cele mai bune locuri din apropiere — de la plaje liniștite
-            și atracții turistice, până la restaurante cu specific local.
-          </p>
-        </motion.div>
-
-        <div className="absolute bottom-0 left-0 w-full h-32 md:h-40 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
-      </section>
+      {/* ── HEADER ── */}
+      <div className="max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-36 pb-10 md:pb-14 text-center">
+        <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[var(--gold)] mb-4 flex items-center justify-center gap-3">
+          <span className="w-8 h-px bg-[var(--gold)]/60" />
+          Explorare · Vila Casa Esy
+          <span className="w-8 h-px bg-[var(--gold)]/60" />
+        </p>
+        <h1 className="font-[var(--font-display)] text-[clamp(2.6rem,5vw,4.2rem)] font-normal text-[var(--text-primary)] leading-[1.1] tracking-[-0.01em] mb-6">
+          Locații & destinații,{" "}
+          <em className="italic text-[var(--gold)]">de neratat în zonă</em>
+        </h1>
+        <p className="max-w-[600px] mx-auto text-[15px] text-[var(--text-secondary)] leading-[1.8] font-light">
+          Descoperă cele mai bune locuri din apropiere — de la plaje liniștite
+          și atracții turistice, până la restaurante cu specific local.
+        </p>
+      </div>
 
       {/* ── TOOLBAR ── */}
-      <div className="max-w-7xl mx-auto px-5 md:px-10 -mt-16 relative z-20">
-        <div className="bg-white border border-[#e6ecf4] rounded-[24px] shadow-[0_12px_40px_-12px_rgba(13,44,92,0.1)] p-4 md:p-5 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+      <div className="max-w-7xl mx-auto px-5 md:px-10 relative z-20">
+        <div className="bg-white border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-soft)] p-4 md:p-5 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
           <div className="relative flex-1">
             <Search
               size={18}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-[#c69a3f]"
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--gold)]"
             />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Caută locații, restaurante, plaje..."
-              className="w-full pl-12 pr-4 py-3.5 bg-[#f9fafc] border border-transparent rounded-full text-[14px] text-[#0d2c5c] outline-none transition-all hover:bg-[#f0f4f8] focus:bg-white focus:border-[#c69a3f]/50 focus:shadow-[0_0_0_3px_rgba(198,154,63,0.1)] placeholder:text-[#8595aa]"
+              className="w-full pl-12 pr-4 py-3.5 bg-[var(--bg-soft)] border border-transparent rounded-full text-[14px] text-[var(--text-primary)] outline-none transition-all hover:bg-[var(--bg-cream)] focus:bg-white focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]/20 placeholder:text-[var(--text-light)]"
             />
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1 md:pb-0 hide-scrollbar items-center">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="px-5 py-3.5 bg-[#f9fafc] border border-transparent rounded-full text-[13px] font-semibold text-[#0d2c5c] outline-none hover:bg-[#f0f4f8] focus:bg-white focus:border-[#c69a3f]/50 cursor-pointer transition-all shrink-0"
+              className="px-5 py-3.5 bg-[var(--bg-soft)] border border-transparent rounded-full text-[13px] font-semibold text-[var(--text-primary)] outline-none hover:bg-[var(--bg-cream)] focus:bg-white focus:border-[var(--gold)] cursor-pointer transition-all shrink-0"
             >
               <option value="all">Toate categoriile</option>
               {CATEGORIES.map((c) => (
@@ -243,19 +225,19 @@ export default function Places() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="px-5 py-3.5 bg-[#f9fafc] border border-transparent rounded-full text-[13px] font-semibold text-[#0d2c5c] outline-none hover:bg-[#f0f4f8] focus:bg-white focus:border-[#c69a3f]/50 cursor-pointer transition-all shrink-0"
+              className="px-5 py-3.5 bg-[var(--bg-soft)] border border-transparent rounded-full text-[13px] font-semibold text-[var(--text-primary)] outline-none hover:bg-[var(--bg-cream)] focus:bg-white focus:border-[var(--gold)] cursor-pointer transition-all shrink-0"
             >
               <option value="rating-desc">Rating: Descrescător</option>
               <option value="rating-asc">Rating: Crescător</option>
               <option value="title">Alfabetic</option>
             </select>
-            <div className="flex gap-1 p-1 bg-[#f9fafc] rounded-full shrink-0 items-center border border-transparent">
+            <div className="flex gap-1 p-1 bg-[var(--bg-soft)] rounded-full shrink-0 items-center border border-transparent">
               <button
                 onClick={() => setView("grid")}
                 className={`p-2.5 rounded-full transition-all ${
                   view === "grid"
-                    ? "bg-white text-[#c69a3f] shadow-sm"
-                    : "text-[#8595aa] hover:text-[#0d2c5c]"
+                    ? "bg-white text-[var(--gold)] shadow-sm"
+                    : "text-[var(--text-light)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <LayoutGrid size={16} />
@@ -264,21 +246,20 @@ export default function Places() {
                 onClick={() => setView("list")}
                 className={`p-2.5 rounded-full transition-all ${
                   view === "list"
-                    ? "bg-white text-[#c69a3f] shadow-sm"
-                    : "text-[#8595aa] hover:text-[#0d2c5c]"
+                    ? "bg-white text-[var(--gold)] shadow-sm"
+                    : "text-[var(--text-light)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <List size={16} />
               </button>
             </div>
 
-            {/* Butonul de Admin a fost mutat elegant aici, la capătul toolbar-ului */}
             {canCreate && (
               <>
-                <div className="hidden md:block w-px h-8 bg-[#e1e8f0] mx-1 shrink-0"></div>
+                <div className="hidden md:block w-px h-8 bg-[var(--border-light)] mx-1 shrink-0"></div>
                 <button
                   onClick={openCreate}
-                  className="shrink-0 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-5 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-[0_4px_14px_rgba(198,154,63,0.4)] transition-all hover:shadow-[0_6px_20px_rgba(198,154,63,0.6)] hover:-translate-y-0.5"
+                  className="shrink-0 inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-5 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[var(--navy-soft)]"
                 >
                   <Plus size={15} /> Adaugă locație
                 </button>
@@ -398,6 +379,10 @@ export default function Places() {
           onCancel={() => setDeleteTarget(null)}
         />
       )}
+
+      {/* Linie subtilă jos */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-light)]" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--navy)]" />
     </div>
   );
 }
