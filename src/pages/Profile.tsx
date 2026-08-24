@@ -136,7 +136,7 @@ export default function Profile() {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
           <SideNav tab={tab} setTab={setTab} onLogout={handleLogout} />
 
-          <section className="bg-white border border-[#e5e5e5] rounded-[18px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
+          <section className="bg-white border border-[#e5e5e5] rounded-[18px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] overflow-hidden">
             {tab === "personal" && (
               <PersonalTab user={user} setUser={setUser} />
             )}
@@ -173,7 +173,7 @@ function ProfileHero({ user }: { user: NonNullable<SessionUser> }) {
             {initials}
           </div>
           <div>
-            <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#111111] mb-1.5">
+            <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-white/70 mb-1.5">
               Contul meu
             </p>
             <h1 className="font-['Cormorant_Garamond',serif] text-[36px] leading-none font-medium">
@@ -198,7 +198,7 @@ function SideNav({
   onLogout: () => void;
 }) {
   return (
-    <aside className="bg-white border border-[#e5e5e5] rounded-[18px] p-3 h-fit shadow-[0_10px_40px_rgba(13,44,92,0.06)] sticky top-24">
+    <aside className="bg-white border border-[#e5e5e5] rounded-[18px] p-3 h-fit shadow-[0_10px_40px_rgba(0,0,0,0.06)] sticky top-24">
       <nav className="flex flex-col gap-1">
         {TABS.map((t) => {
           const Icon = t.icon;
@@ -212,7 +212,7 @@ function SideNav({
                 active
                   ? danger
                     ? "bg-red-50 text-red-700"
-                    : "bg-[#111111] text-white shadow-[0_4px_14px_rgba(13,44,92,0.2)]"
+                    : "bg-[#111111] text-white shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
                   : danger
                     ? "text-red-600 hover:bg-red-50/60"
                     : "text-[#262626] hover:bg-[#f5f5f5]"
@@ -223,7 +223,7 @@ function SideNav({
                   active
                     ? danger
                       ? "bg-red-100 text-red-700"
-                      : "bg-white/10 text-[#111111]"
+                      : "bg-white/10 text-white/70"
                     : danger
                       ? "bg-red-50 text-red-500"
                       : "bg-[#f5f5f5] text-[#111111]"
@@ -282,7 +282,7 @@ function SectionHead({
 }) {
   return (
     <header className="px-8 pt-8 pb-6 border-b border-[#ededed]">
-      <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#111111] mb-2">
+      <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#737373] mb-2">
         {eyebrow}
       </p>
       <h2 className="font-['Cormorant_Garamond',serif] text-[28px] font-medium text-[#111111] leading-tight">
@@ -622,7 +622,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                 )}
               </div>
               <div>
-                <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#111111] mb-1.5">
+                <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-white/70 mb-1.5">
                   Metodă de autentificare
                 </p>
                 <h3 className="font-['Cormorant_Garamond',serif] text-[26px] leading-tight font-medium">
@@ -979,7 +979,7 @@ function ReservationsTab() {
             {items.map((r) => (
               <article
                 key={r.id}
-                className="group grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 p-5 rounded-[14px] border border-[#e5e5e5] hover:border-[#111111]/50 hover:shadow-[0_6px_24px_rgba(13,44,92,0.06)] transition-all"
+                className="group grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 p-5 rounded-[14px] border border-[#e5e5e5] hover:border-[#111111]/50 hover:shadow-[0_6px_24px_rgba(0,0,0,0.06)] transition-all"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-2">
