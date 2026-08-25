@@ -178,6 +178,18 @@ export default function PricingTab() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
 
+  const roomBase = rooms.find((r) => String(r.id) === selectedRoom)?.base_price;
+
+  const isOverrideDay = (dateStr: string, cal: CalendarDay | null) => {
+    if (!cal) return overrides.has(dateStr);
+    if (cal.is_override) return true;
+    if (overrides.has(dateStr)) return true;
+    if (cal.price_override != null || cal.custom_price != null) return true;
+    if (cal.price != null && roomBase != null)
+      return Number(cal.price) !== Number(roomBase);
+    return false;
+  };
+
   const getDay = (day: number): CalendarDay | null => {
     const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return calendar.find((c) => c.date === dateStr) || null;
@@ -188,15 +200,13 @@ export default function PricingTab() {
     const existing = getDay(dayNum);
 
     setSelectedDay({
-      date: dateStr,
       ...existing,
+      date: dateStr,
+      is_override: isOverrideDay(dateStr, existing),
     });
 
     // Dacă ziua are deja override sau este blocată, deschidem meniul de acțiuni (Scoatere override / Modificare)
-    if (
-      existing &&
-      (existing.is_override || existing.price != null || existing.blocked)
-    ) {
+    if (isOverrideDay(dateStr, existing) || existing?.blocked) {
       setActionModalOpen(true);
     } else {
       // Altfel deschidem direct formularul de adăugare regulă/override
@@ -222,6 +232,10 @@ export default function PricingTab() {
       // Apelăm endpoint-ul de DELETE creat în backend cu data trimisă ca query param
       await del(`/rooms/${selectedRoom}/pricing-rules?date=${dateStr}`);
 
+      const next = new Set(overrides);
+      next.delete(dateStr);
+      setOverrides(next);
+      writeOverrides(selectedRoom, next);
       toast("Override șters. S-a revenit la prețul dinamic.", "success");
       setActionModalOpen(false);
       await loadCalendar(); // Reîncărcăm calendarul din baza de date
@@ -253,6 +267,10 @@ export default function PricingTab() {
         price_override: rule.is_blocked ? null : Number(rule.price_override),
         is_blocked: rule.is_blocked,
       });
+      const next = new Set(overrides);
+      for (const d of eachDate(rule.start_date, rule.end_date)) next.add(d);
+      setOverrides(next);
+      writeOverrides(selectedRoom, next);
       toast("Regulă aplicată.", "success");
       setRuleOpen(false);
       await loadCalendar();
@@ -341,7 +359,7 @@ export default function PricingTab() {
                   standard
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-blue-100 border border-blue-400" />{" "}
+                  <span className="h-3 w-5 rounded border border-[#c69a3f] bg-[#fdf6e6]" />{" "}
                   Override / Manual
                 </span>
                 <span className="flex items-center gap-1.5">
@@ -373,7 +391,8 @@ export default function PricingTab() {
                   const day = i + 1;
                   const cal = getDay(day);
                   const blocked = cal?.blocked || cal?.available === false;
-                  const isOverride = Boolean(cal?.is_override);
+                  const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                  const isOverride = isOverrideDay(dateStr, cal);
 
                   const rawPrice =
                     cal?.price ?? cal?.price_override ?? cal?.custom_price;
@@ -390,14 +409,14 @@ export default function PricingTab() {
                         blocked
                           ? "border-[#0d2c5c] bg-[#0d2c5c] text-white"
                           : isOverride
-                            ? "border-blue-400 bg-blue-50 text-blue-950 font-medium shadow-sm"
+                            ? "border-[#c69a3f] bg-[#fdf6e6] text-[#0d2c5c] font-semibold shadow-[0_6px_16px_rgba(198,154,63,0.18)]"
                             : "border-[#e1e8f0] bg-[#eef2f7] text-[#2a3b52] hover:border-[#0d2c5c]"
                       }`}
                     >
                       {/* Indicator mic pentru override */}
                       {isOverride && !blocked && (
                         <span
-                          className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-blue-600"
+                          className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#c69a3f]"
                           title="Preț fixat manual (Override)"
                         />
                       )}
@@ -406,7 +425,7 @@ export default function PricingTab() {
                         <Lock size={11} className="text-white/70" />
                       ) : (
                         <span
-                          className={`text-[9px] font-semibold leading-none ${isOverride ? "text-blue-700 font-bold" : "text-[#6b7c99]"}`}
+                          className={`text-[9px] font-semibold leading-none ${isOverride ? "text-[#8a6420] font-bold" : "text-[#6b7c99]"}`}
                         >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
