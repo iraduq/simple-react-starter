@@ -100,6 +100,9 @@ export default function PricingTab() {
     end_date: "",
     price_override: null,
     is_blocked: false,
+    closed_to_arrival: false,
+    closed_to_departure: false,
+    min_stay: null,
   });
   const [ruleErr, setRuleErr] = useState<Record<string, string>>({});
   const [overrides, setOverrides] = useState<Set<string>>(new Set());
@@ -225,6 +228,9 @@ export default function PricingTab() {
       end_date: startDate || "",
       price_override: null,
       is_blocked: false,
+      closed_to_arrival: false,
+      closed_to_departure: false,
+      min_stay: null,
     });
     setRuleOpen(true);
   };
