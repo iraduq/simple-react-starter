@@ -106,7 +106,7 @@ export default function AdminDashboard() {
 
         {/* Sidebar — mobile drawer */}
         {sidebarOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-[300] lg:hidden">
             <div
               className="absolute inset-0 bg-[#07203f]/40 backdrop-blur-sm"
               onClick={() => setSidebarOpen(false)}
