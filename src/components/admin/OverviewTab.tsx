@@ -45,7 +45,7 @@ function Kpi({
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const }}
       className="rounded-[24px] border border-black/[0.06] bg-white p-7 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-shadow duration-500 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)]"
     >
       <div className="flex items-start justify-between">
@@ -298,7 +298,7 @@ export default function OverviewTab() {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
       >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 px-1">
           <div>
@@ -502,7 +502,7 @@ export default function OverviewTab() {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
       >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 px-1">
           <div>
