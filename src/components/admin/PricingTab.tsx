@@ -265,6 +265,11 @@ export default function PricingTab() {
       (rule.price_override === null || rule.price_override < 0)
     )
       errs.price_override = "Introdu un preț valid sau marchează ca blocat.";
+    if (
+      rule.min_stay != null &&
+      (isNaN(Number(rule.min_stay)) || Number(rule.min_stay) < 1)
+    )
+      errs.min_stay = "Șederea minimă trebuie să fie cel puțin 1 noapte.";
     setRuleErr(errs);
     if (Object.keys(errs).length) return;
 
@@ -275,6 +280,9 @@ export default function PricingTab() {
         end_date: rule.end_date,
         price_override: rule.is_blocked ? null : Number(rule.price_override),
         is_blocked: rule.is_blocked,
+        closed_to_arrival: rule.closed_to_arrival,
+        closed_to_departure: rule.closed_to_departure,
+        min_stay: Number(rule.min_stay || 1),
       });
       const next = new Set(overrides);
       for (const d of eachDate(rule.start_date, rule.end_date)) next.add(d);
