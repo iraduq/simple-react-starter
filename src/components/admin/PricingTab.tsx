@@ -75,6 +75,9 @@ type RuleForm = {
   end_date: string;
   price_override: number | null;
   is_blocked: boolean;
+  closed_to_arrival: boolean;
+  closed_to_departure: boolean;
+  min_stay: number | null;
 };
 
 export default function PricingTab() {
