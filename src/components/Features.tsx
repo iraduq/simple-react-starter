@@ -52,7 +52,156 @@ export default function Features() {
       id="descopera-facilitati"
       className="relative py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden bg-white"
     >
-      <div className="max-w-[1280px] mx-auto">
+      {/* ── OBIECTE MARITIME PE FUNDAL ── */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Busola (Compass Rose) - Rotire foarte lentă spre dreapta */}
+        <div
+          className="absolute top-[-5%] right-[-10%] w-[500px] h-[500px] opacity-[0.04] md:opacity-[0.06]"
+          style={{ animation: "spin 180s linear infinite" }}
+        >
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="100"
+              cy="100"
+              r="80"
+              stroke="#122F5B"
+              strokeWidth="2"
+              strokeDasharray="4 6"
+            />
+            <circle cx="100" cy="100" r="65" stroke="#122F5B" strokeWidth="1" />
+            <circle cx="100" cy="100" r="50" stroke="#122F5B" strokeWidth="3" />
+            <path
+              d="M100 10 L115 85 L190 100 L115 115 L100 190 L85 115 L10 100 L85 85 Z"
+              fill="#122F5B"
+              fillOpacity="0.2"
+            />
+            <path
+              d="M100 10 L100 190 M10 100 L190 100"
+              stroke="#122F5B"
+              strokeWidth="1"
+              strokeOpacity="0.5"
+            />
+            <text
+              x="100"
+              y="24"
+              textAnchor="middle"
+              fontSize="12"
+              fill="#122F5B"
+              fontWeight="900"
+              fontFamily="sans-serif"
+            >
+              N
+            </text>
+            <text
+              x="100"
+              y="184"
+              textAnchor="middle"
+              fontSize="12"
+              fill="#122F5B"
+              fontWeight="900"
+              fontFamily="sans-serif"
+            >
+              S
+            </text>
+            <text
+              x="180"
+              y="104"
+              textAnchor="middle"
+              fontSize="12"
+              fill="#122F5B"
+              fontWeight="900"
+              fontFamily="sans-serif"
+            >
+              E
+            </text>
+            <text
+              x="20"
+              y="104"
+              textAnchor="middle"
+              fontSize="12"
+              fill="#122F5B"
+              fontWeight="900"
+              fontFamily="sans-serif"
+            >
+              W
+            </text>
+          </svg>
+        </div>
+
+        {/* Ancora - Situată în stânga jos, statică cu unghi înclinat */}
+        <div className="absolute bottom-[5%] left-[-5%] w-[400px] h-[400px] opacity-[0.04] md:opacity-[0.05] transform -rotate-12">
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="100" cy="30" r="15" stroke="#122F5B" strokeWidth="6" />
+            <path
+              d="M100 45 L100 170"
+              stroke="#122F5B"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M60 70 L140 70"
+              stroke="#122F5B"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M30 120 C30 170, 170 170, 170 120"
+              stroke="#122F5B"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M15 120 L45 120 M155 120 L185 120"
+              stroke="#122F5B"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
+            <polygon points="100,190 85,160 115,160" fill="#122F5B" />
+            <polygon points="30,105 15,135 45,135" fill="#122F5B" />
+            <polygon points="170,105 155,135 185,135" fill="#122F5B" />
+          </svg>
+        </div>
+
+        {/* Timona (Helm) - Rotire foarte lentă spre stânga */}
+        <div
+          className="absolute top-[40%] left-[45%] w-[350px] h-[350px] opacity-[0.03] md:opacity-[0.04] -translate-x-1/2 -translate-y-1/2"
+          style={{ animation: "spin 200s linear infinite reverse" }}
+        >
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="100" cy="100" r="60" stroke="#122F5B" strokeWidth="6" />
+            <circle cx="100" cy="100" r="45" stroke="#122F5B" strokeWidth="2" />
+            <circle cx="100" cy="100" r="15" stroke="#122F5B" strokeWidth="6" />
+            <circle cx="100" cy="100" r="5" fill="#122F5B" />
+            <path
+              d="M100 10 L100 190 M10 100 L190 100 M36 36 L164 164 M36 164 L164 36"
+              stroke="#122F5B"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M100 25 L100 40 M100 160 L100 175 M25 100 L40 100 M160 100 L175 100"
+              stroke="#122F5B"
+              strokeWidth="10"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* ── CONȚINUTUL PRINCIPAL ── */}
+      <div className="relative max-w-[1280px] mx-auto z-10">
         {/* Header Secțiune cu Valuri Decorative */}
         <div className="relative text-center mb-16">
           <svg

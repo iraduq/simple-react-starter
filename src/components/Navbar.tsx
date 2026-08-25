@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import {
-  ChevronDown,
-  CircleUser,
-  X,
-  Sparkles,
-  LogOut,
-  Menu,
-} from "lucide-react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { ChevronDown, CircleUser, X, LogOut, Menu } from "lucide-react";
 
 import {
   clearSession,
@@ -35,10 +28,12 @@ const NAV_ITEMS: { to: string; label: string; end?: boolean }[] = [
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
   const [lang, setLang] = useState("RO");
   const [langOpen, setLangOpen] = useState(false);
   const [acctOpen, setAcctOpen] = useState(false);
-  const [promoDismissed, setPromoDismissed] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -76,11 +71,10 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-
 
   const { toast } = useToast();
 
@@ -98,47 +92,17 @@ export default function Navbar() {
 
   const activeLang = LANGS.find((l) => l.code === lang) || LANGS[0];
 
+  // Am scos `langOpen` si `acctOpen` de aici pentru a pastra transparenta pe Hero Image
+  const solid = !isHome || scrolled || mobileOpen;
+
   return (
     <>
-      {/* ── ANNOUNCEMENT STRIP ── */}
-      {!promoDismissed && (
-        <div className="relative flex items-center justify-center px-12 py-2 bg-white border-b border-[#c69a3f]/25">
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c69a3f]/70 to-transparent"
-          />
-          <div className="flex items-center justify-center gap-3 flex-wrap text-center">
-            <Sparkles size={13} className="text-[#c69a3f] shrink-0" />
-            <span className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f]">
-              Vila Casa Esy
-            </span>
-            <span aria-hidden="true" className="h-3 w-px bg-[#c69a3f]/40" />
-            <span className="font-sans text-[12.5px] text-[#0d2c5c]">
-              Rezervări directe la{" "}
-              <strong className="font-bold text-[#0d2c5c]">
-                cel mai bun preț garantat
-              </strong>{" "}
-              — check-in prietenos, la doi pași de mare.
-            </span>
-          </div>
-
-          <button
-            onClick={() => setPromoDismissed(true)}
-            aria-label="Închide"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0d2c5c]/40 hover:text-[#0d2c5c] p-1 transition-colors"
-          >
-            <X size={15} strokeWidth={2} />
-          </button>
-        </div>
-      )}
-
-
-      {/* ── HEADER ── */}
+      {/* ── HEADER — fixat sus, solid pe pagini interioare sau transparent doar pe hero pe acasă ── */}
       <header
-        className={`sticky top-0 z-50 relative border-b transition-all duration-300 before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-gradient-to-r before:from-transparent before:via-[#c69a3f] before:to-transparent ${
-          scrolled
+        className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-500 before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-gradient-to-r before:from-transparent before:via-[#c69a3f] before:to-transparent ${
+          solid
             ? "bg-white/[0.94] backdrop-blur-[18px] border-[#c69a3f]/20 shadow-[0_1px_0_rgba(198,154,63,0.18),0_8px_32px_rgba(13,44,92,0.1),0_2px_8px_rgba(13,44,92,0.06)]"
-            : "bg-white border-[#e1e8f0]"
+            : "bg-transparent border-transparent"
         }`}
       >
         <div className="max-w-[1320px] mx-auto h-[68px] sm:h-20 px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-3">
@@ -154,10 +118,20 @@ export default function Navbar() {
             >
               ★ ★ ★
             </span>
-            <span className="font-['Cormorant_Garamond',serif] text-[22px] font-semibold leading-none tracking-wide text-[#1a1a1a] group-hover:opacity-80 transition-opacity">
+            <span
+              className={`font-['Cormorant_Garamond',serif] text-[22px] font-semibold leading-none tracking-wide transition-colors duration-500 group-hover:opacity-80 ${
+                solid
+                  ? "text-[#1a1a1a]"
+                  : "text-white [text-shadow:0_2px_16px_rgba(0,0,0,0.4)]"
+              }`}
+            >
               CASA ESY
             </span>
-            <span className="text-[9px] font-medium tracking-[0.25em] uppercase text-gray-500 mt-px">
+            <span
+              className={`text-[9px] font-medium tracking-[0.25em] uppercase mt-px transition-colors duration-500 ${
+                solid ? "text-gray-500" : "text-white/70"
+              }`}
+            >
               HOTEL · MAMAIA
             </span>
           </Link>
@@ -173,7 +147,9 @@ export default function Navbar() {
                   `relative font-sans text-[15px] py-1 transition-colors duration-200 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-[#c69a3f] after:transition-all after:duration-300 ${
                     isActive
                       ? "text-[#c69a3f] font-semibold after:w-full"
-                      : "text-[#3c4043] hover:text-[#1a1a1a] after:w-0"
+                      : solid
+                        ? "text-[#3c4043] hover:text-[#1a1a1a] hover:after:w-full after:w-0"
+                        : "text-white/90 hover:text-white hover:after:w-full after:w-0"
                   }`
                 }
               >
@@ -194,8 +170,10 @@ export default function Navbar() {
                 aria-haspopup="true"
                 aria-expanded={langOpen}
                 aria-label="Schimbă limba"
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded border transition-all duration-200 hover:bg-black/[0.04] ${
-                  langOpen ? "border-[#1a1a1a]" : "border-transparent"
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded border transition-all duration-200 ${
+                  solid
+                    ? `hover:bg-black/[0.04] ${langOpen ? "border-[#1a1a1a]" : "border-transparent"}`
+                    : `hover:bg-white/10 ${langOpen ? "border-white/60" : "border-transparent"}`
                 }`}
               >
                 <img
@@ -203,12 +181,18 @@ export default function Navbar() {
                   alt="flag"
                   className="w-6 h-4 object-cover rounded-[3px] shadow-[0_0_0_1px_rgba(0,0,0,0.1)] translate-y-px"
                 />
-                <span className="text-[15px] font-medium">{lang}</span>
+                <span
+                  className={`text-[15px] font-medium transition-colors duration-500 ${
+                    solid ? "text-[#1a1a1a]" : "text-white"
+                  }`}
+                >
+                  {lang}
+                </span>
                 <ChevronDown
                   size={14}
-                  className={`text-[#1a1a1a] mt-0.5 transition-transform duration-200 ${
-                    langOpen ? "rotate-180" : ""
-                  }`}
+                  className={`mt-0.5 transition-all duration-200 ${
+                    solid ? "text-[#1a1a1a]" : "text-white"
+                  } ${langOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -260,7 +244,9 @@ export default function Navbar() {
                 aria-haspopup="true"
                 aria-expanded={acctOpen}
                 aria-label="Cont utilizator"
-                className="p-1.5 text-[#1a1a1a] hover:opacity-80 transition-opacity"
+                className={`p-1.5 transition-opacity hover:opacity-80 ${
+                  solid ? "text-[#1a1a1a]" : "text-white"
+                }`}
               >
                 <CircleUser size={22} strokeWidth={1.5} />
               </button>
@@ -333,7 +319,11 @@ export default function Navbar() {
             {/* CTA BUTTON */}
             <Link
               to="/disponibilitate"
-              className="group relative hidden sm:inline-flex items-center overflow-hidden ml-1 lg:ml-2 px-4 lg:px-6 py-2.5 lg:py-3 bg-[#c69a3f] hover:bg-[#b58933] text-white text-[13px] lg:text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px"
+              className={`group relative hidden sm:inline-flex items-center overflow-hidden ml-1 lg:ml-2 px-4 lg:px-6 py-2.5 lg:py-3 text-[13px] lg:text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px ${
+                solid
+                  ? "bg-[#c69a3f] hover:bg-[#b58933] text-white"
+                  : "bg-white/10 border border-white/50 text-white hover:bg-white/20"
+              }`}
             >
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[550ms] ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]" />
               <span className="relative whitespace-nowrap">Rezervă Acum</span>
@@ -345,7 +335,11 @@ export default function Navbar() {
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? "Închide meniul" : "Deschide meniul"}
               aria-expanded={mobileOpen}
-              className="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded text-[#0d2c5c] transition-colors hover:bg-black/[0.04]"
+              className={`lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded transition-colors ${
+                solid
+                  ? "text-[#0d2c5c] hover:bg-black/[0.04]"
+                  : "text-white hover:bg-white/10"
+              }`}
             >
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>

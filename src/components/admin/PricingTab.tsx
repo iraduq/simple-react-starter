@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Trash2 } from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -10,7 +10,15 @@ import {
   inputCls,
   Skeleton,
 } from "./ui";
-import { get, post, list, money, errMsg, type Room } from "../../lib/admin";
+import {
+  get,
+  post,
+  list,
+  money,
+  errMsg,
+  type Room,
+  del,
+} from "../../lib/admin";
 import { useToast } from "../Toast";
 
 type CalendarDay = {
@@ -24,6 +32,7 @@ type CalendarDay = {
   blocked?: boolean | null;
   is_blocked?: boolean | null;
   min_stay?: number | null;
+  is_override?: boolean | null;
 };
 
 const roomLabel = (r: Room) =>
@@ -46,6 +55,11 @@ export default function PricingTab() {
   const [monthOffset, setMonthOffset] = useState(0);
   const [ruleOpen, setRuleOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Stare pentru ziua selectată în mod detaliat (ștergere override)
+  const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
+  const [actionModalOpen, setActionModalOpen] = useState(false);
+
   const [rule, setRule] = useState<RuleForm>({
     start_date: "",
     end_date: "",
@@ -91,9 +105,6 @@ export default function PricingTab() {
         `/rooms/${selectedRoom}/calendar?start_date=${firstDay}&end_date=${lastDay}`,
       );
 
-      // Verificăm exact structura obiectelor venite din API în consolă
-      console.log("Calendar API Response:", data);
-
       const raw =
         data &&
         typeof data === "object" &&
@@ -111,6 +122,7 @@ export default function PricingTab() {
             price: resolvedPrice != null ? Number(resolvedPrice) : null,
             available: d.available ?? d.is_available,
             blocked: d.blocked ?? d.is_blocked,
+            is_override: Boolean(d.is_override),
           };
         }),
       );
@@ -134,7 +146,29 @@ export default function PricingTab() {
     return calendar.find((c) => c.date === dateStr) || null;
   };
 
+  const handleDayClick = (dayNum: number) => {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+    const existing = getDay(dayNum);
+
+    setSelectedDay({
+      date: dateStr,
+      ...existing,
+    });
+
+    // Dacă ziua are deja override sau este blocată, deschidem meniul de acțiuni (Scoatere override / Modificare)
+    if (
+      existing &&
+      (existing.is_override || existing.price != null || existing.blocked)
+    ) {
+      setActionModalOpen(true);
+    } else {
+      // Altfel deschidem direct formularul de adăugare regulă/override
+      openRule(dateStr);
+    }
+  };
+
   const openRule = (startDate?: string) => {
+    setActionModalOpen(false);
     setRuleErr({});
     setRule({
       start_date: startDate || "",
@@ -145,6 +179,21 @@ export default function PricingTab() {
     setRuleOpen(true);
   };
 
+  const removeOverrideForDate = async (dateStr: string) => {
+    setSaving(true);
+    try {
+      // Apelăm endpoint-ul de DELETE creat în backend cu data trimisă ca query param
+      await del(`/rooms/${selectedRoom}/pricing-rules?date=${dateStr}`);
+
+      toast("Override șters. S-a revenit la prețul dinamic.", "success");
+      setActionModalOpen(false);
+      await loadCalendar(); // Reîncărcăm calendarul din baza de date
+    } catch (e) {
+      toast(errMsg(e), "error");
+    } finally {
+      setSaving(false);
+    }
+  };
   const submitRule = async () => {
     const errs: Record<string, string> = {};
     if (!rule.start_date) errs.start_date = "Selectează data de start.";
@@ -255,12 +304,11 @@ export default function PricingTab() {
                   standard
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#ededed]/50 border border-[#737373]/50" />{" "}
-                  Preț custom
+                  <span className="h-3 w-5 rounded bg-blue-100 border border-blue-400" />{" "}
+                  Override / Manual
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#111111]" />{" "}
-                  Blocat
+                  <span className="h-3 w-5 rounded bg-[#111111]" /> Blocat
                 </span>
               </div>
             </div>
@@ -287,14 +335,11 @@ export default function PricingTab() {
                 {Array.from({ length: daysInMonth }).map((_, i) => {
                   const day = i + 1;
                   const cal = getDay(day);
-                  const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                   const blocked = cal?.blocked || cal?.available === false;
+                  const isOverride = Boolean(cal?.is_override);
 
-                  // Calcul corectat pentru prețuri
                   const rawPrice =
                     cal?.price ?? cal?.price_override ?? cal?.custom_price;
-                  const isCustom =
-                    rawPrice != null && Number(rawPrice) !== Number(basePrice);
                   const dayPrice =
                     rawPrice != null
                       ? Number(rawPrice)
@@ -303,21 +348,28 @@ export default function PricingTab() {
                   return (
                     <button
                       key={day}
-                      onClick={() => openRule(dateStr)}
-                      className={`flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] transition-all hover:scale-[1.03] sm:h-[60px] sm:text-[11px] ${
+                      onClick={() => handleDayClick(day)}
+                      className={`relative flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] transition-all hover:scale-[1.03] sm:h-[60px] sm:text-[11px] ${
                         blocked
                           ? "border-[#111111] bg-[#111111] text-white"
-                          : isCustom
-                            ? "border-[#737373]/50 bg-[#ededed]/50 text-[#111111]"
+                          : isOverride
+                            ? "border-blue-400 bg-blue-50 text-blue-950 font-medium shadow-sm"
                             : "border-[#e5e5e5] bg-[#ededed] text-[#525252] hover:border-[#111111]"
                       }`}
                     >
+                      {/* Indicator mic pentru override */}
+                      {isOverride && !blocked && (
+                        <span
+                          className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-blue-600"
+                          title="Preț fixat manual (Override)"
+                        />
+                      )}
                       <span className="font-bold leading-none">{day}</span>
                       {blocked ? (
                         <Lock size={11} className="text-white/70" />
                       ) : (
                         <span
-                          className={`text-[9px] font-semibold leading-none ${isCustom ? "text-[#404040]" : "text-[#8a8a8a]"}`}
+                          className={`text-[9px] font-semibold leading-none ${isOverride ? "text-blue-700 font-bold" : "text-[#8a8a8a]"}`}
                         >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
@@ -331,6 +383,42 @@ export default function PricingTab() {
         </>
       )}
 
+      {/* Modal de opțiuni pentru o zi (Modificare sau Ștergere Override) */}
+      <Modal
+        open={actionModalOpen}
+        title={`Gestionare zi: ${selectedDay?.date}`}
+        onClose={() => setActionModalOpen(false)}
+        width="max-w-sm"
+      >
+        <div className="space-y-3 py-2">
+          <p className="text-sm text-[#525252]">
+            Această zi are un preț sau o regulă specială setată. Ce dorești să
+            faci?
+          </p>
+          <div className="flex flex-col gap-2 pt-2">
+            {selectedDay?.is_override && (
+              <Button
+                variant="ghost"
+                className="justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+                disabled={saving}
+                onClick={() => void removeOverrideForDate(selectedDay.date)}
+              >
+                <Trash2 size={16} className="mr-2" /> Șterge override (Revenire
+                la dinamic)
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              className="justify-start"
+              onClick={() => openRule(selectedDay?.date)}
+            >
+              Setare altă regulă / interval nou
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal de adăugare regulă nouă */}
       <Modal
         open={ruleOpen}
         title="Regulă tarifară / blocare"
@@ -390,7 +478,7 @@ export default function PricingTab() {
               className="h-4 w-4 accent-[#111111]"
             />
             <span className="text-sm text-[#111111]">
-              Blochează perioada (mentenanță)
+              Blocochează perioada (mentenanță)
             </span>
           </label>
         </div>

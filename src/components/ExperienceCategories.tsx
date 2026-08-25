@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 const categories = {
   plaja: {
     title: "Plajă",
@@ -32,71 +34,177 @@ const tileBase =
 const tileImg =
   "absolute inset-0 w-full h-full object-cover block scale-[1.06] transition-[transform,filter] duration-[1200ms] group-hover:scale-100";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 40, scale: 0.95 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.8,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
 export default function ExperienceCategories() {
-  // FIX: Schimbat din [] în {} pentru destructurarea corectă a unui obiect
   const { plaja, nautice, spa, gastro, apus } = categories;
 
   return (
     <section
       id="descopera"
-      className="relative mt-10 md:mt-14 py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden bg-white z-10"
+      className="relative py-[72px] px-5 md:py-24 md:px-10 pb-[60px] md:pb-20 overflow-hidden bg-white z-10"
     >
-      {/* Linie decorativă de separare */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-[var(--border-light)]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--gold)]" />
+      {/* ── AMBIENT BACKGROUND ORBS ── */}
+      <div className="absolute top-0 right-[-10%] w-[500px] h-[500px] bg-[var(--gold)]/5 rounded-full blur-[100px] animate-[pulse_6s_ease-in-out_infinite] pointer-events-none" />
+      <div className="absolute bottom-10 left-[-10%] w-[600px] h-[600px] bg-[#0d2c5c]/5 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite_reverse] pointer-events-none" />
 
-      <div className="max-w-[1280px] mx-auto">
-        <div className="relative text-center mb-16">
-          {/* Decorative wave SVGs */}
+      {/* ── OBIECTE MARITIME WATERMARK (EXPERIENȚE) ── */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* 1. Velier (Sailing Boat) - Stânga Sus */}
+        <motion.div
+          animate={{ y: [0, -15, 0], rotate: [-2, 2, -2] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[2%] left-[2%] w-[250px] h-[250px] opacity-[0.04] md:opacity-[0.05]"
+        >
           <svg
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-24 md:w-32 h-auto opacity-15 hidden md:block"
-            viewBox="0 0 120 80"
+            viewBox="0 0 200 200"
             fill="none"
+            stroke="#122F5B"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
+            {/* Catargul principal */}
+            <path d="M100 20 L100 155" />
+
+            {/* Pânza din față (Dreapta) */}
+            <path d="M100 30 Q160 80 150 145 L100 145 Z" />
+
+            {/* Pânza din spate (Stânga) */}
+            <path d="M90 45 Q35 90 50 145 L90 145 Z" />
+
+            {/* Corpul bărcii */}
+            <path d="M30 155 L170 155 L140 180 L60 180 Z" />
+
+            {/* Steagul din vârf */}
+            <path d="M100 20 L125 30 L100 40 Z" fill="#122F5B" />
+
+            {/* Valuri subtile la bază */}
             <path
-              d="M10 40 Q30 20, 50 40 T90 40"
-              stroke="#1e4d8c"
+              d="M20 170 Q35 160 50 170 T80 170 T110 170 T140 170 T170 170 T200 170"
               strokeWidth="2"
-              fill="none"
-            />
-            <path
-              d="M5 50 Q25 30, 45 50 T85 50"
-              stroke="#0d2c5c"
-              strokeWidth="1.5"
-              fill="none"
-            />
-            <path
-              d="M15 60 Q35 40, 55 60 T95 60"
-              stroke="#1e4d8c"
-              strokeWidth="1"
-              fill="none"
+              strokeOpacity="0.5"
             />
           </svg>
+        </motion.div>
 
+        {/* 2. Stea de mare (Starfish) - Dreapta Jos */}
+        <motion.div
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-[-5%] right-[2%] w-[300px] h-[300px] opacity-[0.03] md:opacity-[0.04]"
+        >
           <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            stroke="#122F5B"
+            strokeWidth="5"
+            strokeLinejoin="round"
+          >
+            <polygon points="100,20 120,80 180,80 130,120 150,180 100,140 50,180 70,120 20,80 80,80" />
+            <circle cx="100" cy="100" r="15" />
+            <circle cx="100" cy="55" r="3" />
+            <circle cx="145" cy="85" r="3" />
+            <circle cx="125" cy="140" r="3" />
+            <circle cx="75" cy="140" r="3" />
+            <circle cx="55" cy="85" r="3" />
+          </svg>
+        </motion.div>
+
+        {/* 4. Valuri și Soare (Sun & Sunset) - Stânga Jos */}
+        <motion.div
+          animate={{ x: [0, 15, 0], y: [0, -5, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[0.3%] left-[10%] w-[220px] h-[220px] opacity-[0.04] md:opacity-[0.05]"
+        >
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            stroke="#122F5B"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {/* Soarele */}
+            <circle cx="100" cy="90" r="40" strokeWidth="4" />
+            {/* Linii orizontale de valuri */}
+            <path d="M30 130 L170 130" />
+            <path d="M50 150 L150 150" />
+            <path d="M70 170 L130 170" />
+            {/* Păsări (Pescăruși) */}
+            <path d="M30 60 Q40 50 50 60 Q60 50 70 60" strokeWidth="3" />
+            <path d="M130 40 Q140 30 150 40 Q160 30 170 40" strokeWidth="3" />
+          </svg>
+        </motion.div>
+      </div>
+
+      <div className="relative max-w-[1280px] mx-auto z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative text-center mb-16"
+        >
+          <motion.svg
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             className="absolute right-0 top-1/2 -translate-y-1/2 w-24 md:w-32 h-auto opacity-15 hidden md:block"
             viewBox="0 0 120 80"
             fill="none"
           >
-            <path
-              d="M30 40 Q50 20, 70 40 T110 40"
-              stroke="#1e4d8c"
-              strokeWidth="2"
+            <svg
+              viewBox="0 0 200 200"
               fill="none"
-            />
-            <path
-              d="M35 50 Q55 30, 75 50 T115 50"
-              stroke="#0d2c5c"
-              strokeWidth="1.5"
-              fill="none"
-            />
-            <path
-              d="M25 60 Q45 40, 65 60 T105 60"
-              stroke="#1e4d8c"
-              strokeWidth="1"
-              fill="none"
-            />
-          </svg>
+              stroke="#122F5B"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M75 180 L125 180 L115 60 L85 60 Z" />
+              <path d="M80 60 L120 60 L120 40 L80 40 Z" />
+              <path d="M80 40 Q100 10 120 40 Z" />
+              <path d="M70 180 L130 180" strokeWidth="6" />
+              <path
+                d="M90 60 L90 180 M110 60 L110 180"
+                strokeWidth="2"
+                strokeDasharray="10 10"
+              />
+              {/* Raze de lumină */}
+              <path
+                d="M125 50 L190 30 M125 50 L190 70"
+                strokeWidth="2"
+                strokeDasharray="6 6"
+              />
+              <path
+                d="M75 50 L10 30 M75 50 L10 70"
+                strokeWidth="2"
+                strokeDasharray="6 6"
+              />
+            </svg>
+          </motion.svg>
 
           <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3.5">
             DESCOPERĂ · MAMAIA
@@ -115,11 +223,19 @@ export default function ExperienceCategories() {
             De la plaje cu nisip fin la gastronomie rafinată — Casa Esy este
             locul de unde vacanța ta ideală la Marea Neagră începe.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-12 auto-rows-[280px] md:auto-rows-[200px] lg:auto-rows-[240px] gap-[18px] md:gap-4 lg:gap-[22px] max-[760px]:grid-cols-1">
+        {/* ── GRILA BENTO ── */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-12 auto-rows-[280px] md:auto-rows-[200px] lg:auto-rows-[240px] gap-[18px] md:gap-4 lg:gap-[22px] max-[760px]:grid-cols-1"
+        >
           {/* 1 · Plajă — Grand Arch */}
-          <article
+          <motion.article
+            variants={itemVariants}
             className={`${tileBase} col-span-4 row-span-2 rounded-t-[999px] rounded-b-lg max-[760px]:rounded-t-[200px] max-[760px]:rounded-b-xl`}
           >
             <img
@@ -142,15 +258,15 @@ export default function ExperienceCategories() {
               <h3 className="font-['Cormorant_Garamond',serif] font-normal text-[clamp(1.6rem,2vw,2.1rem)] leading-[1.1] tracking-[0.01em] m-0">
                 {plaja.title}
               </h3>
-              {/* FIX: Înlocuit .desc cu .label deoarece .desc nu exista în obiect */}
               <p className="text-[13px] leading-[1.55] text-white/80 mt-2.5 mb-0 max-w-[32ch] mx-auto">
                 {plaja.label}
               </p>
             </div>
-          </article>
+          </motion.article>
 
           {/* 2 · Sporturi Nautice — Soft rect */}
-          <article
+          <motion.article
+            variants={itemVariants}
             className={`${tileBase} col-span-4 row-span-1 rounded-[18px]`}
           >
             <img
@@ -175,10 +291,11 @@ export default function ExperienceCategories() {
                 {nautice.label}
               </p>
             </div>
-          </article>
+          </motion.article>
 
           {/* 3 · Spa — Circle */}
-          <article
+          <motion.article
+            variants={itemVariants}
             className={`${tileBase} col-span-4 row-span-1 rounded-full border-4 border-[#fdfcf9] shadow-[0_2px_6px_rgba(7,18,40,0.08),0_26px_60px_-18px_rgba(7,18,40,0.35)] max-[760px]:aspect-square max-[760px]:h-auto`}
           >
             <img
@@ -196,10 +313,11 @@ export default function ExperienceCategories() {
                 {spa.label}
               </span>
             </div>
-          </article>
+          </motion.article>
 
           {/* 4 · Gastronomie — Wave */}
-          <article
+          <motion.article
+            variants={itemVariants}
             className={`${tileBase} col-span-5 row-span-1 rounded-[80px_20px_80px_20px]`}
           >
             <img
@@ -222,15 +340,15 @@ export default function ExperienceCategories() {
               <h3 className="font-['Cormorant_Garamond',serif] font-normal text-[clamp(1.6rem,2vw,2.1rem)] leading-[1.1] m-0">
                 {gastro.title}
               </h3>
-              {/* FIX: Înlocuit .desc cu .label */}
               <p className="text-[13px] leading-[1.55] text-white/80 mt-2.5 mb-0 max-w-[32ch]">
                 {gastro.label}
               </p>
             </div>
-          </article>
+          </motion.article>
 
           {/* 5 · Apusuri — Inverted arch */}
-          <article
+          <motion.article
+            variants={itemVariants}
             className={`${tileBase} col-span-3 row-span-1 rounded-b-[999px] rounded-t-lg max-[760px]:rounded-b-[200px] max-[760px]:rounded-t-xl`}
           >
             <img
@@ -254,23 +372,30 @@ export default function ExperienceCategories() {
                 {apus.label}
               </span>
             </div>
-          </article>
-        </div>
+          </motion.article>
+        </motion.div>
 
-        <div className="mt-[72px] text-center">
+        {/* Buton cu intrare ușoară */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-[72px] text-center relative z-20"
+        >
           <a
             href="#camere"
-            className="group inline-flex items-center gap-[22px] text-[#0d2c5c] text-xs tracking-[0.25em] uppercase no-underline"
+            className="group inline-flex items-center gap-[22px] text-[#0d2c5c] text-xs tracking-[0.25em] uppercase no-underline font-semibold"
           >
             <span>Vezi toate experiențele</span>
             <span
-              className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-[rgba(7,18,40,0.15)] text-base transition-all duration-300 group-hover:bg-[#0d2c5c] group-hover:text-white group-hover:border-[#0d2c5c] group-hover:translate-x-1"
+              className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-[rgba(7,18,40,0.15)] text-base transition-all duration-300 group-hover:bg-[var(--gold)] group-hover:text-white group-hover:border-[var(--gold)] group-hover:translate-x-1 group-hover:shadow-[0_4px_14px_rgba(198,154,63,0.3)]"
               aria-hidden="true"
             >
               →
             </span>
           </a>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

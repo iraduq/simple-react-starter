@@ -30,7 +30,11 @@ export type RoomUnit = {
   code?: string | null;
   unit_number?: string | null;
   status?: string | null;
-  bed_type?: { id?: number | string; name?: string | null; capacity?: number | null } | null;
+  bed_type?: {
+    id?: number | string;
+    name?: string | null;
+    capacity?: number | null;
+  } | null;
   is_active?: boolean | null;
 };
 
@@ -50,7 +54,11 @@ export type RoomBooking = {
   user_name?: string | null;
   room_id?: string | number | null;
   created_at?: string | null;
-  user?: { email?: string | null; first_name?: string | null; last_name?: string | null } | null;
+  user?: {
+    email?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+  } | null;
   guests_adults?: number | null;
   guests_children?: number | null;
   total_price?: number | null;

@@ -22,15 +22,7 @@ import {
   Pagination,
   usePaged,
 } from "./ui";
-import {
-  get,
-  post,
-  patch,
-  del,
-  upload,
-  list,
-  errMsg,
-} from "../../lib/admin";
+import { get, post, patch, del, upload, list, errMsg } from "../../lib/admin";
 import { useToast } from "../Toast";
 
 // Structura FĂRĂ imagini în formular, dar cu denumirile cerute de FastAPI
@@ -198,7 +190,11 @@ export default function AdminPlacesTab() {
       />
 
       <div className="mb-4">
-        <SearchBox value={query} onChange={setQuery} placeholder="Caută locație, categorie…" />
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+          placeholder="Caută locație, categorie…"
+        />
       </div>
 
       <Card>
@@ -452,7 +448,6 @@ export default function AdminPlacesTab() {
   );
 }
 
-/* ─────────────── PLACE MEDIA MANAGER (Drag & Drop) ─────────────── */
 function PlaceMediaManager({
   place,
   onClose,
@@ -463,27 +458,39 @@ function PlaceMediaManager({
   onChanged: () => void;
 }) {
   const { toast } = useToast();
+  // Presupunem că locurile returnează acum un array de imagini (place.images)
+  const [images, setImages] = useState<any[]>(place.images || []);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      toast("Fișierul trebuie să fie sub 5MB.", "error");
-      return;
+  const refreshPlace = async () => {
+    try {
+      const data = await get<unknown>(`/places`);
+      const all = list<any>(data);
+      const updated = all.find((p) => String(p.id) === String(place.id));
+      if (updated) {
+        setImages(updated.images || []);
+      }
+    } catch {
+      /* ignore */
     }
+  };
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
+      const uploadPromises = Array.from(files).map((f) => {
+        const fd = new FormData();
+        fd.append("file", f);
+        return upload(`/places/${place.id}/images`, fd); // Endpoint-ul dedicat de multiple imagini
+      });
 
-      // Endpoint-ul de pe backend încarcă fișierul în bucket-ul Supabase
-      // și întoarce locația cu img/thumb populate cu URL-ul public.
-      await upload(`/places/${place.id}/image`, fd);
-
-      toast("Imaginea a fost încărcată cu succes.", "success");
+      await Promise.all(uploadPromises);
+      toast("Imagini încărcate cu succes.", "success");
+      await refreshPlace();
       onChanged();
-      onClose();
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
@@ -491,14 +498,12 @@ function PlaceMediaManager({
     }
   };
 
-  const deleteImage = async () => {
+  const deleteImage = async (imgId: string) => {
     try {
-      // La ștergere trimitem explicit null, nu string gol — respectă
-      // min_length=5 de pe backend (câmpul devine opțional/nul).
-      await patch(`/places/${place.id}`, { img: null, thumb: null });
-      toast("Imaginea a fost ștearsă.", "success");
+      await del(`/places/${place.id}/images/${imgId}`);
+      toast("Imagine ștearsă din baza de date și bucket.", "success");
+      await refreshPlace();
       onChanged();
-      onClose();
     } catch (e) {
       toast(errMsg(e), "error");
     }
@@ -507,72 +512,93 @@ function PlaceMediaManager({
   return (
     <Modal
       open
-      title={`Imagine locație: ${place.title || place.name}`}
+      title={`Galerie foto: ${place.title || place.name}`}
       onClose={onClose}
-      width="max-w-md"
+      width="max-w-2xl"
     >
-      <div className="space-y-5">
-        {place.img || place.thumb ? (
-          <div className="relative overflow-hidden rounded-xl border border-[#e5e5e5]">
-            <img
-              src={place.img || place.thumb}
-              alt={place.title}
-              className="w-full h-48 object-cover"
-            />
-            <button
-              onClick={() => void deleteImage()}
-              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#111111] shadow-sm transition-all hover:bg-white hover:scale-110"
-              title="Șterge imaginea"
-            >
-              <Trash2 size={15} />
-            </button>
+      <div className="p-6 space-y-6">
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            void handleFiles(e.dataTransfer.files);
+          }}
+          onClick={() => fileRef.current?.click()}
+          className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
+            dragOver
+              ? "border-black bg-black/5"
+              : "border-black/10 hover:border-black/30 hover:bg-black/[0.02]"
+          }`}
+        >
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple // <--- Permite selectarea mai multor fișiere
+            className="hidden"
+            onChange={(e) => void handleFiles(e.target.files)}
+          />
+          <Upload
+            size={28}
+            strokeWidth={1.5}
+            className="mx-auto text-black mb-3"
+          />
+          <p className="text-[14px] font-semibold text-black">
+            {uploading
+              ? "Se încarcă…"
+              : "Trage imagini aici sau click pentru a selecta (multiple)"}
+          </p>
+          <p className="mt-1 text-[12px] text-[#8a8a8a]">
+            JPG / PNG, maxim 5MB per fișier
+          </p>
+        </div>
+
+        {images.length > 0 ? (
+          <div>
+            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8a8a8a] block mb-3">
+              Imagini salvate ({images.length})
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {images.map((img) => (
+                <div
+                  key={img.id}
+                  className="group relative overflow-hidden rounded-xl border border-black/10 bg-black/5 h-28"
+                >
+                  <img
+                    src={img.image_url}
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <button
+                    onClick={() => void deleteImage(img.id)}
+                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-600 shadow-md transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+                    title="Șterge imaginea"
+                  >
+                    <Trash2 size={14} strokeWidth={2.5} />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragOver(false);
-              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                void handleFile(e.dataTransfer.files[0]);
-              }
-            }}
-            onClick={() => fileRef.current?.click()}
-            className={`cursor-pointer rounded-xl border-2 border-dashed p-8 flex flex-col items-center justify-center text-center transition-all duration-200 ${
-              dragOver
-                ? "border-[#737373] bg-[#ededed]/30 scale-[1.02]"
-                : "border-[#e5e5e5] bg-[#fafafa] hover:border-[#737373] hover:bg-white"
-            }`}
-          >
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  void handleFile(e.target.files[0]);
-                }
-              }}
-            />
-            <Upload size={28} className="text-[#737373] mb-3" />
-            <p className="text-[14px] font-semibold text-[#111111]">
-              {uploading ? "Se încarcă…" : "Click sau trage imaginea aici"}
-            </p>
-            <p className="mt-1 text-[12px] text-[#8a8a8a]">
-              JPG / PNG (max 5MB)
-            </p>
-          </div>
+          <p className="text-center text-sm text-[#8a8a8a] py-4">
+            Nicio imagine încărcată încă.
+          </p>
         )}
-      </div>
-      <div className="mt-6 flex justify-end pt-4 border-t border-[#ededed]">
-        <Button variant="ghost" onClick={onClose}>
-          Închide
-        </Button>
+
+        <div className="flex justify-end pt-4 border-t border-black/5">
+          <button
+            onClick={onClose}
+            className="rounded-full bg-black px-6 py-2.5 text-[11px] font-bold uppercase text-white"
+          >
+            Închide
+          </button>
+        </div>
       </div>
     </Modal>
   );

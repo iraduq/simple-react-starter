@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   LayoutGrid,
@@ -171,49 +171,281 @@ export default function Places() {
   };
 
   return (
-    <div className="min-h-screen bg-white relative">
-      {/* Linie subtilă sus */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-[var(--border-light)]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--gold)]" />
+    <div className="min-h-screen bg-[#f8fafd] relative overflow-hidden">
+      {/* ── HEADER BOGAT (DARK NAVY) ── */}
+      <section className="relative z-20 bg-[#0d2c5c] px-5 md:px-10 pt-32 md:pt-44 pb-32 md:pb-40 text-center overflow-hidden">
+        {/* Glow Effects animate în Header */}
+        <motion.div
+          animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#c69a3f]/15 rounded-full blur-[100px] pointer-events-none"
+        />
+        <motion.div
+          animate={{ x: [0, -40, 0], y: [0, 30, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#1e4d8c]/30 rounded-full blur-[120px] pointer-events-none"
+        />
 
-      {/* ── HEADER ── */}
-      <div className="max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-36 pb-10 md:pb-14 text-center">
-        <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[var(--gold)] mb-4 flex items-center justify-center gap-3">
-          <span className="w-8 h-px bg-[var(--gold)]/60" />
-          Explorare · Vila Casa Esy
-          <span className="w-8 h-px bg-[var(--gold)]/60" />
-        </p>
-        <h1 className="font-[var(--font-display)] text-[clamp(2.6rem,5vw,4.2rem)] font-normal text-[var(--text-primary)] leading-[1.1] tracking-[-0.01em] mb-6">
-          Locații & destinații,{" "}
-          <em className="italic text-[var(--gold)]">de neratat în zonă</em>
-        </h1>
-        <p className="max-w-[600px] mx-auto text-[15px] text-[var(--text-secondary)] leading-[1.8] font-light">
-          Descoperă cele mai bune locuri din apropiere — de la plaje liniștite
-          și atracții turistice, până la restaurante cu specific local.
-        </p>
+        {/* Auroră / Vortex auriu rotativ pentru senzația de viață */}
+        <motion.div
+          animate={{
+            rotate: 360,
+            scale: [1, 1.1, 1],
+            opacity: [0.08, 0.12, 0.08],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[conic-gradient(from_0deg,transparent_0_200deg,#c69a3f_360deg)] rounded-full blur-[80px] pointer-events-none"
+        />
+
+        {/* Particule fine plutitoare (Praf de stele / Explorare) */}
+        {[...Array(12)].map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-white pointer-events-none"
+            style={{ left: `${5 + i * 8}%`, top: `${15 + (i % 4) * 20}%` }}
+            animate={{
+              y: [0, -25, 0],
+              opacity: [0.1, Math.random() * 0.5 + 0.3, 0.1],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 5 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.2,
+            }}
+          />
+        ))}
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10 max-w-4xl mx-auto"
+        >
+          <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-5 flex items-center justify-center gap-4">
+            <span className="w-10 h-px bg-gradient-to-r from-transparent to-[#c69a3f]/80" />
+            Explorare · Vila Casa Esy
+            <span className="w-10 h-px bg-gradient-to-l from-transparent to-[#c69a3f]/80" />
+          </p>
+
+          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4.5rem)] font-normal text-white leading-[1.1] tracking-[-0.01em] mb-7 relative inline-block">
+            Locații & destinații,{" "}
+            {/* Shimmer effect pe textul auriu (Acum e aliniat perfect) */}
+            <span className="relative inline-block">
+              <em className="italic text-[#c69a3f] relative z-10">
+                de neratat în zonă
+              </em>
+              <span className="absolute inset-0 overflow-hidden pointer-events-none z-20">
+                <motion.span
+                  animate={{ left: ["-100%", "200%"] }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatDelay: 4,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute top-0 bottom-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
+                />
+              </span>
+            </span>
+          </h1>
+
+          <p className="max-w-[640px] mx-auto text-[16px] text-white/80 leading-[1.85] font-light">
+            Descoperă cele mai bune locuri din apropiere — de la plaje liniștite
+            și atracții turistice, până la restaurante cu specific local.
+          </p>
+        </motion.div>
+
+        {/* ── TRANZIȚIE JOS: Val fluid ── */}
+        <div className="absolute bottom-[-1px] left-0 right-0 w-full overflow-hidden leading-none z-0 pointer-events-none">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-[50px] md:h-[90px]"
+          >
+            <path
+              d="M0,120 C200,80 400,20 600,60 C800,100 1000,40 1200,80 L1200,120 L0,120 Z"
+              className="fill-[#f8fafd]"
+            />
+          </svg>
+        </div>
+      </section>
+
+      {/* ── AMBIENT BACKGROUND ORBS (CONTENT) ── */}
+      <motion.div
+        animate={{ scale: [1, 1.12, 1], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] bg-[#c69a3f]/5 rounded-full blur-[100px] pointer-events-none z-0"
+      />
+      <motion.div
+        animate={{ scale: [1.05, 1, 1.05], opacity: [0.4, 0.7, 0.4] }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-[10%] left-[-10%] w-[800px] h-[800px] bg-[#0d2c5c]/5 rounded-full blur-[120px] pointer-events-none z-0"
+      />
+
+      {/* ── SVG WATERMARKS (TEMATICĂ EXPLORARE / HARTĂ) ── */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 mt-[400px]">
+        {/* 1. Hartă cu Pin (AURIU) - Dreapta Sus */}
+        <motion.div
+          animate={{ y: [0, -15, 0], rotate: [-2, 2, -2] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[5%] right-[2%] w-[220px] h-[220px] opacity-[0.06] md:opacity-[0.08]"
+        >
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            stroke="#c69a3f"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path
+              d="M30 60 L80 40 L140 60 L140 160 L80 140 L30 160 Z"
+              fill="#c69a3f"
+              fillOpacity="0.05"
+            />
+            <path d="M80 40 L80 140 M140 60 L140 160" strokeOpacity="0.6" />
+            {/* Location Pin */}
+            <path
+              d="M120 70 C120 50, 150 50, 150 70 C150 90, 135 110, 135 110 C135 110, 120 90, 120 70 Z"
+              fill="#c69a3f"
+              fillOpacity="0.1"
+            />
+            <circle cx="135" cy="70" r="6" />
+          </svg>
+        </motion.div>
+
+        {/* 2. Binoclu (NAVY) - Centru Stânga */}
+        <motion.div
+          animate={{ rotate: [-3, 3, -3], scale: [1, 1.02, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[35%] left-[2%] w-[280px] h-[280px] opacity-[0.03] md:opacity-[0.04]"
+        >
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            stroke="#122F5B"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path
+              d="M40 70 L60 150 L90 150 L80 70 Z"
+              fill="#122F5B"
+              fillOpacity="0.05"
+            />
+            <path
+              d="M160 70 L140 150 L110 150 L120 70 Z"
+              fill="#122F5B"
+              fillOpacity="0.05"
+            />
+            {/* Lents */}
+            <ellipse cx="60" cy="150" rx="15" ry="5" />
+            <ellipse cx="140" cy="150" rx="15" ry="5" />
+            {/* Bridge */}
+            <path d="M85 100 L115 100 M83 120 L117 120" strokeWidth="6" />
+            {/* Eye pieces */}
+            <path d="M45 70 L75 70 M125 70 L155 70" strokeWidth="8" />
+          </svg>
+        </motion.div>
+
+        {/* 3. Balon cu aer cald (NAVY) - Stânga Jos */}
+        <motion.div
+          animate={{ y: [0, -30, 0], x: [0, 10, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[5%] left-[5%] w-[250px] h-[250px] opacity-[0.03] md:opacity-[0.04]"
+        >
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            stroke="#122F5B"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path
+              d="M100 20 C150 20, 150 80, 100 130 C50 80, 50 20, 100 20 Z"
+              fill="#122F5B"
+              fillOpacity="0.05"
+            />
+            <path
+              d="M100 20 L100 130 M70 40 Q100 130 100 130 M130 40 Q100 130 100 130"
+              strokeWidth="2"
+              strokeOpacity="0.5"
+            />
+            <path
+              d="M85 150 L115 150 L110 170 L90 170 Z"
+              fill="#122F5B"
+              fillOpacity="0.1"
+            />
+            <path d="M90 130 L85 150 M110 130 L115 150" strokeWidth="2" />
+            {/* Clouds */}
+            <path
+              d="M20 100 Q40 80 60 100 T100 100 M140 60 Q160 40 180 60 T220 60"
+              strokeWidth="2"
+              strokeOpacity="0.3"
+            />
+          </svg>
+        </motion.div>
+
+        {/* 4. Busolă terestră (AURIU+NAVY) - Dreapta Jos */}
+        <div
+          className="absolute bottom-[15%] right-[-5%] w-[400px] h-[400px] opacity-[0.05]"
+          style={{ animation: "spin 200s linear infinite" }}
+        >
+          <svg viewBox="0 0 200 200" fill="none">
+            <circle
+              cx="100"
+              cy="100"
+              r="80"
+              stroke="#c69a3f"
+              strokeWidth="2"
+              strokeDasharray="5 10"
+            />
+            <circle cx="100" cy="100" r="65" stroke="#122F5B" strokeWidth="1" />
+            <path
+              d="M100 10 L110 90 L190 100 L110 110 L100 190 L90 110 L10 100 L90 90 Z"
+              fill="#122F5B"
+              fillOpacity="0.2"
+            />
+            <path
+              d="M100 30 L105 95 L170 100 L105 105 L100 170 L95 105 L30 100 L95 95 Z"
+              fill="#c69a3f"
+              fillOpacity="0.4"
+            />
+            <circle cx="100" cy="100" r="8" fill="#122F5B" />
+          </svg>
+        </div>
       </div>
 
       {/* ── TOOLBAR ── */}
-      <div className="max-w-7xl mx-auto px-5 md:px-10 relative z-20">
-        <div className="bg-white border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-soft)] p-4 md:p-5 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+      <div className="max-w-7xl mx-auto px-5 md:px-10 relative z-20 -mt-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white border border-[#e1e8f0] rounded-2xl md:rounded-full shadow-[0_8px_30px_rgba(13,44,92,0.06)] p-3 md:p-4 flex flex-col md:flex-row gap-4 items-stretch md:items-center"
+        >
           <div className="relative flex-1">
             <Search
               size={18}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--gold)]"
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-[#c69a3f]"
             />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Caută locații, restaurante, plaje..."
-              className="w-full pl-12 pr-4 py-3.5 bg-[var(--bg-soft)] border border-transparent rounded-full text-[14px] text-[var(--text-primary)] outline-none transition-all hover:bg-[var(--bg-cream)] focus:bg-white focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]/20 placeholder:text-[var(--text-light)]"
+              placeholder="Caută locații, atracții, restaurante..."
+              className="w-full pl-12 pr-4 py-3 bg-[#f8fafd] border border-transparent rounded-full text-[14px] text-[#0d2c5c] outline-none transition-all hover:bg-[#f0f5fc] focus:bg-white focus:border-[#c69a3f]/40 focus:ring-2 focus:ring-[#c69a3f]/10 placeholder:text-[#8595aa]"
             />
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 md:pb-0 hide-scrollbar items-center">
+
+          <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 hide-scrollbar items-center">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="px-5 py-3.5 bg-[var(--bg-soft)] border border-transparent rounded-full text-[13px] font-semibold text-[var(--text-primary)] outline-none hover:bg-[var(--bg-cream)] focus:bg-white focus:border-[var(--gold)] cursor-pointer transition-all shrink-0"
+              className="px-5 py-3 bg-[#f8fafd] border border-transparent rounded-full text-[13px] font-semibold text-[#0d2c5c] outline-none hover:bg-[#f0f5fc] focus:bg-white focus:border-[#c69a3f]/40 focus:ring-2 focus:ring-[#c69a3f]/10 cursor-pointer transition-all shrink-0"
             >
               <option value="all">Toate categoriile</option>
               {CATEGORIES.map((c) => (
@@ -222,32 +454,34 @@ export default function Places() {
                 </option>
               ))}
             </select>
+
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="px-5 py-3.5 bg-[var(--bg-soft)] border border-transparent rounded-full text-[13px] font-semibold text-[var(--text-primary)] outline-none hover:bg-[var(--bg-cream)] focus:bg-white focus:border-[var(--gold)] cursor-pointer transition-all shrink-0"
+              className="px-5 py-3 bg-[#f8fafd] border border-transparent rounded-full text-[13px] font-semibold text-[#0d2c5c] outline-none hover:bg-[#f0f5fc] focus:bg-white focus:border-[#c69a3f]/40 focus:ring-2 focus:ring-[#c69a3f]/10 cursor-pointer transition-all shrink-0"
             >
               <option value="rating-desc">Rating: Descrescător</option>
               <option value="rating-asc">Rating: Crescător</option>
               <option value="title">Alfabetic</option>
             </select>
-            <div className="flex gap-1 p-1 bg-[var(--bg-soft)] rounded-full shrink-0 items-center border border-transparent">
+
+            <div className="flex gap-1 p-1 bg-[#f8fafd] rounded-full shrink-0 items-center border border-transparent">
               <button
                 onClick={() => setView("grid")}
-                className={`p-2.5 rounded-full transition-all ${
+                className={`p-2 rounded-full transition-all ${
                   view === "grid"
-                    ? "bg-white text-[var(--gold)] shadow-sm"
-                    : "text-[var(--text-light)] hover:text-[var(--text-primary)]"
+                    ? "bg-white text-[#c69a3f] shadow-sm border border-[#e1e8f0]"
+                    : "text-[#8595aa] hover:text-[#0d2c5c]"
                 }`}
               >
                 <LayoutGrid size={16} />
               </button>
               <button
                 onClick={() => setView("list")}
-                className={`p-2.5 rounded-full transition-all ${
+                className={`p-2 rounded-full transition-all ${
                   view === "list"
-                    ? "bg-white text-[var(--gold)] shadow-sm"
-                    : "text-[var(--text-light)] hover:text-[var(--text-primary)]"
+                    ? "bg-white text-[#c69a3f] shadow-sm border border-[#e1e8f0]"
+                    : "text-[#8595aa] hover:text-[#0d2c5c]"
                 }`}
               >
                 <List size={16} />
@@ -256,21 +490,21 @@ export default function Places() {
 
             {canCreate && (
               <>
-                <div className="hidden md:block w-px h-8 bg-[var(--border-light)] mx-1 shrink-0"></div>
+                <div className="hidden md:block w-px h-8 bg-[#e1e8f0] mx-1 shrink-0"></div>
                 <button
                   onClick={openCreate}
-                  className="shrink-0 inline-flex items-center gap-2 rounded-full bg-[var(--navy)] px-5 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[var(--navy-soft)]"
+                  className="shrink-0 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] transition-all hover:shadow-[0_8px_20px_-8px_rgba(198,154,63,0.8)] hover:-translate-y-0.5"
                 >
-                  <Plus size={15} /> Adaugă locație
+                  <Plus size={15} /> Adaugă
                 </button>
               </>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ── CONTENT ── */}
-      <div className="max-w-7xl mx-auto px-5 md:px-10 py-12 md:py-20">
+      <div className="max-w-7xl mx-auto px-5 md:px-10 py-12 md:py-20 relative z-10">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 text-[#c69a3f]">
             <Loader2 size={32} className="animate-spin mb-4" />
@@ -280,66 +514,72 @@ export default function Places() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f4f7fb] text-[#8595aa] mb-5">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white border border-[#e1e8f0] shadow-sm text-[#8595aa] mb-5">
               <MapPin size={28} />
             </span>
-            <p className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c]">
+            <p className="font-['Cormorant_Garamond',serif] text-[32px] text-[#0d2c5c] leading-tight">
               Nicio locație găsită
             </p>
-            <p className="text-[14px] text-[#8595aa] mt-2 max-w-sm">
+            <p className="text-[15px] text-[#5a6b85] mt-2 max-w-sm font-light">
               Încearcă alte cuvinte cheie sau schimbă categoria pentru a găsi
               ceea ce cauți.
             </p>
           </div>
         ) : view === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filtered.map((place, idx) => (
-              <motion.div
-                key={place.id}
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  duration: 0.5,
-                  delay: idx * 0.05,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                <PlaceCard
-                  place={place}
-                  onClick={() => setDetailPlace(place)}
-                  canUpdate={canUpdate}
-                  canDelete={canDelete}
-                  onEdit={() => openEdit(place)}
-                  onDelete={() => setDeleteTarget(place)}
-                />
-              </motion.div>
-            ))}
+            <AnimatePresence mode="popLayout">
+              {filtered.map((place, idx) => (
+                <motion.div
+                  layout
+                  key={place.id}
+                  initial={{ opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{
+                    duration: 0.5,
+                    delay: (idx % 3) * 0.08,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <PlaceCard
+                    place={place}
+                    onClick={() => setDetailPlace(place)}
+                    canUpdate={canUpdate}
+                    canDelete={canDelete}
+                    onEdit={() => openEdit(place)}
+                    onDelete={() => setDeleteTarget(place)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         ) : (
-          <div className="space-y-5">
-            {filtered.map((place, idx) => (
-              <motion.div
-                key={place.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  duration: 0.5,
-                  delay: idx * 0.05,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                <PlaceRow
-                  place={place}
-                  onClick={() => setDetailPlace(place)}
-                  canUpdate={canUpdate}
-                  canDelete={canDelete}
-                  onEdit={() => openEdit(place)}
-                  onDelete={() => setDeleteTarget(place)}
-                />
-              </motion.div>
-            ))}
+          <div className="space-y-6">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((place, idx) => (
+                <motion.div
+                  layout
+                  key={place.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{
+                    duration: 0.5,
+                    delay: (idx % 5) * 0.05,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <PlaceRow
+                    place={place}
+                    onClick={() => setDetailPlace(place)}
+                    canUpdate={canUpdate}
+                    canDelete={canDelete}
+                    onEdit={() => openEdit(place)}
+                    onDelete={() => setDeleteTarget(place)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </div>
@@ -381,8 +621,8 @@ export default function Places() {
       )}
 
       {/* Linie subtilă jos */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-light)]" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--navy)]" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-light)] z-20" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--gold)] z-20" />
     </div>
   );
 }
@@ -399,56 +639,79 @@ function PlaceCard({
   return (
     <article
       onClick={onClick}
-      className="group cursor-pointer rounded-[26px] overflow-hidden border border-[#e6ecf4] bg-white shadow-[0_2px_6px_rgba(13,44,92,0.04),0_24px_60px_-30px_rgba(13,44,92,0.28)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#c69a3f]/45 hover:shadow-[0_2px_8px_rgba(13,44,92,0.08),0_40px_90px_-32px_rgba(13,44,92,0.4)] flex flex-col h-full"
+      className="group cursor-pointer relative rounded-[26px] overflow-hidden border border-[#e1e8f0] bg-white shadow-[0_4px_16px_rgba(13,44,92,0.03)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#c69a3f]/40 hover:shadow-[0_12px_40px_rgba(13,44,92,0.12)] flex flex-col h-full"
     >
-      <div className="relative h-56 overflow-hidden bg-[#f4f7fb]">
+      {/* Glow border on hover */}
+      <div className="pointer-events-none absolute inset-0 rounded-[26px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
+
+      <div className="relative h-56 overflow-hidden bg-[#0d2c5c]">
         {place.thumb_url || place.image_url ? (
-          <img
-            src={place.thumb_url || place.image_url}
-            alt={place.title}
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.05]"
-          />
+          <div className="w-full h-full relative overflow-hidden">
+            <motion.img
+              src={place.thumb_url || place.image_url}
+              alt={place.title}
+              loading="lazy"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-[#0d2c5c]/10 mix-blend-overlay" />
+          </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#8595aa]">
+          <div className="w-full h-full flex items-center justify-center text-[#8595aa] bg-[#f8fafd]">
             <ImageIcon size={32} />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+
+        {/* Shimmer sweep on hover */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden z-10">
+          <motion.div
+            initial={{ x: "-150%" }}
+            whileHover={{ x: "200%" }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12"
+          />
+        </div>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 z-10"></div>
 
         {place.badge && (
-          <div className="absolute top-4 left-4">
+          <div className="absolute top-4 left-4 z-20">
             <BadgePill badge={place.badge} />
           </div>
         )}
-        <div className="absolute bottom-4 left-4 flex items-center gap-1 bg-white/95 backdrop-blur px-2.5 py-1 rounded-full shadow-sm">
-          <Star size={12} className="text-[#c69a3f] fill-[#c69a3f]" />
-          <span className="text-[12px] font-bold text-[#0d2c5c] pt-0.5">
+
+        <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md z-20">
+          <Star
+            size={13}
+            className="text-[#c69a3f] fill-[#c69a3f] animate-[pulse_3s_ease-in-out_infinite]"
+          />
+          <span className="text-[12.5px] font-bold text-[#0d2c5c] pt-0.5">
             {place.rating.toFixed(1)}
           </span>
         </div>
       </div>
 
-      <div className="p-6 flex flex-col flex-1">
-        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1.5">
+      <div className="p-7 flex flex-col flex-1 relative z-10">
+        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-2">
           {place.category}
         </span>
-        <h3 className="font-['Cormorant_Garamond',serif] text-[26px] font-normal text-[#0d2c5c] leading-tight transition-colors duration-300 group-hover:text-[#c69a3f]">
+        <h3 className="font-['Cormorant_Garamond',serif] text-[26px] md:text-[28px] font-normal text-[#0d2c5c] leading-tight transition-colors duration-300 group-hover:text-[#c69a3f]">
           {place.title}
         </h3>
-        <p className="font-sans text-[14px] leading-[1.6] font-light text-[#5a6b85] mt-3 line-clamp-3">
+        <p className="font-sans text-[14.5px] leading-[1.65] font-light text-[#5a6b85] mt-3 line-clamp-3">
           {place.description}
         </p>
 
         {(canUpdate || canDelete) && (
-          <div className="flex gap-2 mt-auto pt-6 border-t border-[#eef2f7]">
+          <div className="flex gap-2 mt-auto pt-6 border-t border-[#e1e8f0]">
             {canUpdate && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit();
                 }}
-                className="flex-1 inline-flex justify-center items-center gap-2 rounded-full border border-[#0d2c5c]/15 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c] hover:bg-[#f0f5fc]"
+                className="flex-1 inline-flex justify-center items-center gap-2 rounded-full border border-[#0d2c5c]/15 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
               >
                 <Pencil size={12} /> Edit
               </button>
@@ -459,7 +722,7 @@ function PlaceCard({
                   e.stopPropagation();
                   onDelete();
                 }}
-                className="flex-1 inline-flex justify-center items-center gap-2 rounded-full border border-red-200 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-red-600 transition-all hover:bg-red-50"
+                className="flex-1 inline-flex justify-center items-center gap-2 rounded-full border border-red-200 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-red-600 transition-all hover:bg-red-50 hover:border-red-300"
               >
                 <Trash2 size={12} /> Șterge
               </button>
@@ -483,53 +746,75 @@ function PlaceRow({
   return (
     <article
       onClick={onClick}
-      className="group cursor-pointer flex flex-col sm:flex-row bg-white rounded-[26px] overflow-hidden border border-[#e6ecf4] shadow-[0_2px_6px_rgba(13,44,92,0.04),0_24px_60px_-30px_rgba(13,44,92,0.28)] transition-all duration-500 hover:-translate-y-1 hover:border-[#c69a3f]/45 hover:shadow-[0_2px_8px_rgba(13,44,92,0.08),0_40px_90px_-32px_rgba(13,44,92,0.4)]"
+      className="group relative cursor-pointer flex flex-col sm:flex-row bg-white rounded-[26px] overflow-hidden border border-[#e1e8f0] shadow-[0_4px_12px_rgba(13,44,92,0.02)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(13,44,92,0.08)]"
     >
-      <div className="relative w-full sm:w-64 h-48 sm:h-auto shrink-0 overflow-hidden bg-[#f4f7fb]">
+      <div className="pointer-events-none absolute inset-0 rounded-[26px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
+
+      <div className="relative w-full sm:w-72 h-56 sm:h-auto shrink-0 overflow-hidden bg-[#0d2c5c]">
         {place.thumb_url || place.image_url ? (
-          <img
-            src={place.thumb_url || place.image_url}
-            alt={place.title}
-            className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.05]"
-          />
+          <div className="w-full h-full relative overflow-hidden">
+            <motion.img
+              src={place.thumb_url || place.image_url}
+              alt={place.title}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+              className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-[#0d2c5c]/10 mix-blend-overlay" />
+          </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#8595aa]">
+          <div className="w-full h-full flex items-center justify-center text-[#8595aa] bg-[#f8fafd]">
             <ImageIcon size={32} />
           </div>
         )}
+
+        <div className="pointer-events-none absolute inset-0 overflow-hidden z-10">
+          <motion.div
+            initial={{ x: "-150%" }}
+            whileHover={{ x: "200%" }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12"
+          />
+        </div>
+
         {place.badge && (
-          <div className="absolute top-4 left-4">
+          <div className="absolute top-4 left-4 z-20">
             <BadgePill badge={place.badge} />
           </div>
         )}
       </div>
-      <div className="flex-1 p-6 flex flex-col justify-center">
-        <div className="flex items-center gap-3 mb-2">
+
+      <div className="flex-1 p-7 md:p-8 flex flex-col justify-center relative z-10">
+        <div className="flex items-center gap-3 mb-2.5">
           <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
             {place.category}
           </span>
-          <div className="flex items-center gap-1 ml-auto">
-            <Star size={13} className="text-[#c69a3f] fill-[#c69a3f]" />
-            <span className="text-[13px] font-bold text-[#0d2c5c] pt-0.5">
+          <div className="flex items-center gap-1.5 ml-auto bg-[#f8fafd] px-2.5 py-1 rounded-full border border-[#e1e8f0]">
+            <Star
+              size={12}
+              className="text-[#c69a3f] fill-[#c69a3f] animate-[pulse_3s_ease-in-out_infinite]"
+            />
+            <span className="text-[12px] font-bold text-[#0d2c5c] pt-0.5">
               {place.rating.toFixed(1)}
             </span>
           </div>
         </div>
-        <h3 className="font-['Cormorant_Garamond',serif] text-[26px] font-normal text-[#0d2c5c] leading-tight transition-colors duration-300 group-hover:text-[#c69a3f]">
+        <h3 className="font-['Cormorant_Garamond',serif] text-[28px] font-normal text-[#0d2c5c] leading-tight transition-colors duration-300 group-hover:text-[#c69a3f]">
           {place.title}
         </h3>
-        <p className="font-sans text-[14px] leading-[1.6] font-light text-[#5a6b85] mt-2 line-clamp-2">
+        <p className="font-sans text-[14.5px] leading-[1.65] font-light text-[#5a6b85] mt-3 line-clamp-2">
           {place.description}
         </p>
+
         {(canUpdate || canDelete) && (
-          <div className="flex gap-2 mt-5">
+          <div className="flex gap-2 mt-6">
             {canUpdate && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit();
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-[#0d2c5c]/15 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c] hover:bg-[#f0f5fc]"
+                className="inline-flex items-center gap-2 rounded-full border border-[#e1e8f0] px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
               >
                 <Pencil size={12} /> Edit
               </button>
@@ -540,7 +825,7 @@ function PlaceRow({
                   e.stopPropagation();
                   onDelete();
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-red-600 transition-all hover:bg-red-50"
+                className="inline-flex items-center gap-2 rounded-full border border-red-100 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-red-600 transition-all hover:bg-red-50 hover:border-red-300"
               >
                 <Trash2 size={12} /> Șterge
               </button>
@@ -559,15 +844,15 @@ function BadgePill({ badge }: { badge: string }) {
   const Icon = isRecommended ? Award : isNew ? Sparkles : Award;
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.15em] uppercase shadow-md ${
+      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-bold tracking-[0.18em] uppercase shadow-md border ${
         isRecommended
-          ? "bg-[#c69a3f] text-white"
+          ? "bg-gradient-to-r from-[#c69a3f] to-[#b3862f] text-[#0d2c5c] border-[#fdfcf9]/30"
           : isNew
-            ? "bg-emerald-600 text-white"
-            : "bg-[#0d2c5c] text-white"
+            ? "bg-emerald-600 text-white border-emerald-500/50"
+            : "bg-[#0d2c5c] text-white border-white/20"
       }`}
     >
-      <Icon size={10} />
+      <Icon size={11} strokeWidth={2.5} />
       {badge}
     </div>
   );
@@ -583,7 +868,7 @@ function PlaceDetailModal({
 }) {
   return (
     <Modal onClose={onClose} maxWidth="max-w-3xl">
-      <div className="relative h-72 md:h-96 overflow-hidden bg-[#f4f7fb]">
+      <div className="relative h-72 md:h-96 overflow-hidden bg-[#0d2c5c]">
         {place.image_url || place.thumb_url ? (
           <img
             src={place.image_url || place.thumb_url!}
@@ -595,49 +880,61 @@ function PlaceDetailModal({
             <ImageIcon size={48} />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c]/80 to-transparent opacity-80"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c] via-[#0d2c5c]/40 to-transparent opacity-90"></div>
+
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-[#0d2c5c] transition-all"
+          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] hover:scale-110 transition-all"
         >
-          <X size={20} />
+          <X size={20} strokeWidth={1.5} />
         </button>
-        <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 right-6">
-          <div className="flex items-center gap-3 mb-2">
+
+        <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 right-6">
+          <div className="flex items-center gap-3 mb-3">
             <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
               {place.category}
             </span>
             {place.badge && <BadgePill badge={place.badge} />}
           </div>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[36px] md:text-[44px] text-white leading-none">
+          <h2 className="font-['Cormorant_Garamond',serif] text-[40px] md:text-[52px] text-white leading-none">
             {place.title}
           </h2>
         </div>
       </div>
-      <div className="p-6 md:p-8 bg-white">
-        <div className="flex items-center gap-2 mb-6">
-          <Star size={18} className="text-[#c69a3f] fill-[#c69a3f]" />
-          <span className="text-[16px] font-bold text-[#0d2c5c] pt-1">
-            {place.rating.toFixed(1)} / 5
+
+      <div className="p-6 md:p-10 bg-white">
+        <div className="flex items-center gap-2 mb-7 bg-[#f8fafd] border border-[#e1e8f0] w-fit px-4 py-2 rounded-full">
+          <Star size={16} className="text-[#c69a3f] fill-[#c69a3f]" />
+          <span className="text-[15px] font-bold text-[#0d2c5c] pt-0.5">
+            {place.rating.toFixed(1)}{" "}
+            <span className="font-medium text-[#8595aa]">/ 5</span>
           </span>
-          <span className="text-[#8595aa] text-[14px] font-light ml-1">
-            din recenzii
+          <span className="text-[#8595aa] text-[13px] font-light ml-1 pt-0.5">
+            (recenzii oaspeți)
           </span>
         </div>
-        <p className="text-[15px] text-[#3d4f6b] leading-[1.8] font-light">
+
+        <p className="text-[15.5px] text-[#3d4f6b] leading-[1.85] font-light">
           {place.description}
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-[#eef2f7]">
-          <div className="flex items-center gap-3 px-4 py-3 bg-[#f9fafc] rounded-xl border border-[#e1e8f0]">
-            <MapPin size={18} className="text-[#c69a3f]" />
-            <span className="text-[13px] text-[#0d2c5c] font-semibold">
-              Lat: <span className="font-light">{place.lat}</span>
+
+        <div className="flex flex-col sm:flex-row gap-4 mt-10 pt-8 border-t border-[#e1e8f0]">
+          <div className="flex items-center gap-3 px-5 py-4 bg-[#f8fafd] rounded-xl border border-[#e1e8f0] flex-1">
+            <MapPin size={20} className="text-[#c69a3f]" strokeWidth={1.5} />
+            <span className="text-[13px] text-[#0d2c5c] font-semibold tracking-wide uppercase">
+              Latitudine:{" "}
+              <span className="font-light text-[#5a6b85] ml-1">
+                {place.lat}
+              </span>
             </span>
           </div>
-          <div className="flex items-center gap-3 px-4 py-3 bg-[#f9fafc] rounded-xl border border-[#e1e8f0]">
-            <MapPin size={18} className="text-[#c69a3f]" />
-            <span className="text-[13px] text-[#0d2c5c] font-semibold">
-              Lng: <span className="font-light">{place.lng}</span>
+          <div className="flex items-center gap-3 px-5 py-4 bg-[#f8fafd] rounded-xl border border-[#e1e8f0] flex-1">
+            <MapPin size={20} className="text-[#c69a3f]" strokeWidth={1.5} />
+            <span className="text-[13px] text-[#0d2c5c] font-semibold tracking-wide uppercase">
+              Longitudine:{" "}
+              <span className="font-light text-[#5a6b85] ml-1">
+                {place.lng}
+              </span>
             </span>
           </div>
         </div>
@@ -651,11 +948,11 @@ function PlaceDetailModal({
 function Modal({ children, onClose, maxWidth }: any) {
   return (
     <div
-      className="fixed inset-0 z-[9000] flex items-center justify-center p-4 bg-[#0d2c5c]/60 backdrop-blur-sm animate-[fadeIn_0.15s_ease-out]"
+      className="fixed inset-0 z-[9000] flex items-center justify-center p-4 bg-[#0d2c5c]/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-[26px] shadow-2xl w-full ${maxWidth} max-h-[90vh] overflow-hidden animate-[scaleIn_0.2s_ease-out] flex flex-col`}
+        className={`bg-white rounded-[26px] shadow-2xl w-full ${maxWidth} max-h-[90vh] overflow-hidden animate-[scaleIn_0.3s_ease-out] flex flex-col border border-white/20`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
@@ -676,22 +973,25 @@ function PlaceFormModal({ initial, isEdit, onClose, onSubmit }: any) {
   };
 
   const fieldInput =
-    "w-full py-3 px-4 bg-[#f9fafc] border border-[#e1e8f0] rounded-xl text-[14px] text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f]/50 focus:shadow-[0_0_0_3px_rgba(198,154,63,0.1)] placeholder:text-[#a4b0c1]";
+    "w-full py-3.5 px-4 bg-[#f8fafd] border border-[#e1e8f0] rounded-xl text-[14px] text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f]/50 focus:ring-2 focus:ring-[#c69a3f]/10 placeholder:text-[#a4b0c1]";
 
   return (
     <Modal onClose={onClose} maxWidth="max-w-xl">
-      <div className="flex items-center justify-between px-8 py-5 border-b border-[#eef2f7]">
-        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] text-[#0d2c5c]">
+      <div className="flex items-center justify-between px-8 py-6 border-b border-[#e1e8f0]">
+        <h2 className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c] leading-none">
           {isEdit ? "Editează locația" : "Adaugă locație nouă"}
         </h2>
         <button
           onClick={onClose}
-          className="text-[#8595aa] hover:text-[#0d2c5c] transition-colors"
+          className="text-[#8595aa] hover:text-[#0d2c5c] transition-colors p-1"
         >
-          <X size={22} />
+          <X size={22} strokeWidth={1.5} />
         </button>
       </div>
-      <form onSubmit={submit} className="p-8 space-y-5 overflow-y-auto">
+      <form
+        onSubmit={submit}
+        className="p-8 space-y-6 overflow-y-auto hide-scrollbar"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <FormField label="Titlu">
             <input
@@ -724,7 +1024,7 @@ function PlaceFormModal({ initial, isEdit, onClose, onSubmit }: any) {
             required
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className={`${fieldInput} min-h-[90px] resize-y`}
+            className={`${fieldInput} min-h-[100px] resize-y`}
             placeholder="Descriere scurtă a locației…"
           />
         </FormField>
@@ -775,7 +1075,7 @@ function PlaceFormModal({ initial, isEdit, onClose, onSubmit }: any) {
           />
         </FormField>
         <div className="grid grid-cols-2 gap-5">
-          <FormField label="Badge">
+          <FormField label="Badge (Opțional)">
             <input
               type="text"
               value={form.badge}
@@ -799,23 +1099,23 @@ function PlaceFormModal({ initial, isEdit, onClose, onSubmit }: any) {
             />
           </FormField>
         </div>
-        <div className="flex justify-end gap-3 pt-4 border-t border-[#eef2f7]">
+        <div className="flex justify-end gap-3 pt-6 border-t border-[#e1e8f0] mt-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-[0.1em] text-[#3c4043] border border-[#e1e8f0] hover:bg-[#f4f7fb] transition-colors"
+            className="px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.1em] text-[#3d4f6b] border border-[#e1e8f0] hover:bg-[#f8fafd] hover:border-[#0d2c5c] hover:text-[#0d2c5c] transition-all"
           >
             Renunță
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:shadow-lg disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:shadow-[0_8px_20px_-8px_rgba(198,154,63,0.8)] disabled:opacity-60"
           >
             {saving ? (
-              <Loader2 size={14} className="animate-spin" />
+              <Loader2 size={15} className="animate-spin" />
             ) : (
-              <Plus size={14} />
+              <Plus size={15} />
             )}
             {isEdit ? "Salvează" : "Adaugă"}
           </button>
@@ -828,24 +1128,24 @@ function PlaceFormModal({ initial, isEdit, onClose, onSubmit }: any) {
 function ConfirmDialog({ title, message, onConfirm, onCancel }: any) {
   return (
     <Modal onClose={onCancel} maxWidth="max-w-md">
-      <div className="p-8">
-        <div className="flex flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center shrink-0 border border-red-100">
-            <Trash2 size={24} className="text-red-500" />
+      <div className="p-8 md:p-10">
+        <div className="flex flex-col items-center text-center gap-5">
+          <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center shrink-0 border border-red-100 shadow-sm">
+            <Trash2 size={26} className="text-red-500" strokeWidth={1.5} />
           </div>
           <div>
-            <h3 className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c] leading-tight">
+            <h3 className="font-['Cormorant_Garamond',serif] text-[30px] text-[#0d2c5c] leading-tight mb-2">
               {title}
             </h3>
-            <p className="text-[14px] text-[#5a6b85] mt-2 leading-relaxed max-w-[280px] mx-auto">
+            <p className="text-[14.5px] text-[#5a6b85] leading-relaxed max-w-[280px] mx-auto font-light">
               {message}
             </p>
           </div>
         </div>
-        <div className="flex justify-center gap-3 mt-8">
+        <div className="flex justify-center gap-3 mt-10">
           <button
             onClick={onCancel}
-            className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-[0.1em] text-[#3c4043] border border-[#e1e8f0] hover:bg-[#f4f7fb] transition-colors"
+            className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-[0.1em] text-[#3d4f6b] border border-[#e1e8f0] hover:bg-[#f8fafd] hover:border-[#0d2c5c] transition-all"
           >
             Anulează
           </button>
@@ -869,7 +1169,7 @@ function FormField({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
+    <label className="flex flex-col gap-2">
       <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] ml-1">
         {label}
       </span>
