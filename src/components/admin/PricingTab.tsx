@@ -281,26 +281,26 @@ export default function PricingTab() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setMonthOffset((m) => m - 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#2a3b52] hover:border-[#0d2c5c]"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <h3
-                  className="text-[15px] font-semibold capitalize text-[#111111]"
+                  className="text-[15px] font-semibold capitalize text-[#0d2c5c]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {monthName}
                 </h3>
                 <button
                   onClick={() => setMonthOffset((m) => m + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#2a3b52] hover:border-[#0d2c5c]"
                 >
                   <ChevronRight size={16} />
                 </button>
               </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-[#6b6b6b] sm:text-[11px]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-[#4f6280] sm:text-[11px]">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#ededed]" /> Preț
+                  <span className="h-3 w-5 rounded bg-[#eef2f7]" /> Preț
                   standard
                 </span>
                 <span className="flex items-center gap-1.5">
@@ -308,7 +308,7 @@ export default function PricingTab() {
                   Override / Manual
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#111111]" /> Blocat
+                  <span className="h-3 w-5 rounded bg-[#0d2c5c]" /> Blocat
                 </span>
               </div>
             </div>
@@ -324,7 +324,7 @@ export default function PricingTab() {
                 {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
                   <div
                     key={d}
-                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b6b6b]"
+                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#4f6280]"
                   >
                     {d}
                   </div>
@@ -351,10 +351,10 @@ export default function PricingTab() {
                       onClick={() => handleDayClick(day)}
                       className={`relative flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] transition-all hover:scale-[1.03] sm:h-[60px] sm:text-[11px] ${
                         blocked
-                          ? "border-[#111111] bg-[#111111] text-white"
+                          ? "border-[#0d2c5c] bg-[#0d2c5c] text-white"
                           : isOverride
                             ? "border-blue-400 bg-blue-50 text-blue-950 font-medium shadow-sm"
-                            : "border-[#e5e5e5] bg-[#ededed] text-[#525252] hover:border-[#111111]"
+                            : "border-[#e1e8f0] bg-[#eef2f7] text-[#2a3b52] hover:border-[#0d2c5c]"
                       }`}
                     >
                       {/* Indicator mic pentru override */}
@@ -369,7 +369,7 @@ export default function PricingTab() {
                         <Lock size={11} className="text-white/70" />
                       ) : (
                         <span
-                          className={`text-[9px] font-semibold leading-none ${isOverride ? "text-blue-700 font-bold" : "text-[#8a8a8a]"}`}
+                          className={`text-[9px] font-semibold leading-none ${isOverride ? "text-blue-700 font-bold" : "text-[#6b7c99]"}`}
                         >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
@@ -391,7 +391,7 @@ export default function PricingTab() {
         width="max-w-sm"
       >
         <div className="space-y-3 py-2">
-          <p className="text-sm text-[#525252]">
+          <p className="text-sm text-[#2a3b52]">
             Această zi are un preț sau o regulă specială setată. Ce dorești să
             faci?
           </p>
@@ -475,9 +475,9 @@ export default function PricingTab() {
               onChange={(e) =>
                 setRule({ ...rule, is_blocked: e.target.checked })
               }
-              className="h-4 w-4 accent-[#111111]"
+              className="h-4 w-4 accent-[#0d2c5c]"
             />
-            <span className="text-sm text-[#111111]">
+            <span className="text-sm text-[#0d2c5c]">
               Blocochează perioada (mentenanță)
             </span>
           </label>

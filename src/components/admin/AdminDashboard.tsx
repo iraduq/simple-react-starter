@@ -87,7 +87,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fafafa] text-[#8a8a8a]">
+      <div className="flex min-h-screen items-center justify-center bg-[#f9f7f2] text-[#6b7c99]">
         <div className="animate-pulse text-sm uppercase tracking-[0.2em]">
           Se încarcă dashboard-ul…
         </div>
@@ -97,10 +97,10 @@ export default function AdminDashboard() {
 
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#f9f7f2]">
       <div className="flex">
         {/* Sidebar — desktop */}
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-[#e5e5e5] bg-white lg:block">
+        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-[#e1e8f0] bg-white lg:block">
           <SidebarContent tab={tab} setTab={setTab} onLogout={handleLogout} />
         </aside>
 
@@ -108,17 +108,17 @@ export default function AdminDashboard() {
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
-              className="absolute inset-0 bg-[#000000]/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-[#07203f]/40 backdrop-blur-sm"
               onClick={() => setSidebarOpen(false)}
             />
-            <aside className="absolute left-0 top-0 h-full w-72 max-w-[85vw] overflow-y-auto border-r border-[#e5e5e5] bg-white">
-              <div className="flex h-14 items-center justify-between border-b border-[#ededed] px-4">
-                <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#111111]">
+            <aside className="absolute left-0 top-0 h-full w-72 max-w-[85vw] overflow-y-auto border-r border-[#e1e8f0] bg-white">
+              <div className="flex h-14 items-center justify-between border-b border-[#eef2f7] px-4">
+                <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#0d2c5c]">
                   Meniu
                 </span>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="text-[#6b6b6b]"
+                  className="text-[#4f6280]"
                   aria-label="Închide meniul"
                 >
                   <X size={18} />
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
           <div className="mx-auto max-w-[1200px]">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="mb-4 inline-flex items-center gap-2 rounded-xl border border-[#e5e5e5] bg-white px-3.5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[#111111] lg:hidden"
+              className="mb-4 inline-flex items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-3.5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c] lg:hidden"
             >
               <Menu size={15} /> Meniu
             </button>
@@ -183,15 +183,15 @@ function SidebarContent({
             onClick={() => setTab(item.key)}
             className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold transition-all duration-200 sm:text-[13.5px] ${
               active
-                ? "bg-[#111111] text-white"
-                : "text-[#525252] hover:bg-[#f5f5f5] hover:text-[#111111]"
+                ? "bg-[#0d2c5c] text-white"
+                : "text-[#2a3b52] hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
             }`}
           >
             <span
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                 active
                   ? "bg-white/15 text-white"
-                  : "bg-[#f5f5f5] text-[#111111]"
+                  : "bg-[#f4f6f9] text-[#0d2c5c]"
               }`}
             >
               <Icon size={15} strokeWidth={1.75} />
@@ -200,12 +200,12 @@ function SidebarContent({
           </button>
         );
       })}
-      <div className="mt-3 border-t border-[#ededed] pt-3">
+      <div className="mt-3 border-t border-[#eef2f7] pt-3">
         <button
           onClick={() => void onLogout()}
-          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold text-[#525252] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
+          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold text-[#2a3b52] transition-colors hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f5f5f5] text-[#111111]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f4f6f9] text-[#0d2c5c]">
             <LogOut size={15} strokeWidth={1.75} />
           </span>
           Deconectare

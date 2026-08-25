@@ -107,18 +107,18 @@ function GuestCell({
         title="Click pentru a copia ID-ul clientului"
         className="group inline-flex items-center gap-1.5 text-left hover:opacity-70"
       >
-        <span className="text-[13px] font-semibold text-[#111111]">
+        <span className="text-[13px] font-semibold text-[#0d2c5c]">
           {info.name}
         </span>
         {info.userId && (
           <Copy
             size={10}
-            className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+            className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
           />
         )}
       </button>
       {info.email && (
-        <span className="block text-[11px] leading-tight text-[#8a8a8a]">
+        <span className="block text-[11px] leading-tight text-[#6b7c99]">
           {info.email}
         </span>
       )}
@@ -127,16 +127,16 @@ function GuestCell({
         title="Click pentru a copia ID-ul rezervării"
         className="group inline-flex items-center gap-1 text-left hover:opacity-70"
       >
-        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
           #{String(b.id).slice(0, 8)}
         </span>
         <Copy
           size={9}
-          className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+          className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
         />
       </button>
       {note && (
-        <span className="block text-[11px] text-[#6b6b6b]">{note}</span>
+        <span className="block text-[11px] text-[#4f6280]">{note}</span>
       )}
     </span>
   );
@@ -245,25 +245,25 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   ).length;
 
   return (
-    <div className="rounded-xl border border-[#e5e5e5] bg-white p-4">
+    <div className="rounded-xl border border-[#e1e8f0] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
           onClick={prev}
-          className="rounded-lg p-1.5 text-[#525252] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
+          className="rounded-lg p-1.5 text-[#2a3b52] transition-colors hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
         >
           <ChevronLeft size={15} />
         </button>
-        <p className="text-[13px] font-semibold text-[#111111]">
+        <p className="text-[13px] font-semibold text-[#0d2c5c]">
           {MONTHS[month]} {year}
-          <span className="ml-2 text-[11px] font-normal text-[#8a8a8a]">
+          <span className="ml-2 text-[11px] font-normal text-[#6b7c99]">
             {busyDays} zile ocupate
           </span>
         </p>
         <button
           type="button"
           onClick={next}
-          className="rounded-lg p-1.5 text-[#525252] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
+          className="rounded-lg p-1.5 text-[#2a3b52] transition-colors hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
         >
           <ChevronRight size={15} />
         </button>
@@ -273,7 +273,7 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         {DAYS_SHORT.map((d) => (
           <span
             key={d}
-            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#8a8a8a]"
+            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#6b7c99]"
           >
             {d}
           </span>
@@ -303,13 +303,13 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
               className={`flex h-8 items-center justify-center rounded-lg text-[12px] ${
                 b
                   ? b.status === "pending"
-                    ? "bg-[#ededed] font-semibold text-[#404040]"
+                    ? "bg-[#eef2f7] font-semibold text-[#1a3a6e]"
                     : "bg-[#262626] font-semibold text-[#ffffff]"
                   : out
-                    ? "bg-[#f5f5f5] font-semibold text-[#525252] ring-1 ring-[#d4d4d4]"
+                    ? "bg-[#f4f6f9] font-semibold text-[#2a3b52] ring-1 ring-[#d4d4d4]"
                     : iso === todayIso
-                      ? "font-bold text-[#111111] ring-1 ring-[#737373]"
-                      : "text-[#525252]"
+                      ? "font-bold text-[#0d2c5c] ring-1 ring-[#4f6280]"
+                      : "text-[#2a3b52]"
               }`}
             >
               {d}
@@ -318,19 +318,19 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         })}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#6b6b6b]">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#4f6280]">
         <span className="flex items-center gap-1.5">
           <span className="h-3 w-3 rounded bg-[#262626]" /> Ocupată (noapte)
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#ededed]" /> În așteptare
+          <span className="h-3 w-3 rounded bg-[#eef2f7]" /> În așteptare
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#f5f5f5] ring-1 ring-[#d4d4d4]" />{" "}
+          <span className="h-3 w-3 rounded bg-[#f4f6f9] ring-1 ring-[#d4d4d4]" />{" "}
           Plecare / eliberare
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded ring-1 ring-[#737373]" /> Azi
+          <span className="h-3 w-3 rounded ring-1 ring-[#4f6280]" /> Azi
         </span>
       </div>
     </div>
@@ -379,18 +379,18 @@ function EditUnitModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl border border-[#e5e5e5] bg-white p-5 shadow-xl"
+        className="w-full max-w-sm rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-xl"
       >
         <div className="mb-4 flex items-center justify-between">
           <p
-            className="text-[16px] font-semibold text-[#111111]"
+            className="text-[16px] font-semibold text-[#0d2c5c]"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Editează unitatea
           </p>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-[#8a8a8a] transition-colors hover:bg-[#f5f5f5] hover:text-[#111111]"
+            className="rounded-lg p-1 text-[#6b7c99] transition-colors hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
           >
             <X size={16} />
           </button>
@@ -398,24 +398,24 @@ function EditUnitModal({
 
         <div className="space-y-3">
           <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
               Număr unitate
             </label>
             <input
               value={unitNumber}
               onChange={(e) => setUnitNumber(e.target.value)}
-              className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+              className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-2.5 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
               Tip pat
             </label>
             <select
               value={bedTypeId}
               onChange={(e) => setBedTypeId(e.target.value)}
-              className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+              className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-2.5 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
             >
               <option value="">Fără tip specificat</option>
               {bedTypes.map((bt) => (
@@ -427,13 +427,13 @@ function EditUnitModal({
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
               Status
             </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+              className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-2.5 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
             >
               {STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -448,14 +448,14 @@ function EditUnitModal({
           <button
             onClick={onClose}
             disabled={saving}
-            className="rounded-xl border border-[#e5e5e5] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111111] transition-all hover:bg-[#f5f5f5] disabled:opacity-50"
+            className="rounded-xl border border-[#e1e8f0] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#f4f6f9] disabled:opacity-50"
           >
             Anulează
           </button>
           <button
             onClick={() => void handleSave()}
             disabled={saving || !unitNumber.trim()}
-            className="rounded-xl bg-[#111111] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
+            className="rounded-xl bg-[#0d2c5c] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
           >
             {saving ? "Se salvează…" : "Salvează"}
           </button>
@@ -536,32 +536,32 @@ function AssignUnitDropdown({
           e.stopPropagation();
           setOpen(!open);
         }}
-        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#8a8a8a] transition-all hover:bg-[#e5e5e5] hover:text-[#111111]"
+        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#6b7c99] transition-all hover:bg-[#e1e8f0] hover:text-[#0d2c5c]"
       >
         <MoreVertical size={14} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-7 z-50 w-56 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-lg">
-          <div className="border-b border-[#ededed] p-2">
+        <div className="absolute right-0 top-7 z-50 w-56 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-lg">
+          <div className="border-b border-[#eef2f7] p-2">
             <div className="relative">
               <Search
                 size={12}
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8a8a8a]"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6b7c99]"
               />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Caută unitate…"
-                className="w-full rounded-lg border border-[#e5e5e5] bg-[#fafafa] py-1.5 pl-7 pr-2 text-[12px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+                className="w-full rounded-lg border border-[#e1e8f0] bg-[#f9f7f2] py-1.5 pl-7 pr-2 text-[12px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
               />
             </div>
           </div>
 
           <div className="max-h-52 overflow-y-auto py-1">
             {ranked.length === 0 ? (
-              <p className="px-3 py-2 text-[12px] text-[#8a8a8a]">
+              <p className="px-3 py-2 text-[12px] text-[#6b7c99]">
                 Nicio unitate găsită.
               </p>
             ) : (
@@ -572,7 +572,7 @@ function AssignUnitDropdown({
                     onAssign(String(unit.id));
                     setOpen(false);
                   }}
-                  className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] font-medium text-[#111111] hover:bg-[#f5f5f5]"
+                  className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f4f6f9]"
                 >
                   <span className="truncate">{label}</span>
                   {available ? (
@@ -589,10 +589,10 @@ function AssignUnitDropdown({
             )}
           </div>
 
-          <div className="border-t border-[#ededed] p-1">
+          <div className="border-t border-[#eef2f7] p-1">
             {booking.status === "completed" ||
             booking.status === "cancelled" ? (
-              <p className="px-2 py-1.5 text-[11px] text-[#8a8a8a]">
+              <p className="px-2 py-1.5 text-[11px] text-[#6b7c99]">
                 {booking.status === "completed"
                   ? "Rezervare finalizată — nu mai poate fi anulată."
                   : "Rezervare deja anulată."}
@@ -908,16 +908,16 @@ export default function UnitsTab() {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8a8a8a]">
-            <span className="h-px w-8 bg-[#737373]" /> Inventar
+          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#6b7c99]">
+            <span className="h-px w-8 bg-[#4f6280]" /> Inventar
           </span>
           <h2
-            className="mt-2 text-[30px] font-semibold text-[#111111]"
+            className="mt-2 text-[30px] font-semibold text-[#0d2c5c]"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Unități fizice
           </h2>
-          <p className="mt-1 text-[13px] text-[#6b6b6b]">
+          <p className="mt-1 text-[13px] text-[#4f6280]">
             Alege o cameră, vezi statusul fiecărei unități și zilele în care e
             ocupată — cu oaspetele aferent.
           </p>
@@ -928,7 +928,7 @@ export default function UnitsTab() {
               void loadUnits(selectedId);
               void loadBookings(selectedId);
             }}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#e5e5e5] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111111] transition-all hover:bg-[#f5f5f5]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#f4f6f9]"
           >
             <RefreshCw size={13} /> Reîncarcă
           </button>
@@ -945,17 +945,17 @@ export default function UnitsTab() {
       ) : (
         <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
           {/* Room selector */}
-          <div className="rounded-2xl border border-[#e5e5e5] bg-white p-3">
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-3">
             <div className="relative mb-3">
               <Search
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8a8a8a]"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7c99]"
               />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Caută cameră…"
-                className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] py-2.5 pl-9 pr-3 text-[13px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+                className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] py-2.5 pl-9 pr-3 text-[13px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
               />
             </div>
             <div className="max-h-[520px] space-y-1 overflow-y-auto">
@@ -967,15 +967,15 @@ export default function UnitsTab() {
                     onClick={() => setSelectedId(r.id)}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[13px] font-semibold transition-all ${
                       active
-                        ? "bg-[#111111] text-white shadow-[0_4px_14px_rgba(13,44,92,0.18)]"
-                        : "text-[#525252] hover:bg-[#f5f5f5] hover:text-[#111111]"
+                        ? "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.18)]"
+                        : "text-[#2a3b52] hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
                     }`}
                   >
                     <span
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                         active
-                          ? "bg-white/10 text-[#737373]"
-                          : "bg-[#f5f5f5] text-[#111111]"
+                          ? "bg-white/10 text-[#4f6280]"
+                          : "bg-[#f4f6f9] text-[#0d2c5c]"
                       }`}
                     >
                       <BedDouble size={14} strokeWidth={1.75} />
@@ -988,16 +988,16 @@ export default function UnitsTab() {
           </div>
 
           {/* Units panel */}
-          <div className="rounded-2xl border border-[#e5e5e5] bg-white">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ededed] px-5 py-4">
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef2f7] px-5 py-4">
               <div>
                 <p
-                  className="text-[17px] font-semibold text-[#111111]"
+                  className="text-[17px] font-semibold text-[#0d2c5c]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {selectedRoom ? roomLabel(selectedRoom) : "—"}
                 </p>
-                <p className="text-[12px] text-[#6b6b6b]">
+                <p className="text-[12px] text-[#4f6280]">
                   {units.length} unități · {activeCount} active ·{" "}
                   {activeBookings.length} rezervări active
                 </p>
@@ -1016,12 +1016,12 @@ export default function UnitsTab() {
                     if (e.key === "Enter") void addUnit();
                   }}
                   placeholder="Număr unitate — ex: 101"
-                  className="w-full rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white"
+                  className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
                 />
                 <select
                   value={bedTypeId}
                   onChange={(e) => setBedTypeId(e.target.value)}
-                  className="shrink-0 rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-[14px] text-[#111111] outline-none focus:border-[#737373] focus:bg-white sm:w-[190px]"
+                  className="shrink-0 rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white sm:w-[190px]"
                 >
                   <option value="">Tip pat (opțional)</option>
                   {bedTypes.map((bt) => (
@@ -1033,7 +1033,7 @@ export default function UnitsTab() {
                 <button
                   disabled={adding || !unitNumber.trim()}
                   onClick={() => void addUnit()}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#111111] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0d2c5c] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
                 >
                   <Plus size={14} /> Adaugă unitate
                 </button>
@@ -1044,13 +1044,13 @@ export default function UnitsTab() {
                   <TableSkeleton />
                 </div>
               ) : units.length === 0 ? (
-                <div className="mt-5 rounded-xl border border-dashed border-[#e5e5e5] bg-[#fafafa] py-10 text-center">
+                <div className="mt-5 rounded-xl border border-dashed border-[#e1e8f0] bg-[#f9f7f2] py-10 text-center">
                   <DoorOpen
                     size={24}
-                    className="mx-auto mb-2 text-[#8a8a8a]"
+                    className="mx-auto mb-2 text-[#6b7c99]"
                     strokeWidth={1.5}
                   />
-                  <p className="text-[13px] text-[#6b6b6b]">
+                  <p className="text-[13px] text-[#4f6280]">
                     Nicio unitate pentru această cameră.
                   </p>
                 </div>
@@ -1077,22 +1077,22 @@ export default function UnitsTab() {
                     return (
                       <div
                         key={u.id}
-                        className="rounded-xl border border-[#e5e5e5] bg-white"
+                        className="rounded-xl border border-[#e1e8f0] bg-white"
                       >
                         <div
                           onClick={() => setOpenUnit(expanded ? null : uid)}
-                          className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#fafafa]"
+                          className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#f9f7f2]"
                         >
                           <div className="flex items-center gap-3">
-                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f5f5f5] text-[12px] font-bold text-[#111111]">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f6f9] text-[12px] font-bold text-[#0d2c5c]">
                               {i + 1}
                             </span>
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-[14px] font-semibold text-[#111111]">
+                                <span className="text-[14px] font-semibold text-[#0d2c5c]">
                                   {unitLabel(u, i)}
                                 </span>
-                                <span className="text-[13px] font-medium text-[#525252]">
+                                <span className="text-[13px] font-medium text-[#2a3b52]">
                                   {u.bed_type?.name || "Fără pat specificat"}
                                 </span>
 
@@ -1105,7 +1105,7 @@ export default function UnitsTab() {
                                   <Badge tone="green">Liberă acum</Badge>
                                 )}
                               </div>
-                              <p className="text-[12px] text-[#6b6b6b] mt-1 pl-2">
+                              <p className="text-[12px] text-[#4f6280] mt-1 pl-2">
                                 {current
                                   ? `${guestInfo(current).name} · până ${dateFmt(current.check_out)}`
                                   : next
@@ -1123,7 +1123,7 @@ export default function UnitsTab() {
                               onChange={(e) =>
                                 void changeStatus(u, e.target.value)
                               }
-                              className="rounded-full border border-[#e5e5e5] bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#111111] outline-none"
+                              className="rounded-full border border-[#e1e8f0] bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#0d2c5c] outline-none"
                             >
                               {STATUSES.map((s) => (
                                 <option key={s.value} value={s.value}>
@@ -1133,7 +1133,7 @@ export default function UnitsTab() {
                             </select>
                             <button
                               onClick={() => setOpenUnit(expanded ? null : uid)}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-[#e5e5e5] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#111111] transition-all hover:bg-[#f5f5f5]"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#f4f6f9]"
                             >
                               <CalendarDays size={12} /> Ocupare ({ub.length})
                               <ChevronDown
@@ -1149,22 +1149,22 @@ export default function UnitsTab() {
                                   setMenuOpenId(menuOpen ? null : uid)
                                 }
                                 title="Mai multe acțiuni"
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e5e5e5] text-[#525252] transition-all hover:bg-[#f5f5f5] hover:text-[#111111]"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e1e8f0] text-[#2a3b52] transition-all hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
                               >
                                 <MoreVertical size={15} />
                               </button>
                               {menuOpen && (
-                                <div className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-lg py-1">
+                                <div className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-lg py-1">
                                   <button
                                     onClick={() => {
                                       setMenuOpenId(null);
                                       setEditingUnit({ unit: u, index: i });
                                     }}
-                                    className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-[#111111] transition-colors hover:bg-[#f5f5f5]"
+                                    className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-[#0d2c5c] transition-colors hover:bg-[#f4f6f9]"
                                   >
                                     <Pencil size={13} /> Editează
                                   </button>
-                                  <div className="border-t border-[#ededed] mt-1 pt-1">
+                                  <div className="border-t border-[#eef2f7] mt-1 pt-1">
                                     <button
                                       onClick={() => {
                                         setMenuOpenId(null);
@@ -1183,9 +1183,9 @@ export default function UnitsTab() {
 
                         {/* DETALII REZERVĂRI ATRIBUITE UNITĂȚII */}
                         {expanded && (
-                          <div className="border-t border-[#ededed] bg-[#fafafa] px-4 py-4">
+                          <div className="border-t border-[#eef2f7] bg-[#f9f7f2] px-4 py-4">
                             <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_330px]">
-                              <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e5e5e5] bg-white p-4 sm:grid-cols-3">
+                              <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e1e8f0] bg-white p-4 sm:grid-cols-3">
                                 {[
                                   { l: "Unitate", v: unitLabel(u, i) },
                                   { l: "ID", v: uid.slice(0, 8) },
@@ -1242,10 +1242,10 @@ export default function UnitsTab() {
                                   },
                                 ].map((f: { l: string; v: any }) => (
                                   <div key={f.l}>
-                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
                                       {f.l}
                                     </p>
-                                    <p className="mt-0.5 text-[13px] font-medium text-[#111111]">
+                                    <p className="mt-0.5 text-[13px] font-medium text-[#0d2c5c]">
                                       {f.v}
                                     </p>
                                   </div>
@@ -1254,13 +1254,13 @@ export default function UnitsTab() {
                               <UnitCalendar bookings={ub} />
                             </div>
 
-                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">
+                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6b7c99]">
                               Rezervări pe această unitate
                             </p>
                             {bookingsLoading ? (
                               <TableSkeleton />
                             ) : ub.length === 0 ? (
-                              <p className="text-[13px] text-[#6b6b6b]">
+                              <p className="text-[13px] text-[#4f6280]">
                                 Nicio rezervare atribuită acestei unități.
                               </p>
                             ) : (
@@ -1302,7 +1302,7 @@ export default function UnitsTab() {
                                   return (
                                     <div
                                       key={b.id}
-                                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2.5"
+                                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#e1e8f0] bg-white px-3 py-2.5"
                                     >
                                       <div className="flex items-start gap-2">
                                         <div className="flex flex-col items-start gap-0.5">
@@ -1317,12 +1317,12 @@ export default function UnitsTab() {
                                             className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
                                             title="Click pentru a copia ID-ul rezervării"
                                           >
-                                            <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+                                            <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#6b7c99]">
                                               #{shortBookingId}
                                             </span>
                                             <Copy
                                               size={9}
-                                              className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                              className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                                             />
                                           </button>
 
@@ -1343,20 +1343,20 @@ export default function UnitsTab() {
                                             {b.user_id && (
                                               <Copy
                                                 size={10}
-                                                className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                                className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                                               />
                                             )}
                                           </button>
 
                                           {/* EMAIL */}
                                           {rawEmail && (
-                                            <span className="text-[12px] text-[#8a8a8a] block leading-tight">
+                                            <span className="text-[12px] text-[#6b7c99] block leading-tight">
                                               {displayEmail}
                                             </span>
                                           )}
 
                                           {/* PERIOADA */}
-                                          <p className="text-[11px] text-[#6b6b6b] mt-0.5">
+                                          <p className="text-[11px] text-[#4f6280] mt-0.5">
                                             {dateFmt(b.check_in)} →{" "}
                                             {dateFmt(b.check_out)} ·{" "}
                                             {nights(b.check_in, b.check_out)}{" "}
@@ -1365,7 +1365,7 @@ export default function UnitsTab() {
                                         </div>
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <span className="text-[12px] font-semibold text-[#111111] mr-1">
+                                        <span className="text-[12px] font-semibold text-[#0d2c5c] mr-1">
                                           {money(b.total_price)}
                                         </span>
                                         <Badge tone={bookingTone(b.status)}>
@@ -1384,13 +1384,13 @@ export default function UnitsTab() {
                                                 bMenuOpen ? null : String(b.id),
                                               );
                                             }}
-                                            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#8a8a8a] transition-all hover:bg-[#f5f5f5] hover:text-[#111111]"
+                                            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#6b7c99] transition-all hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
                                           >
                                             <MoreVertical size={14} />
                                           </button>
 
                                           {bMenuOpen && (
-                                            <div className="absolute right-0 top-7 z-50 w-44 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-lg py-1">
+                                            <div className="absolute right-0 top-7 z-50 w-44 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-lg py-1">
                                               <button
                                                 onClick={() => {
                                                   assignUnitToBooking(
@@ -1399,15 +1399,15 @@ export default function UnitsTab() {
                                                   );
                                                   setBookingMenuOpenId(null);
                                                 }}
-                                                className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-[#111111] hover:bg-[#f5f5f5]"
+                                                className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f4f6f9]"
                                               >
                                                 Dez-atribuie unitatea
                                               </button>
 
-                                              <div className="border-t border-[#ededed] mt-1 pt-1">
+                                              <div className="border-t border-[#eef2f7] mt-1 pt-1">
                                                 {b.status === "completed" ||
                                                 b.status === "cancelled" ? (
-                                                  <p className="px-3 py-1.5 text-[11px] text-[#8a8a8a]">
+                                                  <p className="px-3 py-1.5 text-[11px] text-[#6b7c99]">
                                                     {b.status === "completed"
                                                       ? "Finalizată — nu mai poate fi anulată."
                                                       : "Deja anulată."}
@@ -1453,8 +1453,8 @@ export default function UnitsTab() {
               )}
 
               {unassigned.length > 0 && (
-                <div className="mt-6 rounded-xl border border-[#e5e5e5] bg-[#fafafa] px-4 py-4">
-                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#404040] mb-3">
+                <div className="mt-6 rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-4">
+                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#1a3a6e] mb-3">
                     Rezervări fără unitate atribuită ({unassigned.length})
                   </p>
                   <div className="space-y-2">
@@ -1487,7 +1487,7 @@ export default function UnitsTab() {
                       return (
                         <div
                           key={b.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-white px-3 py-2.5 border border-[#e5e5e5]"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-white px-3 py-2.5 border border-[#e1e8f0]"
                         >
                           <div className="flex items-start gap-2">
                             <div className="flex flex-col items-start gap-0.5">
@@ -1499,12 +1499,12 @@ export default function UnitsTab() {
                                 className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
                                 title="Click pentru a copia ID-ul rezervării"
                               >
-                                <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+                                <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#6b7c99]">
                                   #{shortBookingId}
                                 </span>
                                 <Copy
                                   size={9}
-                                  className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                  className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                                 />
                               </button>
 
@@ -1522,20 +1522,20 @@ export default function UnitsTab() {
                                 {b.user_id && (
                                   <Copy
                                     size={10}
-                                    className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                    className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                                   />
                                 )}
                               </button>
 
                               {/* EMAIL */}
                               {rawEmail && (
-                                <span className="text-[12px] text-[#8a8a8a] block leading-tight">
+                                <span className="text-[12px] text-[#6b7c99] block leading-tight">
                                   {displayEmail}
                                 </span>
                               )}
 
                               {/* PERIOADA & NOPTI */}
-                              <p className="text-[11px] text-[#6b6b6b] mt-0.5">
+                              <p className="text-[11px] text-[#4f6280] mt-0.5">
                                 {dateFmt(b.check_in)} → {dateFmt(b.check_out)} ·{" "}
                                 {nights(b.check_in, b.check_out)} nopți
                               </p>
