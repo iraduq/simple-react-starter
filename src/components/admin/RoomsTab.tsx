@@ -27,7 +27,7 @@ import {
 import { useToast } from "../Toast";
 
 const fieldInput =
-  "w-full py-3 px-4 bg-black/[0.02] border border-black/10 rounded-xl text-[14px] text-black outline-none transition-all focus:bg-white focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#8a8a8a]";
+  "w-full py-3 px-4 bg-black/[0.02] border border-black/10 rounded-xl text-[14px] text-black outline-none transition-all focus:bg-white focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#6b7c99]";
 
 export default function RoomsTab() {
   const { toast } = useToast();
@@ -188,7 +188,7 @@ export default function RoomsTab() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <span className="w-8 h-px bg-black/40" />
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#8a8a8a]">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
               Inventar
             </span>
           </div>
@@ -267,7 +267,7 @@ export default function RoomsTab() {
                   placeholder="ex: Suită Deluxe"
                 />
                 {formErr.title && (
-                  <span className="text-[11px] text-[#111111] mt-1">
+                  <span className="text-[11px] text-[#0d2c5c] mt-1">
                     {formErr.title}
                   </span>
                 )}
@@ -285,7 +285,7 @@ export default function RoomsTab() {
                 }
               />
               {formErr.room_type_id && (
-                <span className="text-[11px] text-[#111111] mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.room_type_id}
                 </span>
               )}
@@ -302,7 +302,7 @@ export default function RoomsTab() {
                 }
               />
               {formErr.base_price && (
-                <span className="text-[11px] text-[#111111] mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.base_price}
                 </span>
               )}
@@ -322,7 +322,7 @@ export default function RoomsTab() {
                 }
               />
               {formErr.max_guests_adults && (
-                <span className="text-[11px] text-[#111111] mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.max_guests_adults}
                 </span>
               )}
@@ -361,7 +361,7 @@ export default function RoomsTab() {
             <div className="sm:col-span-2">
               <FormField label="Facilități Cameră">
                 {facilities.length === 0 ? (
-                  <p className="text-[12px] text-[#8a8a8a] mt-2">
+                  <p className="text-[12px] text-[#6b7c99] mt-2">
                     Nu există facilități definite în sistem. Adaugă din meniul
                     principal.
                   </p>
@@ -377,7 +377,7 @@ export default function RoomsTab() {
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12px] font-semibold transition-all ${
                             isSelected
                               ? "bg-black text-white border-black shadow-md"
-                              : "bg-black/[0.02] text-[#525252] border-black/10 hover:border-black/30 hover:bg-white"
+                              : "bg-black/[0.02] text-[#2a3b52] border-black/10 hover:border-black/30 hover:bg-white"
                           }`}
                         >
                           {isSelected && <Check size={12} strokeWidth={3} />}
@@ -444,7 +444,7 @@ export default function RoomsTab() {
             </button>
             <button
               onClick={() => void handleDelete()}
-              className="rounded-full bg-[#111111] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#000000]"
+              className="rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#07203f]"
             >
               Șterge definitiv
             </button>
@@ -488,7 +488,7 @@ function RoomCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-[#8a8a8a]">
+          <div className="flex h-full w-full items-center justify-center text-[#6b7c99]">
             <ImageIcon size={28} strokeWidth={1.5} />
           </div>
         )}
@@ -507,11 +507,11 @@ function RoomCard({
           </h3>
         </div>
 
-        <p className="mt-2 line-clamp-2 text-[13px] text-[#8a8a8a] leading-relaxed">
+        <p className="mt-2 line-clamp-2 text-[13px] text-[#6b7c99] leading-relaxed">
           {room.description || "Nicio descriere setată."}
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] font-semibold text-[#8a8a8a]">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] font-semibold text-[#6b7c99]">
           <span className="text-black rounded-lg bg-black/5 px-2 py-1">
             {money(room.base_price)} / noapte
           </span>
@@ -528,13 +528,13 @@ function RoomCard({
             {room.facilities.slice(0, 4).map((f: any) => (
               <span
                 key={f.id}
-                className="text-[9px] uppercase tracking-wider font-bold text-[#8a8a8a] bg-black/5 px-2 py-1 rounded-md"
+                className="text-[9px] uppercase tracking-wider font-bold text-[#6b7c99] bg-black/5 px-2 py-1 rounded-md"
               >
                 {f.name}
               </span>
             ))}
             {room.facilities.length > 4 && (
-              <span className="text-[9px] uppercase tracking-wider font-bold text-[#8a8a8a] bg-black/5 px-2 py-1 rounded-md">
+              <span className="text-[9px] uppercase tracking-wider font-bold text-[#6b7c99] bg-black/5 px-2 py-1 rounded-md">
                 +{room.facilities.length - 4}
               </span>
             )}
@@ -556,7 +556,7 @@ function RoomCard({
           </button>
           <button
             onClick={onDelete}
-            className="inline-flex items-center justify-center rounded-full border border-[#e5e5e5] bg-white px-3 py-2 text-[#111111] transition-all hover:bg-[#f5f5f5]"
+            className="inline-flex items-center justify-center rounded-full border border-[#e1e8f0] bg-white px-3 py-2 text-[#0d2c5c] transition-all hover:bg-[#f4f6f9]"
             title="Șterge"
           >
             <Trash2 size={14} />
@@ -675,7 +675,7 @@ function MediaManager({
               ? "Se încarcă…"
               : "Trage imagini aici sau click pentru a selecta"}
           </p>
-          <p className="mt-1 text-[12px] text-[#8a8a8a]">
+          <p className="mt-1 text-[12px] text-[#6b7c99]">
             JPG / PNG, maxim 5MB per fișier
           </p>
         </div>
@@ -683,7 +683,7 @@ function MediaManager({
         {/* Gallery */}
         {images.length > 0 ? (
           <div className="mt-8">
-            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8a8a8a] block mb-3">
+            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#6b7c99] block mb-3">
               Galerie foto ({images.length})
             </span>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -700,7 +700,7 @@ function MediaManager({
                   <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100" />
                   <button
                     onClick={() => void deleteImage(img)}
-                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#111111] shadow-sm transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#0d2c5c] shadow-sm transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
                   >
                     <X size={14} strokeWidth={2.5} />
                   </button>
@@ -718,7 +718,7 @@ function MediaManager({
           </div>
         ) : (
           <div className="mt-8 rounded-xl border border-dashed border-black/10 bg-black/[0.01] py-8 text-center">
-            <p className="text-[13px] text-[#8a8a8a]">
+            <p className="text-[13px] text-[#6b7c99]">
               Nicio imagine încărcată pentru această cameră
             </p>
           </div>
@@ -747,7 +747,7 @@ function FormField({
 }) {
   return (
     <label className="flex flex-col">
-      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8a8a8a] ml-1">
+      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#6b7c99] ml-1">
         {label}
       </span>
       {children}

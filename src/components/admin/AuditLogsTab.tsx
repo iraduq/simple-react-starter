@@ -123,29 +123,29 @@ export default function AuditLogsTab() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
+                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#4f6280]">
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("timestamp")} className="flex items-center gap-1 hover:text-[#111111]">
+                    <button onClick={() => toggleSort("timestamp")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
                       Timestamp <SortIcon col="timestamp" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("user")} className="flex items-center gap-1 hover:text-[#111111]">
+                    <button onClick={() => toggleSort("user")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
                       Utilizator <SortIcon col="user" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("action")} className="flex items-center gap-1 hover:text-[#111111]">
+                    <button onClick={() => toggleSort("action")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
                       Acțiune <SortIcon col="action" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("resource")} className="flex items-center gap-1 hover:text-[#111111]">
+                    <button onClick={() => toggleSort("resource")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
                       Resursă <SortIcon col="resource" />
                     </button>
                   </th>
                   <th className="px-5 py-3 font-bold">
-                    <button onClick={() => toggleSort("ip")} className="flex items-center gap-1 hover:text-[#111111]">
+                    <button onClick={() => toggleSort("ip")} className="flex items-center gap-1 hover:text-[#0d2c5c]">
                       IP <SortIcon col="ip" />
                     </button>
                   </th>
@@ -153,17 +153,17 @@ export default function AuditLogsTab() {
               </thead>
               <tbody>
                 {paged.slice.map((log) => (
-                  <tr key={log.id} className="border-b border-[#f5f5f5] last:border-0">
-                    <td className="px-5 py-3.5 text-[12.5px] text-[#525252]">{dateTimeFmt(log.timestamp || log.created_at)}</td>
-                    <td className="px-5 py-3.5 font-semibold text-[#111111]">{log.user_email || `#${log.user_id}` || "—"}</td>
+                  <tr key={log.id} className="border-b border-[#f4f6f9] last:border-0">
+                    <td className="px-5 py-3.5 text-[12.5px] text-[#2a3b52]">{dateTimeFmt(log.timestamp || log.created_at)}</td>
+                    <td className="px-5 py-3.5 font-semibold text-[#0d2c5c]">{log.user_email || `#${log.user_id}` || "—"}</td>
                     <td className="px-5 py-3.5">
                       <Badge tone={actionTone(log.action)}>{log.action || "—"}</Badge>
                     </td>
-                    <td className="px-5 py-3.5 text-[#525252]">
+                    <td className="px-5 py-3.5 text-[#2a3b52]">
                       {log.resource || log.resource_type || "—"}
-                      {log.resource_id && <span className="ml-1 text-[12px] text-[#8a8a8a]">#{log.resource_id}</span>}
+                      {log.resource_id && <span className="ml-1 text-[12px] text-[#6b7c99]">#{log.resource_id}</span>}
                     </td>
-                    <td className="px-5 py-3.5 text-[12.5px] text-[#6b6b6b]">{log.ip_address || log.ip || "—"}</td>
+                    <td className="px-5 py-3.5 text-[12.5px] text-[#4f6280]">{log.ip_address || log.ip || "—"}</td>
                   </tr>
                 ))}
               </tbody>

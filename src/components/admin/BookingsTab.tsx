@@ -194,7 +194,7 @@ export default function BookingsTab() {
   };
 
   const fieldInput =
-    "w-full py-3 px-4 bg-black/[0.02] border border-black/10 rounded-xl text-[14px] text-black outline-none transition-all focus:bg-white focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#8a8a8a]";
+    "w-full py-3 px-4 bg-black/[0.02] border border-black/10 rounded-xl text-[14px] text-black outline-none transition-all focus:bg-white focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#6b7c99]";
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
@@ -208,7 +208,7 @@ export default function BookingsTab() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <span className="w-8 h-px bg-black/40" />
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#8a8a8a]">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
               Operațiuni
             </span>
           </div>
@@ -265,7 +265,7 @@ export default function BookingsTab() {
             <div className="relative">
               <Search
                 size={16}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8a8a8a]"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b7c99]"
               />
               <input
                 className={`${fieldInput} pl-11`}
@@ -301,7 +301,7 @@ export default function BookingsTab() {
             <div className="overflow-x-auto pb-10">
               <table className="w-full min-w-[900px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#8a8a8a]">
+                  <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
                     <th className="px-6 py-4 font-bold"># ID</th>
                     <th className="px-6 py-4 font-bold">Client</th>
                     <th className="px-6 py-4 font-bold">Cameră</th>
@@ -370,12 +370,12 @@ export default function BookingsTab() {
                             className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
                             title="Click pentru a copia ID-ul rezervării"
                           >
-                            <span className="text-[13px] font-medium text-[#8a8a8a]">
+                            <span className="text-[13px] font-medium text-[#6b7c99]">
                               {shortBookingId}
                             </span>
                             <Copy
                               size={12}
-                              className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                              className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                             />
                           </button>
                         </td>
@@ -395,13 +395,13 @@ export default function BookingsTab() {
                               {b.user_id && (
                                 <Copy
                                   size={12}
-                                  className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                  className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                                 />
                               )}
                             </button>
 
                             {/* EMAIL */}
-                            <span className="text-[13px] text-[#8a8a8a] block">
+                            <span className="text-[13px] text-[#6b7c99] block">
                               {displayEmail}
                             </span>
 
@@ -415,7 +415,7 @@ export default function BookingsTab() {
                                   )
                                 }
                                 title="Click pentru a copia codul"
-                                className="mt-0.5 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a] transition-colors hover:bg-black/10 hover:text-black cursor-pointer"
+                                className="mt-0.5 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-black/10 hover:text-black cursor-pointer"
                               >
                                 COD: {b.booking_code}
                               </button>
@@ -433,7 +433,7 @@ export default function BookingsTab() {
                           <span className="font-semibold text-black">
                             {dateFmt(b.check_out)}
                           </span>
-                          <span className="ml-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8a8a8a]">
+                          <span className="ml-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#6b7c99]">
                             {nights(b.check_in, b.check_out)} nopți ·{" "}
                             {totalGuests} oaspeți
                           </span>
@@ -457,7 +457,7 @@ export default function BookingsTab() {
                                   : String(b.id),
                               )
                             }
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-transparent hover:border-black/10 hover:bg-black/5 transition-all text-[#8a8a8a] hover:text-black"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-transparent hover:border-black/10 hover:bg-black/5 transition-all text-[#6b7c99] hover:text-black"
                             title="Acțiuni"
                           >
                             <MoreHorizontal size={18} />
@@ -483,7 +483,7 @@ export default function BookingsTab() {
                                   >
                                     <Check
                                       size={14}
-                                      className="text-[#8a8a8a]"
+                                      className="text-[#6b7c99]"
                                     />{" "}
                                     Confirmă
                                   </button>
@@ -498,7 +498,7 @@ export default function BookingsTab() {
                                   >
                                     <CheckCircle2
                                       size={14}
-                                      className="text-[#8a8a8a]"
+                                      className="text-[#6b7c99]"
                                     />{" "}
                                     Finalizează
                                   </button>
@@ -512,7 +512,7 @@ export default function BookingsTab() {
                                 >
                                   <Pencil
                                     size={14}
-                                    className="text-[#8a8a8a]"
+                                    className="text-[#6b7c99]"
                                   />{" "}
                                   Editează
                                 </button>
@@ -523,7 +523,7 @@ export default function BookingsTab() {
                                       setCancelReason("");
                                       setActiveMenu(null);
                                     }}
-                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#111111] hover:bg-[#f5f5f5] transition-colors mt-1 border-t border-black/5 pt-2"
+                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f4f6f9] transition-colors mt-1 border-t border-black/5 pt-2"
                                   >
                                     <Trash2 size={14} /> Anulează
                                   </button>
@@ -542,7 +542,7 @@ export default function BookingsTab() {
             {/* CONTROALE PAGINARE */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t border-black/5 bg-black/[0.01] px-6 py-4">
-                <span className="text-[12px] font-medium text-[#8a8a8a]">
+                <span className="text-[12px] font-medium text-[#6b7c99]">
                   Pagina <strong className="text-black">{page}</strong> din{" "}
                   <strong className="text-black">{totalPages}</strong>
                 </span>
@@ -596,7 +596,7 @@ export default function BookingsTab() {
             <button
               disabled={busy === `${cancelTarget?.id}-cancel`}
               onClick={() => void submitCancel()}
-              className="inline-flex items-center gap-2 rounded-full bg-[#111111] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#000000] disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#07203f] disabled:opacity-60"
             >
               Confirmă anularea
             </button>
@@ -621,7 +621,7 @@ export default function BookingsTab() {
                 onChange={(e) => setForm({ ...form, check_in: e.target.value })}
               />
               {formErr.check_in && (
-                <span className="text-[11px] text-[#111111] mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.check_in}
                 </span>
               )}
@@ -636,7 +636,7 @@ export default function BookingsTab() {
                 }
               />
               {formErr.check_out && (
-                <span className="text-[11px] text-[#111111] mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.check_out}
                 </span>
               )}
@@ -652,7 +652,7 @@ export default function BookingsTab() {
                 }
               />
               {formErr.guests && (
-                <span className="text-[11px] text-[#111111] mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.guests}
                 </span>
               )}
@@ -688,7 +688,7 @@ function FormField({
 }) {
   return (
     <label className="flex flex-col">
-      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8a8a8a] ml-1">
+      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#6b7c99] ml-1">
         {label}
       </span>
       {children}

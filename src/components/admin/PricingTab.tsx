@@ -35,6 +35,38 @@ type CalendarDay = {
   is_override?: boolean | null;
 };
 
+const ovKey = (roomId: string) => `casaesy_price_overrides_${roomId}`;
+
+const readOverrides = (roomId: string): Set<string> => {
+  if (!roomId) return new Set();
+  try {
+    const raw = localStorage.getItem(ovKey(roomId));
+    const arr = raw ? (JSON.parse(raw) as string[]) : [];
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const writeOverrides = (roomId: string, set: Set<string>) => {
+  try {
+    localStorage.setItem(ovKey(roomId), JSON.stringify([...set]));
+  } catch {
+    /* storage indisponibil */
+  }
+};
+
+const eachDate = (start: string, end: string) => {
+  const out: string[] = [];
+  const d = new Date(`${start}T00:00:00Z`);
+  const last = new Date(`${end}T00:00:00Z`);
+  while (d <= last) {
+    out.push(d.toISOString().slice(0, 10));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return out;
+};
+
 const roomLabel = (r: Room) =>
   r.name || r.title || `Cameră ${String(r.id).slice(0, 6)}`;
 
@@ -67,6 +99,11 @@ export default function PricingTab() {
     is_blocked: false,
   });
   const [ruleErr, setRuleErr] = useState<Record<string, string>>({});
+  const [overrides, setOverrides] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setOverrides(readOverrides(selectedRoom));
+  }, [selectedRoom]);
 
   useEffect(() => {
     (async () => {
@@ -141,6 +178,18 @@ export default function PricingTab() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
 
+  const roomBase = rooms.find((r) => String(r.id) === selectedRoom)?.base_price;
+
+  const isOverrideDay = (dateStr: string, cal: CalendarDay | null) => {
+    if (!cal) return overrides.has(dateStr);
+    if (cal.is_override) return true;
+    if (overrides.has(dateStr)) return true;
+    if (cal.price_override != null || cal.custom_price != null) return true;
+    if (cal.price != null && roomBase != null)
+      return Number(cal.price) !== Number(roomBase);
+    return false;
+  };
+
   const getDay = (day: number): CalendarDay | null => {
     const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return calendar.find((c) => c.date === dateStr) || null;
@@ -151,15 +200,13 @@ export default function PricingTab() {
     const existing = getDay(dayNum);
 
     setSelectedDay({
-      date: dateStr,
       ...existing,
+      date: dateStr,
+      is_override: isOverrideDay(dateStr, existing),
     });
 
     // Dacă ziua are deja override sau este blocată, deschidem meniul de acțiuni (Scoatere override / Modificare)
-    if (
-      existing &&
-      (existing.is_override || existing.price != null || existing.blocked)
-    ) {
+    if (isOverrideDay(dateStr, existing) || existing?.blocked) {
       setActionModalOpen(true);
     } else {
       // Altfel deschidem direct formularul de adăugare regulă/override
@@ -185,6 +232,10 @@ export default function PricingTab() {
       // Apelăm endpoint-ul de DELETE creat în backend cu data trimisă ca query param
       await del(`/rooms/${selectedRoom}/pricing-rules?date=${dateStr}`);
 
+      const next = new Set(overrides);
+      next.delete(dateStr);
+      setOverrides(next);
+      writeOverrides(selectedRoom, next);
       toast("Override șters. S-a revenit la prețul dinamic.", "success");
       setActionModalOpen(false);
       await loadCalendar(); // Reîncărcăm calendarul din baza de date
@@ -216,6 +267,10 @@ export default function PricingTab() {
         price_override: rule.is_blocked ? null : Number(rule.price_override),
         is_blocked: rule.is_blocked,
       });
+      const next = new Set(overrides);
+      for (const d of eachDate(rule.start_date, rule.end_date)) next.add(d);
+      setOverrides(next);
+      writeOverrides(selectedRoom, next);
       toast("Regulă aplicată.", "success");
       setRuleOpen(false);
       await loadCalendar();
@@ -281,34 +336,34 @@ export default function PricingTab() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setMonthOffset((m) => m - 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#2a3b52] hover:border-[#0d2c5c]"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <h3
-                  className="text-[15px] font-semibold capitalize text-[#111111]"
+                  className="text-[15px] font-semibold capitalize text-[#0d2c5c]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {monthName}
                 </h3>
                 <button
                   onClick={() => setMonthOffset((m) => m + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] text-[#2a3b52] hover:border-[#0d2c5c]"
                 >
                   <ChevronRight size={16} />
                 </button>
               </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-[#6b6b6b] sm:text-[11px]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-[#4f6280] sm:text-[11px]">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#ededed]" /> Preț
+                  <span className="h-3 w-5 rounded bg-[#eef2f7]" /> Preț
                   standard
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-blue-100 border border-blue-400" />{" "}
+                  <span className="h-3 w-5 rounded border border-[#c69a3f] bg-[#fdf6e6]" />{" "}
                   Override / Manual
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-3 w-5 rounded bg-[#111111]" /> Blocat
+                  <span className="h-3 w-5 rounded bg-[#0d2c5c]" /> Blocat
                 </span>
               </div>
             </div>
@@ -324,7 +379,7 @@ export default function PricingTab() {
                 {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
                   <div
                     key={d}
-                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#6b6b6b]"
+                    className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#4f6280]"
                   >
                     {d}
                   </div>
@@ -336,7 +391,8 @@ export default function PricingTab() {
                   const day = i + 1;
                   const cal = getDay(day);
                   const blocked = cal?.blocked || cal?.available === false;
-                  const isOverride = Boolean(cal?.is_override);
+                  const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                  const isOverride = isOverrideDay(dateStr, cal);
 
                   const rawPrice =
                     cal?.price ?? cal?.price_override ?? cal?.custom_price;
@@ -351,16 +407,16 @@ export default function PricingTab() {
                       onClick={() => handleDayClick(day)}
                       className={`relative flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] transition-all hover:scale-[1.03] sm:h-[60px] sm:text-[11px] ${
                         blocked
-                          ? "border-[#111111] bg-[#111111] text-white"
+                          ? "border-[#0d2c5c] bg-[#0d2c5c] text-white"
                           : isOverride
-                            ? "border-blue-400 bg-blue-50 text-blue-950 font-medium shadow-sm"
-                            : "border-[#e5e5e5] bg-[#ededed] text-[#525252] hover:border-[#111111]"
+                            ? "border-[#c69a3f] bg-[#fdf6e6] text-[#0d2c5c] font-semibold shadow-[0_6px_16px_rgba(198,154,63,0.18)]"
+                            : "border-[#e1e8f0] bg-[#eef2f7] text-[#2a3b52] hover:border-[#0d2c5c]"
                       }`}
                     >
                       {/* Indicator mic pentru override */}
                       {isOverride && !blocked && (
                         <span
-                          className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-blue-600"
+                          className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#c69a3f]"
                           title="Preț fixat manual (Override)"
                         />
                       )}
@@ -369,7 +425,7 @@ export default function PricingTab() {
                         <Lock size={11} className="text-white/70" />
                       ) : (
                         <span
-                          className={`text-[9px] font-semibold leading-none ${isOverride ? "text-blue-700 font-bold" : "text-[#8a8a8a]"}`}
+                          className={`text-[9px] font-semibold leading-none ${isOverride ? "text-[#8a6420] font-bold" : "text-[#6b7c99]"}`}
                         >
                           {money(dayPrice).replace(",\u00a0", "\u00a0")}
                         </span>
@@ -391,7 +447,7 @@ export default function PricingTab() {
         width="max-w-sm"
       >
         <div className="space-y-3 py-2">
-          <p className="text-sm text-[#525252]">
+          <p className="text-sm text-[#2a3b52]">
             Această zi are un preț sau o regulă specială setată. Ce dorești să
             faci?
           </p>
@@ -475,9 +531,9 @@ export default function PricingTab() {
               onChange={(e) =>
                 setRule({ ...rule, is_blocked: e.target.checked })
               }
-              className="h-4 w-4 accent-[#111111]"
+              className="h-4 w-4 accent-[#0d2c5c]"
             />
-            <span className="text-sm text-[#111111]">
+            <span className="text-sm text-[#0d2c5c]">
               Blocochează perioada (mentenanță)
             </span>
           </label>

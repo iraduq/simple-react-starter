@@ -209,7 +209,7 @@ export default function AdminPlacesTab() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
+                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#4f6280]">
                   <th className="px-5 py-3 font-bold">Nume & Categorie</th>
                   <th className="px-5 py-3 font-bold">Badge</th>
                   <th className="px-5 py-3 font-bold">Rating</th>
@@ -221,7 +221,7 @@ export default function AdminPlacesTab() {
                 {paged.slice.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-[#f5f5f5] last:border-0 hover:bg-[#fafafa] transition-colors"
+                    className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#f9f7f2] transition-colors"
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
@@ -229,18 +229,18 @@ export default function AdminPlacesTab() {
                           <img
                             src={p.thumb || p.image_url}
                             alt=""
-                            className="h-10 w-10 rounded-lg object-cover border border-[#e5e5e5]"
+                            className="h-10 w-10 rounded-lg object-cover border border-[#e1e8f0]"
                           />
                         ) : (
-                          <div className="h-10 w-10 rounded-lg bg-[#ededed] flex items-center justify-center text-[#8a8a8a]">
+                          <div className="h-10 w-10 rounded-lg bg-[#eef2f7] flex items-center justify-center text-[#6b7c99]">
                             <ImageIcon size={18} />
                           </div>
                         )}
                         <div>
-                          <span className="block font-semibold text-[#111111]">
+                          <span className="block font-semibold text-[#0d2c5c]">
                             {p.title || p.name}
                           </span>
-                          <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#737373]">
+                          <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">
                             {p.category}
                           </span>
                         </div>
@@ -250,21 +250,21 @@ export default function AdminPlacesTab() {
                       {p.badge ? (
                         <Badge tone="gold">{p.badge}</Badge>
                       ) : (
-                        <span className="text-[#8a8a8a]">—</span>
+                        <span className="text-[#6b7c99]">—</span>
                       )}
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="flex items-center gap-1 font-semibold text-[#111111]">
+                      <span className="flex items-center gap-1 font-semibold text-[#0d2c5c]">
                         <Star
                           size={13}
-                          className="text-[#737373] fill-[#737373]"
+                          className="text-[#4f6280] fill-[#4f6280]"
                         />
                         {Number(p.rating || 0).toFixed(1)}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-[12px] text-[#6b6b6b]">
+                    <td className="px-5 py-3.5 text-[12px] text-[#4f6280]">
                       <span className="flex items-center gap-1">
-                        <MapPin size={12} className="text-[#737373]" />
+                        <MapPin size={12} className="text-[#4f6280]" />
                         {p.lat != null ? `${p.lat}, ${p.lng}` : "—"}
                       </span>
                     </td>
@@ -403,7 +403,7 @@ export default function AdminPlacesTab() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-2 border-t border-[#ededed] pt-4">
+        <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4">
           <Button variant="ghost" onClick={() => setFormOpen(false)}>
             Renunță
           </Button>
@@ -419,14 +419,14 @@ export default function AdminPlacesTab() {
         title="Șterge atracție"
         onClose={() => setDeleteTarget(null)}
       >
-        <p className="text-sm text-[#525252]">
+        <p className="text-sm text-[#2a3b52]">
           Sigur vrei să ștergi{" "}
-          <strong className="text-[#111111]">
+          <strong className="text-[#0d2c5c]">
             {deleteTarget?.title || deleteTarget?.name}
           </strong>
           ? Această acțiune nu poate fi anulată.
         </p>
-        <div className="mt-6 flex justify-end gap-2 border-t border-[#ededed] pt-4">
+        <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
             Anulează
           </Button>
@@ -553,14 +553,14 @@ function PlaceMediaManager({
               ? "Se încarcă…"
               : "Trage imagini aici sau click pentru a selecta (multiple)"}
           </p>
-          <p className="mt-1 text-[12px] text-[#8a8a8a]">
+          <p className="mt-1 text-[12px] text-[#6b7c99]">
             JPG / PNG, maxim 5MB per fișier
           </p>
         </div>
 
         {images.length > 0 ? (
           <div>
-            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8a8a8a] block mb-3">
+            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#6b7c99] block mb-3">
               Imagini salvate ({images.length})
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -586,7 +586,7 @@ function PlaceMediaManager({
             </div>
           </div>
         ) : (
-          <p className="text-center text-sm text-[#8a8a8a] py-4">
+          <p className="text-center text-sm text-[#6b7c99] py-4">
             Nicio imagine încărcată încă.
           </p>
         )}

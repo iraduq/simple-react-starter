@@ -196,7 +196,7 @@ export default function UsersTab() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead>
-                <tr className="border-b border-[#ededed] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
+                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#4f6280]">
                   <th className="px-5 py-3 font-bold">Utilizator</th>
                   <th className="px-5 py-3 font-bold">Rol</th>
                   <th className="px-5 py-3 font-bold">Status</th>
@@ -209,19 +209,19 @@ export default function UsersTab() {
                   <tr
                     key={u.id}
                     onClick={() => void openDetail(u)}
-                    className="cursor-pointer border-b border-[#f5f5f5] last:border-0 transition-colors hover:bg-[#fafafa]"
+                    className="cursor-pointer border-b border-[#f4f6f9] last:border-0 transition-colors hover:bg-[#f9f7f2]"
                   >
                     <td className="px-5 py-3.5">
-                      <span className="block font-semibold text-[#111111]">
+                      <span className="block font-semibold text-[#0d2c5c]">
                         {[u.first_name, u.last_name]
                           .filter(Boolean)
                           .join(" ") || u.email}
                       </span>
-                      <span className="text-[12px] text-[#6b6b6b]">
+                      <span className="text-[12px] text-[#4f6280]">
                         {u.email}
                       </span>
                       {u.provider && (
-                        <span className="ml-2 text-[10px] uppercase text-[#8a8a8a]">
+                        <span className="ml-2 text-[10px] uppercase text-[#6b7c99]">
                           via {u.provider}
                         </span>
                       )}
@@ -238,7 +238,7 @@ export default function UsersTab() {
                         <Badge tone="green">Activ</Badge>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 text-[12px] text-[#6b6b6b]">
+                    <td className="px-5 py-3.5 text-[12px] text-[#4f6280]">
                       {dateFmt(u.created_at)}
                     </td>
                     <td className="px-5 py-3.5">
@@ -290,7 +290,7 @@ export default function UsersTab() {
       >
         {detail && (
           <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] p-4 sm:grid-cols-3">
               {[
                 { l: "Email", v: detail.email },
                 { l: "Rol", v: resolveRole(detail) },
@@ -303,16 +303,16 @@ export default function UsersTab() {
                 { l: "Rezervări", v: String(bookings.length) },
               ].map((f) => (
                 <div key={f.l}>
-                  <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+                  <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
                     {f.l}
                   </p>
-                  <p className="mt-0.5 break-words text-[13px] font-medium text-[#111111]">
+                  <p className="mt-0.5 break-words text-[13px] font-medium text-[#0d2c5c]">
                     {f.v}
                   </p>
                 </div>
               ))}
               <div>
-                <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8a8a8a]">
+                <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
                   ID Client
                 </p>
                 <button
@@ -320,22 +320,22 @@ export default function UsersTab() {
                   className="group mt-0.5 inline-flex items-center gap-1.5 hover:opacity-70"
                   title="Copiază ID-ul"
                 >
-                  <span className="text-[13px] font-medium text-[#111111]">
+                  <span className="text-[13px] font-medium text-[#0d2c5c]">
                     {String(detail.id).slice(0, 8)}…
                   </span>
-                  <Copy size={11} className="text-[#8a8a8a]" />
+                  <Copy size={11} className="text-[#6b7c99]" />
                 </button>
               </div>
             </div>
 
             <div>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6b7c99]">
                 Rezervările clientului
               </p>
               {bookingsLoading ? (
                 <TableSkeleton rows={3} />
               ) : bookings.length === 0 ? (
-                <p className="text-[13px] text-[#6b6b6b]">
+                <p className="text-[13px] text-[#4f6280]">
                   Acest client nu are rezervări.
                 </p>
               ) : (
@@ -343,7 +343,7 @@ export default function UsersTab() {
                   {bookings.map((b) => (
                     <div
                       key={b.id}
-                      className="flex flex-col gap-1 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-1 rounded-lg border border-[#e1e8f0] bg-white px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
                         <button
@@ -351,24 +351,24 @@ export default function UsersTab() {
                           className="group inline-flex items-center gap-1.5 hover:opacity-70"
                           title="Copiază ID-ul rezervării"
                         >
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
                             #{String(b.id).slice(0, 8)}
                           </span>
-                          <Copy size={9} className="text-[#8a8a8a]" />
+                          <Copy size={9} className="text-[#6b7c99]" />
                         </button>
-                        <p className="text-[13px] font-semibold text-[#111111]">
+                        <p className="text-[13px] font-semibold text-[#0d2c5c]">
                           {dateFmt(b.check_in)} → {dateFmt(b.check_out)}{" "}
-                          <span className="text-[11px] font-normal text-[#6b6b6b]">
+                          <span className="text-[11px] font-normal text-[#4f6280]">
                             ({nights(b.check_in, b.check_out)} nopți)
                           </span>
                         </p>
-                        <p className="text-[11px] text-[#8a8a8a]">
+                        <p className="text-[11px] text-[#6b7c99]">
                           Creată: {dateTimeFmt((b as any).created_at)}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge tone="muted">{b.status || "—"}</Badge>
-                        <span className="text-[13px] font-semibold text-[#111111]">
+                        <span className="text-[13px] font-semibold text-[#0d2c5c]">
                           {money(b.total_price)}
                         </span>
                       </div>
@@ -378,7 +378,7 @@ export default function UsersTab() {
               )}
             </div>
 
-            <div className="flex justify-end gap-2 border-t border-[#ededed] pt-4">
+            <div className="flex justify-end gap-2 border-t border-[#eef2f7] pt-4">
               <Button variant="ghost" onClick={() => setDetail(null)}>
                 Închide
               </Button>
@@ -410,8 +410,8 @@ export default function UsersTab() {
                   onClick={() => setForm({ ...form, role: r })}
                   className={`flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-[12px] font-semibold capitalize transition-colors ${
                     form.role === r
-                      ? "border-[#111111] bg-[#111111] text-white"
-                      : "border-[#e5e5e5] text-[#525252] hover:border-[#111111]"
+                      ? "border-[#0d2c5c] bg-[#0d2c5c] text-white"
+                      : "border-[#e1e8f0] text-[#2a3b52] hover:border-[#0d2c5c]"
                   }`}
                 >
                   {r === "admin" ? (
@@ -433,9 +433,9 @@ export default function UsersTab() {
               onChange={(e) =>
                 setForm({ ...form, is_active: e.target.checked })
               }
-              className="h-4 w-4 accent-[#111111]"
+              className="h-4 w-4 accent-[#0d2c5c]"
             />
-            <span className="text-sm text-[#111111]">Cont activ</span>
+            <span className="text-sm text-[#0d2c5c]">Cont activ</span>
           </label>
         </div>
         <div className="mt-5 flex justify-end gap-2">
@@ -453,9 +453,9 @@ export default function UsersTab() {
         title="Șterge utilizator"
         onClose={() => setDeleteTarget(null)}
       >
-        <p className="text-sm text-[#525252]">
+        <p className="text-sm text-[#2a3b52]">
           Sigur vrei să ștergi contul{" "}
-          <strong className="text-[#111111]">{deleteTarget?.email}</strong>?
+          <strong className="text-[#0d2c5c]">{deleteTarget?.email}</strong>?
           Toate datele asociate vor fi șterse.
         </p>
         <div className="mt-5 flex justify-end gap-2">

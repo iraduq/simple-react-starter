@@ -50,7 +50,7 @@ function Kpi({
     >
       <div className="flex items-start justify-between">
         <div>
-          <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a8a]">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b7c99]">
             {label}
           </span>
           {loading ? (
@@ -61,7 +61,7 @@ function Kpi({
             </p>
           )}
           {hint && (
-            <span className="mt-2 block text-[12px] text-[#8a8a8a]">
+            <span className="mt-2 block text-[12px] text-[#6b7c99]">
               {hint}
             </span>
           )}
@@ -304,7 +304,7 @@ export default function OverviewTab() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <span className="w-8 h-px bg-black/40" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#8a8a8a]">
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
                 În așteptare
               </span>
             </div>
@@ -336,7 +336,7 @@ export default function OverviewTab() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[900px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#8a8a8a]">
+                  <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
                     <th className="px-6 py-4 font-bold"># ID</th>
                     <th className="px-6 py-4 font-bold">Client</th>
                     <th className="px-6 py-4 font-bold">Cameră</th>
@@ -397,12 +397,12 @@ export default function OverviewTab() {
                             className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
                             title="Click pentru a copia ID-ul rezervării"
                           >
-                            <span className="text-[13px] font-medium text-[#8a8a8a]">
+                            <span className="text-[13px] font-medium text-[#6b7c99]">
                               {shortBookingId}
                             </span>
                             <Copy
                               size={12}
-                              className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                              className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                             />
                           </button>
                         </td>
@@ -421,12 +421,12 @@ export default function OverviewTab() {
                               {b.user_id && (
                                 <Copy
                                   size={12}
-                                  className="text-[#8a8a8a] opacity-0 transition-opacity group-hover:opacity-100"
+                                  className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                                 />
                               )}
                             </button>
 
-                            <span className="text-[13px] text-[#8a8a8a] block">
+                            <span className="text-[13px] text-[#6b7c99] block">
                               {displayEmail}
                             </span>
 
@@ -439,7 +439,7 @@ export default function OverviewTab() {
                                   )
                                 }
                                 title="Click pentru a copia codul"
-                                className="mt-0.5 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a] transition-colors hover:bg-black/10 hover:text-black cursor-pointer"
+                                className="mt-0.5 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-black/10 hover:text-black cursor-pointer"
                               >
                                 COD: {b.booking_code}
                               </button>
@@ -508,7 +508,7 @@ export default function OverviewTab() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <span className="w-8 h-px bg-black/40" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#8a8a8a]">
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
                 Calendar
               </span>
             </div>
@@ -525,7 +525,7 @@ export default function OverviewTab() {
                 className={`rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-200 ${
                   viewMode === m
                     ? "bg-black text-white"
-                    : "text-[#8a8a8a] hover:text-black"
+                    : "text-[#6b7c99] hover:text-black"
                 }`}
               >
                 {m === "week" ? "Săptămână" : "Lună"}
@@ -581,7 +581,7 @@ export default function OverviewTab() {
               <table className="w-full border-separate border-spacing-y-2 text-sm">
                 <thead>
                   <tr>
-                    <th className="sticky left-0 bg-white py-2 pr-4 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-[#8a8a8a]">
+                    <th className="sticky left-0 bg-white py-2 pr-4 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-[#6b7c99]">
                       Cameră
                     </th>
                     {rangeDays.map((d) => {
@@ -593,7 +593,7 @@ export default function OverviewTab() {
                             className={`mx-auto flex flex-col items-center rounded-lg px-2 py-1.5 transition-colors ${
                               isToday
                                 ? "bg-black text-white shadow-sm"
-                                : "text-[#8a8a8a]"
+                                : "text-[#6b7c99]"
                             }`}
                           >
                             <span className="text-[9px] font-bold uppercase tracking-[0.1em]">
@@ -641,7 +641,7 @@ export default function OverviewTab() {
                   ))}
                   {/* Rând de rezumat: grad de ocupare pe zi */}
                   <tr>
-                    <td className="sticky left-0 bg-white pt-4 pr-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a] border-t border-black/5">
+                    <td className="sticky left-0 bg-white pt-4 pr-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] border-t border-black/5">
                       Ocupare %
                     </td>
                     {rangeDays.map((d) => {
@@ -672,7 +672,7 @@ export default function OverviewTab() {
             )}
 
             {/* Legendă elegantă, B&W */}
-            <div className="mt-8 flex flex-wrap items-center gap-6 text-[10px] font-bold uppercase tracking-[0.1em] text-[#8a8a8a] pt-4 border-t border-black/5">
+            <div className="mt-8 flex flex-wrap items-center gap-6 text-[10px] font-bold uppercase tracking-[0.1em] text-[#6b7c99] pt-4 border-t border-black/5">
               <span className="flex items-center gap-2.5">
                 <span className="h-3.5 w-6 rounded-md bg-black/[0.03] border border-black/5" />
                 Liber
