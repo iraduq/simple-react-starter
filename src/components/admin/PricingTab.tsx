@@ -35,6 +35,38 @@ type CalendarDay = {
   is_override?: boolean | null;
 };
 
+const ovKey = (roomId: string) => `casaesy_price_overrides_${roomId}`;
+
+const readOverrides = (roomId: string): Set<string> => {
+  if (!roomId) return new Set();
+  try {
+    const raw = localStorage.getItem(ovKey(roomId));
+    const arr = raw ? (JSON.parse(raw) as string[]) : [];
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const writeOverrides = (roomId: string, set: Set<string>) => {
+  try {
+    localStorage.setItem(ovKey(roomId), JSON.stringify([...set]));
+  } catch {
+    /* storage indisponibil */
+  }
+};
+
+const eachDate = (start: string, end: string) => {
+  const out: string[] = [];
+  const d = new Date(`${start}T00:00:00Z`);
+  const last = new Date(`${end}T00:00:00Z`);
+  while (d <= last) {
+    out.push(d.toISOString().slice(0, 10));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return out;
+};
+
 const roomLabel = (r: Room) =>
   r.name || r.title || `Cameră ${String(r.id).slice(0, 6)}`;
 
@@ -67,6 +99,11 @@ export default function PricingTab() {
     is_blocked: false,
   });
   const [ruleErr, setRuleErr] = useState<Record<string, string>>({});
+  const [overrides, setOverrides] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setOverrides(readOverrides(selectedRoom));
+  }, [selectedRoom]);
 
   useEffect(() => {
     (async () => {
