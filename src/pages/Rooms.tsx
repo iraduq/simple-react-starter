@@ -334,7 +334,7 @@ export default function Rooms() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
           className="relative z-10"
         >
           <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-5 flex items-center justify-center gap-4">
@@ -610,7 +610,7 @@ export default function Rooms() {
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
                     className="group relative grid grid-cols-1 lg:grid-cols-2 rounded-[26px] overflow-hidden border border-[#e1e8f0] bg-white shadow-[0_4px_20px_rgba(13,44,92,0.03),0_24px_60px_-30px_rgba(13,44,92,0.1)] transition-all duration-500 hover:border-[#c69a3f]/40 hover:shadow-[0_8px_30px_rgba(13,44,92,0.06),0_40px_90px_-32px_rgba(13,44,92,0.2)]"
                   >
                     {/* Linia aurie dinamică de pe marginea cardului pe hover */}

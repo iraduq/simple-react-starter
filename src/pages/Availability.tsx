@@ -152,7 +152,7 @@ export default function Availability() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
           className="relative z-10 max-w-4xl mx-auto"
         >
           <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-5 flex items-center justify-center gap-4">
@@ -440,7 +440,7 @@ export default function Availability() {
                     transition={{
                       duration: 0.6,
                       delay: idx * 0.08,
-                      ease: [0.22, 1, 0.36, 1],
+                      ease: [0.22, 1, 0.36, 1] as const,
                     }}
                     key={String(r.id)}
                     className="group relative flex flex-col overflow-hidden rounded-[26px] border border-[#e1e8f0] bg-white shadow-[0_4px_16px_rgba(13,44,92,0.03)] transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_rgba(13,44,92,0.12)]"

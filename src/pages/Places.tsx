@@ -220,7 +220,7 @@ export default function Places() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
           className="relative z-10 max-w-4xl mx-auto"
         >
           <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-5 flex items-center justify-center gap-4">
@@ -538,7 +538,7 @@ export default function Places() {
                   transition={{
                     duration: 0.5,
                     delay: (idx % 3) * 0.08,
-                    ease: [0.22, 1, 0.36, 1],
+                    ease: [0.22, 1, 0.36, 1] as const,
                   }}
                 >
                   <PlaceCard
@@ -566,7 +566,7 @@ export default function Places() {
                   transition={{
                     duration: 0.5,
                     delay: (idx % 5) * 0.05,
-                    ease: [0.22, 1, 0.36, 1],
+                    ease: [0.22, 1, 0.36, 1] as const,
                   }}
                 >
                   <PlaceRow

@@ -182,7 +182,7 @@ export default function RoomsTab() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
         className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1"
       >
         <div>
@@ -208,7 +208,7 @@ export default function RoomsTab() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] as const }}
       >
         {loading ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
