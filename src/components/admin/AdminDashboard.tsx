@@ -183,14 +183,14 @@ function SidebarContent({
             onClick={() => setTab(item.key)}
             className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold transition-all duration-200 sm:text-[13.5px] ${
               active
-                ? "bg-[#0d2c5c] text-white"
+                ? "bg-[#0d2c5c] text-white shadow-[0_10px_24px_rgba(13,44,92,0.18)]"
                 : "text-[#2a3b52] hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
             }`}
           >
             <span
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                 active
-                  ? "bg-white/15 text-white"
+                  ? "bg-white/15 text-[#e6b85c]"
                   : "bg-[#f4f6f9] text-[#0d2c5c]"
               }`}
             >

@@ -29,7 +29,7 @@ export function SectionHeader({
     <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
       <div>
         {eyebrow && (
-          <span className="block text-[11px] font-bold uppercase tracking-[0.25em] text-[#4f6280] mb-2">
+          <span className="block text-[11px] font-bold uppercase tracking-[0.25em] text-[#c69a3f] mb-2">
             {eyebrow}
           </span>
         )}
@@ -69,7 +69,7 @@ export function Button({
   const sizes = size === "sm" ? "text-[10px] px-3.5 py-2" : "text-[11px] px-5 py-2.5";
   const variants: Record<string, string> = {
     primary: "bg-[#0d2c5c] text-white hover:bg-[#07203f]",
-    gold: "bg-[#4f6280] text-white hover:bg-[#2a3b52]",
+    gold: "bg-[#c69a3f] text-white hover:bg-[#b0862f]",
     ghost: "border border-[#e1e8f0] text-[#0d2c5c] bg-white hover:border-[#0d2c5c]",
     danger: "border border-[#0d2c5c] text-[#0d2c5c] bg-white hover:bg-[#0d2c5c] hover:text-white",
   };
@@ -100,13 +100,13 @@ export function Field({
         {label}
       </span>
       {children}
-      {error && <span className="block mt-1 text-[11px] text-[#0d2c5c]">{error}</span>}
+      {error && <span className="block mt-1 text-[11px] text-[#8c2f39]">{error}</span>}
     </label>
   );
 }
 
 export const inputCls =
-  "w-full rounded-xl border border-[#e1e8f0] bg-white px-3.5 py-2.5 text-sm text-[#0d2c5c] outline-none transition-colors focus:border-[#0d2c5c] placeholder:text-[#6b7c99]";
+  "w-full rounded-xl border border-[#e1e8f0] bg-white px-3.5 py-2.5 text-sm text-[#0d2c5c] outline-none transition-colors focus:border-[#c69a3f] placeholder:text-[#6b7c99]";
 
 export function Badge({
   children,
@@ -117,9 +117,9 @@ export function Badge({
 }) {
   const tones: Record<string, string> = {
     navy: "bg-[#eef2f7] text-[#0d2c5c]",
-    gold: "bg-[#eef2f7] text-[#1a3a6e]",
-    green: "bg-neutral-100 text-neutral-800",
-    red: "bg-[#0d2c5c] text-white",
+    gold: "bg-[#f4e5c8] text-[#8a6420]",
+    green: "bg-[#e6f2ea] text-[#1f6b45]",
+    red: "bg-[#8c2f39] text-white",
     muted: "bg-[#f4f6f9] text-[#2a3b52]",
   };
   return (
