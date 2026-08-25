@@ -75,6 +75,9 @@ type RuleForm = {
   end_date: string;
   price_override: number | null;
   is_blocked: boolean;
+  closed_to_arrival: boolean;
+  closed_to_departure: boolean;
+  min_stay: number | null;
 };
 
 export default function PricingTab() {
@@ -97,6 +100,9 @@ export default function PricingTab() {
     end_date: "",
     price_override: null,
     is_blocked: false,
+    closed_to_arrival: false,
+    closed_to_departure: false,
+    min_stay: null,
   });
   const [ruleErr, setRuleErr] = useState<Record<string, string>>({});
   const [overrides, setOverrides] = useState<Set<string>>(new Set());
@@ -222,6 +228,9 @@ export default function PricingTab() {
       end_date: startDate || "",
       price_override: null,
       is_blocked: false,
+      closed_to_arrival: false,
+      closed_to_departure: false,
+      min_stay: null,
     });
     setRuleOpen(true);
   };
@@ -256,6 +265,11 @@ export default function PricingTab() {
       (rule.price_override === null || rule.price_override < 0)
     )
       errs.price_override = "Introdu un preț valid sau marchează ca blocat.";
+    if (
+      rule.min_stay != null &&
+      (isNaN(Number(rule.min_stay)) || Number(rule.min_stay) < 1)
+    )
+      errs.min_stay = "Șederea minimă trebuie să fie cel puțin 1 noapte.";
     setRuleErr(errs);
     if (Object.keys(errs).length) return;
 
@@ -266,6 +280,9 @@ export default function PricingTab() {
         end_date: rule.end_date,
         price_override: rule.is_blocked ? null : Number(rule.price_override),
         is_blocked: rule.is_blocked,
+        closed_to_arrival: rule.closed_to_arrival,
+        closed_to_departure: rule.closed_to_departure,
+        min_stay: Number(rule.min_stay || 1),
       });
       const next = new Set(overrides);
       for (const d of eachDate(rule.start_date, rule.end_date)) next.add(d);
@@ -524,6 +541,50 @@ export default function PricingTab() {
               }
             />
           </Field>
+          <Field label="Ședere minimă (nopți)" error={ruleErr.min_stay}>
+            <input
+              type="number"
+              min={1}
+              className={inputCls}
+              value={rule.min_stay ?? ""}
+              onChange={(e) =>
+                setRule({
+                  ...rule,
+                  min_stay:
+                    e.target.value === "" ? null : Number(e.target.value),
+                })
+              }
+              placeholder="ex: 2"
+            />
+          </Field>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label className="flex items-center gap-3 rounded-lg border border-[#e1e8f0] p-3">
+              <input
+                type="checkbox"
+                checked={rule.closed_to_arrival}
+                onChange={(e) =>
+                  setRule({ ...rule, closed_to_arrival: e.target.checked })
+                }
+                className="h-4 w-4 accent-[#0d2c5c]"
+              />
+              <span className="text-sm text-[#0d2c5c]">
+                Closed to Arrival
+              </span>
+            </label>
+            <label className="flex items-center gap-3 rounded-lg border border-[#e1e8f0] p-3">
+              <input
+                type="checkbox"
+                checked={rule.closed_to_departure}
+                onChange={(e) =>
+                  setRule({ ...rule, closed_to_departure: e.target.checked })
+                }
+                className="h-4 w-4 accent-[#0d2c5c]"
+              />
+              <span className="text-sm text-[#0d2c5c]">
+                Closed to Departure
+              </span>
+            </label>
+          </div>
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
