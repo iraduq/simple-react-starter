@@ -97,10 +97,10 @@ export default function AdminDashboard() {
 
 
   return (
-    <div className="min-h-screen bg-[#f9f7f2]">
+    <div className="min-h-screen bg-[#f9f7f2] pt-[76px] lg:pt-[96px]">
       <div className="flex">
         {/* Sidebar — desktop */}
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-[#e1e8f0] bg-white lg:block">
+        <aside className="sticky top-[76px] hidden h-[calc(100vh-76px)] w-64 shrink-0 overflow-y-auto border-r border-[#e1e8f0] bg-white lg:top-[96px] lg:block lg:h-[calc(100vh-96px)]">
           <SidebarContent tab={tab} setTab={setTab} onLogout={handleLogout} />
         </aside>
 
