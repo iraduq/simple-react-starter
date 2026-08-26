@@ -652,41 +652,27 @@ function PlaceCard({
   return (
     <article
       onClick={onClick}
-      className="group cursor-pointer relative rounded-[26px] overflow-hidden border border-[#e1e8f0] bg-white shadow-[0_4px_16px_rgba(13,44,92,0.03)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#c69a3f]/40 hover:shadow-[0_12px_40px_rgba(13,44,92,0.12)] flex flex-col h-full"
+      className="group cursor-pointer relative rounded-[4px] overflow-hidden border border-[#e1e8f0] bg-white shadow-[0_2px_20px_rgba(13,44,92,0.04)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_24px_60px_rgba(13,44,92,0.13)] flex flex-col h-full"
     >
-      {/* Glow border on hover */}
-      <div className="pointer-events-none absolute inset-0 rounded-[26px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
+      {/* Linie aurie subțire sus, apare la hover */}
+      <span className="absolute left-0 right-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#c69a3f] to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center z-30" />
 
-      <div className="relative h-56 overflow-hidden bg-[#0d2c5c]">
+      <div className="relative h-[250px] overflow-hidden bg-[#0d2c5c]">
         {getPlaceImageUrl(place) ? (
-          <div className="w-full h-full relative overflow-hidden">
-            <motion.img
-              src={getPlaceImageUrl(place)}
-              alt={place.title}
-              loading="lazy"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-[#0d2c5c]/10 mix-blend-overlay" />
-          </div>
+          <img
+            src={getPlaceImageUrl(place)}
+            alt={place.title}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.07]"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[#8595aa] bg-[#f8fafd]">
-            <ImageIcon size={32} />
+            <ImageIcon size={32} strokeWidth={1.4} />
           </div>
         )}
 
-        {/* Shimmer sweep on hover */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden z-10">
-          <motion.div
-            initial={{ x: "-150%" }}
-            whileHover={{ x: "200%" }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12"
-          />
-        </div>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 z-10"></div>
+        {/* Voal navy elegant */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c]/85 via-[#0d2c5c]/10 to-transparent z-10" />
 
         {place.badge && (
           <div className="absolute top-4 left-4 z-20">
@@ -694,30 +680,38 @@ function PlaceCard({
           </div>
         )}
 
-        <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md z-20">
-          <Star
-            size={13}
-            className="text-[#c69a3f] fill-[#c69a3f] animate-[pulse_3s_ease-in-out_infinite]"
-          />
-          <span className="text-[12.5px] font-bold text-[#0d2c5c] pt-0.5">
-            {place.rating.toFixed(1)}
+        {/* Rating discret, editorial */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 shadow-[0_4px_14px_rgba(13,44,92,0.18)]">
+          <Star size={12} className="text-[#c69a3f] fill-[#c69a3f]" />
+          <span className="text-[11.5px] font-semibold text-[#0d2c5c] pt-[1px]">
+            {Number(place.rating || 0).toFixed(1)}
           </span>
+        </div>
+
+        {/* Categorie + titlu peste imagine */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-7 pb-6">
+          <span className="flex items-center gap-2.5 text-[9.5px] font-bold tracking-[0.22em] uppercase text-[#e6c67c] mb-2">
+            <span className="w-6 h-px bg-[#c69a3f]/70" />
+            {place.category}
+          </span>
+          <h3 className="font-['Cormorant_Garamond',serif] text-[27px] md:text-[29px] font-normal text-white leading-[1.15]">
+            {place.title}
+          </h3>
         </div>
       </div>
 
       <div className="p-7 flex flex-col flex-1 relative z-10">
-        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-2">
-          {place.category}
-        </span>
-        <h3 className="font-['Cormorant_Garamond',serif] text-[26px] md:text-[28px] font-normal text-[#0d2c5c] leading-tight transition-colors duration-300 group-hover:text-[#c69a3f]">
-          {place.title}
-        </h3>
-        <p className="font-sans text-[14.5px] leading-[1.65] font-light text-[#5a6b85] mt-3 line-clamp-3">
+        <p className="font-sans text-[14.5px] leading-[1.8] font-light text-[#5a6b85] line-clamp-3">
           {place.description}
         </p>
 
+        <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#0d2c5c] transition-colors duration-300 group-hover:text-[#c69a3f]">
+          Descoperă locația
+          <span className="w-6 h-px bg-current transition-all duration-500 group-hover:w-10" />
+        </span>
+
         {(canUpdate || canDelete) && (
-          <div className="flex gap-2 mt-auto pt-6 border-t border-[#e1e8f0]">
+          <div className="flex gap-2 mt-auto pt-6 mt-6 border-t border-[#eef2f7]">
             {canUpdate && (
               <button
                 onClick={(e) => {
@@ -746,6 +740,7 @@ function PlaceCard({
     </article>
   );
 }
+
 
 /* ─────────────── PLACE ROW (list) ─────────────── */
 function PlaceRow({
