@@ -20,15 +20,7 @@ import {
   Field,
   inputCls,
 } from "./ui";
-import {
-  get,
-  post,
-  patch,
-  del,
-  list,
-  errMsg,
-
-} from "../../lib/admin";
+import { get, post, patch, del, list, errMsg } from "../../lib/admin";
 import { useToast } from "../Toast";
 
 /* ─────────────── ICON LIBRARY (lucide-react) ─────────────── */
@@ -118,7 +110,10 @@ function IconPicker({
   const [isOpen, setIsOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    const q = query.toLowerCase().replace(/[\s_-]+/g, "").trim();
+    const q = query
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "")
+      .trim();
     const base = q
       ? ICON_LIBRARY.filter((i) => i.name.toLowerCase().includes(q))
       : ICON_LIBRARY;
@@ -201,7 +196,6 @@ function IconPicker({
   );
 }
 
-
 /* ─────────────── SECTIONS CONFIG ─────────────── */
 type Section = {
   key: string;
@@ -217,12 +211,6 @@ const SECTIONS: Section[] = [
     endpoint: "/rooms/facilities",
     eyebrow: "Nomenclator",
   },
-  {
-    key: "room-types",
-    label: "Tipuri de camere",
-    endpoint: "/rooms/room-types",
-    eyebrow: "Nomenclator",
-  },
 ];
 
 export default function NomenclatureTab() {
@@ -232,7 +220,6 @@ export default function NomenclatureTab() {
   return (
     <div>
       <div className="mb-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-[#e1e8f0] bg-white p-1 sm:w-auto sm:inline-flex">
-
         {SECTIONS.map((s) => (
           <button
             key={s.key}
@@ -309,7 +296,7 @@ function NomenclatureSection({ section }: { section: Section }) {
       icon: "",
       description: "",
       base_price: 0,
-      });
+    });
     setFormOpen(true);
   };
 
@@ -375,7 +362,11 @@ function NomenclatureSection({ section }: { section: Section }) {
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SearchBox value={query} onChange={setQuery} placeholder="Caută în nomenclator…" />
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+          placeholder="Caută în nomenclator…"
+        />
         <Button variant="gold" size="sm" onClick={openCreate}>
           <Plus size={14} /> Adaugă
         </Button>
@@ -476,7 +467,6 @@ function NomenclatureSection({ section }: { section: Section }) {
       >
         <div className="space-y-4">
           {section.key !== "facilities" && PRESETS[section.key] ? (
-
             <Field label="Alege dintr-o listă predefinită">
               <select
                 className={inputCls}
@@ -532,7 +522,9 @@ function NomenclatureSection({ section }: { section: Section }) {
             <textarea
               className={`${inputCls} min-h-[80px] resize-y`}
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
             />
           </Field>
         </div>
