@@ -96,11 +96,12 @@ type RequestOptions = {
   body?: BodyInit | null;
   signal?: AbortSignal;
   _retry?: boolean;
+  _coalesced?: boolean;
 };
 
 const shouldCoalesceRequest = (options: RequestOptions) => {
   const method = (options.method || "GET").toUpperCase();
-  return method === "GET" && !options.signal && !options._retry;
+  return method === "GET" && !options.signal && !options._retry && !options._coalesced;
 };
 
 const makeRequestKey = (path: string, options: RequestOptions) => {
@@ -129,7 +130,7 @@ export async function apiFetch<T>(
     const existing = inflightGetRequests.get(key);
     if (existing) return existing as Promise<T>;
 
-    const request = apiFetch<T>(path, { ...options, _retry: false }).finally(
+    const request = apiFetch<T>(path, { ...options, _coalesced: true }).finally(
       () => {
         inflightGetRequests.delete(key);
       },
