@@ -1,5 +1,5 @@
 import { API_URL } from "../lib/config";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Mail,
@@ -18,6 +18,7 @@ import { saveTokensFrom, clearAuthTokens, markAuthSession } from "../lib/token";
 
 export default function Login() {
   const navigate = useNavigate();
+  const googleLoginInFlight = useRef(false);
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -138,6 +139,8 @@ export default function Login() {
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (googleLoginInFlight.current) return;
+    googleLoginInFlight.current = true;
     setLoginError(null);
     try {
       const res = await fetch(`${API_URL}/auth/google`, {
@@ -177,6 +180,8 @@ export default function Login() {
         message: "A apărut o problemă de conexiune cu serverul.",
         deactivated: false,
       });
+    } finally {
+      googleLoginInFlight.current = false;
     }
 
   };
