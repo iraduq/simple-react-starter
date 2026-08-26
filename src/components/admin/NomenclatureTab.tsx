@@ -143,7 +143,7 @@ function IconPicker({
           </div>
         ) : (
           <span className="text-sm text-[#6b7c99]">
-            Caută o iconiță (ex: wifi, bed, car)…
+            Caută o iconiță (ex: wifi, umbrella, car)…
           </span>
         )}
       </div>
@@ -264,13 +264,11 @@ function NomenclatureSection({ section }: { section: Section }) {
     icon: string;
     description: string;
     base_price: number;
-    capacity: number;
   }>({
     name: "",
     icon: "",
     description: "",
     base_price: 0,
-    capacity: 1,
   });
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
@@ -311,8 +309,7 @@ function NomenclatureSection({ section }: { section: Section }) {
       icon: "",
       description: "",
       base_price: 0,
-      capacity: 1,
-    });
+      });
     setFormOpen(true);
   };
 
@@ -323,7 +320,6 @@ function NomenclatureSection({ section }: { section: Section }) {
       icon: item.icon || "",
       description: item.description || "",
       base_price: Number(item.base_price || 0),
-      capacity: Number(item.capacity || 1),
     });
     setFormOpen(true);
   };
