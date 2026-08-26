@@ -65,6 +65,7 @@ const AUTH_BYPASS = [
   "/auth/resend-code",
   "/auth/forgot-password",
   "/auth/reset-password",
+  "/auth/logout",
 ];
 
 export async function apiFetch<T>(
