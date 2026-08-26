@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  BedDouble,
   CalendarDays,
   Check,
   ChevronLeft,
@@ -298,7 +297,6 @@ export default function RoomDetail() {
                 Icon: Maximize,
                 label: room.size_sqm ? `${room.size_sqm} m²` : "—",
               },
-              { Icon: BedDouble, label: "Cameră confortabilă" },
             ].map(({ Icon, label }) => (
               <div
                 key={label}

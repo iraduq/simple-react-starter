@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Users,
   Maximize,
-  BedDouble,
   Waves,
   Wifi,
   Coffee,
@@ -52,7 +51,6 @@ type DisplayRoom = {
   reviews: number;
   guests: number;
   size: string;
-  bed: string;
   badge?: string;
   description: string;
   amenities: string[];
@@ -92,7 +90,6 @@ function mapRoom(r: ApiRoom): DisplayRoom {
     reviews: Number(r.reviews || 12),
     guests: totalGuests,
     size: r.size_sqm ? `${r.size_sqm} m²` : "30 m²",
-    bed: "Cameră confortabilă",
     badge: r.badge || undefined,
     description: r.description || "",
     amenities: finalAmenities,
@@ -543,7 +540,6 @@ export default function Rooms() {
                               : "—",
                           },
                           { Icon: Maximize, label: room.size },
-                          { Icon: BedDouble, label: room.bed },
                         ].map(({ Icon, label }, i) => (
                           <div
                             key={label}
