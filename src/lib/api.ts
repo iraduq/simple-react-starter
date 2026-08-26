@@ -10,17 +10,46 @@ import {
 } from "./token";
 
 /* ─────────────── Silent Refresh Queue / Mutex ─────────────── */
+type QueuedRefresh = {
+  resolve: (value: boolean) => void;
+  reject: (reason?: unknown) => void;
+};
+
 let refreshPromise: Promise<boolean> | null = null;
+let refreshQueue: QueuedRefresh[] = [];
 let onSessionExpired: (() => void) | null = null;
+let sessionExpiredNotified = false;
 
 export const setSessionExpiredHandler = (handler: () => void) => {
   onSessionExpired = handler;
 };
 
-/** A single shared refresh call — concurrent 401s all await the same promise. */
+const flushRefreshQueue = (ok: boolean, error?: unknown) => {
+  const queue = refreshQueue;
+  refreshQueue = [];
+  queue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(ok);
+  });
+};
+
+const expireActiveSession = () => {
+  clearAuthTokens();
+  if (!sessionExpiredNotified) {
+    sessionExpiredNotified = true;
+    if (onSessionExpired) onSessionExpired();
+  }
+};
+
+/** A single shared refresh call — concurrent 401s are queued behind this lock. */
 export function refreshSession(): Promise<boolean> {
   if (!hasRefreshCredential()) return Promise.resolve(false);
-  if (refreshPromise) return refreshPromise;
+  if (refreshPromise) {
+    return new Promise<boolean>((resolve, reject) => {
+      refreshQueue.push({ resolve, reject });
+    });
+  }
+
   refreshPromise = (async () => {
     try {
       const refreshToken = getRefreshToken();
@@ -36,6 +65,7 @@ export function refreshSession(): Promise<boolean> {
       }
       try {
         saveTokensFrom(await r.json());
+        sessionExpiredNotified = false;
       } catch {
         /* refresh doar pe cookie */
       }
@@ -45,7 +75,19 @@ export function refreshSession(): Promise<boolean> {
     } finally {
       refreshPromise = null;
     }
-  })();
+  })()
+    .then((ok) => {
+      flushRefreshQueue(ok);
+      return ok;
+    })
+    .catch((error) => {
+      flushRefreshQueue(false, error);
+      return false;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
   return refreshPromise;
 }
 
@@ -76,8 +118,18 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const isAuthBypass = AUTH_BYPASS.includes(path);
 
-  if (!isAuthBypass && isAccessTokenExpired(getAccessToken()) && hasRefreshCredential()) {
-    await refreshSession();
+  const currentAccessToken = getAccessToken();
+  if (
+    !isAuthBypass &&
+    currentAccessToken &&
+    isAccessTokenExpired(currentAccessToken) &&
+    hasRefreshCredential()
+  ) {
+    const refreshed = await refreshSession();
+    if (!refreshed) {
+      expireActiveSession();
+      throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
+    }
   }
 
   const isFormData =
@@ -112,15 +164,13 @@ export async function apiFetch<T>(
   if (isAuthBypass) throw await extractError(res);
 
   if (options._retry) {
-    clearAuthTokens();
-    if (onSessionExpired) onSessionExpired();
+    expireActiveSession();
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
 
   const refreshed = await refreshSession();
   if (!refreshed) {
-    clearAuthTokens();
-    if (onSessionExpired) onSessionExpired();
+    expireActiveSession();
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
 
