@@ -1,7 +1,9 @@
 import { API_URL } from "./config";
 import {
-  getAccessToken,
-  clearAccessToken,
+  getRefreshToken,
+  getUsableAccessToken,
+  hasRefreshCredential,
+  clearAuthTokens,
   saveTokensFrom,
 } from "./token";
 
@@ -14,16 +16,22 @@ export const setSessionExpiredHandler = (handler: () => void) => {
 };
 
 /** A single shared refresh call — concurrent 401s all await the same promise. */
-function doRefresh(): Promise<boolean> {
+export function refreshSession(): Promise<boolean> {
+  if (!hasRefreshCredential()) return Promise.resolve(false);
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     try {
+      const refreshToken = getRefreshToken();
       const r = await fetch(`${API_URL}/auth/refresh`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
+        body: refreshToken ? JSON.stringify({ refresh_token: refreshToken }) : undefined,
       });
-      if (!r.ok) return false;
+      if (!r.ok) {
+        clearAuthTokens();
+        return false;
+      }
       try {
         saveTokensFrom(await r.json());
       } catch {
@@ -70,7 +78,7 @@ export async function apiFetch<T>(
     ...options.headers,
   };
 
-  const token = getAccessToken();
+  const token = getUsableAccessToken();
   if (token && !headers.Authorization) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -95,14 +103,14 @@ export async function apiFetch<T>(
   if (AUTH_BYPASS.includes(path)) throw await extractError(res);
 
   if (options._retry) {
-    clearAccessToken();
+    clearAuthTokens();
     if (onSessionExpired) onSessionExpired();
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
 
-  const refreshed = await doRefresh();
+  const refreshed = await refreshSession();
   if (!refreshed) {
-    clearAccessToken();
+    clearAuthTokens();
     if (onSessionExpired) onSessionExpired();
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
