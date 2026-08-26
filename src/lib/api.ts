@@ -1,8 +1,10 @@
 import { API_URL } from "./config";
 import {
+  getAccessToken,
   getRefreshToken,
   getUsableAccessToken,
   hasRefreshCredential,
+  isAccessTokenExpired,
   clearAuthTokens,
   saveTokensFrom,
 } from "./token";
@@ -72,6 +74,12 @@ export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
+  const isAuthBypass = AUTH_BYPASS.includes(path);
+
+  if (!isAuthBypass && isAccessTokenExpired(getAccessToken()) && hasRefreshCredential()) {
+    await refreshSession();
+  }
+
   const isFormData =
     typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
@@ -101,7 +109,7 @@ export async function apiFetch<T>(
   }
 
   // 401 — nu încercăm refresh pe rutele de autentificare de bază
-  if (AUTH_BYPASS.includes(path)) throw await extractError(res);
+  if (isAuthBypass) throw await extractError(res);
 
   if (options._retry) {
     clearAuthTokens();
