@@ -30,7 +30,6 @@ import {
   type Room,
   type RoomUnit,
   type RoomBooking,
-  type Nomenclature,
   type AdminUser,
 } from "../../lib/admin";
 
