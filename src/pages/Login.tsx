@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
-import { saveTokensFrom, clearAuthTokens } from "../lib/token";
+import { saveTokensFrom, clearAuthTokens, markAuthSession } from "../lib/token";
 
 
 export default function Login() {
@@ -82,6 +82,7 @@ export default function Login() {
 
       if (res.ok) {
         saveTokensFrom(data);
+        markAuthSession();
         const session = await fetchSession(true);
         if (session && (session as any).is_active === false) {
           clearAuthTokens();
@@ -150,6 +151,7 @@ export default function Login() {
 
       if (res.ok) {
         saveTokensFrom(await res.json().catch(() => null));
+        markAuthSession();
         const session = await fetchSession(true);
         if (session && (session as any).is_active === false) {
           clearAuthTokens();

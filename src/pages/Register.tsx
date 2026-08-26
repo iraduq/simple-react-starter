@@ -1,5 +1,5 @@
 import { API_URL } from "../lib/config";
-import { saveTokensFrom } from "../lib/token";
+import { markAuthSession, saveTokensFrom } from "../lib/token";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
@@ -212,6 +212,7 @@ export default function Register() {
 
       if (res.ok) {
         saveTokensFrom(await res.json().catch(() => null));
+        markAuthSession();
         await fetchSession(true);
         notifySessionChange();
         navigate("/profile");

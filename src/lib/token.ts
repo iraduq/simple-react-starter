@@ -54,7 +54,7 @@ export const markAuthSession = () => safeSet(AUTH_SESSION_KEY, "1");
 export const hasAuthSessionMarker = () => safeGet(AUTH_SESSION_KEY) === "1";
 
 export const hasRefreshCredential = () =>
-  Boolean(getRefreshToken());
+  Boolean(getRefreshToken() || hasAuthSessionMarker());
 
 export const clearAccessToken = () => setAccessToken(null);
 
@@ -124,5 +124,5 @@ export const saveTokensFrom = (data: unknown) => {
   const { token, refresh } = pickTokens(data);
   if (token) setAccessToken(token);
   if (refresh) setRefreshToken(refresh);
-  if (refresh) markAuthSession();
+  if (token || refresh) markAuthSession();
 };

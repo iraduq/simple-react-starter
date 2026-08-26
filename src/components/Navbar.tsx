@@ -78,7 +78,7 @@ export default function Navbar() {
   const { toast } = useToast();
 
   const handleLogout = async () => {
-    clearSession();
+    await clearSession();
     setAcctOpen(false);
     toast("Te-ai delogheat cu succes.", "success");
     navigate("/");
