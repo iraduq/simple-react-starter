@@ -72,7 +72,7 @@ export default function Profile() {
   useEffect(() => {
     let active = true;
     (async () => {
-      const s = await fetchSession(true);
+      const s = await fetchSession(false);
       if (!active) return;
       if (!s) {
         navigate("/login", { replace: true });

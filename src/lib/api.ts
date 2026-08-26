@@ -19,6 +19,7 @@ let refreshPromise: Promise<boolean> | null = null;
 let refreshQueue: QueuedRefresh[] = [];
 let onSessionExpired: (() => void) | null = null;
 let sessionExpiredNotified = false;
+const inflightGetRequests = new Map<string, Promise<unknown>>();
 
 export const setSessionExpiredHandler = (handler: () => void) => {
   onSessionExpired = handler;
@@ -97,6 +98,16 @@ type RequestOptions = {
   _retry?: boolean;
 };
 
+const shouldCoalesceRequest = (options: RequestOptions) => {
+  const method = (options.method || "GET").toUpperCase();
+  return method === "GET" && !options.signal && !options._retry;
+};
+
+const makeRequestKey = (path: string, options: RequestOptions) => {
+  const headers = options.headers ? JSON.stringify(options.headers) : "";
+  return `${path}|${headers}`;
+};
+
 const AUTH_BYPASS = [
   "/auth/login",
   "/auth/refresh",
@@ -113,6 +124,20 @@ export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
+  if (shouldCoalesceRequest(options)) {
+    const key = makeRequestKey(path, options);
+    const existing = inflightGetRequests.get(key);
+    if (existing) return existing as Promise<T>;
+
+    const request = apiFetch<T>(path, { ...options, _retry: false }).finally(
+      () => {
+        inflightGetRequests.delete(key);
+      },
+    );
+    inflightGetRequests.set(key, request as Promise<unknown>);
+    return request;
+  }
+
   const isAuthBypass = AUTH_BYPASS.includes(path);
 
   const currentAccessToken = getAccessToken();
