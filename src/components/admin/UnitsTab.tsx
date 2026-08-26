@@ -337,28 +337,19 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   );
 }
 
-/** Modal de editare pentru o unitate (număr, tip pat, status). */
+/** Modal de editare pentru o unitate (număr, status). */
 function EditUnitModal({
   unit,
   index,
-  bedTypes,
   onClose,
   onSave,
 }: {
   unit: RoomUnit;
   index: number;
-  bedTypes: Nomenclature[];
   onClose: () => void;
-  onSave: (payload: {
-    unitNumber: string;
-    bedTypeId: string;
-    status: string;
-  }) => Promise<void>;
+  onSave: (payload: { unitNumber: string; status: string }) => Promise<void>;
 }) {
   const [unitNumber, setUnitNumber] = useState(unitLabel(unit, index));
-  const [bedTypeId, setBedTypeId] = useState(
-    unit.bed_type?.id ? String(unit.bed_type.id) : "",
-  );
   const [status, setStatus] = useState(unit.status || "active");
   const [saving, setSaving] = useState(false);
 
@@ -366,7 +357,7 @@ function EditUnitModal({
     if (!unitNumber.trim()) return;
     setSaving(true);
     try {
-      await onSave({ unitNumber: unitNumber.trim(), bedTypeId, status });
+      await onSave({ unitNumber: unitNumber.trim(), status });
     } finally {
       setSaving(false);
     }
@@ -406,24 +397,6 @@ function EditUnitModal({
               onChange={(e) => setUnitNumber(e.target.value)}
               className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-2.5 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
             />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
-              Tip pat
-            </label>
-            <select
-              value={bedTypeId}
-              onChange={(e) => setBedTypeId(e.target.value)}
-              className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-2.5 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
-            >
-              <option value="">Fără tip specificat</option>
-              {bedTypes.map((bt) => (
-                <option key={bt.id} value={String(bt.id)}>
-                  {bt.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div>
@@ -629,8 +602,6 @@ export default function UnitsTab() {
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
   const [openUnit, setOpenUnit] = useState<string | null>(null);
-  const [bedTypes, setBedTypes] = useState<Nomenclature[]>([]);
-  const [bedTypeId, setBedTypeId] = useState<string>("");
 
   // State-uri pentru meniuri Dropdown
   const [ubPages, setUbPages] = useState<Record<string, number>>({});
@@ -643,17 +614,6 @@ export default function UnitsTab() {
     unit: RoomUnit;
     index: number;
   } | null>(null);
-
-  const loadBedTypes = async () => {
-    try {
-      const data = await get<unknown>("/rooms/bed-types");
-      const bts = list<Nomenclature>(data);
-      setBedTypes(bts);
-      if (bts.length) setBedTypeId((v) => v || String(bts[0].id));
-    } catch {
-      setBedTypes([]);
-    }
-  };
 
   const loadRoomsAndUsers = async () => {
     setLoading(true);
@@ -700,7 +660,6 @@ export default function UnitsTab() {
 
   useEffect(() => {
     void loadRoomsAndUsers();
-    void loadBedTypes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -766,7 +725,6 @@ export default function UnitsTab() {
     try {
       await post(`/rooms/${selectedId}/units`, {
         unit_number: unitNumber.trim(),
-        bed_type_id: bedTypeId ? Number(bedTypeId) : 1,
       });
 
       toast("Unitate adăugată.", "success");
@@ -803,19 +761,13 @@ export default function UnitsTab() {
 
   const saveUnitEdits = async (
     u: RoomUnit,
-    payload: { unitNumber: string; bedTypeId: string; status: string },
+    payload: { unitNumber: string; status: string },
   ) => {
     if (!selectedId) return;
     try {
       const body: Record<string, unknown> = {};
       if (payload.unitNumber && payload.unitNumber !== u.unit_number) {
         body.unit_number = payload.unitNumber;
-      }
-      if (
-        payload.bedTypeId &&
-        payload.bedTypeId !== String(u.bed_type?.id ?? "")
-      ) {
-        body.bed_type_id = Number(payload.bedTypeId);
       }
       if (payload.status && payload.status !== (u.status || "active")) {
         body.status = payload.status;
@@ -1018,18 +970,6 @@ export default function UnitsTab() {
                   placeholder="Număr unitate — ex: 101"
                   className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
                 />
-                <select
-                  value={bedTypeId}
-                  onChange={(e) => setBedTypeId(e.target.value)}
-                  className="shrink-0 rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white sm:w-[190px]"
-                >
-                  <option value="">Tip pat (opțional)</option>
-                  {bedTypes.map((bt) => (
-                    <option key={bt.id} value={String(bt.id)}>
-                      {bt.name}
-                    </option>
-                  ))}
-                </select>
                 <button
                   disabled={adding || !unitNumber.trim()}
                   onClick={() => void addUnit()}
@@ -1092,10 +1032,6 @@ export default function UnitsTab() {
                                 <span className="text-[14px] font-semibold text-[#0d2c5c]">
                                   {unitLabel(u, i)}
                                 </span>
-                                <span className="text-[13px] font-medium text-[#2a3b52]">
-                                  {u.bed_type?.name || "Fără pat specificat"}
-                                </span>
-
                                 <Badge tone={statusTone(u.status)}>
                                   {statusLabel(u.status)}
                                 </Badge>
@@ -1189,16 +1125,6 @@ export default function UnitsTab() {
                                 {[
                                   { l: "Unitate", v: unitLabel(u, i) },
                                   { l: "ID", v: uid.slice(0, 8) },
-                                  {
-                                    l: "Tip pat",
-                                    v: u.bed_type?.name || "—",
-                                  },
-                                  {
-                                    l: "Capacitate",
-                                    v: u.bed_type?.capacity
-                                      ? `${u.bed_type.capacity} pers.`
-                                      : "—",
-                                  },
                                   { l: "Status", v: statusLabel(u.status) },
                                   {
                                     l: "Rezervări active",
@@ -1573,7 +1499,6 @@ export default function UnitsTab() {
         <EditUnitModal
           unit={editingUnit.unit}
           index={editingUnit.index}
-          bedTypes={bedTypes}
           onClose={() => setEditingUnit(null)}
           onSave={(payload) => saveUnitEdits(editingUnit.unit, payload)}
         />
