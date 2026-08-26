@@ -24,17 +24,13 @@ export type RoomImage = {
   url?: string;
   image_url?: string;
 };
+
 export type RoomUnit = {
   id: number | string;
   name?: string | null;
   code?: string | null;
   unit_number?: string | null;
   status?: string | null;
-  bed_type?: {
-    id?: number | string;
-    name?: string | null;
-    capacity?: number | null;
-  } | null;
   is_active?: boolean | null;
 };
 
@@ -74,7 +70,6 @@ export type Room = {
   capacity?: number | null;
   size_sqm?: number | null;
   room_type_id?: number | string | null;
-  bed_type_id?: number | string | null;
   is_active?: boolean | null;
   images?: RoomImage[];
   units?: RoomUnit[];

@@ -97,7 +97,11 @@ export default function RoomDetail() {
     endDate.setMonth(endDate.getMonth() + 8);
     (async () => {
       try {
-        const entries = await getRoomCalendar(roomId, start, toISODate(endDate));
+        const entries = await getRoomCalendar(
+          roomId,
+          start,
+          toISODate(endDate),
+        );
         if (active) setBlocked(unavailableDates(entries));
       } catch {
         if (active) setBlocked(new Set());
@@ -134,7 +138,16 @@ export default function RoomDetail() {
     } finally {
       setQuoting(false);
     }
-  }, [roomId, checkIn, checkOut, nights, hasConflict, plan, adults, room?.room_type?.id]);
+  }, [
+    roomId,
+    checkIn,
+    checkOut,
+    nights,
+    hasConflict,
+    plan,
+    adults,
+    room?.room_type?.id,
+  ]);
 
   useEffect(() => {
     void loadQuote();
@@ -176,7 +189,9 @@ export default function RoomDetail() {
         guests_adults: adults,
         guests_children: children,
         rate_plan_code: plan,
-        special_requests: requests.trim() ? requests.trim().slice(0, 500) : null,
+        special_requests: requests.trim()
+          ? requests.trim().slice(0, 500)
+          : null,
       });
       toast(
         `Rezervare creată${
@@ -188,7 +203,10 @@ export default function RoomDetail() {
       );
       navigate("/rezervarile-mele");
     } catch (err) {
-      toast(httpErrorMessage(err, "Rezervarea nu a putut fi finalizată."), "error");
+      toast(
+        httpErrorMessage(err, "Rezervarea nu a putut fi finalizată."),
+        "error",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -207,7 +225,10 @@ export default function RoomDetail() {
   if (roomError || !room) {
     return (
       <div className="mx-auto max-w-[700px] px-4 py-20 text-center">
-        <p className="text-[16px] text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+        <p
+          className="text-[16px] text-[#0d2c5c]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
           {roomError ?? "Camera nu a fost găsită."}
         </p>
         <Link
@@ -221,7 +242,6 @@ export default function RoomDetail() {
   }
 
   const images = (room.images ?? []).map((i) => i.image_url).filter(Boolean);
-  const bed = room.units?.[0]?.bed_type?.name;
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-10 lg:py-14">
@@ -241,7 +261,13 @@ export default function RoomDetail() {
           />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-1">
             {images.slice(1, 3).map((src) => (
-              <img key={src} src={src} alt={room.title} className="h-[144px] w-full rounded-2xl object-cover" loading="lazy" />
+              <img
+                key={src}
+                src={src}
+                alt={room.title}
+                className="h-[144px] w-full rounded-2xl object-cover"
+                loading="lazy"
+              />
             ))}
           </div>
         </div>
@@ -258,17 +284,30 @@ export default function RoomDetail() {
           >
             {room.title}
           </h1>
-          <p className="mt-3 text-[14.5px] leading-relaxed text-[#6b7c99]">{room.description}</p>
+          <p className="mt-3 text-[14.5px] leading-relaxed text-[#6b7c99]">
+            {room.description}
+          </p>
 
           <div className="mt-6 grid grid-cols-3 gap-3">
             {[
-              { Icon: Users, label: `${room.max_guests_adults} adulți${room.max_guests_children ? ` + ${room.max_guests_children} copii` : ""}` },
-              { Icon: Maximize, label: room.size_sqm ? `${room.size_sqm} m²` : "—" },
-              { Icon: BedDouble, label: bed ?? "—" },
+              {
+                Icon: Users,
+                label: `${room.max_guests_adults} adulți${room.max_guests_children ? ` + ${room.max_guests_children} copii` : ""}`,
+              },
+              {
+                Icon: Maximize,
+                label: room.size_sqm ? `${room.size_sqm} m²` : "—",
+              },
+              { Icon: BedDouble, label: "Cameră confortabilă" },
             ].map(({ Icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-2 py-4 text-center">
+              <div
+                key={label}
+                className="flex flex-col items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-2 py-4 text-center"
+              >
                 <Icon size={16} className="text-[#c69a3f]" />
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#3d4f6b]">{label}</span>
+                <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#3d4f6b]">
+                  {label}
+                </span>
               </div>
             ))}
           </div>
@@ -276,7 +315,10 @@ export default function RoomDetail() {
           {room.facilities && room.facilities.length > 0 && (
             <ul className="mt-6 flex flex-wrap gap-2">
               {room.facilities.map((f) => (
-                <li key={String(f.id)} className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] bg-[#f6f9fd] px-3 py-1.5 text-[12px] text-[#0d2c5c]">
+                <li
+                  key={String(f.id)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] bg-[#f6f9fd] px-3 py-1.5 text-[12px] text-[#0d2c5c]"
+                >
                   <Check size={12} className="text-[#c69a3f]" /> {f.name}
                 </li>
               ))}
@@ -286,17 +328,27 @@ export default function RoomDetail() {
           {/* Nightly dynamic breakdown */}
           {quote && quote.nightly_breakdown.length > 0 && (
             <section className="mt-9 rounded-2xl border border-[#e1e8f0] bg-white p-5">
-              <h2 className="flex items-center gap-2 text-[15px] text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
-                <CalendarDays size={16} className="text-[#c69a3f]" /> Preț dinamic pe nopți
+              <h2
+                className="flex items-center gap-2 text-[15px] text-[#0d2c5c]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                <CalendarDays size={16} className="text-[#c69a3f]" /> Preț
+                dinamic pe nopți
               </h2>
               <p className="mt-1 text-[12px] text-[#8595aa]">
-                Tarifele includ sezonalitatea, nopțile orfane și planul tarifar selectat.
+                Tarifele includ sezonalitatea, nopțile orfane și planul tarifar
+                selectat.
               </p>
               <ul className="mt-4 divide-y divide-[#eef2f8]">
                 {quote.nightly_breakdown.map((n) => (
-                  <li key={n.date} className="flex items-center justify-between py-2.5 text-[13.5px]">
+                  <li
+                    key={n.date}
+                    className="flex items-center justify-between py-2.5 text-[13.5px]"
+                  >
                     <span className="text-[#3d4f6b]">{dayLabel(n.date)}</span>
-                    <span className="font-semibold text-[#0d2c5c]">{ron(adj(n.price_per_night))}</span>
+                    <span className="font-semibold text-[#0d2c5c]">
+                      {ron(adj(n.price_per_night))}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -341,7 +393,9 @@ export default function RoomDetail() {
               minDate={checkIn || today}
               disabledDates={blocked}
               onChange={(v) => {
-                const conflicts = nightsBetween(checkIn, v).filter((d) => blocked.has(d));
+                const conflicts = nightsBetween(checkIn, v).filter((d) =>
+                  blocked.has(d),
+                );
                 if (conflicts.length > 0) {
                   toast(
                     "Perioada selectată conține zile indisponibile. Vă rugăm să alegeți alte date.",
@@ -354,11 +408,25 @@ export default function RoomDetail() {
             />
             <label className="block">
               <span className={labelCls}>Adulți</span>
-              <input type="number" min={1} max={room.max_guests_adults || 10} value={adults} onChange={(e) => setAdults(Number(e.target.value))} className={inputCls} />
+              <input
+                type="number"
+                min={1}
+                max={room.max_guests_adults || 10}
+                value={adults}
+                onChange={(e) => setAdults(Number(e.target.value))}
+                className={inputCls}
+              />
             </label>
             <label className="block">
               <span className={labelCls}>Copii</span>
-              <input type="number" min={0} max={room.max_guests_children || 0} value={children} onChange={(e) => setChildren(Number(e.target.value))} className={inputCls} />
+              <input
+                type="number"
+                min={0}
+                max={room.max_guests_children || 0}
+                value={children}
+                onChange={(e) => setChildren(Number(e.target.value))}
+                className={inputCls}
+              />
             </label>
           </div>
 
@@ -376,8 +444,12 @@ export default function RoomDetail() {
                       : "border-[#e1e8f0] hover:border-[#c69a3f]"
                   }`}
                 >
-                  <span className="block text-[13px] font-semibold text-[#0d2c5c]">{p.label}</span>
-                  <span className="block text-[11.5px] text-[#8595aa]">{p.hint}</span>
+                  <span className="block text-[13px] font-semibold text-[#0d2c5c]">
+                    {p.label}
+                  </span>
+                  <span className="block text-[11.5px] text-[#8595aa]">
+                    {p.hint}
+                  </span>
                 </button>
               ))}
             </div>
@@ -397,23 +469,33 @@ export default function RoomDetail() {
 
           <div className="mt-4 space-y-1.5 border-t border-[#eef2f8] pt-4 text-[13.5px]">
             {quoteError && (
-              <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-[12.5px] text-red-700">
+              <p
+                role="alert"
+                className="rounded-xl bg-red-50 px-3 py-2 text-[12.5px] text-red-700"
+              >
                 {quoteError}
               </p>
             )}
             {hasConflict && (
-              <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-[12.5px] text-red-700">
-                Perioada selectată conține zile indisponibile. Vă rugăm să alegeți alte date.
+              <p
+                role="alert"
+                className="rounded-xl bg-red-50 px-3 py-2 text-[12.5px] text-red-700"
+              >
+                Perioada selectată conține zile indisponibile. Vă rugăm să
+                alegeți alte date.
               </p>
             )}
             {nights === 0 && !quoteError && (
-              <p className="text-[12.5px] text-[#8595aa]">Alege datele pentru a vedea prețul total.</p>
+              <p className="text-[12.5px] text-[#8595aa]">
+                Alege datele pentru a vedea prețul total.
+              </p>
             )}
             {quote && subtotal != null && taxes != null && total != null && (
               <>
                 <div className="flex justify-between text-[#3d4f6b]">
                   <span>
-                    {quote.nights} {quote.nights === 1 ? "noapte" : "nopți"} · cazare
+                    {quote.nights} {quote.nights === 1 ? "noapte" : "nopți"} ·
+                    cazare
                   </span>
                   <span>{ron(subtotal)}</span>
                 </div>
@@ -426,13 +508,15 @@ export default function RoomDetail() {
                   <span>{quoting ? "…" : ron(total)}</span>
                 </div>
                 <p className="pt-1 text-[11.5px] leading-relaxed text-[#8595aa]">
-                  Preț total pentru {quote.nights} {quote.nights === 1 ? "noapte" : "nopți"},
-                  incluzând taxele și reducerile aplicate (sezonalitate, weekend, nopți orfane,
-                  plan tarifar).
+                  Preț total pentru {quote.nights}{" "}
+                  {quote.nights === 1 ? "noapte" : "nopți"}, incluzând taxele și
+                  reducerile aplicate (sezonalitate, weekend, nopți orfane, plan
+                  tarifar).
                 </p>
                 {isDeal && baseTotal != null && (
                   <p className="text-[11.5px] text-[#8595aa]">
-                    Preț standard <span className="line-through">{ron(baseTotal)}</span>
+                    Preț standard{" "}
+                    <span className="line-through">{ron(baseTotal)}</span>
                   </p>
                 )}
               </>
@@ -442,10 +526,20 @@ export default function RoomDetail() {
           <button
             type="button"
             onClick={finalize}
-            disabled={submitting || quoting || nights === 0 || hasConflict || !!quoteError}
+            disabled={
+              submitting ||
+              quoting ||
+              nights === 0 ||
+              hasConflict ||
+              !!quoteError
+            }
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0d2c5c] px-5 py-3.5 text-[12px] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#c69a3f] hover:text-[#0d2c5c] disabled:opacity-60"
           >
-            {submitting ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
+            {submitting ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <ShieldCheck size={16} />
+            )}
             Finalizează rezervarea
           </button>
           <p className="mt-2 text-center text-[11px] text-[#8595aa]">

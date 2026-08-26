@@ -29,7 +29,6 @@ type ApiRoom = {
   capacity?: number | null;
   size_sqm?: number | null;
   room_type_id?: number | string | null;
-  bed_type_id?: number | string | null;
   is_active?: boolean | null;
   images?: RoomImage[];
   units?: unknown[];
@@ -38,7 +37,6 @@ type ApiRoom = {
   badge?: string | null;
   rating?: number | null;
   reviews?: number | null;
-  bed?: string | null;
   amenities?: string[] | null;
   max_guests_adults?: number;
   max_guests_children?: number;
@@ -94,7 +92,7 @@ function mapRoom(r: ApiRoom): DisplayRoom {
     reviews: Number(r.reviews || 12),
     guests: totalGuests,
     size: r.size_sqm ? `${r.size_sqm} m²` : "30 m²",
-    bed: r.bed || "Pat King",
+    bed: "Cameră confortabilă",
     badge: r.badge || undefined,
     description: r.description || "",
     amenities: finalAmenities,
@@ -349,7 +347,6 @@ export default function Rooms() {
               <em className="italic text-[#c69a3f] relative z-10">
                 gândite pentru odihnă
               </em>
-              {/* Container cu overflow-hidden mutat într-o poziție absolută pentru a NU afecta alinierea verticală a textului */}
               <span className="absolute inset-0 overflow-hidden pointer-events-none z-20">
                 <motion.span
                   animate={{ left: ["-100%", "200%"] }}
@@ -387,7 +384,7 @@ export default function Rooms() {
         </div>
       </section>
 
-      {/* ── AMBIENT BACKGROUND ORBS (PENTRU ZONA DE CAMERE) ── */}
+      {/* ── AMBIENT BACKGROUND ORBS ── */}
       <motion.div
         animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0.7, 0.4] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
@@ -398,142 +395,6 @@ export default function Rooms() {
         transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
         className="absolute bottom-[10%] left-[-10%] w-[800px] h-[800px] bg-[#0d2c5c]/5 rounded-full blur-[120px] pointer-events-none z-0"
       />
-
-      {/* ── SVG WATERMARKS (TEMATICĂ CAZARE / NAVIGAȚIE) ── */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 mt-[400px]">
-        {/* 1. Cheie Vintage (AURIU) - Dreapta Sus */}
-        <motion.div
-          animate={{ rotate: [-5, 5, -5] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[5%] right-[5%] w-[180px] h-[180px] opacity-[0.08]"
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="#c69a3f"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="160" cy="40" r="20" />
-            <circle cx="160" cy="40" r="8" strokeWidth="3" />
-            <path d="M145 55 L30 170" />
-            <path d="M50 150 L35 135 L45 125 L60 140" />
-            <path d="M70 130 L60 120" />
-          </svg>
-        </motion.div>
-
-        {/* 2. Velier (NAVY) - Centru Stânga */}
-        <motion.div
-          animate={{ y: [0, -15, 0], rotate: [-2, 2, -2] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[35%] left-[2%] w-[320px] h-[320px] opacity-[0.04]"
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="#122F5B"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M100 20 L100 155" />
-            <path
-              d="M100 30 Q160 80 150 145 L100 145 Z"
-              fill="#122F5B"
-              fillOpacity="0.05"
-            />
-            <path
-              d="M90 45 Q35 90 50 145 L90 145 Z"
-              fill="#122F5B"
-              fillOpacity="0.05"
-            />
-            <path d="M30 155 L170 155 L140 180 L60 180 Z" />
-            <path d="M100 20 L125 30 L100 40 Z" fill="#122F5B" />
-            <path
-              d="M20 170 Q35 160 50 170 T80 170 T110 170 T140 170 T170 170 T200 170"
-              strokeWidth="2"
-              strokeOpacity="0.5"
-            />
-          </svg>
-        </motion.div>
-
-        {/* 3. Busolă (AURIU + NAVY) - Centru Dreapta Jos */}
-        <div
-          className="absolute bottom-[10%] right-[-5%] w-[450px] h-[450px] opacity-[0.06]"
-          style={{ animation: "spin 180s linear infinite" }}
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle
-              cx="100"
-              cy="100"
-              r="80"
-              stroke="#c69a3f"
-              strokeWidth="3"
-              strokeDasharray="6 8"
-            />
-            <circle cx="100" cy="100" r="65" stroke="#122F5B" strokeWidth="1" />
-            <circle cx="100" cy="100" r="50" stroke="#c69a3f" strokeWidth="4" />
-            <path
-              d="M100 10 L115 85 L190 100 L115 115 L100 190 L85 115 L10 100 L85 85 Z"
-              fill="#122F5B"
-              fillOpacity="0.3"
-            />
-            <path
-              d="M100 10 L100 190 M10 100 L190 100"
-              stroke="#c69a3f"
-              strokeWidth="2"
-              strokeOpacity="0.8"
-            />
-          </svg>
-        </div>
-
-        {/* 4. Far Marin (NAVY) - Stânga Jos */}
-        <motion.div
-          animate={{ opacity: [0.03, 0.08, 0.03] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[2%] left-[8%] w-[250px] h-[250px] opacity-[0.05]"
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="#122F5B"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M75 180 L125 180 L115 60 L85 60 Z" />
-            <path d="M80 60 L120 60 L120 40 L80 40 Z" />
-            <path
-              d="M80 40 Q100 10 120 40 Z"
-              fill="#122F5B"
-              fillOpacity="0.1"
-            />
-            <path d="M70 180 L130 180" strokeWidth="6" />
-            <path
-              d="M90 60 L90 180 M110 60 L110 180"
-              strokeWidth="2"
-              strokeDasharray="10 10"
-            />
-            <path
-              d="M125 50 L190 30 M125 50 L190 70"
-              stroke="#c69a3f"
-              strokeWidth="3"
-              strokeDasharray="8 8"
-            />
-            <path
-              d="M75 50 L10 30 M75 50 L10 70"
-              stroke="#c69a3f"
-              strokeWidth="3"
-              strokeDasharray="8 8"
-            />
-          </svg>
-        </motion.div>
-      </div>
 
       {/* ── LISTĂ CAMERE ── */}
       <section className="relative z-10 py-[60px] md:py-[100px] px-5 md:px-10">
@@ -610,10 +471,12 @@ export default function Rooms() {
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
+                    transition={{
+                      duration: 0.7,
+                      ease: [0.22, 1, 0.36, 1] as const,
+                    }}
                     className="group relative grid grid-cols-1 lg:grid-cols-2 rounded-[26px] overflow-hidden border border-[#e1e8f0] bg-white shadow-[0_4px_20px_rgba(13,44,92,0.03),0_24px_60px_-30px_rgba(13,44,92,0.1)] transition-all duration-500 hover:border-[#c69a3f]/40 hover:shadow-[0_8px_30px_rgba(13,44,92,0.06),0_40px_90px_-32px_rgba(13,44,92,0.2)]"
                   >
-                    {/* Linia aurie dinamică de pe marginea cardului pe hover */}
                     <div className="pointer-events-none absolute inset-0 rounded-[26px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
 
                     <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
@@ -625,7 +488,6 @@ export default function Rooms() {
                     </div>
 
                     <div className="flex flex-col justify-center p-8 md:p-12 relative overflow-hidden">
-                      {/* Reflexie subtilă în fundalul textului la hover */}
                       <motion.div
                         initial={{ x: "-100%", opacity: 0 }}
                         whileHover={{ x: "200%", opacity: 0.5 }}
