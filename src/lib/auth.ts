@@ -1,5 +1,6 @@
 import { apiFetch, ApiError } from "./api";
-import { clearAuthTokens, hasStoredAuth } from "./token";
+import { API_URL } from "./config";
+import { clearAuthTokens, getAccessToken, hasStoredAuth } from "./token";
 
 export { apiFetch, ApiError };
 export { setSessionExpiredHandler } from "./api";
@@ -60,17 +61,24 @@ export const notifySessionChange = () => {
 };
 
 export const clearSession = async () => {
+  const accessToken = getAccessToken();
   const hadStoredAuth = hasStoredAuth();
   clearAuthTokens();
   cachedUser = null;
   hasFetched = true;
+  notifySessionChange();
 
   try {
-    if (hadStoredAuth) await apiFetch("/auth/logout", { method: "POST" });
+    if (hadStoredAuth) {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      });
+    }
   } catch {
     // ignorăm eroarea de rețea, tot ștergem starea locală
   }
-  notifySessionChange();
 };
 
 export const onSessionChange = (callback: () => void) => {
