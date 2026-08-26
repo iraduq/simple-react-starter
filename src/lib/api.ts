@@ -83,9 +83,6 @@ export function refreshSession(): Promise<boolean> {
       refreshPromise = null;
       flushRefreshQueue(false, error);
       return false;
-    })
-    .finally(() => {
-      if (refreshPromise === refreshPromise) refreshPromise = null;
     });
 
   return refreshPromise;
