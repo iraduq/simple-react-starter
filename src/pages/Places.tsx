@@ -877,7 +877,7 @@ function PlaceDetailModal({
 }) {
   // Colectăm toate imaginile disponibile
   const allImages = useMemo(() => {
-    const list = [];
+    const list: string[] = [];
     if (place.images && Array.isArray(place.images)) {
       place.images.forEach((img) => {
         const u = img.image_url || img.url;
