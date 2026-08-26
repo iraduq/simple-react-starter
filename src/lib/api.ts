@@ -153,7 +153,10 @@ export async function apiFetch<T>(
     if (!res.ok) throw await extractError(res);
     if (res.status === 204) return undefined as T;
     const data = (await res.json().catch(() => undefined)) as T;
-    if (path.startsWith("/auth/")) saveTokensFrom(data);
+    if (path.startsWith("/auth/")) {
+      saveTokensFrom(data);
+      sessionExpiredNotified = false;
+    }
     return data;
   }
 
