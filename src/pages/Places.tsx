@@ -752,9 +752,9 @@ function PlaceRow({
   return (
     <article
       onClick={onClick}
-      className="group relative cursor-pointer flex flex-col sm:flex-row bg-white rounded-[26px] overflow-hidden border border-[#e1e8f0] shadow-[0_4px_12px_rgba(13,44,92,0.02)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(13,44,92,0.08)]"
+      className="group relative cursor-pointer flex flex-col sm:flex-row bg-white rounded-[4px] overflow-hidden border border-[#e1e8f0] shadow-[0_2px_16px_rgba(13,44,92,0.04)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(13,44,92,0.10)]"
     >
-      <div className="pointer-events-none absolute inset-0 rounded-[26px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
+      <div className="pointer-events-none absolute inset-0 rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
 
       <div className="relative w-full sm:w-72 h-56 sm:h-auto shrink-0 overflow-hidden bg-[#0d2c5c]">
         {getPlaceImageUrl(place) ? (
