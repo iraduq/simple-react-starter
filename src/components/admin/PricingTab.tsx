@@ -7,7 +7,6 @@ import {
   Sliders,
   Calendar,
   DollarSign,
-  ShieldAlert,
 } from "lucide-react";
 import {
   Card,

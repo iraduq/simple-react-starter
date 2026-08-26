@@ -421,9 +421,13 @@ export default function Availability() {
               {rooms.map((r, idx) => {
                 // Folosim direct total_price trimis de backend, altfel facem fallback pe base_price * nopti
                 const calculatedTotal =
-                  r.total_price ?? r.base_price * (nights > 0 ? nights : 1);
+                  r.total_price ??
+                  Number(r.base_price ?? 0) * (nights > 0 ? nights : 1);
                 const displayPerNight =
-                  nights > 0 ? calculatedTotal / nights : r.base_price;
+                  nights > 0
+                    ? calculatedTotal / nights
+                    : Number(r.base_price ?? 0);
+
                 const cap = roomCapacity(r);
 
                 return (
