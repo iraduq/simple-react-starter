@@ -75,15 +75,17 @@ export function refreshSession(): Promise<boolean> {
     }
   })()
     .then((ok) => {
+      refreshPromise = null;
       flushRefreshQueue(ok);
       return ok;
     })
     .catch((error) => {
+      refreshPromise = null;
       flushRefreshQueue(false, error);
       return false;
     })
     .finally(() => {
-      refreshPromise = null;
+      if (refreshPromise === refreshPromise) refreshPromise = null;
     });
 
   return refreshPromise;
