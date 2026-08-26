@@ -148,7 +148,7 @@ export async function apiFetch<T>(
 
   if (!isAuthBypass) {
     const activeRefreshSucceeded = await waitForActiveRefresh();
-    if (!activeRefreshSucceeded && hasRefreshCredential()) {
+    if (!activeRefreshSucceeded) {
       expireActiveSession();
       throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
     }
