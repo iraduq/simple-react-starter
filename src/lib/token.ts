@@ -98,16 +98,30 @@ export const hasStoredAuth = () =>
 /** Extrage și salvează tokenul din orice răspuns de autentificare. */
 export const saveTokensFrom = (data: unknown) => {
   if (!data || typeof data !== "object") return;
-  const o = data as Record<string, unknown>;
-  const token =
-    (typeof o.access_token === "string" && o.access_token) ||
-    (typeof o.accessToken === "string" && o.accessToken) ||
-    (typeof o.token === "string" && o.token) ||
-    null;
-  const refresh =
-    (typeof o.refresh_token === "string" && o.refresh_token) ||
-    (typeof o.refreshToken === "string" && o.refreshToken) ||
-    null;
+
+  const pickTokens = (value: unknown): { token: string | null; refresh: string | null } => {
+    if (!value || typeof value !== "object") return { token: null, refresh: null };
+    const o = value as Record<string, unknown>;
+    const token =
+      (typeof o.access_token === "string" && o.access_token) ||
+      (typeof o.accessToken === "string" && o.accessToken) ||
+      (typeof o.token === "string" && o.token) ||
+      null;
+    const refresh =
+      (typeof o.refresh_token === "string" && o.refresh_token) ||
+      (typeof o.refreshToken === "string" && o.refreshToken) ||
+      null;
+    if (token || refresh) return { token, refresh };
+
+    for (const nested of Object.values(o)) {
+      const found = pickTokens(nested);
+      if (found.token || found.refresh) return found;
+    }
+
+    return { token: null, refresh: null };
+  };
+
+  const { token, refresh } = pickTokens(data);
   if (token) setAccessToken(token);
   if (refresh) setRefreshToken(refresh);
   if (token || refresh) markAuthSession();
