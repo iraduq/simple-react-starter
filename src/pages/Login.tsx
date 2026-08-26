@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
-import { saveTokensFrom, clearAccessToken } from "../lib/token";
+import { saveTokensFrom, clearAuthTokens } from "../lib/token";
 
 
 export default function Login() {
@@ -84,7 +84,7 @@ export default function Login() {
         saveTokensFrom(data);
         const session = await fetchSession(true);
         if (session && (session as any).is_active === false) {
-          clearAccessToken();
+          clearAuthTokens();
           notifySessionChange();
           setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
           return;
@@ -152,7 +152,7 @@ export default function Login() {
         saveTokensFrom(await res.json().catch(() => null));
         const session = await fetchSession(true);
         if (session && (session as any).is_active === false) {
-          clearAccessToken();
+          clearAuthTokens();
           notifySessionChange();
           setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
           return;

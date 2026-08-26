@@ -10,7 +10,6 @@ import {
   onSessionChange,
   type SessionUser,
 } from "../lib/auth";
-import { apiFetch } from "../lib/api";
 import { useToast } from "../components/Toast";
 
 const LANGS = [
@@ -79,11 +78,6 @@ export default function Navbar() {
   const { toast } = useToast();
 
   const handleLogout = async () => {
-    try {
-      await apiFetch("/auth/logout", { method: "POST" });
-    } catch {
-      // ignore — proceed with local logout
-    }
     clearSession();
     setAcctOpen(false);
     toast("Te-ai delogheat cu succes.", "success");
