@@ -42,6 +42,11 @@ const expireActiveSession = () => {
   }
 };
 
+const waitForActiveRefresh = async () => {
+  if (!refreshPromise) return true;
+  return refreshPromise;
+};
+
 /** A single shared refresh call — concurrent 401s are queued behind this lock. */
 export function refreshSession(): Promise<boolean> {
   if (!hasRefreshCredential()) return Promise.resolve(false);
@@ -141,9 +146,18 @@ export async function apiFetch<T>(
 
   const isAuthBypass = AUTH_BYPASS.includes(path);
 
+  if (!isAuthBypass) {
+    const activeRefreshSucceeded = await waitForActiveRefresh();
+    if (!activeRefreshSucceeded) {
+      expireActiveSession();
+      throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
+    }
+  }
+
   const currentAccessToken = getAccessToken();
   if (
     !isAuthBypass &&
+    !refreshPromise &&
     currentAccessToken &&
     isAccessTokenExpired(currentAccessToken, 0) &&
     hasRefreshCredential()
@@ -194,7 +208,7 @@ export async function apiFetch<T>(
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
 
-  const refreshed = await refreshSession();
+  const refreshed = refreshPromise ? await waitForActiveRefresh() : await refreshSession();
   if (!refreshed) {
     expireActiveSession();
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);

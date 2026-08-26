@@ -25,13 +25,13 @@ let hasFetched = false;
 let fetchPromise: Promise<SessionUser> | null = null;
 
 export const fetchSession = async (force = false): Promise<SessionUser> => {
+  if (fetchPromise) return fetchPromise;
   if (!force && hasFetched) return cachedUser;
   if (!hasStoredAuth()) {
     cachedUser = null;
     hasFetched = true;
     return null;
   }
-  if (fetchPromise) return fetchPromise;
 
   fetchPromise = (async () => {
     try {
