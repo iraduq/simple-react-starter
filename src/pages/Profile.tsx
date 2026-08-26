@@ -679,10 +679,32 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
     loadSessions();
   }, []);
 
-  const revokeSession = async (id: string) => {
+  const finishForcedLogout = async () => {
+    await clearSession();
+    toast("Sesiunea a fost deconectată. Autentifică-te din nou.", "warning");
+    window.location.assign("/login");
+  };
+
+  const revokeSession = async (session: Session) => {
     try {
-      await apiFetch(`/users/me/sessions/${id}`, { method: "DELETE" });
+      const result = await apiFetch<
+        | {
+            current_session_revoked?: boolean;
+            revoked_current?: boolean;
+            logged_out?: boolean;
+          }
+        | undefined
+      >(`/users/me/sessions/${session.id}`, { method: "DELETE" });
       toast("Sesiunea a fost revocată.", "success");
+      if (
+        session.is_current ||
+        result?.current_session_revoked ||
+        result?.revoked_current ||
+        result?.logged_out
+      ) {
+        await finishForcedLogout();
+        return;
+      }
       await loadSessions();
     } catch (e) {
       if (e instanceof ApiError) toast(e.message, "error");
@@ -920,16 +942,14 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                         </div>
                       </div>
                     </div>
-                    {!s.is_current && (
-                      <div className="mt-4 pt-4 border-t border-[#e1e8f0] flex justify-end">
-                        <button
-                          onClick={() => revokeSession(s.id)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-red-600 border border-red-200 bg-white px-3.5 py-2 rounded-full hover:bg-red-50 transition-colors"
-                        >
-                          <LogOut size={12} /> Deconectează
-                        </button>
-                      </div>
-                    )}
+                    <div className="mt-4 pt-4 border-t border-[#e1e8f0] flex justify-end">
+                      <button
+                        onClick={() => revokeSession(s)}
+                        className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-red-600 border border-red-200 bg-white px-3.5 py-2 rounded-full hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut size={12} /> Deconectează
+                      </button>
+                    </div>
                   </article>
                 );
               })}

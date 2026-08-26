@@ -72,8 +72,6 @@ export function refreshSession(): Promise<boolean> {
       return true;
     } catch {
       return false;
-    } finally {
-      refreshPromise = null;
     }
   })()
     .then((ok) => {
@@ -122,7 +120,7 @@ export async function apiFetch<T>(
   if (
     !isAuthBypass &&
     currentAccessToken &&
-    isAccessTokenExpired(currentAccessToken) &&
+    isAccessTokenExpired(currentAccessToken, 0) &&
     hasRefreshCredential()
   ) {
     const refreshed = await refreshSession();

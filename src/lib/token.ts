@@ -79,7 +79,7 @@ const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
   }
 };
 
-export const isAccessTokenExpired = (token = getAccessToken(), skewSeconds = 30) => {
+export const isAccessTokenExpired = (token = getAccessToken(), skewSeconds = 0) => {
   if (!token) return true;
   const payload = decodeJwtPayload(token);
   if (!payload || typeof payload.exp !== "number") return false;
@@ -88,7 +88,7 @@ export const isAccessTokenExpired = (token = getAccessToken(), skewSeconds = 30)
 
 export const getUsableAccessToken = (): string | null => {
   const token = getAccessToken();
-  if (!token || isAccessTokenExpired(token)) return null;
+  if (!token || isAccessTokenExpired(token, 0)) return null;
   return token;
 };
 
