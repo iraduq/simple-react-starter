@@ -22,10 +22,18 @@ import {
   Pagination,
   usePaged,
 } from "./ui";
-import { get, post, patch, del, upload, list, errMsg } from "../../lib/admin";
+import {
+  get,
+  post,
+  patch,
+  del,
+  upload,
+  list,
+  errMsg,
+  API_URL,
+} from "../../lib/admin";
 import { useToast } from "../Toast";
 
-// Structura FĂRĂ imagini în formular, dar cu denumirile cerute de FastAPI
 const EMPTY_FORM = {
   title: "",
   category: "atracție",
@@ -121,10 +129,6 @@ export default function AdminPlacesTab() {
 
     setSaving(true);
     try {
-      // Backend-ul are min_length=5 pe thumb/img — un string gol ("") pică
-      // validarea Pydantic. Trimitem câmpul DOAR dacă există deja o valoare
-      // validă (upload anterior); altfel îl omitem complet din body ca
-      // backend-ul să folosească default-ul lui (None / coloană goală).
       const body: Record<string, unknown> = {
         title: form.title.trim(),
         category: form.category.trim(),
@@ -149,8 +153,6 @@ export default function AdminPlacesTab() {
         toast("Locație adăugată. Acum poți încărca o imagine!", "success");
         setFormOpen(false);
         await load();
-        // Deschidem direct managerul de imagine pentru locația nou creată,
-        // ca fluxul de upload din Supabase bucket să continue imediat.
         if (created?.id) {
           setMediaPlace(created);
         }
@@ -218,84 +220,94 @@ export default function AdminPlacesTab() {
                 </tr>
               </thead>
               <tbody>
-                {paged.slice.map((p) => (
-                  <tr
-                    key={p.id}
-                    className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#f9f7f2] transition-colors"
-                  >
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-3">
-                        {p.thumb || p.image_url ? (
-                          <img
-                            src={p.thumb || p.image_url}
-                            alt=""
-                            className="h-10 w-10 rounded-lg object-cover border border-[#e1e8f0]"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-lg bg-[#eef2f7] flex items-center justify-center text-[#6b7c99]">
-                            <ImageIcon size={18} />
+                {paged.slice.map((p) => {
+                  const thumbImg =
+                    p.thumb ||
+                    p.image_url ||
+                    p.images?.[0]?.image_url ||
+                    p.images?.[0]?.url;
+                  return (
+                    <tr
+                      key={p.id}
+                      className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#f9f7f2] transition-colors"
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          {thumbImg ? (
+                            <img
+                              src={
+                                thumbImg.startsWith("http")
+                                  ? thumbImg
+                                  : `${API_URL}${thumbImg}`
+                              }
+                              alt=""
+                              className="h-10 w-10 rounded-lg object-cover border border-[#e1e8f0]"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-lg bg-[#eef2f7] flex items-center justify-center text-[#6b7c99]">
+                              <ImageIcon size={18} />
+                            </div>
+                          )}
+                          <div>
+                            <span className="block font-semibold text-[#0d2c5c]">
+                              {p.title || p.name}
+                            </span>
+                            <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">
+                              {p.category}
+                            </span>
                           </div>
-                        )}
-                        <div>
-                          <span className="block font-semibold text-[#0d2c5c]">
-                            {p.title || p.name}
-                          </span>
-                          <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">
-                            {p.category}
-                          </span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      {p.badge ? (
-                        <Badge tone="gold">{p.badge}</Badge>
-                      ) : (
-                        <span className="text-[#6b7c99]">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className="flex items-center gap-1 font-semibold text-[#0d2c5c]">
-                        <Star
-                          size={13}
-                          className="text-[#4f6280] fill-[#4f6280]"
-                        />
-                        {Number(p.rating || 0).toFixed(1)}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-[12px] text-[#4f6280]">
-                      <span className="flex items-center gap-1">
-                        <MapPin size={12} className="text-[#4f6280]" />
-                        {p.lat != null ? `${p.lat}, ${p.lng}` : "—"}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEdit(p)}
-                        >
-                          <Pencil size={12} /> Editează
-                        </Button>
-                        {/* Butonul de Upload Imagine */}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setMediaPlace(p)}
-                        >
-                          <Upload size={12} /> Imagine
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() => setDeleteTarget(p)}
-                        >
-                          <Trash2 size={12} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {p.badge ? (
+                          <Badge tone="gold">{p.badge}</Badge>
+                        ) : (
+                          <span className="text-[#6b7c99]">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="flex items-center gap-1 font-semibold text-[#0d2c5c]">
+                          <Star
+                            size={13}
+                            className="text-[#4f6280] fill-[#4f6280]"
+                          />
+                          {Number(p.rating || 0).toFixed(1)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-[12px] text-[#4f6280]">
+                        <span className="flex items-center gap-1">
+                          <MapPin size={12} className="text-[#4f6280]" />
+                          {p.lat != null ? `${p.lat}, ${p.lng}` : "—"}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => openEdit(p)}
+                          >
+                            <Pencil size={12} /> Editează
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setMediaPlace(p)}
+                          >
+                            <Upload size={12} /> Imagine
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => setDeleteTarget(p)}
+                          >
+                            <Trash2 size={12} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <Pagination
@@ -309,7 +321,6 @@ export default function AdminPlacesTab() {
         )}
       </Card>
 
-      {/* ── FORMULAR CREATE/EDIT (Fără poze!) ── */}
       <Modal
         open={formOpen}
         title={editing ? "Editare locație" : "Locație nouă"}
@@ -413,7 +424,6 @@ export default function AdminPlacesTab() {
         </div>
       </Modal>
 
-      {/* ── MODAL STERGERE ── */}
       <Modal
         open={!!deleteTarget}
         title="Șterge atracție"
@@ -436,7 +446,6 @@ export default function AdminPlacesTab() {
         </div>
       </Modal>
 
-      {/* ── MEDIA MANAGER (Aici se uploadeaza poza) ── */}
       {mediaPlace && (
         <PlaceMediaManager
           place={mediaPlace}
@@ -458,7 +467,7 @@ function PlaceMediaManager({
   onChanged: () => void;
 }) {
   const { toast } = useToast();
-  // Presupunem că locurile returnează acum un array de imagini (place.images)
+  const [currentPlace, setCurrentPlace] = useState<any>(place);
   const [images, setImages] = useState<any[]>(place.images || []);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -470,12 +479,17 @@ function PlaceMediaManager({
       const all = list<any>(data);
       const updated = all.find((p) => String(p.id) === String(place.id));
       if (updated) {
+        setCurrentPlace(updated);
         setImages(updated.images || []);
       }
     } catch {
       /* ignore */
     }
   };
+
+  useEffect(() => {
+    void refreshPlace();
+  }, [place.id]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -484,7 +498,7 @@ function PlaceMediaManager({
       const uploadPromises = Array.from(files).map((f) => {
         const fd = new FormData();
         fd.append("file", f);
-        return upload(`/places/${place.id}/images`, fd); // Endpoint-ul dedicat de multiple imagini
+        return upload(`/places/${place.id}/images`, fd);
       });
 
       await Promise.all(uploadPromises);
@@ -509,10 +523,21 @@ function PlaceMediaManager({
     }
   };
 
+  const setPrimaryImage = async (imgId: string) => {
+    try {
+      await patch(`/places/${place.id}/images/${imgId}/primary`, {});
+      toast("Imaginea principală a fost actualizată.", "success");
+      await refreshPlace();
+      onChanged();
+    } catch (e) {
+      toast(errMsg(e), "error");
+    }
+  };
+
   return (
     <Modal
       open
-      title={`Galerie foto: ${place.title || place.name}`}
+      title={`Galerie foto: ${currentPlace.title || currentPlace.name}`}
       onClose={onClose}
       width="max-w-2xl"
     >
@@ -539,7 +564,7 @@ function PlaceMediaManager({
             ref={fileRef}
             type="file"
             accept="image/*"
-            multiple // <--- Permite selectarea mai multor fișiere
+            multiple
             className="hidden"
             onChange={(e) => void handleFiles(e.target.files)}
           />
@@ -564,25 +589,56 @@ function PlaceMediaManager({
               Imagini salvate ({images.length})
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {images.map((img) => (
-                <div
-                  key={img.id}
-                  className="group relative overflow-hidden rounded-xl border border-black/10 bg-black/5 h-28"
-                >
-                  <img
-                    src={img.image_url}
-                    alt=""
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <button
-                    onClick={() => void deleteImage(img.id)}
-                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-600 shadow-md transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
-                    title="Șterge imaginea"
+              {images.map((img) => {
+                const imgUrl = img.image_url || img.url || "";
+                const isPrimary =
+                  currentPlace.thumb === imgUrl || currentPlace.img === imgUrl;
+
+                return (
+                  <div
+                    key={img.id}
+                    className={`group relative overflow-hidden rounded-xl border ${
+                      isPrimary
+                        ? "border-amber-500 ring-2 ring-amber-400"
+                        : "border-black/10"
+                    } bg-black/5 h-28`}
                   >
-                    <Trash2 size={14} strokeWidth={2.5} />
-                  </button>
-                </div>
-              ))}
+                    <img
+                      src={
+                        imgUrl.startsWith("http")
+                          ? imgUrl
+                          : `${API_URL}${imgUrl}`
+                      }
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+
+                    {isPrimary && (
+                      <span className="absolute left-2 top-2 rounded bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white shadow">
+                        Principală
+                      </span>
+                    )}
+
+                    {!isPrimary && (
+                      <button
+                        onClick={() => void setPrimaryImage(img.id)}
+                        className="absolute left-2 top-2 flex h-7 items-center justify-center rounded bg-white/90 px-2 text-[10px] font-bold text-black shadow-md transition-all hover:bg-white opacity-0 group-hover:opacity-100"
+                        title="Setează ca primă poză"
+                      >
+                        Setează principală
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => void deleteImage(img.id)}
+                      className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-600 shadow-md transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+                      title="Șterge imaginea"
+                    >
+                      <Trash2 size={14} strokeWidth={2.5} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ) : (

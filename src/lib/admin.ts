@@ -167,25 +167,11 @@ export const put = <T>(path: string, body: unknown) =>
   apiFetch<T>(path, { method: "PUT", body: json(body) });
 export const del = <T>(path: string) => apiFetch<T>(path, { method: "DELETE" });
 
-/** multipart upload (nu setăm Content-Type, îl pune browserul) */
 export async function upload<T>(path: string, form: FormData): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  return apiFetch<T>(path, {
     method: "POST",
     body: form,
-    credentials: "include",
   });
-  if (!res.ok) {
-    let msg = `Error ${res.status}`;
-    try {
-      const d = await res.json();
-      if (typeof d?.detail === "string") msg = d.detail;
-    } catch {
-      /* ignore */
-    }
-    throw new Error(msg);
-  }
-  if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
 }
 
 export const imageUrl = (img: RoomImage) => img.url || img.image_url || "";

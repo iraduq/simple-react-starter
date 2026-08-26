@@ -8,7 +8,7 @@ import {
   X,
   BedDouble,
   Image as ImageIcon,
-  Check, // <-- Import nou pentru iconița de bifat facilități
+  Check,
 } from "lucide-react";
 import { Badge, EmptyState, Modal } from "./ui";
 import {
@@ -32,20 +32,20 @@ const fieldInput =
 export default function RoomsTab() {
   const { toast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [facilities, setFacilities] = useState<any[]>([]); // 🌟 State pentru facilități
+  const [facilities, setFacilities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editTarget, setEditTarget] = useState<Room | null>(null);
   const [formOpen, setFormOpen] = useState(false);
 
-  // 🌟 Am adăugat facility_ids în form state
   const [form, setForm] = useState({
     title: "",
     description: "",
     base_price: 0,
+    floor_price: 0,
+    ceiling_price: 0,
     max_guests_adults: 2,
     max_guests_children: 0,
     size_sqm: 0,
-    room_type_id: 1,
     facility_ids: [] as number[],
   });
 
@@ -57,7 +57,6 @@ export default function RoomsTab() {
   const load = async () => {
     setLoading(true);
     try {
-      // 🌟 Încărcăm camerele și facilitățile simultan
       const [roomsRes, facRes] = await Promise.allSettled([
         get<unknown>("/rooms"),
         get<unknown>("/rooms/facilities"),
@@ -82,11 +81,12 @@ export default function RoomsTab() {
       title: "",
       description: "",
       base_price: 0,
+      floor_price: 0,
+      ceiling_price: 0,
       max_guests_adults: 2,
       max_guests_children: 0,
       size_sqm: 0,
-      room_type_id: 1,
-      facility_ids: [], // Resetăm selecția
+      facility_ids: [],
     });
     setFormErr({});
     setFormOpen(true);
@@ -98,18 +98,17 @@ export default function RoomsTab() {
       title: r.title || r.name || "",
       description: r.description || "",
       base_price: Number(r.base_price || 0),
+      floor_price: Number(r.floor_price || 0),
+      ceiling_price: Number(r.ceiling_price || 0),
       max_guests_adults: Number(r.max_guests_adults || r.capacity || 2),
       max_guests_children: Number(r.max_guests_children || 0),
       size_sqm: Number(r.size_sqm || 0),
-      room_type_id: Number(r.room_type_id || 1),
-      // 🌟 Extragem ID-urile facilităților deja existente pe cameră
       facility_ids: r.facilities ? r.facilities.map((f: any) => f.id) : [],
     });
     setFormErr({});
     setFormOpen(true);
   };
 
-  // 🌟 Funcție pentru a bifa / debifa o facilitate
   const toggleFacility = (id: number) => {
     setForm((prev) => {
       const exists = prev.facility_ids.includes(id);
@@ -129,24 +128,33 @@ export default function RoomsTab() {
     if (!form.title.trim()) errs.title = "Numele camerei este obligatoriu.";
     if (form.base_price < 0) errs.base_price = "Prețul nu poate fi negativ.";
     if (form.max_guests_adults < 1) errs.max_guests_adults = "Minim 1 adult.";
-    if (!form.room_type_id)
-      errs.room_type_id = "Tipul de cameră este obligatoriu.";
+    if (
+      form.floor_price > 0 &&
+      form.ceiling_price > 0 &&
+      form.floor_price > form.ceiling_price
+    ) {
+      errs.floor_price =
+        "Prețul minim nu poate fi mai mare decât prețul maxim.";
+    }
 
     setFormErr(errs);
     if (Object.keys(errs).length) return;
 
     setSaving(true);
     try {
-      const body = {
+      const body: Record<string, any> = {
         title: form.title.trim(),
         description: form.description.trim(),
         base_price: Number(form.base_price),
         max_guests_adults: Number(form.max_guests_adults),
         max_guests_children: Number(form.max_guests_children),
-        size_sqm: Number(form.size_sqm),
-        room_type_id: Number(form.room_type_id),
-        facility_ids: form.facility_ids, // 🌟 Trimitem ID-urile către backend
+        size_sqm: Number(form.size_sqm) || null,
+        facility_ids: form.facility_ids,
       };
+
+      if (form.floor_price > 0) body.floor_price = Number(form.floor_price);
+      if (form.ceiling_price > 0)
+        body.ceiling_price = Number(form.ceiling_price);
 
       if (editTarget) {
         await patch(`/rooms/${editTarget.id}`, body);
@@ -157,8 +165,20 @@ export default function RoomsTab() {
       }
       setFormOpen(false);
       await load();
-    } catch (e) {
-      toast(errMsg(e), "error");
+    } catch (e: any) {
+      // 🌟 Afișează erorile de validare direct prin Toast
+      const errDetails = e?.response?.data?.details;
+
+      if (errDetails && Array.isArray(errDetails)) {
+        // Dacă sunt mai multe erori, le afișăm pe rând sau le combinăm
+        errDetails.forEach((err: any) => {
+          const fieldName = err.field ? `[${err.field}]: ` : "";
+          toast(`${fieldName}${err.message}`, "error");
+        });
+      } else {
+        // Dacă e o eroare generală, folosim mesajul standard
+        toast(errMsg(e), "error");
+      }
     } finally {
       setSaving(false);
     }
@@ -208,7 +228,11 @@ export default function RoomsTab() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] as const }}
+        transition={{
+          duration: 0.5,
+          delay: 0.1,
+          ease: [0.22, 1, 0.36, 1] as const,
+        }}
       >
         {loading ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -254,7 +278,7 @@ export default function RoomsTab() {
             : "Cameră nouă"
         }
         onClose={() => setFormOpen(false)}
-        width="max-w-2xl" /* 🌟 Un pic mai lat pentru a încăpea facilitățile frumos */
+        width="max-w-2xl"
       >
         <div className="p-6">
           <div className="grid gap-5 sm:grid-cols-2">
@@ -274,23 +298,6 @@ export default function RoomsTab() {
               </FormField>
             </div>
 
-            <FormField label="ID Tip Cameră">
-              <input
-                type="number"
-                min={1}
-                className={`${fieldInput} mt-2`}
-                value={form.room_type_id}
-                onChange={(e) =>
-                  setForm({ ...form, room_type_id: Number(e.target.value) })
-                }
-              />
-              {formErr.room_type_id && (
-                <span className="text-[11px] text-[#0d2c5c] mt-1">
-                  {formErr.room_type_id}
-                </span>
-              )}
-            </FormField>
-
             <FormField label="Preț de bază (RON)">
               <input
                 type="number"
@@ -306,6 +313,49 @@ export default function RoomsTab() {
                   {formErr.base_price}
                 </span>
               )}
+            </FormField>
+
+            <FormField label="Suprafață (mp) - Opțional">
+              <input
+                type="number"
+                min={0}
+                className={`${fieldInput} mt-2`}
+                value={form.size_sqm}
+                onChange={(e) =>
+                  setForm({ ...form, size_sqm: Number(e.target.value) })
+                }
+              />
+            </FormField>
+
+            <FormField label="Preț minim (Floor) - Opțional">
+              <input
+                type="number"
+                min={0}
+                className={`${fieldInput} mt-2`}
+                value={form.floor_price || ""}
+                placeholder="ex: 150"
+                onChange={(e) =>
+                  setForm({ ...form, floor_price: Number(e.target.value) })
+                }
+              />
+              {formErr.floor_price && (
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
+                  {formErr.floor_price}
+                </span>
+              )}
+            </FormField>
+
+            <FormField label="Preț maxim (Ceiling) - Opțional">
+              <input
+                type="number"
+                min={0}
+                className={`${fieldInput} mt-2`}
+                value={form.ceiling_price || ""}
+                placeholder="ex: 800"
+                onChange={(e) =>
+                  setForm({ ...form, ceiling_price: Number(e.target.value) })
+                }
+              />
             </FormField>
 
             <FormField label="Max Adulți">
@@ -343,21 +393,7 @@ export default function RoomsTab() {
               />
             </FormField>
 
-            <div className="sm:col-span-2">
-              <FormField label="Suprafață (mp) - Opțional">
-                <input
-                  type="number"
-                  min={0}
-                  className={`${fieldInput} mt-2`}
-                  value={form.size_sqm}
-                  onChange={(e) =>
-                    setForm({ ...form, size_sqm: Number(e.target.value) })
-                  }
-                />
-              </FormField>
-            </div>
-
-            {/* 🌟 GRILA DE FACILITĂȚI AICI 🌟 */}
+            {/* GRILA DE FACILITĂȚI */}
             <div className="sm:col-span-2">
               <FormField label="Facilități Cameră">
                 {facilities.length === 0 ? (
@@ -522,7 +558,7 @@ function RoomCard({
           {room.size_sqm ? <span>{room.size_sqm} mp</span> : null}
         </div>
 
-        {/* 🌟 Afișează facilitățile pe card, sub detalii */}
+        {/* Afișează facilitățile pe card */}
         {room.facilities && room.facilities.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1">
             {room.facilities.slice(0, 4).map((f: any) => (

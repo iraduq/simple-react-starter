@@ -419,17 +419,11 @@ export default function Availability() {
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
               {rooms.map((r, idx) => {
-                const base = r.base_price ?? null;
-                const perNight =
-                  r.price_per_night ??
-                  (r.total_price != null && nights > 0
-                    ? r.total_price / nights
-                    : base);
-                const total =
-                  r.total_price ??
-                  (perNight != null && nights > 0 ? perNight * nights : null);
-                const discounted =
-                  base != null && perNight != null && perNight < base - 0.5;
+                // Folosim direct total_price trimis de backend, altfel facem fallback pe base_price * nopti
+                const calculatedTotal =
+                  r.total_price ?? r.base_price * (nights > 0 ? nights : 1);
+                const displayPerNight =
+                  nights > 0 ? calculatedTotal / nights : r.base_price;
                 const cap = roomCapacity(r);
 
                 return (
@@ -475,16 +469,7 @@ export default function Availability() {
                         />
                       </div>
 
-                      {/* Gradient bottom for text contrast if needed */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 z-10"></div>
-
-                      {discounted && (
-                        <div className="absolute top-4 left-4 z-20 bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-3.5 py-1.5 rounded-full shadow-md border border-[#fdfcf9]/30">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c]">
-                            Ofertă Specială
-                          </span>
-                        </div>
-                      )}
                     </div>
 
                     <div className="flex flex-1 flex-col p-7 relative z-10">
@@ -533,17 +518,12 @@ export default function Availability() {
 
                       <div className="mt-auto pt-6 flex items-end justify-between border-t border-[#e1e8f0]">
                         <div className="flex flex-col">
-                          {discounted && base != null && (
-                            <span className="text-[12px] text-[#8595aa] line-through decoration-[#c69a3f]/50 mb-0.5">
-                              {ron(nights > 0 ? base * nights : base)}
-                            </span>
-                          )}
                           <p className="text-[24px] font-bold text-[#0d2c5c] leading-none tracking-[-0.02em]">
-                            {ron(total ?? perNight ?? base)}
+                            {ron(calculatedTotal)}
                           </p>
                           <p className="mt-1.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-[#8595aa]">
                             {nights > 0
-                              ? `pt. ${nights} ${nights === 1 ? "noapte" : "nopți"}`
+                              ? `pt. ${nights} ${nights === 1 ? "noapte" : "nopți"} (${ron(displayPerNight)}/noapte)`
                               : "preț / noapte"}
                           </p>
                         </div>

@@ -18,6 +18,7 @@ import {
 import { apiFetch, ApiError } from "../lib/api";
 import { getCachedUser, type SessionUser } from "../lib/auth";
 import { useToast } from "../components/Toast";
+import { API_URL } from "../lib/admin";
 
 type Place = {
   id: number;
@@ -26,8 +27,11 @@ type Place = {
   description: string;
   lat: number;
   lng: number;
-  thumb_url: string | null;
-  image_url: string | null;
+  thumb?: string | null;
+  img?: string | null;
+  thumb_url?: string | null;
+  image_url?: string | null;
+  images?: Array<{ id: string | number; image_url?: string; url?: string }>;
   badge: string | null;
   rating: number;
 };
@@ -64,6 +68,21 @@ const CATEGORIES = [
   "bar",
   "magazin",
 ];
+
+const getPlaceImageUrl = (place: any) => {
+  const rawUrl =
+    place.thumb ||
+    place.image_url ||
+    place.thumb_url ||
+    place.img ||
+    place.images?.[0]?.image_url ||
+    place.images?.[0]?.url ||
+    "";
+
+  if (!rawUrl) return "";
+  if (rawUrl.startsWith("http")) return rawUrl;
+  return `${API_URL}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
+};
 
 export default function Places() {
   const { toast } = useToast();
@@ -491,12 +510,6 @@ export default function Places() {
             {canCreate && (
               <>
                 <div className="hidden md:block w-px h-8 bg-[#e1e8f0] mx-1 shrink-0"></div>
-                <button
-                  onClick={openCreate}
-                  className="shrink-0 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] transition-all hover:shadow-[0_8px_20px_-8px_rgba(198,154,63,0.8)] hover:-translate-y-0.5"
-                >
-                  <Plus size={15} /> Adaugă
-                </button>
               </>
             )}
           </div>
@@ -645,10 +658,10 @@ function PlaceCard({
       <div className="pointer-events-none absolute inset-0 rounded-[26px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
 
       <div className="relative h-56 overflow-hidden bg-[#0d2c5c]">
-        {place.thumb_url || place.image_url ? (
+        {getPlaceImageUrl(place) ? (
           <div className="w-full h-full relative overflow-hidden">
             <motion.img
-              src={place.thumb_url || place.image_url}
+              src={getPlaceImageUrl(place)}
               alt={place.title}
               loading="lazy"
               animate={{ scale: [1, 1.05, 1] }}
@@ -751,10 +764,10 @@ function PlaceRow({
       <div className="pointer-events-none absolute inset-0 rounded-[26px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
 
       <div className="relative w-full sm:w-72 h-56 sm:h-auto shrink-0 overflow-hidden bg-[#0d2c5c]">
-        {place.thumb_url || place.image_url ? (
+        {getPlaceImageUrl(place) ? (
           <div className="w-full h-full relative overflow-hidden">
             <motion.img
-              src={place.thumb_url || place.image_url}
+              src={getPlaceImageUrl(place)}
               alt={place.title}
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
@@ -859,6 +872,7 @@ function BadgePill({ badge }: { badge: string }) {
 }
 
 /* ─────────────── DETAIL MODAL ─────────────── */
+/* ─────────────── DETAIL MODAL (Cu butoane stânga/dreapta pe poza principală) ─────────────── */
 function PlaceDetailModal({
   place,
   onClose,
@@ -866,14 +880,51 @@ function PlaceDetailModal({
   place: Place;
   onClose: () => void;
 }) {
+  // Colectăm toate imaginile disponibile
+  const allImages = useMemo(() => {
+    const list = [];
+    if (place.images && Array.isArray(place.images)) {
+      place.images.forEach((img) => {
+        const u = img.image_url || img.url;
+        if (u) list.push(u);
+      });
+    }
+    const mainThumb =
+      place.thumb || place.image_url || place.thumb_url || place.img;
+    if (mainThumb && !list.includes(mainThumb)) {
+      list.unshift(mainThumb);
+    }
+    return list;
+  }, [place]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const activeImg = allImages[currentIndex] || "";
+
+  // Funcții de navigare stânga / dreapta
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+  };
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <Modal onClose={onClose} maxWidth="max-w-3xl">
-      <div className="relative h-72 md:h-96 overflow-hidden bg-[#0d2c5c]">
-        {place.image_url || place.thumb_url ? (
+      {/* ── Imaginea principală cu butoane de navigare ── */}
+      <div className="relative h-72 md:h-96 overflow-hidden bg-[#0d2c5c] group">
+        {activeImg ? (
           <img
-            src={place.image_url || place.thumb_url!}
+            src={
+              activeImg.startsWith("http")
+                ? activeImg
+                : `${API_URL}${activeImg}`
+            }
             alt={place.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-all duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[#8595aa]">
@@ -882,14 +933,40 @@ function PlaceDetailModal({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c] via-[#0d2c5c]/40 to-transparent opacity-90"></div>
 
+        {/* Buton Închidere X */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] hover:scale-110 transition-all"
+          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] hover:scale-110 transition-all z-30"
         >
           <X size={20} strokeWidth={1.5} />
         </button>
 
-        <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 right-6">
+        {/* Butoane Stânga / Dreapta (Apar la hover sau sunt vizibile pe mobil) */}
+        {allImages.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] transition-all z-30"
+              title="Imaginea anterioară"
+            >
+              ‹
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] transition-all z-30"
+              title="Imaginea următoare"
+            >
+              ›
+            </button>
+
+            {/* Indicator număr imagini (ex: 1 / 4) */}
+            <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white text-[11px] font-bold tracking-wider z-30">
+              {currentIndex + 1} / {allImages.length}
+            </div>
+          </>
+        )}
+
+        <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 right-6 z-20">
           <div className="flex items-center gap-3 mb-3">
             <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
               {place.category}
@@ -902,7 +979,41 @@ function PlaceDetailModal({
         </div>
       </div>
 
-      <div className="p-6 md:p-10 bg-white">
+      <div className="p-6 md:p-10 bg-white overflow-y-auto max-h-[calc(90vh-24rem)]">
+        {/* ── Galerie Thumbnails cu sincronizare ── */}
+        {allImages.length > 1 && (
+          <div className="mb-8">
+            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] block mb-3">
+              Galerie foto ({allImages.length})
+            </span>
+            <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar cursor-pointer">
+              {allImages.map((url, idx) => {
+                const fullUrl = url.startsWith("http")
+                  ? url
+                  : `${API_URL}${url}`;
+                const isSelected = currentIndex === idx;
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    className={`relative shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                      isSelected
+                        ? "border-[#c69a3f] scale-105 shadow-md"
+                        : "border-transparent opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={fullUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-2 mb-7 bg-[#f8fafd] border border-[#e1e8f0] w-fit px-4 py-2 rounded-full">
           <Star size={16} className="text-[#c69a3f] fill-[#c69a3f]" />
           <span className="text-[15px] font-bold text-[#0d2c5c] pt-0.5">

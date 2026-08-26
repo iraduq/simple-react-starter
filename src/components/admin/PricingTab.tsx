@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Lock, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  Trash2,
+  Sliders,
+  Calendar,
+  DollarSign,
+  ShieldAlert,
+} from "lucide-react";
 import {
   Card,
   SectionHeader,
@@ -211,11 +220,9 @@ export default function PricingTab() {
       is_override: isOverrideDay(dateStr, existing),
     });
 
-    // Dacă ziua are deja override sau este blocată, deschidem meniul de acțiuni (Scoatere override / Modificare)
     if (isOverrideDay(dateStr, existing) || existing?.blocked) {
       setActionModalOpen(true);
     } else {
-      // Altfel deschidem direct formularul de adăugare regulă/override
       openRule(dateStr);
     }
   };
@@ -238,38 +245,39 @@ export default function PricingTab() {
   const removeOverrideForDate = async (dateStr: string) => {
     setSaving(true);
     try {
-      // Apelăm endpoint-ul de DELETE creat în backend cu data trimisă ca query param
       await del(`/rooms/${selectedRoom}/pricing-rules?date=${dateStr}`);
-
       const next = new Set(overrides);
       next.delete(dateStr);
       setOverrides(next);
       writeOverrides(selectedRoom, next);
       toast("Override șters. S-a revenit la prețul dinamic.", "success");
       setActionModalOpen(false);
-      await loadCalendar(); // Reîncărcăm calendarul din baza de date
+      await loadCalendar();
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
       setSaving(false);
     }
   };
+
   const submitRule = async () => {
     const errs: Record<string, string> = {};
     if (!rule.start_date) errs.start_date = "Selectează data de start.";
     if (!rule.end_date) errs.end_date = "Selectează data de sfârșit.";
     if (rule.start_date && rule.end_date && rule.start_date > rule.end_date)
       errs.end_date = "Data de sfârșit trebuie să fie după cea de start.";
+
     if (
       !rule.is_blocked &&
+      !rule.closed_to_arrival &&
+      !rule.closed_to_departure &&
+      rule.min_stay === null &&
       (rule.price_override === null || rule.price_override < 0)
-    )
-      errs.price_override = "Introdu un preț valid sau marchează ca blocat.";
-    if (
-      rule.min_stay != null &&
-      (isNaN(Number(rule.min_stay)) || Number(rule.min_stay) < 1)
-    )
-      errs.min_stay = "Șederea minimă trebuie să fie cel puțin 1 noapte.";
+    ) {
+      errs.general =
+        "Completează cel puțin o regulă (preț, blocare sau restricție).";
+    }
+
     setRuleErr(errs);
     if (Object.keys(errs).length) return;
 
@@ -278,17 +286,21 @@ export default function PricingTab() {
       await post(`/rooms/${selectedRoom}/pricing-rules`, {
         start_date: rule.start_date,
         end_date: rule.end_date,
-        price_override: rule.is_blocked ? null : Number(rule.price_override),
+        price_override: rule.is_blocked
+          ? null
+          : rule.price_override !== null
+            ? Number(rule.price_override)
+            : null,
         is_blocked: rule.is_blocked,
         closed_to_arrival: rule.closed_to_arrival,
         closed_to_departure: rule.closed_to_departure,
-        min_stay: Number(rule.min_stay || 1),
+        min_stay: rule.min_stay !== null ? Number(rule.min_stay) : 1,
       });
       const next = new Set(overrides);
       for (const d of eachDate(rule.start_date, rule.end_date)) next.add(d);
       setOverrides(next);
       writeOverrides(selectedRoom, next);
-      toast("Regulă aplicată.", "success");
+      toast("Regulă aplicată cu succes.", "success");
       setRuleOpen(false);
       await loadCalendar();
     } catch (e) {
@@ -430,7 +442,6 @@ export default function PricingTab() {
                             : "border-[#e1e8f0] bg-[#eef2f7] text-[#2a3b52] hover:border-[#0d2c5c]"
                       }`}
                     >
-                      {/* Indicator mic pentru override */}
                       {isOverride && !blocked && (
                         <span
                           className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#c69a3f]"
@@ -456,7 +467,7 @@ export default function PricingTab() {
         </>
       )}
 
-      {/* Modal de opțiuni pentru o zi (Modificare sau Ștergere Override) */}
+      {/* Modal de opțiuni pentru o zi */}
       <Modal
         open={actionModalOpen}
         title={`Gestionare zi: ${selectedDay?.date}`}
@@ -491,120 +502,170 @@ export default function PricingTab() {
         </div>
       </Modal>
 
-      {/* Modal de adăugare regulă nouă */}
+      {/* Modal modern de adăugare regulă / restricții */}
       <Modal
         open={ruleOpen}
-        title="Regulă tarifară / blocare"
+        title="Reguli tarifare & Restricții calendar"
         onClose={() => setRuleOpen(false)}
-        width="max-w-md"
+        width="max-w-lg"
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Data start" error={ruleErr.start_date}>
-              <input
-                type="date"
-                className={inputCls}
-                value={rule.start_date}
-                onChange={(e) =>
-                  setRule({ ...rule, start_date: e.target.value })
-                }
-              />
-            </Field>
-            <Field label="Data sfârșit" error={ruleErr.end_date}>
-              <input
-                type="date"
-                className={inputCls}
-                value={rule.end_date}
-                onChange={(e) => setRule({ ...rule, end_date: e.target.value })}
-              />
-            </Field>
+        <div className="space-y-5 py-1">
+          {ruleErr.general && (
+            <div className="rounded-lg bg-red-50 p-3 text-xs font-medium text-red-600">
+              {ruleErr.general}
+            </div>
+          )}
+
+          {/* Secțiunea 1: Perioada */}
+          <div className="rounded-xl border border-[#e1e8f0] bg-[#f8fafc] p-4">
+            <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">
+              <Calendar size={14} /> Perioada de aplicare
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Data start" error={ruleErr.start_date}>
+                <input
+                  type="date"
+                  className={inputCls}
+                  value={rule.start_date}
+                  onChange={(e) =>
+                    setRule({ ...rule, start_date: e.target.value })
+                  }
+                />
+              </Field>
+              <Field label="Data sfârșit" error={ruleErr.end_date}>
+                <input
+                  type="date"
+                  className={inputCls}
+                  value={rule.end_date}
+                  onChange={(e) =>
+                    setRule({ ...rule, end_date: e.target.value })
+                  }
+                />
+              </Field>
+            </div>
           </div>
-          <Field
-            label="Preț suprascriere (RON / noapte)"
-            error={ruleErr.price_override}
-          >
-            <input
-              type="number"
-              min={0}
-              className={inputCls}
-              value={rule.price_override ?? ""}
-              onChange={(e) =>
-                setRule({
-                  ...rule,
-                  price_override:
-                    e.target.value === "" ? null : Number(e.target.value),
-                })
-              }
-              disabled={rule.is_blocked}
-              placeholder={
-                rule.is_blocked ? "Blocat pentru mentenanță" : "ex: 450"
-              }
-            />
-          </Field>
-          <Field label="Ședere minimă (nopți)" error={ruleErr.min_stay}>
-            <input
-              type="number"
-              min={1}
-              className={inputCls}
-              value={rule.min_stay ?? ""}
-              onChange={(e) =>
-                setRule({
-                  ...rule,
-                  min_stay:
-                    e.target.value === "" ? null : Number(e.target.value),
-                })
-              }
-              placeholder="ex: 2"
-            />
-          </Field>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label className="flex items-center gap-3 rounded-lg border border-[#e1e8f0] p-3">
-              <input
-                type="checkbox"
-                checked={rule.closed_to_arrival}
-                onChange={(e) =>
-                  setRule({ ...rule, closed_to_arrival: e.target.checked })
-                }
-                className="h-4 w-4 accent-[#0d2c5c]"
-              />
-              <span className="text-sm text-[#0d2c5c]">
-                Closed to Arrival
-              </span>
-            </label>
-            <label className="flex items-center gap-3 rounded-lg border border-[#e1e8f0] p-3">
-              <input
-                type="checkbox"
-                checked={rule.closed_to_departure}
-                onChange={(e) =>
-                  setRule({ ...rule, closed_to_departure: e.target.checked })
-                }
-                className="h-4 w-4 accent-[#0d2c5c]"
-              />
-              <span className="text-sm text-[#0d2c5c]">
-                Closed to Departure
-              </span>
-            </label>
+
+          {/* Secțiunea 2: Preț & Status bază */}
+          <div className="rounded-xl border border-[#e1e8f0] bg-[#f8fafc] p-4">
+            <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">
+              <DollarSign size={14} /> Tarif și Disponibilitate
+            </div>
+            <div className="space-y-3">
+              <Field
+                label="Preț suprascriere (RON / noapte)"
+                error={ruleErr.price_override}
+              >
+                <input
+                  type="number"
+                  min={0}
+                  className={inputCls}
+                  value={rule.price_override ?? ""}
+                  onChange={(e) =>
+                    setRule({
+                      ...rule,
+                      price_override:
+                        e.target.value === "" ? null : Number(e.target.value),
+                    })
+                  }
+                  disabled={rule.is_blocked}
+                  placeholder={
+                    rule.is_blocked ? "Camera este blocată complet" : "ex: 450"
+                  }
+                />
+              </Field>
+
+              <label className="flex items-center gap-3 pt-1">
+                <input
+                  type="checkbox"
+                  checked={rule.is_blocked}
+                  onChange={(e) =>
+                    setRule({ ...rule, is_blocked: e.target.checked })
+                  }
+                  className="h-4 w-4 rounded border-gray-300 accent-[#0d2c5c]"
+                />
+                <span className="text-sm font-medium text-[#0d2c5c]">
+                  Blochează complet camera pentru această perioadă (Mentenanță /
+                  Indisponibil)
+                </span>
+              </label>
+            </div>
           </div>
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={rule.is_blocked}
-              onChange={(e) =>
-                setRule({ ...rule, is_blocked: e.target.checked })
-              }
-              className="h-4 w-4 accent-[#0d2c5c]"
-            />
-            <span className="text-sm text-[#0d2c5c]">
-              Blocochează perioada (mentenanță)
-            </span>
-          </label>
+
+          {/* Secțiunea 3: Restricții Avansate (CTA, CTD, Min Stay) */}
+          <div className="rounded-xl border border-[#e1e8f0] bg-[#f8fafc] p-4">
+            <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">
+              <Sliders size={14} /> Restricții de ședere și flux
+            </div>
+            <div className="space-y-4">
+              <Field label="Ședere minimă (nopți)" error={ruleErr.min_stay}>
+                <input
+                  type="number"
+                  min={1}
+                  className={inputCls}
+                  value={rule.min_stay ?? ""}
+                  onChange={(e) =>
+                    setRule({
+                      ...rule,
+                      min_stay:
+                        e.target.value === "" ? null : Number(e.target.value),
+                    })
+                  }
+                  placeholder="ex: 2 (lăsați gol pentru standard)"
+                />
+              </Field>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-1">
+                <label className="flex items-start gap-3 rounded-lg border border-[#e1e8f0] bg-white p-3 cursor-pointer hover:border-[#0d2c5c] transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={rule.closed_to_arrival}
+                    onChange={(e) =>
+                      setRule({ ...rule, closed_to_arrival: e.target.checked })
+                    }
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#0d2c5c]"
+                  />
+                  <div>
+                    <span className="block text-xs font-bold text-[#0d2c5c]">
+                      Closed to Arrival (CTA)
+                    </span>
+                    <span className="block text-[11px] text-[#6b7c99]">
+                      Interzice check-in-ul în aceste zile
+                    </span>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-3 rounded-lg border border-[#e1e8f0] bg-white p-3 cursor-pointer hover:border-[#0d2c5c] transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={rule.closed_to_departure}
+                    onChange={(e) =>
+                      setRule({
+                        ...rule,
+                        closed_to_departure: e.target.checked,
+                      })
+                    }
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#0d2c5c]"
+                  />
+                  <div>
+                    <span className="block text-xs font-bold text-[#0d2c5c]">
+                      Closed to Departure (CTD)
+                    </span>
+                    <span className="block text-[11px] text-[#6b7c99]">
+                      Interzice check-out-ul în aceste zile
+                    </span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="mt-5 flex justify-end gap-2">
+
+        <div className="mt-6 flex justify-end gap-2 border-t border-[#e1e8f0] pt-4">
           <Button variant="ghost" onClick={() => setRuleOpen(false)}>
             Renunță
           </Button>
           <Button disabled={saving} onClick={() => void submitRule()}>
-            {saving ? "Se aplică…" : "Aplică regula"}
+            {saving ? "Se aplică…" : "Salvează regula"}
           </Button>
         </div>
       </Modal>
