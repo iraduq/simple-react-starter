@@ -98,7 +98,7 @@ type RequestOptions = {
   _retry?: boolean;
 };
 
-const shouldCoalesceRequest = (path: string, options: RequestOptions) => {
+const shouldCoalesceRequest = (options: RequestOptions) => {
   const method = (options.method || "GET").toUpperCase();
   return method === "GET" && !options.signal && !options._retry;
 };
@@ -124,7 +124,7 @@ export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  if (shouldCoalesceRequest(path, options)) {
+  if (shouldCoalesceRequest(options)) {
     const key = makeRequestKey(path, options);
     const existing = inflightGetRequests.get(key);
     if (existing) return existing as Promise<T>;
