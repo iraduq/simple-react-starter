@@ -142,10 +142,8 @@ export default function Places() {
     return result;
   }, [places, search, category, sortBy]);
 
-  const openCreate = () => {
-    setEditing(null);
-    setFormOpen(true);
-  };
+
+
 
   const openEdit = (place: Place) => {
     setEditing(place);
