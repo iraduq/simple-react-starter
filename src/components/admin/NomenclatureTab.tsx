@@ -104,16 +104,6 @@ const PRESETS: Record<string, string[]> = {
     "Garsonieră",
     "Cameră Familie",
   ],
-  "bed-types": [
-    "Pat single",
-    "Pat dublu (matrimonial)",
-    "Pat Queen",
-    "Pat King",
-    "Două paturi single",
-    "Canapea extensibilă",
-    "Pat suprapus",
-    "Pătuț pentru copii",
-  ],
 };
 
 /* ─────────────── ICON PICKER (toată librăria lucide) ─────────────── */
@@ -231,12 +221,6 @@ const SECTIONS: Section[] = [
     key: "room-types",
     label: "Tipuri de camere",
     endpoint: "/rooms/room-types",
-    eyebrow: "Nomenclator",
-  },
-  {
-    key: "bed-types",
-    label: "Tipuri de paturi",
-    endpoint: "/rooms/bed-types",
     eyebrow: "Nomenclator",
   },
 ];
@@ -360,8 +344,6 @@ function NomenclatureSection({ section }: { section: Section }) {
       } else if (section.key === "room-types") {
         payload.description = form.description.trim() || null;
         payload.base_price = Number(form.base_price);
-      } else if (section.key === "bed-types") {
-        payload.capacity = Number(form.capacity);
       }
 
       if (editTarget) {
@@ -423,12 +405,7 @@ function NomenclatureSection({ section }: { section: Section }) {
                   {section.key === "room-types" && (
                     <th className="px-5 py-3 font-bold">Preț de bază</th>
                   )}
-                  {section.key === "bed-types" && (
-                    <th className="px-5 py-3 font-bold">Capacitate</th>
-                  )}
-                  {section.key !== "bed-types" && (
-                    <th className="px-5 py-3 font-bold">Descriere</th>
-                  )}
+                  <th className="px-5 py-3 font-bold">Descriere</th>
                   <th className="px-5 py-3 text-right font-bold">Acțiuni</th>
                 </tr>
               </thead>
@@ -454,17 +431,9 @@ function NomenclatureSection({ section }: { section: Section }) {
                       </td>
                     )}
 
-                    {section.key === "bed-types" && (
-                      <td className="px-5 py-3.5 text-[#2a3b52]">
-                        {item.capacity} pers.
-                      </td>
-                    )}
-
-                    {section.key !== "bed-types" && (
-                      <td className="px-5 py-3.5 text-[#4f6280]">
-                        {item.description || "—"}
-                      </td>
-                    )}
+                    <td className="px-5 py-3.5 text-[#4f6280]">
+                      {item.description || "—"}
+                    </td>
 
                     <td className="px-5 py-3.5">
                       <div className="flex justify-end gap-1">
@@ -563,31 +532,13 @@ function NomenclatureSection({ section }: { section: Section }) {
             </Field>
           )}
 
-          {section.key === "bed-types" && (
-            <Field label="Capacitate persoane">
-              <input
-                type="number"
-                min={1}
-                className={inputCls}
-                value={form.capacity}
-                onChange={(e) =>
-                  setForm({ ...form, capacity: Number(e.target.value) })
-                }
-              />
-            </Field>
-          )}
-
-          {section.key !== "bed-types" && (
-            <Field label="Descriere (opțional)">
-              <textarea
-                className={`${inputCls} min-h-[80px] resize-y`}
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-              />
-            </Field>
-          )}
+          <Field label="Descriere (opțional)">
+            <textarea
+              className={`${inputCls} min-h-[80px] resize-y`}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </Field>
         </div>
 
         <div className="mt-5 flex justify-end gap-2">
