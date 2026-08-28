@@ -16,7 +16,7 @@ const LANGS = [
   { code: "RO", label: "Română", flagUrl: "https://flagcdn.com/w20/ro.png" },
   { code: "EN", label: "English", flagUrl: "https://flagcdn.com/w20/gb.png" },
   { code: "DE", label: "Deutsch", flagUrl: "https://flagcdn.com/w20/de.png" },
-];
+] as const;
 
 const NAV_ITEMS: { to: string; label: string; end?: boolean }[] = [
   { to: "/", label: "Acasă", end: true },
