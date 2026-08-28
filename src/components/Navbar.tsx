@@ -77,34 +77,27 @@ export default function Navbar() {
 
   const { toast } = useToast();
 
-  Adaugă funcția changeLanguage, și la mount citește limba curentă din cookie ca lang să reflecte selecția după reload. Iată exact ce schimbă:
+  useEffect(() => {
+    const match = document.cookie.match(/googtrans=\/ro\/(\w+)/);
+    if (match && match[1]) {
+      setLang(match[1].toUpperCase());
+    }
+  }, []);
 
-1. După linia const { toast } = useToast();, adaugă:
+  const changeLanguage = (code: string) => {
+    setLangOpen(false);
+    const targetLang = code.toLowerCase();
 
-tsx
-const { toast } = useToast();
+    if (targetLang === "ro") {
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
+    } else {
+      document.cookie = `googtrans=/ro/${targetLang}; path=/;`;
+      document.cookie = `googtrans=/ro/${targetLang}; path=/; domain=${window.location.hostname}`;
+    }
 
-useEffect(() => {
-  const match = document.cookie.match(/googtrans=\/ro\/(\w+)/);
-  if (match && match[1]) {
-    setLang(match[1].toUpperCase());
-  }
-}, []);
-
-const changeLanguage = (code: string) => {
-  setLangOpen(false);
-  const targetLang = code.toLowerCase();
-
-  if (targetLang === "ro") {
-    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
-  } else {
-    document.cookie = `googtrans=/ro/${targetLang}; path=/;`;
-    document.cookie = `googtrans=/ro/${targetLang}; path=/; domain=${window.location.hostname}`;
-  }
-
-  window.location.reload();
-};
+    window.location.reload();
+  };
 
   const handleLogout = async () => {
     await clearSession();
