@@ -100,7 +100,7 @@ export default function Hero() {
           poster="/hero-poster.jpg"
           className="h-full w-full object-cover saturate-50 contrast-125 brightness-[0.85]"
         >
-          <source src="../../public/hero-bg.mp4" type="video/mp4" />
+          <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
 
         <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-color" />
