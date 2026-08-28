@@ -145,7 +145,7 @@ export default function PricingTab() {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
 
-  const loadCalendar = useCallback(async () => {
+  const loadCalendar = async () => {
     if (!selectedRoom) return;
     setCalLoading(true);
     try {
@@ -183,11 +183,11 @@ export default function PricingTab() {
     } finally {
       setCalLoading(false);
     }
-  }, [selectedRoom, year, month, toast]);
+  };
 
   useEffect(() => {
     if (selectedRoom) void loadCalendar();
-  }, [selectedRoom, monthOffset, loadCalendar]);
+  }, [selectedRoom, monthOffset, year, month]);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
