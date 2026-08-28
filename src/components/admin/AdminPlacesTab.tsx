@@ -511,20 +511,6 @@ function PlaceMediaManager({
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const refreshPlace = useCallback(async () => {
-    try {
-      const data = await get<unknown>(`/places`);
-      const all = list<PlaceItem>(data);
-      const updated = all.find((p) => String(p.id) === String(place.id));
-      if (updated) {
-        setCurrentPlace(updated);
-        setImages(updated.images || []);
-      }
-    } catch {
-      /* ignore */
-    }
-  }, [place.id]);
-
   useEffect(() => {
     let active = true;
     (async () => {
@@ -556,7 +542,15 @@ function PlaceMediaManager({
 
       await Promise.all(uploadPromises);
       toast("Imagini încărcate cu succes.", "success");
-      await refreshPlace();
+
+      const data = await get<unknown>(`/places`);
+      const all = list<PlaceItem>(data);
+      const updated = all.find((p) => String(p.id) === String(place.id));
+      if (updated) {
+        setCurrentPlace(updated);
+        setImages(updated.images || []);
+      }
+
       onChanged();
     } catch (e) {
       toast(errMsg(e), "error");
@@ -569,7 +563,15 @@ function PlaceMediaManager({
     try {
       await del(`/places/${place.id}/images/${imgId}`);
       toast("Imagine ștearsă din baza de date și bucket.", "success");
-      await refreshPlace();
+
+      const data = await get<unknown>(`/places`);
+      const all = list<PlaceItem>(data);
+      const updated = all.find((p) => String(p.id) === String(place.id));
+      if (updated) {
+        setCurrentPlace(updated);
+        setImages(updated.images || []);
+      }
+
       onChanged();
     } catch (e) {
       toast(errMsg(e), "error");
@@ -580,7 +582,15 @@ function PlaceMediaManager({
     try {
       await patch(`/places/${place.id}/images/${imgId}/primary`, {});
       toast("Imaginea principală a fost actualizată.", "success");
-      await refreshPlace();
+
+      const data = await get<unknown>(`/places`);
+      const all = list<PlaceItem>(data);
+      const updated = all.find((p) => String(p.id) === String(place.id));
+      if (updated) {
+        setCurrentPlace(updated);
+        setImages(updated.images || []);
+      }
+
       onChanged();
     } catch (e) {
       toast(errMsg(e), "error");
