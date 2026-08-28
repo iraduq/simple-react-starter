@@ -128,8 +128,8 @@ export default function AdminDashboard() {
         )}
 
         {/* Main content */}
-        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
-          <div className="mx-auto max-w-[1200px]">
+        <main className="flex-1 px-3 py-4 sm:px-4 sm:py-6 lg:px-8 lg:py-8 overflow-x-hidden w-full max-w-full">
+          <div className="mx-auto max-w-[1200px] w-full min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
               className="mb-4 inline-flex items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-3.5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c] lg:hidden"

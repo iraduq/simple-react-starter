@@ -306,8 +306,8 @@ export default function BookingsTab() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto pb-10">
-              <table className="w-full min-w-[900px] text-left text-sm">
+            <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-none overflow-x-auto pb-10">
+              <table className="w-full min-w-[900px] text-left text-sm bg-white">
                 <thead>
                   <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
                     <th className="px-6 py-4 font-bold"># ID</th>
