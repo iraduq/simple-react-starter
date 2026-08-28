@@ -106,6 +106,14 @@ function AppInner() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/housekeeping"
+          element={
+            <ProtectedRoute>
+              <Housekeeping />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );

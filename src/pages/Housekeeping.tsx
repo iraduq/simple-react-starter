@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   Sparkles,
   CheckCircle2,
-  AlertCircle,
   Wrench,
   BedDouble,
 } from "lucide-react";
@@ -12,11 +11,7 @@ import {
   activateUnit,
   type HousekeepingUnit,
 } from "../services/housekeepingService";
-import {
-  fetchSession,
-  getCachedUser,
-  type SessionUser,
-} from "../lib/auth";
+import { fetchSession, type SessionUser } from "../lib/auth";
 import { useToast } from "../components/Toast";
 import {
   Card,
@@ -57,7 +52,6 @@ export default function Housekeeping() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [user, setUser] = useState<SessionUser>(getCachedUser());
   const [units, setUnits] = useState<HousekeepingUnit[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -73,24 +67,24 @@ export default function Housekeeping() {
         navigate(s ? "/" : "/login", { replace: true });
         return;
       }
-      setUser(s);
-      await loadUnits();
+      try {
+        const data = await getHousekeepingUnits();
+        if (active) setUnits(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        if (active) {
+          toast(
+            err?.message || "Nu am putut încărca lista camerelor.",
+            "error",
+          );
+          setUnits([]);
+        }
+      }
       if (active) setLoading(false);
     })();
     return () => {
       active = false;
     };
-  }, [navigate]);
-
-  const loadUnits = async () => {
-    try {
-      const data = await getHousekeepingUnits();
-      setUnits(Array.isArray(data) ? data : []);
-    } catch (err: any) {
-      toast(err?.message || "Nu am putut încărca lista camerelor.", "error");
-      setUnits([]);
-    }
-  };
+  }, [navigate, toast]);
 
   const handleActivate = async (u: HousekeepingUnit) => {
     const id = unitId(u);
@@ -102,7 +96,8 @@ export default function Housekeeping() {
         `${roomTitle(u)} · Unitatea ${unitNumber(u)} a fost marcată ca curată.`,
         "success",
       );
-      await loadUnits();
+      const data = await getHousekeepingUnits();
+      setUnits(Array.isArray(data) ? data : []);
     } catch (err: any) {
       toast(err?.message || "Nu am putut actualiza statusul.", "error");
     } finally {
@@ -190,7 +185,7 @@ export default function Housekeeping() {
           <Card className="p-10">
             <EmptyState
               title="Nu am găsit unități"
-              hint="Ajustează filtrul sau cautarea."
+              hint="Ajustează filtrul sau căutarea."
             />
           </Card>
         ) : (
@@ -309,7 +304,7 @@ function HousekeepingCard({
           ) : (
             <>
               <Sparkles size={16} />
-             Finalizează curățenia
+              Finalizează curățenia
             </>
           )}
         </button>
