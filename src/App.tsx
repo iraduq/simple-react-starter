@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import GoogleTranslate from "./components/GoogleTranslate";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -122,6 +124,8 @@ function AppInner() {
 function App() {
   return (
     <ToastProvider>
+      <GoogleTranslate />
+
       <Router>
         <AppInner />
       </Router>

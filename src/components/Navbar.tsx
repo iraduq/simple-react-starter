@@ -77,6 +77,35 @@ export default function Navbar() {
 
   const { toast } = useToast();
 
+  Adaugă funcția changeLanguage, și la mount citește limba curentă din cookie ca lang să reflecte selecția după reload. Iată exact ce schimbă:
+
+1. După linia const { toast } = useToast();, adaugă:
+
+tsx
+const { toast } = useToast();
+
+useEffect(() => {
+  const match = document.cookie.match(/googtrans=\/ro\/(\w+)/);
+  if (match && match[1]) {
+    setLang(match[1].toUpperCase());
+  }
+}, []);
+
+const changeLanguage = (code: string) => {
+  setLangOpen(false);
+  const targetLang = code.toLowerCase();
+
+  if (targetLang === "ro") {
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
+  } else {
+    document.cookie = `googtrans=/ro/${targetLang}; path=/;`;
+    document.cookie = `googtrans=/ro/${targetLang}; path=/; domain=${window.location.hostname}`;
+  }
+
+  window.location.reload();
+};
+
   const handleLogout = async () => {
     await clearSession();
     setAcctOpen(false);
@@ -199,10 +228,7 @@ export default function Navbar() {
                     <li
                       key={l.code}
                       role="menuitem"
-                      onClick={() => {
-                        setLang(l.code);
-                        setLangOpen(false);
-                      }}
+                      onClick={() => changeLanguage(l.code)}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md cursor-pointer transition-colors duration-150 ${
                         l.code === lang ? "bg-[#e6efff]" : "hover:bg-[#e6efff]"
                       }`}
