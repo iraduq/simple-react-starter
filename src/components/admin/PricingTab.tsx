@@ -450,7 +450,7 @@ export default function PricingTab() {
                       <button
                         key={day}
                         onClick={() => handleDayClick(day)}
-                        className={`relative flex h-[58px] flex-col items-center justify-center gap-1 rounded-xl border text-[11px] transition-all hover:scale-[1.02] sm:h-[66px] sm:text-[12px] ${
+                        className={`relative flex h-[50px] flex-col items-center justify-center gap-0.5 rounded-lg border px-0.5 transition-all hover:scale-[1.02] sm:h-[66px] sm:gap-1 sm:rounded-xl ${
                           blocked
                             ? "border-black bg-black text-white shadow-sm"
                             : isOverride
@@ -460,18 +460,23 @@ export default function PricingTab() {
                       >
                         {isOverride && !blocked && (
                           <span
-                            className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-amber-500"
+                            className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-amber-500 sm:top-1.5 sm:right-1.5"
                             title="Modificat manual"
                           />
                         )}
-                        <span className="font-bold leading-none">{day}</span>
+                        <span className="text-[11px] font-bold leading-none sm:text-[12px]">
+                          {day}
+                        </span>
                         {blocked ? (
-                          <Lock size={12} className="text-white/70 mt-0.5" />
+                          <Lock
+                            size={11}
+                            className="text-white/70 mt-0.5 sm:size-[12px]"
+                          />
                         ) : (
                           <span
-                            className={`text-[10px] font-semibold leading-none ${isOverride ? "text-amber-800 font-bold" : "text-black/60"}`}
+                            className={`w-full truncate text-center text-[8.5px] font-semibold leading-none tabular-nums sm:text-[10px] ${isOverride ? "text-amber-800 font-bold" : "text-black/60"}`}
                           >
-                            {money(dayPrice).replace(",\u00a0", "\u00a0")}
+                            {Math.round(dayPrice)}
                           </span>
                         )}
                       </button>
