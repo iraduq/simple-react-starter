@@ -315,7 +315,7 @@ function PersonalTab({
     setSaving(true);
     setStatus(null);
     try {
-      const res = await apiFetch(`${API_URL}/users/me`, {
+      await apiFetch(`${API_URL}/users/me`, {
         method: "PATCH",
         body: JSON.stringify(form),
       });
@@ -1008,7 +1008,8 @@ function ReservationsTab() {
     try {
       const data = await apiFetch<Booking[]>("/bookings/my-bookings");
       setBookings(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (err: any) {
+      toast(err?.message || "Nu am putut încărca rezervările.", "error");
       setBookings([]);
     } finally {
       setLoading(false);

@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Home } from "lucide-react";
 
 export default function BookingSuccess() {
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get("booking_id");
-  const sessionId = searchParams.get("session_id");
 
   return (
     <div className="mx-auto max-w-[600px] px-4 py-20 text-center">

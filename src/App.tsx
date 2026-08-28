@@ -32,6 +32,7 @@ import Cookies from "./pages/Cookies";
 import Gdpr from "./pages/Gdpr";
 import Footer from "./components/Footer";
 import BookingSuccess from "./pages/BookingSuccess";
+import Housekeeping from "./pages/Housekeeping";
 
 const MainLayout = () => {
   return (
@@ -102,6 +103,14 @@ function AppInner() {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/housekeeping"
+          element={
+            <ProtectedRoute>
+              <Housekeeping />
             </ProtectedRoute>
           }
         />
