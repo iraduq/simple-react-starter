@@ -490,13 +490,10 @@ export default function PricingTab() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl border border-black/10 bg-white p-6 shadow-2xl space-y-4"
+              className="w-full max-w-sm rounded-2xl border border-black/10 bg-white p-6 shadow-xl space-y-4"
             >
               <div className="flex items-center justify-between border-b border-black/5 pb-3">
-                <h4
-                  className="text-[17px] font-semibold text-black"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
+                <h4 className="text-base font-semibold text-black">
                   Ziua: {selectedDay?.date}
                 </h4>
                 <button
@@ -507,25 +504,25 @@ export default function PricingTab() {
                 </button>
               </div>
 
-              <p className="text-[13px] text-black/70 leading-relaxed">
-                Această zi are deja setată o regulă sau un preț personalizat.
+              <p className="text-sm text-black/70">
+                Această zi are o regulă sau un preț personalizat.
               </p>
 
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex flex-col gap-2 pt-1">
                 {selectedDay?.is_override && (
                   <button
                     disabled={saving}
                     onClick={() => void removeOverrideForDate(selectedDay.date)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 text-[12px] font-bold uppercase tracking-[0.08em] text-red-600 transition-all hover:bg-red-100 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-xs font-semibold text-red-600 transition-all hover:bg-red-100 disabled:opacity-50"
                   >
-                    <Trash2 size={15} /> Resetează la prețul standard
+                    <Trash2 size={14} /> Resetează prețul
                   </button>
                 )}
                 <button
                   onClick={() => openRule(selectedDay?.date)}
-                  className="flex w-full items-center justify-center rounded-xl bg-black py-3 text-[12px] font-bold uppercase tracking-[0.08em] text-white transition-all hover:bg-neutral-800"
+                  className="flex w-full items-center justify-center rounded-xl bg-black py-2.5 text-xs font-semibold text-white transition-all hover:bg-neutral-800"
                 >
-                  Editează / Adaugă regulă nouă
+                  Editează regula
                 </button>
               </div>
             </div>
@@ -539,14 +536,11 @@ export default function PricingTab() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg rounded-2xl border border-black/10 bg-white p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between border-b border-black/5 pb-3">
-                <h3
-                  className="text-[18px] font-semibold text-black"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  Reguli tarifare & Restricții
+                <h3 className="text-base font-semibold text-black">
+                  Setează regulă preț & restricții
                 </h3>
                 <button
                   onClick={() => setRuleOpen(false)}
@@ -557,16 +551,13 @@ export default function PricingTab() {
               </div>
 
               {ruleErr.general && (
-                <div className="rounded-xl bg-red-50 p-3.5 text-xs font-medium text-red-600 border border-red-100">
+                <div className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-600 border border-red-100">
                   {ruleErr.general}
                 </div>
               )}
 
-              <div className="rounded-xl border border-black/10 bg-white p-4 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black">
-                  <Calendar size={14} className="text-black/60" /> Perioada
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
                   <Field label="Data start" error={ruleErr.start_date}>
                     <input
                       type="date"
@@ -588,38 +579,47 @@ export default function PricingTab() {
                     />
                   </Field>
                 </div>
-              </div>
 
-              <div className="rounded-xl border border-black/10 bg-white p-4 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black">
-                  <DollarSign size={14} className="text-black/60" /> Preț și
-                  Disponibilitate
-                </div>
-                <div className="space-y-3">
-                  <Field
-                    label="Preț nou (RON / noapte)"
-                    error={ruleErr.price_override}
-                  >
-                    <input
-                      type="number"
-                      min={0}
-                      className={inputCls}
-                      value={rule.price_override ?? ""}
-                      onChange={(e) =>
-                        setRule({
-                          ...rule,
-                          price_override:
-                            e.target.value === ""
-                              ? null
-                              : Number(e.target.value),
-                        })
-                      }
-                      disabled={rule.is_blocked}
-                      placeholder={rule.is_blocked ? "Blocat" : "ex: 450"}
-                    />
-                  </Field>
+                <Field
+                  label="Preț nou (RON / noapte)"
+                  error={ruleErr.price_override}
+                >
+                  <input
+                    type="number"
+                    min={0}
+                    className={inputCls}
+                    value={rule.price_override ?? ""}
+                    onChange={(e) =>
+                      setRule({
+                        ...rule,
+                        price_override:
+                          e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
+                    disabled={rule.is_blocked}
+                    placeholder={rule.is_blocked ? "Blocat" : "ex: 450"}
+                  />
+                </Field>
 
-                  <label className="flex items-center gap-3 pt-1 cursor-pointer">
+                <Field label="Ședere minimă (nopți)" error={ruleErr.min_stay}>
+                  <input
+                    type="number"
+                    min={1}
+                    className={inputCls}
+                    value={rule.min_stay ?? ""}
+                    onChange={(e) =>
+                      setRule({
+                        ...rule,
+                        min_stay:
+                          e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
+                    placeholder="ex: 2"
+                  />
+                </Field>
+
+                <div className="space-y-2 pt-1">
+                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-black">
                     <input
                       type="checkbox"
                       checked={rule.is_blocked}
@@ -628,96 +628,52 @@ export default function PricingTab() {
                       }
                       className="h-4 w-4 rounded border-black/20 accent-black"
                     />
-                    <span className="text-sm font-medium text-black">
-                      Blochează camera (Indisponibil)
-                    </span>
+                    Blochează camera (Indisponibil)
+                  </label>
+
+                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-black">
+                    <input
+                      type="checkbox"
+                      checked={rule.closed_to_arrival}
+                      onChange={(e) =>
+                        setRule({
+                          ...rule,
+                          closed_to_arrival: e.target.checked,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-black/20 accent-black"
+                    />
+                    Fără Check-in în aceste zile (CTA)
+                  </label>
+
+                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-black">
+                    <input
+                      type="checkbox"
+                      checked={rule.closed_to_departure}
+                      onChange={(e) =>
+                        setRule({
+                          ...rule,
+                          closed_to_departure: e.target.checked,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-black/20 accent-black"
+                    />
+                    Fără Check-out în aceste zile (CTD)
                   </label>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-black/10 bg-white p-4 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black">
-                  <Sliders size={14} className="text-black/60" /> Restricții
-                </div>
-                <div className="space-y-3">
-                  <Field label="Ședere minimă (nopți)" error={ruleErr.min_stay}>
-                    <input
-                      type="number"
-                      min={1}
-                      className={inputCls}
-                      value={rule.min_stay ?? ""}
-                      onChange={(e) =>
-                        setRule({
-                          ...rule,
-                          min_stay:
-                            e.target.value === ""
-                              ? null
-                              : Number(e.target.value),
-                        })
-                      }
-                      placeholder="ex: 2"
-                    />
-                  </Field>
-
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-1">
-                    <label className="flex items-start gap-3 rounded-xl border border-black/10 bg-white p-3 cursor-pointer hover:border-black/30 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={rule.closed_to_arrival}
-                        onChange={(e) =>
-                          setRule({
-                            ...rule,
-                            closed_to_arrival: e.target.checked,
-                          })
-                        }
-                        className="mt-0.5 h-4 w-4 rounded border-black/20 accent-black"
-                      />
-                      <div>
-                        <span className="block text-xs font-bold text-black">
-                          Fără Check-in (CTA)
-                        </span>
-                        <span className="block text-[11px] text-black/60">
-                          Interzice sosirea
-                        </span>
-                      </div>
-                    </label>
-
-                    <label className="flex items-start gap-3 rounded-xl border border-black/10 bg-white p-3 cursor-pointer hover:border-black/30 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={rule.closed_to_departure}
-                        onChange={(e) =>
-                          setRule({
-                            ...rule,
-                            closed_to_departure: e.target.checked,
-                          })
-                        }
-                        className="mt-0.5 h-4 w-4 rounded border-black/20 accent-black"
-                      />
-                      <div>
-                        <span className="block text-xs font-bold text-black">
-                          Fără Check-out (CTD)
-                        </span>
-                        <span className="block text-[11px] text-black/60">
-                          Interzice plecarea
-                        </span>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end gap-3 border-t border-black/5 pt-4">
+              <div className="mt-6 flex justify-end gap-2 border-t border-black/5 pt-4">
                 <button
                   onClick={() => setRuleOpen(false)}
-                  className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"
+                  className="rounded-xl border border-black/10 px-4 py-2 text-xs font-semibold text-black transition-all hover:bg-black/5"
                 >
                   Anulează
                 </button>
                 <button
                   disabled={saving}
                   onClick={() => void submitRule()}
-                  className="rounded-full bg-black px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
+                  className="rounded-xl bg-black px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
                 >
                   {saving ? "Se aplică…" : "Salvează"}
                 </button>
