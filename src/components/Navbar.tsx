@@ -253,25 +253,32 @@ export default function Navbar() {
                   {isAuthenticated ? (
                     <>
                       <p className="font-['Cormorant_Garamond',serif] text-lg font-medium text-[#0d2c5c] m-0">
-                        {currentUser?.role === "admin"
-                          ? `Salut, ${currentUser?.first_name || "Admin"}`
-                          : "Ești conectat"}
+                        {`Salut, ${currentUser?.first_name || "Esy"}`}
                       </p>
-                      {currentUser?.role === "admin" ? (
+                      <Link
+                        to="/profile"
+                        onClick={() => setAcctOpen(false)}
+                        className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
+                      >
+                        Vezi profilul
+                      </Link>
+                      {(currentUser?.role === "admin" ||
+                        currentUser?.role === "housekeeping") && (
+                        <Link
+                          to="/housekeeping"
+                          onClick={() => setAcctOpen(false)}
+                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#c69a3f] text-white hover:bg-[#b58933] transition-colors duration-200"
+                        >
+                          Housekeeping
+                        </Link>
+                      )}
+                      {currentUser?.role === "admin" && (
                         <Link
                           to="/admin"
                           onClick={() => setAcctOpen(false)}
-                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
+                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase border border-[#0d2c5c] text-[#0d2c5c] hover:bg-[#0d2c5c] hover:text-white transition-colors duration-200"
                         >
                           Administrează
-                        </Link>
-                      ) : (
-                        <Link
-                          to="/profile"
-                          onClick={() => setAcctOpen(false)}
-                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#0d2c5c] text-white hover:bg-[#1e4d8c] transition-colors duration-200"
-                        >
-                          Vezi profilul
                         </Link>
                       )}
                       <button
