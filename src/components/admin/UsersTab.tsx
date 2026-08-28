@@ -35,19 +35,16 @@ import {
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
-const ROLES = ["user", "manager", "admin"];
+const ROLES = ["user", "admin", "manajera"];
 
-/** Rolul real al utilizatorului, citit dinamic din backend. */
 export const resolveRole = (u: any): string => {
-  // 1. Dacă backend-ul ne trimite numele din baza de date (cum am setat adineauri)
   if (u.role_name) {
     return String(u.role_name).toLowerCase().trim();
   }
 
-  // 2. Fallback dacă avem doar role_id
   if (u.role_id === 1) return "admin";
-  if (u.role_id === 2) return "manager";
   if (u.role_id === 3) return "user";
+  if (u.role_id === 4) return "manajera";
 
   return "user";
 };
@@ -128,13 +125,12 @@ export default function UsersTab() {
     if (!editTarget) return;
     setSaving(true);
     try {
-      // Transformăm textul înapoi în număr (role_id) pentru baza de date
-      let newRoleId = 3; // user
+      let newRoleId = 3;
       if (form.role === "admin") newRoleId = 1;
-      else if (form.role === "manager") newRoleId = 2;
+      else if (form.role === "manajera") newRoleId = 4;
 
       await patch(`/users/admin/${editTarget.id}`, {
-        role_id: newRoleId, // Trimitem role_id către backend!
+        role_id: newRoleId,
         is_active: form.is_active,
       });
 
@@ -147,7 +143,6 @@ export default function UsersTab() {
       setSaving(false);
     }
   };
-
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -163,7 +158,7 @@ export default function UsersTab() {
   const roleTone = (role?: string | null) =>
     role === "admin"
       ? "gold"
-      : role === "manager"
+      : role === "manajera"
         ? "navy"
         : ("muted" as const);
 
@@ -416,12 +411,12 @@ export default function UsersTab() {
                 >
                   {r === "admin" ? (
                     <ShieldCheck size={13} />
-                  ) : r === "manager" ? (
+                  ) : r === "manajera" ? (
                     <Shield size={13} />
                   ) : (
                     <ShieldX size={13} />
                   )}
-                  {r}
+                  <span>{r === "manajera" ? "manajeră" : r}</span>
                 </button>
               ))}
             </div>

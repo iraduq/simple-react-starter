@@ -12,7 +12,6 @@ import {
 import { apiFetch } from "../lib/api";
 import { httpErrorMessage } from "../services/apiClient";
 import { getRoomPricing, ratePlanFactor } from "../services/pricingService";
-import { createBooking } from "../services/bookingsService";
 import {
   toUtcIso,
   getRoomCalendar,
@@ -179,34 +178,42 @@ export default function RoomDetail() {
       navigate("/login");
       return;
     }
+    if (!total) {
+      toast("Nu se poate calcula prețul total.", "error");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const booking = await createBooking({
-        room_id: String(roomId),
-        check_in: toUtcIso(checkIn),
-        check_out: toUtcIso(checkOut),
-        guests_adults: adults,
-        guests_children: children,
-        rate_plan_code: plan,
-        special_requests: requests.trim()
-          ? requests.trim().slice(0, 500)
-          : null,
-      });
-      toast(
-        `Rezervare creată${
-          (booking as { booking_code?: string })?.booking_code
-            ? ` · ${(booking as { booking_code?: string }).booking_code}`
-            : ""
-        }.`,
-        "success",
+      const stripeRes = await apiFetch<{ checkout_url: string }>(
+        "/payments/create-checkout-session",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            room_id: String(roomId),
+            check_in: toUtcIso(checkIn),
+            check_out: toUtcIso(checkOut),
+            guests_adults: adults,
+            guests_children: children,
+            rate_plan_code: plan,
+            total_price: total,
+            special_requests: requests.trim()
+              ? requests.trim().slice(0, 500)
+              : null,
+          }),
+        },
       );
-      navigate("/rezervarile-mele");
+
+      if (!stripeRes?.checkout_url) {
+        throw new Error("Nu s-a putut genera link-ul de plată Stripe.");
+      }
+
+      window.location.href = stripeRes.checkout_url;
     } catch (err) {
       toast(
-        httpErrorMessage(err, "Rezervarea nu a putut fi finalizată."),
+        httpErrorMessage(err, "Procesul de plată nu a putut fi inițiat."),
         "error",
       );
-    } finally {
       setSubmitting(false);
     }
   };
@@ -323,7 +330,6 @@ export default function RoomDetail() {
             </ul>
           )}
 
-          {/* Nightly dynamic breakdown */}
           {quote && quote.nightly_breakdown.length > 0 && (
             <section className="mt-9 rounded-2xl border border-[#e1e8f0] bg-white p-5">
               <h2
@@ -354,7 +360,6 @@ export default function RoomDetail() {
           )}
         </div>
 
-        {/* Booking card */}
         <aside className="h-fit rounded-2xl border border-[#e1e8f0] bg-white p-5 lg:sticky lg:top-24">
           <div className="flex items-end gap-2">
             <p className="text-[24px] font-bold text-[#0d2c5c]">
@@ -538,10 +543,10 @@ export default function RoomDetail() {
             ) : (
               <ShieldCheck size={16} />
             )}
-            Finalizează rezervarea
+            Plătește prin Stripe
           </button>
           <p className="mt-2 text-center text-[11px] text-[#8595aa]">
-            Confirmare pe email · fără plată online acum
+            Plată securizată prin Stripe · Confirmare instantanee pe email
           </p>
         </aside>
       </div>

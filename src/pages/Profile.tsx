@@ -23,6 +23,7 @@ import {
   RefreshCw,
   ExternalLink,
   Mailbox,
+  Lock,
 } from "lucide-react";
 import {
   clearSession,
@@ -283,36 +284,51 @@ function PersonalTab({
     null,
   );
 
+  // Sincronizează datele la montare sau dacă user se schimbă
   useEffect(() => {
-    setForm({
-      first_name: user.first_name || "",
-      last_name: user.last_name || "",
-      phone: user.phone || "",
-    });
-  }, [user.first_name, user.last_name, user.phone]);
+    let active = true;
+    (async () => {
+      try {
+        // Dacă sesiunea curentă nu are complet numele/prenumele, preluăm detaliile de la un endpoint dedicat dacă există, sau folosim user-ul existent
+        const data = await apiFetch<Record<string, any>>("/users/me").catch(
+          () => null,
+        );
+        if (!active) return;
+        if (data) {
+          setForm({
+            first_name: data.first_name || user.first_name || "",
+            last_name: data.last_name || user.last_name || "",
+            phone: data.phone || user.phone || "",
+          });
+        }
+      } catch {
+        // fallback pe props
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setStatus(null);
     try {
-      const res = await fetch(`${API_URL}/users/me`, {
+      const res = await apiFetch(`${API_URL}/users/me`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(form),
       });
-      if (res.ok) {
-        setStatus({ ok: true, msg: "Modificările au fost salvate." });
-        setUser({ ...user, ...form });
-        const fresh = await fetchSession(true);
-        if (fresh) setUser(fresh);
-        notifySessionChange();
-      } else {
-        setStatus({ ok: false, msg: "Nu am putut salva modificările." });
-      }
-    } catch {
-      setStatus({ ok: false, msg: "Problemă de conexiune cu serverul." });
+      setStatus({ ok: true, msg: "Modificările au fost salvate." });
+      setUser({ ...user, ...form });
+      const fresh = await fetchSession(true);
+      if (fresh) setUser(fresh);
+      notifySessionChange();
+    } catch (err: any) {
+      setStatus({
+        ok: false,
+        msg: err?.message || "Nu am putut salva modificările.",
+      });
     } finally {
       setSaving(false);
     }
@@ -366,10 +382,7 @@ function PersonalTab({
               placeholder="ex: Popescu"
             />
           </Field>
-          <Field
-            label="Adresă email"
-            hint="Contactează-ne pentru a schimba emailul."
-          >
+          <Field label="Adresă email" hint="Adresa de email asociată contului.">
             <div className="relative">
               <Mail
                 size={16}
@@ -723,8 +736,10 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
     }
   };
 
-  const provider = (user.provider || "local").toLowerCase();
-  const isGoogle = provider === "google";
+  // Detectare sigură dacă este logat cu Google (prin provider sau prezența flag-ului)
+  const provider = (user.provider || "").toLowerCase();
+  const isGoogle =
+    provider.includes("google") || user.email?.endsWith("@gmail.com"); // poți ajusta dacă e cazul, dar proprietatea provider e stabilă acum
   const otherSessions = sessions.filter((s) => !s.is_current);
 
   return (
@@ -775,7 +790,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                 </h3>
                 <p className="text-[13px] text-white/80 mt-1.5 max-w-[420px]">
                   {isGoogle
-                    ? "Autentificarea este gestionată de Google. Parola nu se administrează aici — o schimbi direct din contul tău Google."
+                    ? "Autentificarea este gestionată prin Google. Securitatea și parola contului tău sunt administrate direct din setările Google."
                     : "Te autentifici cu adresa de email și o parolă administrată de Casa Esy."}
                 </p>
               </div>
@@ -801,15 +816,15 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
         {isGoogle ? (
           <div className="flex items-start gap-4 p-6 rounded-[18px] border border-[#e1e8f0] bg-[#f8fafd]">
             <div className="w-10 h-10 rounded-full bg-white border border-[#e1e8f0] flex items-center justify-center shrink-0">
-              <KeyRound size={16} className="text-[#6b7c99]" />
+              <Lock size={16} className="text-[#6b7c99]" />
             </div>
             <div>
               <p className="text-[14px] font-semibold text-[#0d2c5c]">
-                Nu există parolă pentru acest cont
+                Autentificare securizată prin Google
               </p>
               <p className="text-[13px] text-[#6b7c99] mt-1 max-w-[560px]">
-                Contul tău folosește exclusiv autentificarea Google, așa că nu
-                ai o parolă Casa Esy de schimbat.
+                Deoarece folosești Google pentru a te loga, nu ai nevoie de o
+                parolă separată Casa Esy.
               </p>
             </div>
           </div>
@@ -970,6 +985,9 @@ type Booking = {
   status: string;
   total_price?: number | null;
   cancellation_reason?: string | null;
+  booking_code?: string;
+  unit_number?: string;
+  payment_status?: string;
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -984,7 +1002,6 @@ function ReservationsTab() {
   const [scope, setScope] = useState<"upcoming" | "past">("upcoming");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -1018,26 +1035,13 @@ function ReservationsTab() {
       );
   }, [bookings, scope, now]);
 
-  const cancel = async (id: string) => {
-    setCancellingId(id);
-    try {
-      await apiFetch(`/bookings/${id}/cancel`, { method: "POST" });
-      toast("Rezervarea a fost anulată.", "success");
-      await load();
-    } catch (e) {
-      if (e instanceof ApiError) toast(e.message, "error");
-      else toast("Nu am putut anula rezervarea.", "error");
-    } finally {
-      setCancellingId(null);
-    }
-  };
-
   const fmt = (d: string) =>
     new Date(d).toLocaleDateString("ro-RO", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
+
   const nights = (a: string, b: string) =>
     Math.max(
       1,
@@ -1077,7 +1081,7 @@ function ReservationsTab() {
             {[0, 1].map((i) => (
               <div
                 key={i}
-                className="h-[110px] rounded-[16px] border border-[#e1e8f0] bg-[#f8fafd] animate-pulse"
+                className="h-[120px] rounded-[18px] border border-[#e1e8f0] bg-[#f8fafd] animate-pulse"
               />
             ))}
           </div>
@@ -1089,46 +1093,62 @@ function ReservationsTab() {
           />
         ) : (
           <div className="space-y-4">
-            {items.map((r) => (
-              <article
-                key={r.id}
-                className="group grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 p-5 rounded-[16px] border border-[#e1e8f0] bg-white hover:border-[#c69a3f]/50 hover:shadow-[0_6px_24px_rgba(13,44,92,0.06)] transition-all"
-              >
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
-                      #{r.id.slice(0, 8)}
-                    </span>
-                    <StatusPill status={r.status} />
+            {items.map((r) => {
+              const isPaid = r.payment_status === "paid";
+              return (
+                <article
+                  key={r.id}
+                  className="group relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-[20px] border border-[#e1e8f0] bg-white hover:border-[#c69a3f]/50 hover:shadow-[0_8px_30px_rgba(13,44,92,0.06)] transition-all"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      {r.booking_code && (
+                        <span className="text-[11px] font-bold tracking-[0.15em] text-[#c69a3f] bg-[#c69a3f]/10 px-2.5 py-1 rounded-md">
+                          #{r.booking_code}
+                        </span>
+                      )}
+                      <StatusPill status={r.status} />
+                      {isPaid && (
+                        <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                          Achitat
+                        </span>
+                      )}
+                      {r.unit_number && (
+                        <span className="text-[11px] font-medium text-[#6b7c99] bg-[#f8fafd] border border-[#e1e8f0] px-2.5 py-1 rounded-md">
+                          Cameră {r.unit_number}
+                        </span>
+                      )}
+                    </div>
+
+                    <h4 className="text-[18px] font-semibold text-[#0d2c5c] tracking-tight">
+                      {r.room?.title || "Cameră Casa Esy"}
+                    </h4>
+
+                    <div className="flex items-center gap-2 text-[13px] text-[#6b7c99] font-normal">
+                      <CalendarCheck size={14} className="text-[#c69a3f]" />
+                      <span>
+                        {fmt(r.check_in)} → {fmt(r.check_out)}
+                      </span>
+                      <span className="text-[#e1e8f0]">•</span>
+                      <span>{nights(r.check_in, r.check_out)} nopți</span>
+                    </div>
                   </div>
-                  <h4 className="font-['Cormorant_Garamond',serif] text-[22px] text-[#0d2c5c] leading-tight">
-                    {r.room?.title || "Cameră"}
-                  </h4>
-                  <p className="text-[13px] text-[#6b7c99] mt-2">
-                    {fmt(r.check_in)} → {fmt(r.check_out)} ·{" "}
-                    {nights(r.check_in, r.check_out)} nopți
-                  </p>
-                </div>
-                <div className="flex md:flex-col items-end md:items-end justify-between md:justify-center gap-3 md:border-l md:border-[#e1e8f0] md:pl-6">
-                  {r.total_price != null && (
-                    <p className="font-['Cormorant_Garamond',serif] text-[24px] text-[#0d2c5c]">
-                      {r.total_price.toLocaleString("ro-RO")} RON
-                    </p>
-                  )}
-                  <div className="flex gap-2">
-                    {scope === "upcoming" && r.status !== "cancelled" && (
-                      <button
-                        onClick={() => cancel(r.id)}
-                        disabled={cancellingId === r.id}
-                        className="px-4 py-2 text-[12px] font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
-                      >
-                        {cancellingId === r.id ? "Se anulează…" : "Anulează"}
-                      </button>
+
+                  <div className="flex md:flex-col items-center md:items-end justify-between pt-4 md:pt-0 border-t md:border-t-0 border-[#e1e8f0]">
+                    {r.total_price != null && (
+                      <div className="text-left md:text-right">
+                        <span className="text-[10.5px] font-bold tracking-[0.15em] uppercase text-[#6b7c99] block md:hidden">
+                          Total
+                        </span>
+                        <span className="text-[20px] font-bold text-[#0d2c5c] tracking-tight">
+                          {r.total_price.toLocaleString("ro-RO")} RON
+                        </span>
+                      </div>
                     )}
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </div>
@@ -1145,7 +1165,7 @@ function StatusPill({ status }: { status: string }) {
   };
   return (
     <span
-      className={`text-[10.5px] font-bold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full border ${map[status] || map.completed}`}
+      className={`text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1 rounded-full border ${map[status] || map.completed}`}
     >
       {STATUS_LABEL[status] || status}
     </span>

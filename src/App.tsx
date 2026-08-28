@@ -31,6 +31,7 @@ import Privacy from "./pages/Privacy";
 import Cookies from "./pages/Cookies";
 import Gdpr from "./pages/Gdpr";
 import Footer from "./components/Footer";
+import BookingSuccess from "./pages/BookingSuccess";
 
 const MainLayout = () => {
   return (
@@ -74,6 +75,7 @@ function AppInner() {
         <Route path="/places" element={<Places />} />
         <Route path="/places/:placeId" element={<PlaceDetail />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/booking-success" element={<BookingSuccess />} />
         <Route path="/termeni-si-conditii" element={<Terms />} />
         <Route path="/confidentialitate" element={<Privacy />} />
         <Route path="/cookies" element={<Cookies />} />
