@@ -106,7 +106,7 @@ export default function Profile() {
       <ProfileHero user={user} />
 
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-10 -mt-16 sm:-mt-20 relative z-10 pb-20 sm:pb-24 w-full">
-        {/* Mobile Horizontal Scrollable Tab Bar — sticky so it stays reachable while scrolling */}
+        {/* Mobile Horizontal Scrollable Tab Bar */}
         <div className="lg:hidden sticky top-16 z-30 -mx-4 px-4 mb-6 bg-[#f8fafd]/95 backdrop-blur-sm border-b border-[#e1e8f0] pt-2">
           <div className="overflow-x-auto no-scrollbar scroll-smooth">
             <div className="flex items-center gap-2 min-w-max pb-3">
@@ -738,7 +738,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
 
   const revokeSession = async (session: Session) => {
     try {
-      const result = await apiFetch
+      const result = await apiFetch<
         | {
             current_session_revoked?: boolean;
             revoked_current?: boolean;
@@ -837,7 +837,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                 <ShieldCheck size={13} /> Activ
               </span>
               {isGoogle && (
-                
+                <a
                   href="https://myaccount.google.com/security"
                   target="_blank"
                   rel="noreferrer"
