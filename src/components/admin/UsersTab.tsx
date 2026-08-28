@@ -35,7 +35,7 @@ import {
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
-const ROLES = ["user", "admin", "manajera"];
+const ROLES = ["user", "admin", "menajera"];
 
 export const resolveRole = (u: any): string => {
   if (u.role_name) {
@@ -44,7 +44,7 @@ export const resolveRole = (u: any): string => {
 
   if (u.role_id === 1) return "admin";
   if (u.role_id === 3) return "user";
-  if (u.role_id === 4) return "manajera";
+  if (u.role_id === 4) return "menajera";
 
   return "user";
 };
@@ -127,7 +127,7 @@ export default function UsersTab() {
     try {
       let newRoleId = 3;
       if (form.role === "admin") newRoleId = 1;
-      else if (form.role === "manajera") newRoleId = 4;
+      else if (form.role === "menajera") newRoleId = 4;
 
       await patch(`/users/admin/${editTarget.id}`, {
         role_id: newRoleId,
@@ -158,7 +158,7 @@ export default function UsersTab() {
   const roleTone = (role?: string | null) =>
     role === "admin"
       ? "gold"
-      : role === "manajera"
+      : role === "menajera"
         ? "navy"
         : ("muted" as const);
 
@@ -411,12 +411,12 @@ export default function UsersTab() {
                 >
                   {r === "admin" ? (
                     <ShieldCheck size={13} />
-                  ) : r === "manajera" ? (
+                  ) : r === "menajera" ? (
                     <Shield size={13} />
                   ) : (
                     <ShieldX size={13} />
                   )}
-                  <span>{r === "manajera" ? "manajeră" : r}</span>
+                  <span>{r === "menajera" ? "menajeră" : r}</span>
                 </button>
               ))}
             </div>

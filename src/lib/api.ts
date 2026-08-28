@@ -47,7 +47,6 @@ const waitForActiveRefresh = async () => {
   return refreshPromise;
 };
 
-/** A single shared refresh call — concurrent 401s are queued behind this lock. */
 export function refreshSession(): Promise<boolean> {
   if (!hasRefreshCredential()) return Promise.resolve(false);
   if (refreshPromise) {
@@ -58,12 +57,10 @@ export function refreshSession(): Promise<boolean> {
 
   refreshPromise = (async () => {
     try {
-      const refreshToken = getRefreshToken();
       const r = await fetch(`${API_URL}/auth/refresh`, {
         method: "POST",
-        credentials: "include",
+        credentials: "include", // Cookie-ul HttpOnly pleacă automat aici
         headers: { "Content-Type": "application/json" },
-        body: refreshToken ? JSON.stringify({ refresh_token: refreshToken }) : undefined,
       });
       if (!r.ok) {
         clearAuthTokens();
@@ -94,7 +91,6 @@ export function refreshSession(): Promise<boolean> {
   return refreshPromise;
 }
 
-/* ─────────────── Fetch wrapper with auto-retry on 401 ─────────────── */
 type RequestOptions = {
   method?: string;
   headers?: Record<string, string>;
@@ -106,7 +102,12 @@ type RequestOptions = {
 
 const shouldCoalesceRequest = (options: RequestOptions) => {
   const method = (options.method || "GET").toUpperCase();
-  return method === "GET" && !options.signal && !options._retry && !options._coalesced;
+  return (
+    method === "GET" &&
+    !options.signal &&
+    !options._retry &&
+    !options._coalesced
+  );
 };
 
 const makeRequestKey = (path: string, options: RequestOptions) => {
@@ -208,7 +209,9 @@ export async function apiFetch<T>(
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);
   }
 
-  const refreshed = refreshPromise ? await waitForActiveRefresh() : await refreshSession();
+  const refreshed = refreshPromise
+    ? await waitForActiveRefresh()
+    : await refreshSession();
   if (!refreshed) {
     expireActiveSession();
     throw new ApiError("Sesiunea a expirat. Autentifică-te din nou.", 401);

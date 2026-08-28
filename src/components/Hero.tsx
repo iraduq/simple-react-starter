@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "./Toast";
+import DatePicker from "./DatePicker";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -117,18 +118,18 @@ export default function Hero() {
         className="pointer-events-none absolute top-40 -right-32 w-[520px] h-[520px] rounded-full bg-[#0d2c5c]/20 blur-3xl z-[1]"
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-10 pt-40 md:pt-48 pb-24 md:pb-32">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-22 sm:pt-36 md:pt-48 pb-16 md:pb-32">
         <div className="text-center [perspective:1200px]">
           <motion.p
             variants={emerge}
             initial="hidden"
             animate={revealed ? "visible" : "hidden"}
             custom={0}
-            className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[var(--gold)] mb-4 flex items-center justify-center gap-3"
+            className="font-sans text-[10px] sm:text-[11px] font-bold tracking-[0.22em] uppercase text-[var(--gold)] mb-2 sm:mb-4 flex items-center justify-center gap-3"
           >
-            <span className="w-8 h-px bg-[var(--gold)]/60" />
+            <span className="w-6 sm:w-8 h-px bg-[var(--gold)]/60" />
             Experiențe la Marea Neagră
-            <span className="w-8 h-px bg-[var(--gold)]/60" />
+            <span className="w-6 sm:w-8 h-px bg-[var(--gold)]/60" />
           </motion.p>
 
           <motion.h1
@@ -136,7 +137,7 @@ export default function Hero() {
             initial="hidden"
             animate={revealed ? "visible" : "hidden"}
             custom={0.15}
-            className="font-['Cormorant_Garamond',serif] text-[clamp(2.8rem,6vw,5rem)] font-normal text-white leading-[1.05] tracking-[-0.015em] mb-6 [text-shadow:0_4px_30px_rgba(0,0,0,0.35)]"
+            className="font-['Cormorant_Garamond',serif] text-[clamp(2.2rem,5vw,5rem)] font-normal text-white leading-[1.05] tracking-[-0.015em] mb-3 sm:mb-6 [text-shadow:0_4px_30px_rgba(0,0,0,0.35)]"
           >
             Descoperă <em className="italic text-[var(--gold)]">liniștea</em>
             <br className="hidden md:block" /> Mării Negre
@@ -147,7 +148,7 @@ export default function Hero() {
             initial="hidden"
             animate={revealed ? "visible" : "hidden"}
             custom={0.3}
-            className="mt-2 mb-6 flex items-center justify-center gap-3"
+            className="my-2 hidden sm:flex items-center justify-center gap-3"
             aria-hidden="true"
           >
             <span className="h-px w-14 bg-[var(--gold)]/50" />
@@ -160,26 +161,11 @@ export default function Hero() {
             initial="hidden"
             animate={revealed ? "visible" : "hidden"}
             custom={0.4}
-            className="max-w-[620px] mx-auto text-[15px] md:text-[16px] text-white/85 leading-[1.85] font-light"
+            className="max-w-[620px] mx-auto text-[13.5px] sm:text-[16px] text-white/85 leading-[1.6] sm:leading-[1.85] font-light hidden sm:block"
           >
             Vila Casa Esy — refugiul tău pe malul mării. Camere rafinate,
             priveliști liniștitoare și ospitalitate caldă la fiecare pas.
           </motion.p>
-
-          <motion.div
-            variants={emerge}
-            initial="hidden"
-            animate={revealed ? "visible" : "hidden"}
-            custom={0.55}
-            className="mt-9 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center"
-          >
-            <a
-              href="#descopera"
-              className="inline-flex items-center gap-2 rounded-full border border-white/40 px-8 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-all duration-200 hover:border-white hover:bg-white/10 hover:-translate-y-0.5"
-            >
-              Serviciile noastre
-            </a>
-          </motion.div>
         </div>
 
         {/* BARA DE CĂUTARE PREMIUM (Zveltă & Mai fină) */}
@@ -188,71 +174,69 @@ export default function Hero() {
           initial="hidden"
           animate={revealed ? "visible" : "hidden"}
           custom={0.7}
-          className="relative z-30 max-w-[1000px] mx-auto mt-10 mb-6 w-full"
+          className="relative z-30 max-w-[1000px] mx-auto mt-5 sm:mt-10 mb-4 w-full"
         >
           <form
             onSubmit={handleSearch}
             className="bg-white rounded-[20px] md:rounded-full shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] border border-white/20 p-2 md:p-3 flex flex-col md:flex-row gap-2 items-stretch md:items-center"
           >
             <div className="flex flex-1 flex-col md:flex-row gap-2 bg-[#f8fafd] border border-[#e1e8f0] rounded-[16px] md:rounded-full p-1.5">
-              {/* Check-in */}
-              <label className="flex-1 flex flex-col px-4 py-1.5 hover:bg-white rounded-[14px] md:rounded-full transition-colors relative cursor-pointer group">
-                <span className={labelCls}>
-                  <Calendar
-                    size={10}
-                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                  />{" "}
-                  Check-in
-                </span>
-                <input
-                  type="date"
-                  min={today}
-                  value={checkIn}
-                  onChange={(e) => handleCheckIn(e.target.value)}
-                  className={inputCls}
-                  required
-                />
-                <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 w-px h-6 bg-[#e1e8f0]" />
-              </label>
-
-              {/* Check-out */}
-              <label className="flex-1 flex flex-col px-4 py-1.5 hover:bg-white rounded-[14px] md:rounded-full transition-colors relative cursor-pointer group">
-                <span className={labelCls}>
-                  <Calendar
-                    size={10}
-                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                  />{" "}
-                  Check-out
-                </span>
-                <input
-                  type="date"
-                  min={checkIn || today}
-                  value={checkOut}
-                  onChange={(e) => setCheckOut(e.target.value)}
-                  className={inputCls}
-                  required
-                />
-                <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 w-px h-6 bg-[#e1e8f0]" />
-              </label>
+              <DatePicker
+                label={
+                  <>
+                    <Calendar
+                      size={10}
+                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                    />{" "}
+                    Check-in
+                  </>
+                }
+                value={checkIn}
+                onChange={handleCheckIn}
+                minDate={today}
+                variant="bar"
+              />
+              <DatePicker
+                label={
+                  <>
+                    <Calendar
+                      size={10}
+                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                    />{" "}
+                    Check-out
+                  </>
+                }
+                value={checkOut}
+                onChange={setCheckOut}
+                minDate={checkIn || today}
+                variant="bar"
+              />
 
               {/* OASPEȚI Dropdown */}
+              {/* OASPEȚI Dropdown — stilizat identic cu DatePicker variant="bar" */}
               <div
                 ref={guestsRef}
-                className="relative flex-[1.1] md:max-w-[240px]"
+                className="relative flex-1 flex flex-col justify-center px-6 py-4.5"
               >
                 <button
                   type="button"
                   onClick={() => setGuestsOpen((o) => !o)}
-                  className="w-full h-full text-left flex flex-col px-4 py-1.5 hover:bg-white rounded-[14px] md:rounded-full transition-colors relative cursor-pointer"
+                  className="font-sans text-left w-full leading-[1.3] transition-colors duration-150 bg-transparent border-none p-0 text-sm"
                 >
-                  <span className={labelCls}>
+                  <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
                     <Users
                       size={10}
                       className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                    />{" "}
+                    />
                     Oaspeți
                   </span>
-                  <span className={`${inputCls} block truncate !px-2`}>
+                  <span
+                    className={
+                      guestsOpen
+                        ? "text-[#0d2c5c] block truncate"
+                        : "text-[#3c4043]/70 block truncate"
+                    }
+                  >
                     {adults} {adults === 1 ? "adult" : "adulți"}
                     {children > 0 &&
                       ` · ${children} ${children === 1 ? "copil" : "copii"}`}
@@ -325,7 +309,7 @@ export default function Hero() {
             {/* Submit Button - Slimmer */}
             <button
               type="submit"
-              className="group md:w-auto w-full inline-flex items-center justify-center gap-2 rounded-[16px] md:rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-8 py-3.5 md:h-14 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-[0_6px_16px_-6px_rgba(198,154,63,0.8)] transition-all hover:shadow-[0_10px_20px_-6px_rgba(198,154,63,0.9)] hover:-translate-y-0.5 shrink-0"
+              className="group md:w-auto w-full inline-flex items-center justify-center gap-2 rounded-[16px] md:rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-8 py-3.5 md:h-14 text-[11px] font-bold uppercase tracking-[0.16em] text-white shadow-[0_6px_16px_-6px_rgba(198,154,63,0.8)] transition-all hover:shadow-[0_10px_20px_-6px_rgba(198,154,63,0.9)] hover:-translate-y-0.5 shrink-0"
             >
               Caută
               <ArrowRight
@@ -342,7 +326,7 @@ export default function Hero() {
           initial="hidden"
           animate={revealed ? "visible" : "hidden"}
           custom={0.85}
-          className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[10.5px] font-semibold tracking-[0.18em] uppercase text-white/75"
+          className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[10.5px] font-semibold tracking-[0.18em] uppercase text-white/75"
         >
           <span className="flex items-center gap-2">
             <span className="h-1 w-1 rounded-full bg-[var(--gold)]" /> 150 m de

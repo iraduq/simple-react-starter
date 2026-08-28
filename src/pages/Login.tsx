@@ -15,7 +15,6 @@ import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
 import { saveTokensFrom, clearAuthTokens, markAuthSession } from "../lib/token";
 
-
 export default function Login() {
   const navigate = useNavigate();
   const googleLoginInFlight = useRef(false);
@@ -92,7 +91,14 @@ export default function Login() {
           return;
         }
         notifySessionChange();
-        navigate(session?.role === "admin" ? "/admin" : "/profile");
+        const userRole = session?.role;
+        if (userRole === "admin") {
+          navigate("/admin");
+        } else if (userRole === "menajera") {
+          navigate("/housekeeping");
+        } else {
+          navigate("/profile");
+        }
       } else {
         const detail =
           data &&
@@ -112,7 +118,6 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,7 +188,6 @@ export default function Login() {
     } finally {
       googleLoginInFlight.current = false;
     }
-
   };
 
   return (
@@ -354,7 +358,6 @@ export default function Login() {
               )}
 
               <form onSubmit={handleLocalLogin} className="flex flex-col gap-4">
-
                 <div className="relative">
                   <Mail
                     className="absolute left-[18px] top-1/2 -translate-y-1/2 text-[#8595aa]"

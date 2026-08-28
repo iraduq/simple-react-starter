@@ -19,12 +19,10 @@ const MONTHS = [
 const DAYS_SHORT = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"];
 
 interface Props {
-  label: string;
+  label: React.ReactNode; // ← era: string
   value: string;
   minDate?: string;
-  /** Zile (YYYY-MM-DD) indisponibile — afișate dezactivat în calendar. */
   disabledDates?: Set<string>;
-  /** `field` = stil de input încadrat (pagini interioare), `bar` = bara din hero. */
   variant?: "bar" | "field";
   onChange: (val: string) => void;
 }
@@ -36,6 +34,8 @@ function isoToDate(iso: string) {
 function toIso(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
+
+const CALENDAR_HEIGHT = 340;
 
 export default function DatePicker({
   label,
@@ -60,7 +60,17 @@ export default function DatePicker({
     const width = Math.min(280, window.innerWidth - 32);
     let left = rect.left + rect.width / 2 - width / 2;
     left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
-    const top = rect.bottom + 10;
+
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    let top: number;
+    if (spaceBelow < CALENDAR_HEIGHT + 10 && spaceAbove > spaceBelow) {
+      top = rect.top - CALENDAR_HEIGHT - 10;
+    } else {
+      top = rect.bottom + 10;
+    }
+
     setPos({ top, left });
   };
 
@@ -71,11 +81,12 @@ export default function DatePicker({
   useEffect(() => {
     if (!open) return;
     const onResize = () => measurePosition();
+    const onScroll = () => setOpen(false);
     window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onResize, true);
+    window.addEventListener("scroll", onScroll, true);
     return () => {
       window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onResize, true);
+      window.removeEventListener("scroll", onScroll, true);
     };
   }, [open]);
 

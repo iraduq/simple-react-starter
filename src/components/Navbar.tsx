@@ -262,8 +262,7 @@ export default function Navbar() {
                       >
                         Vezi profilul
                       </Link>
-                      {(currentUser?.role === "admin" ||
-                        currentUser?.role === "housekeeping") && (
+                      {currentUser?.role === "menajera" && (
                         <Link
                           to="/housekeeping"
                           onClick={() => setAcctOpen(false)}

@@ -26,13 +26,13 @@ export default function AboutSection() {
 
       {/* Fir aurit subtil care coboară */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center z-10 mt-[-1px]">
-        <span className="w-2 h-2 rotate-45 border border-[var(--gold)] bg-white absolute top-0" />
-        <span className="w-px h-16 md:h-24 bg-gradient-to-b from-[var(--gold)]/80 to-transparent" />
+        <span className="w-2 h-2 rotate-45 border border-[#c69a3f] bg-white absolute top-0" />
+        <span className="w-px h-16 md:h-24 bg-gradient-to-b from-[#c69a3f]/80 to-transparent" />
       </div>
 
       {/* ── BACKGROUND WATERMARK (SVG Uriaș Decorativ) ── */}
       <svg
-        className="absolute -left-32 top-10 w-[600px] h-[600px] text-[var(--gold)] opacity-[0.04] pointer-events-none animate-[spin_120s_linear_infinite]"
+        className="absolute -left-32 top-10 w-[600px] h-[600px] text-[#c69a3f] opacity-[0.04] pointer-events-none animate-[spin_120s_linear_infinite]"
         viewBox="0 0 100 100"
         fill="currentColor"
         aria-hidden="true"
@@ -45,77 +45,152 @@ export default function AboutSection() {
       </svg>
 
       <div className="relative max-w-7xl mx-auto z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center mt-6">
-          {/* Text Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
-            className="flex flex-col order-2 lg:order-1"
-          >
-            <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[var(--gold)] mb-4 flex items-center gap-3">
-              <span className="w-12 h-px bg-gradient-to-r from-transparent to-[var(--gold)]" />
-              Povestea noastră
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mt-6">
+          {/* ── BLOCUL STÂNGA: Titlu + Imagine (pe mobil) + Descriere ── */}
+          <div className="flex flex-col text-center lg:text-left items-center lg:items-start">
+            {/* 1. Subtitlu & Titlu */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.8 }}
+            >
+              <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-4 flex items-center justify-center lg:justify-start gap-3">
+                <span className="w-12 h-px bg-gradient-to-r from-transparent to-[#c69a3f] hidden lg:inline-block" />
+                Povestea noastră
+              </p>
 
-            <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4.2rem)] font-normal text-white leading-[1.05] tracking-[-0.01em] mb-6">
-              Ospitalitate cu suflet, <br />
-              <em className="italic text-[var(--gold)]">la malul mării</em>
-            </h2>
+              <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.4rem,5vw,4.2rem)] font-normal text-white leading-[1.05] tracking-[-0.01em] mb-6">
+                Ospitalitate cu suflet, <br />
+                <em className="italic text-[#c69a3f]">la malul mării</em>
+              </h2>
+            </motion.div>
 
-            <p className="font-sans text-white/80 leading-[1.85] text-[15.5px] mb-5 max-w-lg font-light">
+            {/* 2. Colajul Foto (Vizibil DOAR pe mobil, exact între titlu și descriere) */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{
+                duration: 0.9,
+                delay: 0.2,
+                ease: [0.22, 1, 0.36, 1] as const,
+              }}
+              className="relative h-[380px] sm:h-[460px] md:h-[540px] lg:hidden w-full my-8"
+            >
+              {/* Floating Badge Mobil */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                className="absolute -left-2 top-1/4 z-30 w-24 h-24 bg-[#0d2c5c] rounded-full flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.3)] border-[4px] border-[#1e4d8c]"
+              >
+                <svg
+                  viewBox="0 0 100 100"
+                  className="w-full h-full text-[#c69a3f] overflow-visible"
+                >
+                  <path
+                    id="circlePathMob"
+                    d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
+                    fill="none"
+                  />
+                  <text
+                    className="text-[12.5px] font-bold uppercase tracking-[0.25em]"
+                    fill="currentColor"
+                  >
+                    <textPath href="#circlePathMob" startOffset="0%">
+                      • 12 ANI DE EXCELENȚĂ • CASA ESY
+                    </textPath>
+                  </text>
+                </svg>
+                <div className="absolute text-white text-xl">★</div>
+              </motion.div>
+
+              <div className="absolute top-4 right-0 w-[80%] h-[90%] bg-[#12386f] rounded-[30px_80px_30px_80px] -z-10" />
+
+              <div className="absolute top-0 right-4 w-[75%] h-[75%] rounded-[25px_60px_25px_60px] overflow-hidden shadow-xl border border-white/10">
+                <img
+                  src="https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop"
+                  alt="Dormitor rafinat"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="absolute bottom-4 left-4 w-[55%] h-[42%] rounded-2xl overflow-hidden border-[4px] border-[#0d2c5c] shadow-xl z-20">
+                <img
+                  src="https://images.pexels.com/photos/1005456/pexels-photo-1005456.jpeg?auto=compress&cs=tinysrgb&w=600&h=450&fit=crop"
+                  alt="Apus liniștit"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </motion.div>
+
+            {/* 3. Paragraf descriere */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="font-sans text-white/80 leading-[1.85] text-[15.5px] mb-8 max-w-lg font-light"
+            >
               Vila Casa Esy s-a născut dintr-o dorință simplă: să creăm un loc
               unde oaspeții să se simtă acasă, dar cu lux și rafinament. Situată
               la doar 150 de metri de plajă, vila noastră oferă o evadare
               perfectă din agitația cotidiană.
-            </p>
+            </motion.p>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-lg my-12 relative before:content-[''] before:absolute before:-left-4 before:top-0 before:bottom-0 before:w-px before:bg-gradient-to-b before:from-[var(--gold)]/40 before:to-transparent">
+            {/* 4. Stats */}
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 w-full max-w-lg my-6 py-6 border-y border-white/10">
               {stats.map(({ value, label }) => (
-                <div key={label} className="flex flex-col text-left pr-4 py-2">
-                  <span className="font-['Cormorant_Garamond',serif] text-[2.2rem] font-medium text-white leading-none mb-2">
+                <div
+                  key={label}
+                  className="flex flex-col text-center lg:text-left"
+                >
+                  <span className="font-sans text-[1.5rem] sm:text-[1.75rem] font-normal text-white leading-none mb-1.5">
                     {value}
                   </span>
-                  <span className="font-sans text-[9px] text-[var(--gold)] uppercase tracking-[0.2em] font-bold">
+                  <span className="font-sans text-[8.5px] text-[#c69a3f] uppercase tracking-[0.2em] font-bold">
                     {label}
                   </span>
                 </div>
               ))}
             </div>
 
+            {/* 5. Buton CTA */}
             <a
               href="#camere"
-              className="group inline-flex items-center justify-center gap-3 bg-[var(--gold)] border border-[var(--gold)] text-[#0d2c5c] text-[11px] tracking-[0.2em] uppercase font-bold py-4 px-8 rounded-full self-start hover:bg-white hover:border-white transition-all duration-300 shadow-[0_10px_30px_-10px_rgba(198,154,63,0.3)] hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.4)]"
+              className="group inline-flex items-center justify-center gap-3 bg-[#c69a3f] border border-[#c69a3f] text-white text-[11px] tracking-[0.2em] uppercase font-bold py-4 px-8 rounded-full hover:bg-white hover:border-white hover:text-[#0d2c5c] transition-all duration-300 shadow-[0_10px_30px_-10px_rgba(198,154,63,0.3)] hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.4)] mt-4"
             >
               Descoperă camerele
               <span className="transition-transform duration-300 group-hover:translate-x-1">
                 →
               </span>
             </a>
-          </motion.div>
+          </div>
 
-          {/* Collage WOW cu Floating Badge */}
+          {/* ── COLOANA DREAPTA PE DESKTOP (Ascunsă pe mobil, vizibilă doar pe ecrane mari) ── */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
-            className="relative order-1 lg:order-2 h-[500px] md:h-[640px] w-full"
+            transition={{
+              duration: 0.9,
+              delay: 0.2,
+              ease: [0.22, 1, 0.36, 1] as const,
+            }}
+            className="relative hidden lg:block h-[640px] w-full"
           >
-            {/* FLOATING BADGE (Insignă rotativă) */}
+            {/* FLOATING BADGE (Insignă rotativă Desktop) */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="absolute -left-6 md:-left-12 top-1/4 z-30 w-28 h-28 md:w-36 md:h-36 bg-[#0d2c5c] rounded-full flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.3)] border-[4px] border-[#1e4d8c]"
+              className="absolute -left-12 top-1/4 z-30 w-36 h-36 bg-[#0d2c5c] rounded-full flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.3)] border-[4px] border-[#1e4d8c]"
             >
               <svg
                 viewBox="0 0 100 100"
-                className="w-full h-full text-[var(--gold)] overflow-visible"
+                className="w-full h-full text-[#c69a3f] overflow-visible"
               >
                 <path
-                  id="circlePath"
+                  id="circlePathDesk"
                   d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
                   fill="none"
                 />
@@ -123,12 +198,11 @@ export default function AboutSection() {
                   className="text-[12.5px] font-bold uppercase tracking-[0.25em]"
                   fill="currentColor"
                 >
-                  <textPath href="#circlePath" startOffset="0%">
+                  <textPath href="#circlePathDesk" startOffset="0%">
                     • 12 ANI DE EXCELENȚĂ • CASA ESY
                   </textPath>
                 </text>
               </svg>
-              {/* Stea centrală */}
               <div className="absolute text-white text-xl">★</div>
             </motion.div>
 

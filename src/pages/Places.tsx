@@ -142,9 +142,6 @@ export default function Places() {
     return result;
   }, [places, search, category, sortBy]);
 
-
-
-
   const openEdit = (place: Place) => {
     setEditing(place);
     setFormOpen(true);
@@ -738,7 +735,6 @@ function PlaceCard({
     </article>
   );
 }
-
 
 /* ─────────────── PLACE ROW (list) ─────────────── */
 function PlaceRow({

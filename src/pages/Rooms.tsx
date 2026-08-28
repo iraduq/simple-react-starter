@@ -390,7 +390,7 @@ export default function Rooms() {
       <motion.div
         animate={{ scale: [1.05, 1, 1.05], opacity: [0.5, 0.8, 0.5] }}
         transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-[10%] left-[-10%] w-[800px] h-[800px] bg-[#0d2c5c]/5 rounded-full blur-[120px] pointer-events-none z-0"
+        className="absolute bottom-[10%] left-[-10%] w-[800px] h-[800px] bg-white rounded-full blur-[120px] pointer-events-none z-0"
       />
 
       {/* ── LISTĂ CAMERE ── */}

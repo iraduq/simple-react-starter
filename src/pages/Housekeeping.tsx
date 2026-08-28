@@ -27,7 +27,7 @@ import {
 } from "../components/admin/ui";
 
 const isHousekeepingStaff = (u: NonNullable<SessionUser>) =>
-  u.role === "admin" || u.role === "housekeeping";
+  u.role === "admin" || u.role === "menajera";
 
 const unitId = (u: HousekeepingUnit) => u.id || u.unit_id || "";
 const roomTitle = (u: HousekeepingUnit) => u.room_title || u.title || "Cameră";
@@ -85,7 +85,9 @@ function Kpi({
             {value}
           </p>
           {hint && (
-            <span className="mt-2 block text-[12px] text-[#6b7c99]">{hint}</span>
+            <span className="mt-2 block text-[12px] text-[#6b7c99]">
+              {hint}
+            </span>
           )}
         </div>
         <span
