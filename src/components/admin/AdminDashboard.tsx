@@ -77,6 +77,10 @@ export default function AdminDashboard() {
     navigate("/");
   };
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [tab]);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white text-[#6b7c99]">
