@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   Plus,
   Pencil,
@@ -34,6 +34,28 @@ import {
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 
+interface PlaceImage {
+  id: string;
+  image_url?: string;
+  url?: string;
+}
+
+interface PlaceItem {
+  id: string | number;
+  title?: string;
+  name?: string;
+  category?: string;
+  desc?: string;
+  description?: string;
+  badge?: string | null;
+  rating?: number;
+  lat?: number;
+  lng?: number;
+  thumb?: string;
+  img?: string;
+  images?: PlaceImage[];
+}
+
 const EMPTY_FORM = {
   title: "",
   category: "atracție",
@@ -55,15 +77,15 @@ const CATEGORIES = [
 
 export default function AdminPlacesTab() {
   const { toast } = useToast();
-  const [places, setPlaces] = useState<any[]>([]);
+  const [places, setPlaces] = useState<PlaceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<any | null>(null);
+  const [editing, setEditing] = useState<PlaceItem | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [formErr, setFormErr] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
-  const [mediaPlace, setMediaPlace] = useState<any | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<PlaceItem | null>(null);
+  const [mediaPlace, setMediaPlace] = useState<PlaceItem | null>(null);
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -72,27 +94,27 @@ export default function AdminPlacesTab() {
     return places.filter((p) =>
       [p.title, p.name, p.category, p.badge, p.desc, p.description]
         .filter(Boolean)
-        .some((f: string) => String(f).toLowerCase().includes(q)),
+        .some((f) => String(f).toLowerCase().includes(q)),
     );
   }, [places, query]);
 
   const paged = usePaged(filtered, 10);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const data = await get<unknown>("/places");
-      setPlaces(list<any>(data));
+      setPlaces(list<PlaceItem>(data));
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   const openCreate = () => {
     setEditing(null);
@@ -101,10 +123,10 @@ export default function AdminPlacesTab() {
     setFormOpen(true);
   };
 
-  const openEdit = (p: any) => {
+  const openEdit = (p: PlaceItem) => {
     setEditing(p);
     setForm({
-      title: p.title || "",
+      title: p.title || p.name || "",
       category: p.category || "atracție",
       desc: p.desc || p.description || "",
       badge: p.badge || "",
@@ -149,7 +171,7 @@ export default function AdminPlacesTab() {
         await patch(`/places/${editing.id}`, body);
         toast("Locație actualizată.", "success");
       } else {
-        const created = await post<any>("/places", body);
+        const created = await post<PlaceItem>("/places", body);
         toast("Locație adăugată. Acum poți încărca o imagine!", "success");
         setFormOpen(false);
         await load();
@@ -180,279 +202,283 @@ export default function AdminPlacesTab() {
   };
 
   return (
-    <div>
-      <SectionHeader
-        eyebrow="Conținut"
-        title="Atracții locale"
-        action={
-          <Button variant="gold" size="sm" onClick={openCreate}>
-            <Plus size={14} /> Adaugă locație
-          </Button>
-        }
-      />
-
-      <div className="mb-4">
-        <SearchBox
-          value={query}
-          onChange={setQuery}
-          placeholder="Caută locație, categorie…"
+    <div className="w-full min-h-screen bg-white text-black p-4 sm:p-8 space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
+        <SectionHeader
+          eyebrow="Conținut"
+          title="Atracții locale"
+          action={
+            <Button variant="gold" size="sm" onClick={openCreate}>
+              <Plus size={14} /> Adaugă locație
+            </Button>
+          }
         />
-      </div>
 
-      <Card>
-        {loading ? (
-          <TableSkeleton rows={5} />
-        ) : filtered.length === 0 ? (
-          <EmptyState
-            title="Nicio locație"
-            hint="Adaugă atracții turistice din zonă pentru a le recomanda oaspeților."
+        <div className="mb-4">
+          <SearchBox
+            value={query}
+            onChange={setQuery}
+            placeholder="Caută locație, categorie…"
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#4f6280]">
-                  <th className="px-5 py-3 font-bold">Nume & Categorie</th>
-                  <th className="px-5 py-3 font-bold">Badge</th>
-                  <th className="px-5 py-3 font-bold">Rating</th>
-                  <th className="px-5 py-3 font-bold">Coordonate</th>
-                  <th className="px-5 py-3 text-right font-bold">Acțiuni</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paged.slice.map((p) => {
-                  const thumbImg =
-                    p.thumb ||
-                    p.image_url ||
-                    p.images?.[0]?.image_url ||
-                    p.images?.[0]?.url;
-                  return (
-                    <tr
-                      key={p.id}
-                      className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#f9f7f2] transition-colors"
-                    >
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          {thumbImg ? (
-                            <img
-                              src={
-                                thumbImg.startsWith("http")
-                                  ? thumbImg
-                                  : `${API_URL}${thumbImg}`
-                              }
-                              alt=""
-                              className="h-10 w-10 rounded-lg object-cover border border-[#e1e8f0]"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-lg bg-[#eef2f7] flex items-center justify-center text-[#6b7c99]">
-                              <ImageIcon size={18} />
+        </div>
+
+        <Card>
+          {loading ? (
+            <TableSkeleton rows={5} />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              title="Nicio locație"
+              hint="Adaugă atracții turistice din zonă pentru a le recomanda oaspeților."
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left text-sm bg-white">
+                <thead>
+                  <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#4f6280]">
+                    <th className="px-5 py-3 font-bold">Nume & Categorie</th>
+                    <th className="px-5 py-3 font-bold">Badge</th>
+                    <th className="px-5 py-3 font-bold">Rating</th>
+                    <th className="px-5 py-3 font-bold">Coordonate</th>
+                    <th className="px-5 py-3 text-right font-bold">Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paged.slice.map((p) => {
+                    const thumbImg =
+                      p.thumb ||
+                      p.image_url ||
+                      p.images?.[0]?.image_url ||
+                      p.images?.[0]?.url;
+                    return (
+                      <tr
+                        key={p.id}
+                        className="border-b border-[#f4f6f9] last:border-0 hover:bg-black/[0.01] transition-colors bg-white"
+                      >
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            {thumbImg ? (
+                              <img
+                                src={
+                                  thumbImg.startsWith("http")
+                                    ? thumbImg
+                                    : `${API_URL}${thumbImg}`
+                                }
+                                alt=""
+                                className="h-10 w-10 rounded-lg object-cover border border-[#e1e8f0]"
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-lg bg-[#eef2f7] flex items-center justify-center text-[#6b7c99]">
+                                <ImageIcon size={18} />
+                              </div>
+                            )}
+                            <div>
+                              <span className="block font-semibold text-[#0d2c5c]">
+                                {p.title || p.name}
+                              </span>
+                              <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">
+                                {p.category}
+                              </span>
                             </div>
-                          )}
-                          <div>
-                            <span className="block font-semibold text-[#0d2c5c]">
-                              {p.title || p.name}
-                            </span>
-                            <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">
-                              {p.category}
-                            </span>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        {p.badge ? (
-                          <Badge tone="gold">{p.badge}</Badge>
-                        ) : (
-                          <span className="text-[#6b7c99]">—</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="flex items-center gap-1 font-semibold text-[#0d2c5c]">
-                          <Star
-                            size={13}
-                            className="text-[#4f6280] fill-[#4f6280]"
-                          />
-                          {Number(p.rating || 0).toFixed(1)}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-[12px] text-[#4f6280]">
-                        <span className="flex items-center gap-1">
-                          <MapPin size={12} className="text-[#4f6280]" />
-                          {p.lat != null ? `${p.lat}, ${p.lng}` : "—"}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => openEdit(p)}
-                          >
-                            <Pencil size={12} /> Editează
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setMediaPlace(p)}
-                          >
-                            <Upload size={12} /> Imagine
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => setDeleteTarget(p)}
-                          >
-                            <Trash2 size={12} />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <Pagination
-              page={paged.page}
-              pages={paged.pages}
-              total={paged.total}
-              perPage={paged.perPage}
-              onPage={paged.setPage}
-            />
+                        </td>
+                        <td className="px-5 py-3.5">
+                          {p.badge ? (
+                            <Badge tone="gold">{p.badge}</Badge>
+                          ) : (
+                            <span className="text-[#6b7c99]">—</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="flex items-center gap-1 font-semibold text-[#0d2c5c]">
+                            <Star
+                              size={13}
+                              className="text-[#4f6280] fill-[#4f6280]"
+                            />
+                            {Number(p.rating || 0).toFixed(1)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-[12px] text-[#4f6280]">
+                          <span className="flex items-center gap-1">
+                            <MapPin size={12} className="text-[#4f6280]" />
+                            {p.lat != null ? `${p.lat}, ${p.lng}` : "—"}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openEdit(p)}
+                            >
+                              <Pencil size={12} /> Editează
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setMediaPlace(p)}
+                            >
+                              <Upload size={12} /> Imagine
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => setDeleteTarget(p)}
+                            >
+                              <Trash2 size={12} />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <Pagination
+                page={paged.page}
+                pages={paged.pages}
+                total={paged.total}
+                perPage={paged.perPage}
+                onPage={paged.setPage}
+              />
+            </div>
+          )}
+        </Card>
+
+        <Modal
+          open={formOpen}
+          title={editing ? "Editare locație" : "Locație nouă"}
+          onClose={() => setFormOpen(false)}
+          width="max-w-xl"
+        >
+          <div className="space-y-4 bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label="Nume locație" error={formErr.title}>
+                <input
+                  className={inputCls}
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="ex: Plaja Mamaia Nord"
+                />
+              </Field>
+              <Field label="Categorie" error={formErr.category}>
+                <select
+                  className={inputCls}
+                  value={form.category}
+                  onChange={(e) =>
+                    setForm({ ...form, category: e.target.value })
+                  }
+                >
+                  <option value="">Selectează...</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c.charAt(0).toUpperCase() + c.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            <Field label="Descriere" error={formErr.desc}>
+              <textarea
+                className={`${inputCls} min-h-[90px] resize-y`}
+                value={form.desc}
+                onChange={(e) => setForm({ ...form, desc: e.target.value })}
+                placeholder="Descriere scurtă a atracției..."
+              />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Badge (etichetă)">
+                <input
+                  className={inputCls}
+                  value={form.badge}
+                  onChange={(e) => setForm({ ...form, badge: e.target.value })}
+                  placeholder="Recomandat / Nou"
+                />
+              </Field>
+              <Field label="Rating (0-5)" error={formErr.rating}>
+                <input
+                  type="number"
+                  step="0.1"
+                  min={0}
+                  max={5}
+                  className={inputCls}
+                  value={form.rating}
+                  onChange={(e) =>
+                    setForm({ ...form, rating: Number(e.target.value) })
+                  }
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Latitudine">
+                <input
+                  type="number"
+                  step="any"
+                  className={inputCls}
+                  value={form.lat}
+                  onChange={(e) =>
+                    setForm({ ...form, lat: Number(e.target.value) })
+                  }
+                  placeholder="44.2488"
+                />
+              </Field>
+              <Field label="Longitudine">
+                <input
+                  type="number"
+                  step="any"
+                  className={inputCls}
+                  value={form.lng}
+                  onChange={(e) =>
+                    setForm({ ...form, lng: Number(e.target.value) })
+                  }
+                  placeholder="28.6653"
+                />
+              </Field>
+            </div>
           </div>
+
+          <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4 bg-white">
+            <Button variant="ghost" onClick={() => setFormOpen(false)}>
+              Renunță
+            </Button>
+            <Button disabled={saving} onClick={() => void submit()}>
+              {saving ? "Se salvează…" : "Salvează locația"}
+            </Button>
+          </div>
+        </Modal>
+
+        <Modal
+          open={!!deleteTarget}
+          title="Șterge atracție"
+          onClose={() => setDeleteTarget(null)}
+        >
+          <p className="text-sm text-[#2a3b52]">
+            Sigur vrei să ștergi{" "}
+            <strong className="text-[#0d2c5c]">
+              {deleteTarget?.title || deleteTarget?.name}
+            </strong>
+            ? Această acțiune nu poate fi anulată.
+          </p>
+          <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4 bg-white">
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Anulează
+            </Button>
+            <Button variant="danger" onClick={() => void handleDelete()}>
+              Șterge definitiv
+            </Button>
+          </div>
+        </Modal>
+
+        {mediaPlace && (
+          <PlaceMediaManager
+            place={mediaPlace}
+            onClose={() => setMediaPlace(null)}
+            onChanged={load}
+          />
         )}
-      </Card>
-
-      <Modal
-        open={formOpen}
-        title={editing ? "Editare locație" : "Locație nouă"}
-        onClose={() => setFormOpen(false)}
-        width="max-w-xl"
-      >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label="Nume locație" error={formErr.title}>
-              <input
-                className={inputCls}
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="ex: Plaja Mamaia Nord"
-              />
-            </Field>
-            <Field label="Categorie" error={formErr.category}>
-              <select
-                className={inputCls}
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-              >
-                <option value="">Selectează...</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c.charAt(0).toUpperCase() + c.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-
-          <Field label="Descriere" error={formErr.desc}>
-            <textarea
-              className={`${inputCls} min-h-[90px] resize-y`}
-              value={form.desc}
-              onChange={(e) => setForm({ ...form, desc: e.target.value })}
-              placeholder="Descriere scurtă a atracției..."
-            />
-          </Field>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Badge (etichetă)">
-              <input
-                className={inputCls}
-                value={form.badge}
-                onChange={(e) => setForm({ ...form, badge: e.target.value })}
-                placeholder="Recomandat / Nou"
-              />
-            </Field>
-            <Field label="Rating (0-5)" error={formErr.rating}>
-              <input
-                type="number"
-                step="0.1"
-                min={0}
-                max={5}
-                className={inputCls}
-                value={form.rating}
-                onChange={(e) =>
-                  setForm({ ...form, rating: Number(e.target.value) })
-                }
-              />
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Latitudine">
-              <input
-                type="number"
-                step="any"
-                className={inputCls}
-                value={form.lat}
-                onChange={(e) =>
-                  setForm({ ...form, lat: Number(e.target.value) })
-                }
-                placeholder="44.2488"
-              />
-            </Field>
-            <Field label="Longitudine">
-              <input
-                type="number"
-                step="any"
-                className={inputCls}
-                value={form.lng}
-                onChange={(e) =>
-                  setForm({ ...form, lng: Number(e.target.value) })
-                }
-                placeholder="28.6653"
-              />
-            </Field>
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4">
-          <Button variant="ghost" onClick={() => setFormOpen(false)}>
-            Renunță
-          </Button>
-          <Button disabled={saving} onClick={() => void submit()}>
-            {saving ? "Se salvează…" : "Salvează locația"}
-          </Button>
-        </div>
-      </Modal>
-
-      <Modal
-        open={!!deleteTarget}
-        title="Șterge atracție"
-        onClose={() => setDeleteTarget(null)}
-      >
-        <p className="text-sm text-[#2a3b52]">
-          Sigur vrei să ștergi{" "}
-          <strong className="text-[#0d2c5c]">
-            {deleteTarget?.title || deleteTarget?.name}
-          </strong>
-          ? Această acțiune nu poate fi anulată.
-        </p>
-        <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4">
-          <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
-            Anulează
-          </Button>
-          <Button variant="danger" onClick={() => void handleDelete()}>
-            Șterge definitiv
-          </Button>
-        </div>
-      </Modal>
-
-      {mediaPlace && (
-        <PlaceMediaManager
-          place={mediaPlace}
-          onClose={() => setMediaPlace(null)}
-          onChanged={load}
-        />
-      )}
+      </div>
     </div>
   );
 }
@@ -462,21 +488,21 @@ function PlaceMediaManager({
   onClose,
   onChanged,
 }: {
-  place: any;
+  place: PlaceItem;
   onClose: () => void;
   onChanged: () => void;
 }) {
   const { toast } = useToast();
-  const [currentPlace, setCurrentPlace] = useState<any>(place);
-  const [images, setImages] = useState<any[]>(place.images || []);
+  const [currentPlace, setCurrentPlace] = useState<PlaceItem>(place);
+  const [images, setImages] = useState<PlaceImage[]>(place.images || []);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const refreshPlace = async () => {
+  const refreshPlace = useCallback(async () => {
     try {
       const data = await get<unknown>(`/places`);
-      const all = list<any>(data);
+      const all = list<PlaceItem>(data);
       const updated = all.find((p) => String(p.id) === String(place.id));
       if (updated) {
         setCurrentPlace(updated);
@@ -485,11 +511,11 @@ function PlaceMediaManager({
     } catch {
       /* ignore */
     }
-  };
+  }, [place.id]);
 
   useEffect(() => {
     void refreshPlace();
-  }, [place.id]);
+  }, [refreshPlace]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -541,7 +567,7 @@ function PlaceMediaManager({
       onClose={onClose}
       width="max-w-2xl"
     >
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 bg-white">
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -647,7 +673,7 @@ function PlaceMediaManager({
           </p>
         )}
 
-        <div className="flex justify-end pt-4 border-t border-black/5">
+        <div className="flex justify-end pt-4 border-t border-black/5 bg-white">
           <button
             onClick={onClose}
             className="rounded-full bg-black px-6 py-2.5 text-[11px] font-bold uppercase text-white"
