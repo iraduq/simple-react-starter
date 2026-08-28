@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   Plus,
   DoorOpen,
@@ -16,7 +16,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { Badge, TableSkeleton, EmptyState, Pagination } from "./ui";
+import { Badge, TableSkeleton, EmptyState } from "./ui";
 import {
   get,
   post,
@@ -88,59 +88,6 @@ const guestOf = (b: RoomBooking) => {
   );
 };
 
-function GuestCell({
-  b,
-  info,
-  note,
-  onCopy,
-}: {
-  b: RoomBooking;
-  info: { name: string; email: string; userId: string | number | null };
-  note?: string;
-  onCopy: (v: string | number | null | undefined, label: string) => void;
-}) {
-  return (
-    <span className="block">
-      <button
-        onClick={() => onCopy(info.userId, "ID Client")}
-        title="Click pentru a copia ID-ul clientului"
-        className="group inline-flex items-center gap-1.5 text-left hover:opacity-70"
-      >
-        <span className="text-[13px] font-semibold text-[#0d2c5c]">
-          {info.name}
-        </span>
-        {info.userId && (
-          <Copy
-            size={10}
-            className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
-          />
-        )}
-      </button>
-      {info.email && (
-        <span className="block text-[11px] leading-tight text-[#6b7c99]">
-          {info.email}
-        </span>
-      )}
-      <button
-        onClick={() => onCopy(b.id, "ID Rezervare")}
-        title="Click pentru a copia ID-ul rezervării"
-        className="group inline-flex items-center gap-1 text-left hover:opacity-70"
-      >
-        <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
-          #{String(b.id).slice(0, 8)}
-        </span>
-        <Copy
-          size={9}
-          className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
-        />
-      </button>
-      {note && (
-        <span className="block text-[11px] text-[#4f6280]">{note}</span>
-      )}
-    </span>
-  );
-}
-
 const unitIdOf = (b: RoomBooking) =>
   String(b.unit_id ?? b.room_unit_id ?? b.unit?.id ?? "");
 
@@ -156,7 +103,6 @@ const isOngoing = (b: RoomBooking) => {
 const isUpcoming = (b: RoomBooking) =>
   !!b.check_in && new Date(b.check_in).getTime() > Date.now();
 
-/** Verifică dacă două intervale [check_in, check_out) se suprapun. */
 const rangesOverlap = (
   aStart?: string | null,
   aEnd?: string | null,
@@ -190,7 +136,6 @@ const DAYS_SHORT = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"];
 const isoOf = (y: number, m: number, d: number) =>
   `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
-/** Hartă zi (YYYY-MM-DD) → rezervarea care ocupă noaptea respectivă. */
 const occupancyMap = (bs: RoomBooking[]) => {
   const map = new Map<string, RoomBooking>();
   for (const b of bs) {
@@ -204,7 +149,6 @@ const occupancyMap = (bs: RoomBooking[]) => {
   return map;
 };
 
-/** Hartă zi de plecare (check-out) → rezervarea care se încheie în ziua respectivă. */
 const departureMap = (bs: RoomBooking[]) => {
   const map = new Map<string, RoomBooking>();
   for (const b of bs) {
@@ -244,25 +188,25 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
   ).length;
 
   return (
-    <div className="rounded-xl border border-[#e1e8f0] bg-white p-4">
+    <div className="rounded-xl border border-black/10 bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
           onClick={prev}
-          className="rounded-lg p-1.5 text-[#2a3b52] transition-colors hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
+          className="rounded-lg p-1.5 text-black/60 transition-colors hover:bg-black/5 hover:text-black"
         >
           <ChevronLeft size={15} />
         </button>
-        <p className="text-[13px] font-semibold text-[#0d2c5c]">
+        <p className="text-[13px] font-semibold text-black">
           {MONTHS[month]} {year}
-          <span className="ml-2 text-[11px] font-normal text-[#6b7c99]">
+          <span className="ml-2 text-[11px] font-normal text-black/40">
             {busyDays} zile ocupate
           </span>
         </p>
         <button
           type="button"
           onClick={next}
-          className="rounded-lg p-1.5 text-[#2a3b52] transition-colors hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
+          className="rounded-lg p-1.5 text-black/60 transition-colors hover:bg-black/5 hover:text-black"
         >
           <ChevronRight size={15} />
         </button>
@@ -272,7 +216,7 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         {DAYS_SHORT.map((d) => (
           <span
             key={d}
-            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-[#6b7c99]"
+            className="py-1 text-center text-[9.5px] font-bold tracking-wide text-black/40"
           >
             {d}
           </span>
@@ -302,13 +246,13 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
               className={`flex h-8 items-center justify-center rounded-lg text-[12px] ${
                 b
                   ? b.status === "pending"
-                    ? "bg-[#eef2f7] font-semibold text-[#1a3a6e]"
-                    : "bg-[#262626] font-semibold text-[#ffffff]"
+                    ? "bg-black/10 font-semibold text-black/70"
+                    : "bg-black font-semibold text-white"
                   : out
-                    ? "bg-[#f4f6f9] font-semibold text-[#2a3b52] ring-1 ring-[#d4d4d4]"
+                    ? "bg-black/5 font-semibold text-black/60 ring-1 ring-black/15"
                     : iso === todayIso
-                      ? "font-bold text-[#0d2c5c] ring-1 ring-[#4f6280]"
-                      : "text-[#2a3b52]"
+                      ? "font-bold text-black ring-1 ring-black/40"
+                      : "text-black/60"
               }`}
             >
               {d}
@@ -317,26 +261,25 @@ function UnitCalendar({ bookings }: { bookings: RoomBooking[] }) {
         })}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#4f6280]">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-black/50">
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#262626]" /> Ocupată (noapte)
+          <span className="h-3 w-3 rounded bg-black" /> Ocupată (noapte)
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#eef2f7]" /> În așteptare
+          <span className="h-3 w-3 rounded bg-black/10" /> În așteptare
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-[#f4f6f9] ring-1 ring-[#d4d4d4]" />{" "}
+          <span className="h-3 w-3 rounded bg-black/5 ring-1 ring-black/15" />{" "}
           Plecare / eliberare
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded ring-1 ring-[#4f6280]" /> Azi
+          <span className="h-3 w-3 rounded ring-1 ring-black/40" /> Azi
         </span>
       </div>
     </div>
   );
 }
 
-/** Modal de editare pentru o unitate (număr, status). */
 function EditUnitModal({
   unit,
   index,
@@ -369,18 +312,18 @@ function EditUnitModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-xl"
+        className="w-full max-w-sm rounded-2xl border border-black/10 bg-white p-5 shadow-xl"
       >
         <div className="mb-4 flex items-center justify-between">
           <p
-            className="text-[16px] font-semibold text-[#0d2c5c]"
+            className="text-[16px] font-semibold text-black"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Editează unitatea
           </p>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-[#6b7c99] transition-colors hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
+            className="rounded-lg p-1 text-black/40 transition-colors hover:bg-black/5 hover:text-black"
           >
             <X size={16} />
           </button>
@@ -388,24 +331,24 @@ function EditUnitModal({
 
         <div className="space-y-3">
           <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-black/40">
               Număr unitate
             </label>
             <input
               value={unitNumber}
               onChange={(e) => setUnitNumber(e.target.value)}
-              className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-2.5 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
+              className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[14px] text-black outline-none focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-black/40">
               Status
             </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-2.5 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
+              className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[14px] text-black outline-none focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]"
             >
               {STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -420,14 +363,14 @@ function EditUnitModal({
           <button
             onClick={onClose}
             disabled={saving}
-            className="rounded-xl border border-[#e1e8f0] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#f4f6f9] disabled:opacity-50"
+            className="rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-black transition-all hover:bg-black/5 disabled:opacity-50"
           >
             Anulează
           </button>
           <button
             onClick={() => void handleSave()}
             disabled={saving || !unitNumber.trim()}
-            className="rounded-xl bg-[#0d2c5c] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
+            className="rounded-xl bg-black px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-neutral-800 disabled:opacity-50"
           >
             {saving ? "Se salvează…" : "Salvează"}
           </button>
@@ -437,11 +380,6 @@ function EditUnitModal({
   );
 }
 
-/**
- * Dropdown cu search pentru atribuirea unei rezervări la o unitate.
- * Arată întâi unitățile libere pentru perioada rezervării, apoi pe cele ocupate
- * (marcate vizual, dar tot selectabile — pentru cazuri de suprascriere manuală).
- */
 function AssignUnitDropdown({
   booking,
   units,
@@ -508,32 +446,32 @@ function AssignUnitDropdown({
           e.stopPropagation();
           setOpen(!open);
         }}
-        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#6b7c99] transition-all hover:bg-[#e1e8f0] hover:text-[#0d2c5c]"
+        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-black/40 transition-all hover:bg-black/5 hover:text-black"
       >
         <MoreVertical size={14} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-7 z-50 w-56 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-lg">
-          <div className="border-b border-[#eef2f7] p-2">
+        <div className="absolute right-0 top-7 z-50 w-56 overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg">
+          <div className="border-b border-black/5 p-2">
             <div className="relative">
               <Search
                 size={12}
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6b7c99]"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40"
               />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Caută unitate…"
-                className="w-full rounded-lg border border-[#e1e8f0] bg-[#f9f7f2] py-1.5 pl-7 pr-2 text-[12px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
+                className="w-full rounded-lg border border-black/10 bg-white py-1.5 pl-7 pr-2 text-[12px] text-black outline-none focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]"
               />
             </div>
           </div>
 
           <div className="max-h-52 overflow-y-auto py-1">
             {ranked.length === 0 ? (
-              <p className="px-3 py-2 text-[12px] text-[#6b7c99]">
+              <p className="px-3 py-2 text-[12px] text-black/40">
                 Nicio unitate găsită.
               </p>
             ) : (
@@ -544,7 +482,7 @@ function AssignUnitDropdown({
                     onAssign(String(unit.id));
                     setOpen(false);
                   }}
-                  className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f4f6f9]"
+                  className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] font-medium text-black hover:bg-black/5"
                 >
                   <span className="truncate">{label}</span>
                   {available ? (
@@ -561,10 +499,10 @@ function AssignUnitDropdown({
             )}
           </div>
 
-          <div className="border-t border-[#eef2f7] p-1">
+          <div className="border-t border-black/5 p-1">
             {booking.status === "completed" ||
             booking.status === "cancelled" ? (
-              <p className="px-2 py-1.5 text-[11px] text-[#6b7c99]">
+              <p className="px-2 py-1.5 text-[11px] text-black/40">
                 {booking.status === "completed"
                   ? "Rezervare finalizată — nu mai poate fi anulată."
                   : "Rezervare deja anulată."}
@@ -575,7 +513,7 @@ function AssignUnitDropdown({
                   onCancelBooking();
                   setOpen(false);
                 }}
-                className="w-full rounded-lg px-2 py-1.5 text-left text-[12px] font-medium text-[#b91c1c] hover:bg-[#fef2f2]"
+                className="w-full rounded-lg px-2 py-1.5 text-left text-[12px] font-medium text-[#b91c1c] hover:bg-red-50"
               >
                 Anulează rezervarea
               </button>
@@ -602,19 +540,17 @@ export default function UnitsTab() {
   const [query, setQuery] = useState("");
   const [openUnit, setOpenUnit] = useState<string | null>(null);
 
-  // State-uri pentru meniuri Dropdown
-  const [ubPages, setUbPages] = useState<Record<string, number>>({});
-  const [menuOpenId, setMenuOpenId] = useState<string | null>(null); // Meniul unității
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [bookingMenuOpenId, setBookingMenuOpenId] = useState<string | null>(
     null,
-  ); // Meniul din rezervări (atribuite)
+  );
 
   const [editingUnit, setEditingUnit] = useState<{
     unit: RoomUnit;
     index: number;
   } | null>(null);
 
-  const loadRoomsAndUsers = async () => {
+  const loadRoomsAndUsers = useCallback(async () => {
     setLoading(true);
     try {
       const [r, u] = await Promise.all([
@@ -630,22 +566,25 @@ export default function UnitsTab() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedId, toast]);
 
-  const loadUnits = async (roomId: string | number) => {
-    setUnitsLoading(true);
-    try {
-      const room = await get<Room>(`/rooms/${roomId}`);
-      setUnits(room?.units || []);
-    } catch (e) {
-      toast(errMsg(e), "error");
-      setUnits([]);
-    } finally {
-      setUnitsLoading(false);
-    }
-  };
+  const loadUnits = useCallback(
+    async (roomId: string | number) => {
+      setUnitsLoading(true);
+      try {
+        const room = await get<Room>(`/rooms/${roomId}`);
+        setUnits(room?.units || []);
+      } catch (e) {
+        toast(errMsg(e), "error");
+        setUnits([]);
+      } finally {
+        setUnitsLoading(false);
+      }
+    },
+    [toast],
+  );
 
-  const loadBookings = async (roomId: string | number) => {
+  const loadBookings = useCallback(async (roomId: string | number) => {
     setBookingsLoading(true);
     try {
       const data = await get<unknown>(`/rooms/${roomId}/bookings`);
@@ -655,12 +594,11 @@ export default function UnitsTab() {
     } finally {
       setBookingsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     void loadRoomsAndUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadRoomsAndUsers]);
 
   useEffect(() => {
     if (selectedId !== null) {
@@ -668,10 +606,8 @@ export default function UnitsTab() {
       void loadUnits(selectedId);
       void loadBookings(selectedId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId]);
+  }, [selectedId, loadUnits, loadBookings]);
 
-  // Închide meniurile de 3 puncte la click în exterior
   useEffect(() => {
     if (!menuOpenId && !bookingMenuOpenId) return;
     const close = () => {
@@ -782,9 +718,8 @@ export default function UnitsTab() {
     }
   };
 
-  // FUNCȚII PENTRU REZERVĂRI (Atribuire și Anulare via Dropdown)
   const assignUnitToBooking = async (
-    bookingId: string | number,
+    bookingId: string,
     unitId: string | null,
   ) => {
     try {
@@ -804,14 +739,10 @@ export default function UnitsTab() {
     }
   };
 
-  const handleCancelBooking = async (bookingId: string | number) => {
+  const handleCancelBooking = async (bookingId: string) => {
     if (!window.confirm("Ești sigur că vrei să anulezi această rezervare?"))
       return;
     try {
-      // Endpoint-ul POST /bookings/:id/cancel verifică ownership-ul
-      // (guest-ul propriu) și respinge cu 403 apelurile de admin.
-      // PATCH /bookings/:id merge deja cu drepturi de admin (folosit și
-      // pentru room_unit_id), deci trecem și anularea prin el.
       await patch(`/bookings/${bookingId}`, { status: "cancelled" });
       toast("Rezervare anulată.", "success");
       if (selectedId) {
@@ -823,32 +754,10 @@ export default function UnitsTab() {
     }
   };
 
-  const copyToClipboard = (text: string | number | null | undefined, label: string) => {
+  const copyToClipboard = (text: string, label: string) => {
     if (!text) return;
-    navigator.clipboard.writeText(String(text));
+    navigator.clipboard.writeText(text);
     toast(`${label} copiat în clipboard!`, "success");
-  };
-
-  const guestInfo = (b: RoomBooking) => {
-    const userObj = users.find(
-      (u: any) => String(u.id) === String((b as any).user_id),
-    ) as any;
-    const email =
-      b.user_email || b.guest_email || b.user?.email || userObj?.email || "";
-    let name =
-      b.guest_name ||
-      b.user_name ||
-      [b.user?.first_name, b.user?.last_name].filter(Boolean).join(" ").trim() ||
-      [userObj?.first_name, userObj?.last_name].filter(Boolean).join(" ").trim();
-    if (!name && email) {
-      const local = email.split("@")[0];
-      name = local.charAt(0).toUpperCase() + local.slice(1);
-    }
-    return {
-      name: name || "Oaspete necunoscut",
-      email: email || "",
-      userId: (b as any).user_id ?? userObj?.id ?? null,
-    };
   };
 
   const activeCount = units.filter(
@@ -856,652 +765,622 @@ export default function UnitsTab() {
   ).length;
 
   return (
-    <div>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#6b7c99]">
-            <span className="h-px w-8 bg-[#4f6280]" /> Inventar
-          </span>
-          <h2
-            className="mt-2 text-[30px] font-semibold text-[#0d2c5c]"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Unități fizice
-          </h2>
-          <p className="mt-1 text-[13px] text-[#4f6280]">
-            Alege o cameră, vezi statusul fiecărei unități și zilele în care e
-            ocupată — cu oaspetele aferent.
-          </p>
+    <div className="w-full min-h-screen bg-white text-black p-4 sm:p-8 space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-black/40">
+              <span className="h-px w-8 bg-black/40" /> Inventar
+            </span>
+            <h2
+              className="mt-2 text-[30px] font-semibold text-black"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Unități fizice
+            </h2>
+            <p className="mt-1 text-[13px] text-black/60">
+              Alege o cameră, vezi statusul fiecărei unități și zilele în care e
+              ocupată — cu oaspetele aferent.
+            </p>
+          </div>
+          {selectedId !== null && (
+            <button
+              onClick={() => {
+                void loadUnits(selectedId);
+                void loadBookings(selectedId);
+              }}
+              className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-black transition-all hover:bg-black/5"
+            >
+              <RefreshCw size={13} /> Reîncarcă
+            </button>
+          )}
         </div>
-        {selectedId !== null && (
-          <button
-            onClick={() => {
-              void loadUnits(selectedId);
-              void loadBookings(selectedId);
-            }}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#e1e8f0] bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#f4f6f9]"
-          >
-            <RefreshCw size={13} /> Reîncarcă
-          </button>
-        )}
-      </div>
 
-      {loading ? (
-        <TableSkeleton />
-      ) : rooms.length === 0 ? (
-        <EmptyState
-          title="Nicio cameră"
-          hint="Adaugă mai întâi camere din tabul „Camere & foto”."
-        />
-      ) : (
-        <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
-          {/* Room selector */}
-          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-3">
-            <div className="relative mb-3">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7c99]"
-              />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Caută cameră…"
-                className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] py-2.5 pl-9 pr-3 text-[13px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
-              />
-            </div>
-            <div className="max-h-[520px] space-y-1 overflow-y-auto">
-              {filtered.map((r) => {
-                const active = String(r.id) === String(selectedId);
-                return (
-                  <button
-                    key={r.id}
-                    onClick={() => setSelectedId(r.id)}
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[13px] font-semibold transition-all ${
-                      active
-                        ? "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.18)]"
-                        : "text-[#2a3b52] hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+        {loading ? (
+          <TableSkeleton />
+        ) : rooms.length === 0 ? (
+          <EmptyState
+            title="Nicio cameră"
+            hint="Adaugă mai întâi camere din tabul „Camere & foto”."
+          />
+        ) : (
+          <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
+            <div className="rounded-2xl border border-black/10 bg-white p-3">
+              <div className="relative mb-3">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40"
+                />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Caută cameră…"
+                  className="w-full rounded-xl border border-black/10 bg-white py-2.5 pl-9 pr-3 text-[13px] text-black outline-none focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-black/40"
+                />
+              </div>
+              <div className="max-h-[520px] space-y-1 overflow-y-auto">
+                {filtered.map((r) => {
+                  const active = String(r.id) === String(selectedId);
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => setSelectedId(r.id)}
+                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[13px] font-semibold transition-all ${
                         active
-                          ? "bg-white/10 text-[#4f6280]"
-                          : "bg-[#f4f6f9] text-[#0d2c5c]"
+                          ? "bg-black text-white shadow-[0_4px_14px_rgba(0,0,0,0.18)]"
+                          : "text-black/70 hover:bg-black/5 hover:text-black"
                       }`}
                     >
-                      <BedDouble size={14} strokeWidth={1.75} />
-                    </span>
-                    <span className="truncate">{roomLabel(r)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Units panel */}
-          <div className="rounded-2xl border border-[#e1e8f0] bg-white">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef2f7] px-5 py-4">
-              <div>
-                <p
-                  className="text-[17px] font-semibold text-[#0d2c5c]"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  {selectedRoom ? roomLabel(selectedRoom) : "—"}
-                </p>
-                <p className="text-[12px] text-[#4f6280]">
-                  {units.length} unități · {activeCount} active ·{" "}
-                  {activeBookings.length} rezervări active
-                </p>
-              </div>
-              <Badge tone={activeCount > 0 ? "green" : "red"}>
-                {activeCount > 0 ? "Disponibilă" : "Fără unități active"}
-              </Badge>
-            </div>
-
-            <div className="px-5 py-5">
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input
-                  value={unitNumber}
-                  onChange={(e) => setUnitNumber(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") void addUnit();
-                  }}
-                  placeholder="Număr unitate — ex: 101"
-                  className="w-full rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#4f6280] focus:bg-white"
-                />
-                <button
-                  disabled={adding || !unitNumber.trim()}
-                  onClick={() => void addUnit()}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0d2c5c] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#262626] disabled:opacity-50"
-                >
-                  <Plus size={14} /> Adaugă unitate
-                </button>
-              </div>
-
-              {unitsLoading ? (
-                <div className="mt-5">
-                  <TableSkeleton />
-                </div>
-              ) : units.length === 0 ? (
-                <div className="mt-5 rounded-xl border border-dashed border-[#e1e8f0] bg-[#f9f7f2] py-10 text-center">
-                  <DoorOpen
-                    size={24}
-                    className="mx-auto mb-2 text-[#6b7c99]"
-                    strokeWidth={1.5}
-                  />
-                  <p className="text-[13px] text-[#4f6280]">
-                    Nicio unitate pentru această cameră.
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-5 space-y-2">
-                  {units.map((u, i) => {
-                    const uid = String(u.id);
-                    const ub = bookingsByUnit.get(uid) || [];
-                    const current = ub.find(isOngoing);
-                    const next = ub.find(isUpcoming);
-                    const expanded = openUnit === uid;
-                    const UB_PER_PAGE = 5;
-                    const ubTotalPages = Math.max(
-                      1,
-                      Math.ceil(ub.length / UB_PER_PAGE),
-                    );
-                    const ubPage = Math.min(ubPages[uid] || 1, ubTotalPages);
-                    const ubSlice = ub.slice(
-                      (ubPage - 1) * UB_PER_PAGE,
-                      ubPage * UB_PER_PAGE,
-                    );
-                    const menuOpen = menuOpenId === uid;
-
-                    return (
-                      <div
-                        key={u.id}
-                        className="rounded-xl border border-[#e1e8f0] bg-white"
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                          active
+                            ? "bg-white/10 text-white/70"
+                            : "bg-black/5 text-black"
+                        }`}
                       >
-                        <div
-                          onClick={() => setOpenUnit(expanded ? null : uid)}
-                          className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[#f9f7f2]"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f6f9] text-[12px] font-bold text-[#0d2c5c]">
-                              {i + 1}
-                            </span>
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-[14px] font-semibold text-[#0d2c5c]">
-                                  {unitLabel(u, i)}
-                                </span>
-                                <Badge tone={statusTone(u.status)}>
-                                  {statusLabel(u.status)}
-                                </Badge>
-                                {current ? (
-                                  <Badge tone="red">Ocupată acum</Badge>
-                                ) : (
-                                  <Badge tone="green">Liberă acum</Badge>
-                                )}
-                              </div>
-                              <p className="text-[12px] text-[#4f6280] mt-1 pl-2">
-                                {current
-                                  ? `${guestInfo(current).name} · până ${dateFmt(current.check_out)}`
-                                  : next
-                                    ? `Următoarea sosire: ${dateFmt(next.check_in)} — ${guestInfo(next).name}`
-                                    : "Fără rezervări viitoare"}
-                              </p>
-                            </div>
-                          </div>
-                          <div
-                            className="flex items-center gap-2"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <select
-                              value={u.status || "active"}
-                              onChange={(e) =>
-                                void changeStatus(u, e.target.value)
-                              }
-                              className="rounded-full border border-[#e1e8f0] bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#0d2c5c] outline-none"
-                            >
-                              {STATUSES.map((s) => (
-                                <option key={s.value} value={s.value}>
-                                  {s.label}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              onClick={() => setOpenUnit(expanded ? null : uid)}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#f4f6f9]"
-                            >
-                              <CalendarDays size={12} /> Ocupare ({ub.length})
-                              <ChevronDown
-                                size={12}
-                                className={expanded ? "rotate-180" : ""}
-                              />
-                            </button>
+                        <BedDouble size={14} strokeWidth={1.75} />
+                      </span>
+                      <span className="truncate">{roomLabel(r)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-                            {/* Meniu cu 3 puncte: Editează / Șterge UNITATE */}
-                            <div className="relative">
-                              <button
-                                onClick={() =>
-                                  setMenuOpenId(menuOpen ? null : uid)
-                                }
-                                title="Mai multe acțiuni"
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e1e8f0] text-[#2a3b52] transition-all hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
-                              >
-                                <MoreVertical size={15} />
-                              </button>
-                              {menuOpen && (
-                                <div className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-lg py-1">
-                                  <button
-                                    onClick={() => {
-                                      setMenuOpenId(null);
-                                      setEditingUnit({ unit: u, index: i });
-                                    }}
-                                    className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-[#0d2c5c] transition-colors hover:bg-[#f4f6f9]"
-                                  >
-                                    <Pencil size={13} /> Editează
-                                  </button>
-                                  <div className="border-t border-[#eef2f7] mt-1 pt-1">
-                                    <button
-                                      onClick={() => {
-                                        setMenuOpenId(null);
-                                        void removeUnit(u);
-                                      }}
-                                      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-[#b91c1c] transition-colors hover:bg-[#fef2f2]"
-                                    >
-                                      <Trash2 size={13} /> Șterge unitatea
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* DETALII REZERVĂRI ATRIBUITE UNITĂȚII */}
-                        {expanded && (
-                          <div className="border-t border-[#eef2f7] bg-[#f9f7f2] px-4 py-4">
-                            <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_330px]">
-                              <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e1e8f0] bg-white p-4 sm:grid-cols-3">
-                                {[
-                                  { l: "Unitate", v: unitLabel(u, i) },
-                                  { l: "ID", v: uid.slice(0, 8) },
-                                  { l: "Status", v: statusLabel(u.status) },
-                                  {
-                                    l: "Rezervări active",
-                                    v: String(ub.length),
-                                  },
-                                  {
-                                    l: "Ocupată acum",
-                                    v: current ? (
-                                      <GuestCell
-                                        b={current}
-                                        info={guestInfo(current)}
-                                        note={`până ${dateFmt(current.check_out)}`}
-                                        onCopy={copyToClipboard}
-                                      />
-                                    ) : (
-                                      "Nu"
-                                    ),
-                                  },
-                                  {
-                                    l: "Următoarea sosire",
-                                    v: next ? (
-                                      <GuestCell
-                                        b={next}
-                                        info={guestInfo(next)}
-                                        note={`sosire ${dateFmt(next.check_in)}`}
-                                        onCopy={copyToClipboard}
-                                      />
-                                    ) : (
-                                      "—"
-                                    ),
-                                  },
-                                  {
-                                    l: "Nopți rezervate",
-                                    v: String(
-                                      ub.reduce(
-                                        (s, b) =>
-                                          s + nights(b.check_in, b.check_out),
-                                        0,
-                                      ),
-                                    ),
-                                  },
-                                ].map((f: { l: string; v: any }) => (
-                                  <div key={f.l}>
-                                    <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6b7c99]">
-                                      {f.l}
-                                    </p>
-                                    <p className="mt-0.5 text-[13px] font-medium text-[#0d2c5c]">
-                                      {f.v}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                              <UnitCalendar bookings={ub} />
-                            </div>
-
-                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6b7c99]">
-                              Rezervări pe această unitate
-                            </p>
-                            {bookingsLoading ? (
-                              <TableSkeleton />
-                            ) : ub.length === 0 ? (
-                              <p className="text-[13px] text-[#4f6280]">
-                                Nicio rezervare atribuită acestei unități.
-                              </p>
-                            ) : (
-                              <div className="space-y-2">
-                                {ubSlice.map((b) => {
-                                  const userObj = users.find(
-                                    (uObj: any) =>
-                                      String(uObj.id) === String(b.user_id),
-                                  );
-                                  const shortBookingId =
-                                    String(b.id).length > 8
-                                      ? String(b.id).substring(0, 8) + "..."
-                                      : String(b.id);
-                                  const rawEmail =
-                                    b.user_email ||
-                                    b.guest_email ||
-                                    userObj?.email ||
-                                    "";
-                                  const displayEmail = rawEmail || "—";
-                                  let displayName =
-                                    b.guest_name || b.user_name || "";
-
-                                  if (!displayName && userObj) {
-                                    displayName =
-                                      `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
-                                  }
-                                  if (!displayName && rawEmail) {
-                                    displayName = rawEmail.split("@")[0];
-                                    displayName =
-                                      displayName.charAt(0).toUpperCase() +
-                                      displayName.slice(1);
-                                  } else if (!displayName) {
-                                    displayName = "Client Necunoscut";
-                                  }
-
-                                  const bMenuOpen =
-                                    bookingMenuOpenId === String(b.id);
-
-                                  return (
-                                    <div
-                                      key={b.id}
-                                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#e1e8f0] bg-white px-3 py-2.5"
-                                    >
-                                      <div className="flex items-start gap-2">
-                                        <div className="flex flex-col items-start gap-0.5">
-                                          {/* ID REZERVARE */}
-                                          <button
-                                            onClick={() =>
-                                              copyToClipboard(
-                                                String(b.id),
-                                                "ID Rezervare",
-                                              )
-                                            }
-                                            className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
-                                            title="Click pentru a copia ID-ul rezervării"
-                                          >
-                                            <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#6b7c99]">
-                                              #{shortBookingId}
-                                            </span>
-                                            <Copy
-                                              size={9}
-                                              className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
-                                            />
-                                          </button>
-
-                                          {/* NUME */}
-                                          <button
-                                            onClick={() =>
-                                              copyToClipboard(
-                                                b.user_id,
-                                                "ID Client",
-                                              )
-                                            }
-                                            className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
-                                            title="Click pentru a copia ID-ul clientului"
-                                          >
-                                            <span className="block text-[13px] font-semibold text-black">
-                                              {displayName}
-                                            </span>
-                                            {b.user_id && (
-                                              <Copy
-                                                size={10}
-                                                className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
-                                              />
-                                            )}
-                                          </button>
-
-                                          {/* EMAIL */}
-                                          {rawEmail && (
-                                            <span className="text-[12px] text-[#6b7c99] block leading-tight">
-                                              {displayEmail}
-                                            </span>
-                                          )}
-
-                                          {/* PERIOADA */}
-                                          <p className="text-[11px] text-[#4f6280] mt-0.5">
-                                            {dateFmt(b.check_in)} →{" "}
-                                            {dateFmt(b.check_out)} ·{" "}
-                                            {nights(b.check_in, b.check_out)}{" "}
-                                            nopți
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-[12px] font-semibold text-[#0d2c5c] mr-1">
-                                          {money(b.total_price)}
-                                        </span>
-                                        <Badge tone={bookingTone(b.status)}>
-                                          {bookingStatusLabel(b.status)}
-                                        </Badge>
-                                        {isOngoing(b) && (
-                                          <Badge tone="red">Live</Badge>
-                                        )}
-
-                                        {/* DROPDOWN REZERVARE ATRIBUITA */}
-                                        <div className="relative ml-1">
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setBookingMenuOpenId(
-                                                bMenuOpen ? null : String(b.id),
-                                              );
-                                            }}
-                                            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-[#6b7c99] transition-all hover:bg-[#f4f6f9] hover:text-[#0d2c5c]"
-                                          >
-                                            <MoreVertical size={14} />
-                                          </button>
-
-                                          {bMenuOpen && (
-                                            <div className="absolute right-0 top-7 z-50 w-44 overflow-hidden rounded-xl border border-[#e1e8f0] bg-white shadow-lg py-1">
-                                              <button
-                                                onClick={() => {
-                                                  assignUnitToBooking(
-                                                    b.id,
-                                                    null,
-                                                  );
-                                                  setBookingMenuOpenId(null);
-                                                }}
-                                                className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f4f6f9]"
-                                              >
-                                                Dez-atribuie unitatea
-                                              </button>
-
-                                              <div className="border-t border-[#eef2f7] mt-1 pt-1">
-                                                {b.status === "completed" ||
-                                                b.status === "cancelled" ? (
-                                                  <p className="px-3 py-1.5 text-[11px] text-[#6b7c99]">
-                                                    {b.status === "completed"
-                                                      ? "Finalizată — nu mai poate fi anulată."
-                                                      : "Deja anulată."}
-                                                  </p>
-                                                ) : (
-                                                  <button
-                                                    onClick={() => {
-                                                      handleCancelBooking(b.id);
-                                                      setBookingMenuOpenId(
-                                                        null,
-                                                      );
-                                                    }}
-                                                    className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-[#b91c1c] hover:bg-[#fef2f2]"
-                                                  >
-                                                    Anulează rezervarea
-                                                  </button>
-                                                )}
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                                <Pagination
-                                  page={ubPage}
-                                  pages={ubTotalPages}
-                                  total={ub.length}
-                                  perPage={UB_PER_PAGE}
-                                  onPage={(p) =>
-                                    setUbPages((prev) => ({ ...prev, [uid]: p }))
-                                  }
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {unassigned.length > 0 && (
-                <div className="mt-6 rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] px-4 py-4">
-                  <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#1a3a6e] mb-3">
-                    Rezervări fără unitate atribuită ({unassigned.length})
+            <div className="rounded-2xl border border-black/10 bg-white">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/5 px-5 py-4">
+                <div>
+                  <p
+                    className="text-[17px] font-semibold text-black"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {selectedRoom ? roomLabel(selectedRoom) : "—"}
                   </p>
-                  <div className="space-y-2">
-                    {unassigned.map((b) => {
-                      const userObj = users.find(
-                        (uObj: any) => String(uObj.id) === String(b.user_id),
-                      );
-                      const shortBookingId =
-                        String(b.id).length > 8
-                          ? String(b.id).substring(0, 8) + "..."
-                          : String(b.id);
-                      const rawEmail =
-                        b.user_email || b.guest_email || userObj?.email || "";
-                      const displayEmail = rawEmail || "—";
-                      let displayName = b.guest_name || b.user_name || "";
+                  <p className="text-[12px] text-black/60">
+                    {units.length} unități · {activeCount} active ·{" "}
+                    {activeBookings.length} rezervări active
+                  </p>
+                </div>
+                <Badge tone={activeCount > 0 ? "green" : "red"}>
+                  {activeCount > 0 ? "Disponibilă" : "Fără unități active"}
+                </Badge>
+              </div>
 
-                      if (!displayName && userObj) {
-                        displayName =
-                          `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
-                      }
-                      if (!displayName && rawEmail) {
-                        displayName = rawEmail.split("@")[0];
-                        displayName =
-                          displayName.charAt(0).toUpperCase() +
-                          displayName.slice(1);
-                      } else if (!displayName) {
-                        displayName = "Client Necunoscut";
-                      }
+              <div className="px-5 py-5">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input
+                    value={unitNumber}
+                    onChange={(e) => setUnitNumber(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") void addUnit();
+                    }}
+                    placeholder="Număr unitate — ex: 101"
+                    className="w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-[14px] text-black outline-none focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-black/40"
+                  />
+                  <button
+                    disabled={adding || !unitNumber.trim()}
+                    onClick={() => void addUnit()}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-neutral-800 disabled:opacity-50"
+                  >
+                    <Plus size={14} /> Adaugă unitate
+                  </button>
+                </div>
+
+                {unitsLoading ? (
+                  <div className="mt-5">
+                    <TableSkeleton />
+                  </div>
+                ) : units.length === 0 ? (
+                  <div className="mt-5 rounded-xl border border-dashed border-black/10 bg-white py-10 text-center">
+                    <DoorOpen
+                      size={24}
+                      className="mx-auto mb-2 text-black/40"
+                      strokeWidth={1.5}
+                    />
+                    <p className="text-[13px] text-black/60">
+                      Nicio unitate pentru această cameră.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-5 space-y-2">
+                    {units.map((u, i) => {
+                      const uid = String(u.id);
+                      const ub = bookingsByUnit.get(uid) || [];
+                      const current = ub.find(isOngoing);
+                      const next = ub.find(isUpcoming);
+                      const expanded = openUnit === uid;
+                      const menuOpen = menuOpenId === uid;
 
                       return (
                         <div
-                          key={b.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-white px-3 py-2.5 border border-[#e1e8f0]"
+                          key={u.id}
+                          className="rounded-xl border border-black/10 bg-white"
                         >
-                          <div className="flex items-start gap-2">
-                            <div className="flex flex-col items-start gap-0.5">
-                              {/* ID REZERVARE */}
+                          <div
+                            onClick={() => setOpenUnit(expanded ? null : uid)}
+                            className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-black/[0.02]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-black/5 text-[12px] font-bold text-black">
+                                {i + 1}
+                              </span>
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-[14px] font-semibold text-black">
+                                    {unitLabel(u, i)}
+                                  </span>
+
+                                  <Badge tone={statusTone(u.status)}>
+                                    {statusLabel(u.status)}
+                                  </Badge>
+                                  {current ? (
+                                    <Badge tone="red">Ocupată acum</Badge>
+                                  ) : (
+                                    <Badge tone="green">Liberă acum</Badge>
+                                  )}
+                                </div>
+                                <p className="text-[12px] text-black/60 mt-1 pl-2">
+                                  {current
+                                    ? `${guestOf(current)} · până ${dateFmt(current.check_out)}`
+                                    : next
+                                      ? `Următoarea sosire: ${dateFmt(next.check_in)} — ${guestOf(next)}`
+                                      : "Fără rezervări viitoare"}
+                                </p>
+                              </div>
+                            </div>
+                            <div
+                              className="flex items-center gap-2"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <select
+                                value={u.status || "active"}
+                                onChange={(e) =>
+                                  void changeStatus(u, e.target.value)
+                                }
+                                className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-black outline-none focus:border-black/30"
+                              >
+                                {STATUSES.map((s) => (
+                                  <option key={s.value} value={s.value}>
+                                    {s.label}
+                                  </option>
+                                ))}
+                              </select>
                               <button
                                 onClick={() =>
-                                  copyToClipboard(String(b.id), "ID Rezervare")
+                                  setOpenUnit(expanded ? null : uid)
                                 }
-                                className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
-                                title="Click pentru a copia ID-ul rezervării"
+                                className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"
                               >
-                                <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#6b7c99]">
-                                  #{shortBookingId}
-                                </span>
-                                <Copy
-                                  size={9}
-                                  className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
+                                <CalendarDays size={12} /> Ocupare ({ub.length})
+                                <ChevronDown
+                                  size={12}
+                                  className={expanded ? "rotate-180" : ""}
                                 />
                               </button>
 
-                              {/* NUME */}
-                              <button
-                                onClick={() =>
-                                  copyToClipboard(b.user_id, "ID Client")
-                                }
-                                className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
-                                title="Click pentru a copia ID-ul clientului"
-                              >
-                                <span className="block text-[13px] font-semibold text-black">
-                                  {displayName}
-                                </span>
-                                {b.user_id && (
-                                  <Copy
-                                    size={10}
-                                    className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
-                                  />
+                              <div className="relative">
+                                <button
+                                  onClick={() =>
+                                    setMenuOpenId(menuOpen ? null : uid)
+                                  }
+                                  title="Mai multe acțiuni"
+                                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-black/10 bg-white text-black/60 transition-all hover:bg-black/5 hover:text-black"
+                                >
+                                  <MoreVertical size={15} />
+                                </button>
+                                {menuOpen && (
+                                  <div className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg py-1">
+                                    <button
+                                      onClick={() => {
+                                        setMenuOpenId(null);
+                                        setEditingUnit({ unit: u, index: i });
+                                      }}
+                                      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-black transition-colors hover:bg-black/5"
+                                    >
+                                      <Pencil size={13} /> Editează
+                                    </button>
+                                    <div className="border-t border-black/5 mt-1 pt-1">
+                                      <button
+                                        onClick={() => {
+                                          setMenuOpenId(null);
+                                          void removeUnit(u);
+                                        }}
+                                        className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12.5px] font-medium text-red-600 transition-colors hover:bg-red-50"
+                                      >
+                                        <Trash2 size={13} /> Șterge unitatea
+                                      </button>
+                                    </div>
+                                  </div>
                                 )}
-                              </button>
-
-                              {/* EMAIL */}
-                              {rawEmail && (
-                                <span className="text-[12px] text-[#6b7c99] block leading-tight">
-                                  {displayEmail}
-                                </span>
-                              )}
-
-                              {/* PERIOADA & NOPTI */}
-                              <p className="text-[11px] text-[#4f6280] mt-0.5">
-                                {dateFmt(b.check_in)} → {dateFmt(b.check_out)} ·{" "}
-                                {nights(b.check_in, b.check_out)} nopți
-                              </p>
+                              </div>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <Badge tone={bookingTone(b.status)}>
-                              {bookingStatusLabel(b.status)}
-                            </Badge>
+                          {expanded && (
+                            <div className="border-t border-black/5 bg-white px-4 py-4">
+                              <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_330px]">
+                                <div className="grid grid-cols-2 gap-4 rounded-xl border border-black/10 bg-white p-4 sm:grid-cols-3">
+                                  {[
+                                    { l: "Unitate", v: unitLabel(u, i) },
+                                    { l: "ID", v: uid.slice(0, 8) },
+                                    { l: "Status", v: statusLabel(u.status) },
+                                    {
+                                      l: "Rezervări active",
+                                      v: String(ub.length),
+                                    },
+                                    {
+                                      l: "Ocupată acum",
+                                      v: current
+                                        ? `${guestOf(current)} → ${dateFmt(current.check_out)}`
+                                        : "Nu",
+                                    },
+                                    {
+                                      l: "Următoarea sosire",
+                                      v: next
+                                        ? `${dateFmt(next.check_in)} — ${guestOf(next)}`
+                                        : "—",
+                                    },
+                                    {
+                                      l: "Nopți rezervate",
+                                      v: String(
+                                        ub.reduce(
+                                          (s, b) =>
+                                            s + nights(b.check_in, b.check_out),
+                                          0,
+                                        ),
+                                      ),
+                                    },
+                                  ].map((f) => (
+                                    <div key={f.l}>
+                                      <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-black/40">
+                                        {f.l}
+                                      </p>
+                                      <p className="mt-0.5 text-[13px] font-medium text-black">
+                                        {f.v}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                                <UnitCalendar bookings={ub} />
+                              </div>
 
-                            {/* DROPDOWN CU SEARCH: ATRIBUIE LA UNITATE */}
-                            <AssignUnitDropdown
-                              booking={b}
-                              units={units}
-                              bookingsByUnit={bookingsByUnit}
-                              onAssign={(unitId) =>
-                                assignUnitToBooking(b.id, unitId)
-                              }
-                              onCancelBooking={() => handleCancelBooking(b.id)}
-                            />
-                          </div>
+                              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-black/40">
+                                Rezervări pe această unitate
+                              </p>
+                              {bookingsLoading ? (
+                                <TableSkeleton />
+                              ) : ub.length === 0 ? (
+                                <p className="text-[13px] text-black/60">
+                                  Nicio rezervare atribuită acestei unități.
+                                </p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {ub.map((b) => {
+                                    const userObj = users.find(
+                                      (uObj) =>
+                                        String(uObj.id) === String(b.user_id),
+                                    );
+                                    const shortBookingId =
+                                      String(b.id).length > 8
+                                        ? String(b.id).substring(0, 8) + "..."
+                                        : String(b.id);
+                                    const rawEmail =
+                                      b.user_email ||
+                                      b.guest_email ||
+                                      userObj?.email ||
+                                      "";
+                                    const displayEmail = rawEmail || "—";
+                                    let displayName =
+                                      b.guest_name || b.user_name || "";
+
+                                    if (!displayName && userObj) {
+                                      displayName =
+                                        `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
+                                    }
+                                    if (!displayName && rawEmail) {
+                                      displayName = rawEmail.split("@")[0];
+                                      displayName =
+                                        displayName.charAt(0).toUpperCase() +
+                                        displayName.slice(1);
+                                    } else if (!displayName) {
+                                      displayName = "Client Necunoscut";
+                                    }
+
+                                    const bMenuOpen =
+                                      bookingMenuOpenId === String(b.id);
+
+                                    return (
+                                      <div
+                                        key={b.id}
+                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-black/10 bg-white px-3 py-2.5"
+                                      >
+                                        <div className="flex items-start gap-2">
+                                          <div className="flex flex-col items-start gap-0.5">
+                                            <button
+                                              onClick={() =>
+                                                copyToClipboard(
+                                                  String(b.id),
+                                                  "ID Rezervare",
+                                                )
+                                              }
+                                              className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                              title="Click pentru a copia ID-ul rezervării"
+                                            >
+                                              <span className="text-[9.5px] font-bold uppercase tracking-wider text-black/40">
+                                                #{shortBookingId}
+                                              </span>
+                                              <Copy
+                                                size={9}
+                                                className="text-black/40 opacity-0 transition-opacity group-hover:opacity-100"
+                                              />
+                                            </button>
+
+                                            <button
+                                              onClick={() =>
+                                                copyToClipboard(
+                                                  String(b.user_id || ""),
+                                                  "ID Client",
+                                                )
+                                              }
+                                              className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                              title="Click pentru a copia ID-ul clientului"
+                                            >
+                                              <span className="block text-[13px] font-semibold text-black">
+                                                {displayName}
+                                              </span>
+                                              {b.user_id && (
+                                                <Copy
+                                                  size={10}
+                                                  className="text-black/40 opacity-0 transition-opacity group-hover:opacity-100"
+                                                />
+                                              )}
+                                            </button>
+
+                                            {rawEmail && (
+                                              <span className="text-[12px] text-black/40 block leading-tight">
+                                                {displayEmail}
+                                              </span>
+                                            )}
+
+                                            <p className="text-[11px] text-black/60 mt-0.5">
+                                              {dateFmt(b.check_in)} →{" "}
+                                              {dateFmt(b.check_out)} ·{" "}
+                                              {nights(b.check_in, b.check_out)}{" "}
+                                              nopți
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-[12px] font-semibold text-black mr-1">
+                                            {money(b.total_price)}
+                                          </span>
+                                          <Badge tone={bookingTone(b.status)}>
+                                            {bookingStatusLabel(b.status)}
+                                          </Badge>
+                                          {isOngoing(b) && (
+                                            <Badge tone="red">Live</Badge>
+                                          )}
+
+                                          <div className="relative ml-1">
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setBookingMenuOpenId(
+                                                  bMenuOpen
+                                                    ? null
+                                                    : String(b.id),
+                                                );
+                                              }}
+                                              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-transparent text-black/40 transition-all hover:bg-black/5 hover:text-black"
+                                            >
+                                              <MoreVertical size={14} />
+                                            </button>
+
+                                            {bMenuOpen && (
+                                              <div className="absolute right-0 top-7 z-50 w-44 overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg py-1">
+                                                <button
+                                                  onClick={() => {
+                                                    assignUnitToBooking(
+                                                      String(b.id),
+                                                      null,
+                                                    );
+                                                    setBookingMenuOpenId(null);
+                                                  }}
+                                                  className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-black hover:bg-black/5"
+                                                >
+                                                  Dez-atribuie unitatea
+                                                </button>
+
+                                                <div className="border-t border-black/5 mt-1 pt-1">
+                                                  {b.status === "completed" ||
+                                                  b.status === "cancelled" ? (
+                                                    <p className="px-3 py-1.5 text-[11px] text-black/40">
+                                                      {b.status === "completed"
+                                                        ? "Finalizată — nu mai poate fi anulată."
+                                                        : "Deja anulată."}
+                                                    </p>
+                                                  ) : (
+                                                    <button
+                                                      onClick={() => {
+                                                        handleCancelBooking(
+                                                          String(b.id),
+                                                        );
+                                                        setBookingMenuOpenId(
+                                                          null,
+                                                        );
+                                                      }}
+                                                      className="w-full text-left px-3 py-1.5 text-[12px] font-medium text-red-600 hover:bg-red-50"
+                                                    >
+                                                      Anulează rezervarea
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              )}
+                )}
+
+                {unassigned.length > 0 && (
+                  <div className="mt-6 rounded-xl border border-black/10 bg-white px-4 py-4">
+                    <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-black/70 mb-3">
+                      Rezervări fără unitate atribuită ({unassigned.length})
+                    </p>
+                    <div className="space-y-2">
+                      {unassigned.map((b) => {
+                        const userObj = users.find(
+                          (uObj) => String(uObj.id) === String(b.user_id),
+                        );
+                        const shortBookingId =
+                          String(b.id).length > 8
+                            ? String(b.id).substring(0, 8) + "..."
+                            : String(b.id);
+                        const rawEmail =
+                          b.user_email || b.guest_email || userObj?.email || "";
+                        const displayEmail = rawEmail || "—";
+                        let displayName = b.guest_name || b.user_name || "";
+
+                        if (!displayName && userObj) {
+                          displayName =
+                            `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim();
+                        }
+                        if (!displayName && rawEmail) {
+                          displayName = rawEmail.split("@")[0];
+                          displayName =
+                            displayName.charAt(0).toUpperCase() +
+                            displayName.slice(1);
+                        } else if (!displayName) {
+                          displayName = "Client Necunoscut";
+                        }
+
+                        return (
+                          <div
+                            key={b.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-white px-3 py-2.5 border border-black/10"
+                          >
+                            <div className="flex items-start gap-2">
+                              <div className="flex flex-col items-start gap-0.5">
+                                <button
+                                  onClick={() =>
+                                    copyToClipboard(
+                                      String(b.id),
+                                      "ID Rezervare",
+                                    )
+                                  }
+                                  className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                  title="Click pentru a copia ID-ul rezervării"
+                                >
+                                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-black/40">
+                                    #{shortBookingId}
+                                  </span>
+                                  <Copy
+                                    size={9}
+                                    className="text-black/40 opacity-0 transition-opacity group-hover:opacity-100"
+                                  />
+                                </button>
+
+                                <button
+                                  onClick={() =>
+                                    copyToClipboard(
+                                      String(b.user_id || ""),
+                                      "ID Client",
+                                    )
+                                  }
+                                  className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                                  title="Click pentru a copia ID-ul clientului"
+                                >
+                                  <span className="block text-[13px] font-semibold text-black">
+                                    {displayName}
+                                  </span>
+                                  {b.user_id && (
+                                    <Copy
+                                      size={10}
+                                      className="text-black/40 opacity-0 transition-opacity group-hover:opacity-100"
+                                    />
+                                  )}
+                                </button>
+
+                                {rawEmail && (
+                                  <span className="text-[12px] text-black/40 block leading-tight">
+                                    {displayEmail}
+                                  </span>
+                                )}
+
+                                <p className="text-[11px] text-black/60 mt-0.5">
+                                  {dateFmt(b.check_in)} → {dateFmt(b.check_out)}{" "}
+                                  · {nights(b.check_in, b.check_out)} nopți
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Badge tone={bookingTone(b.status)}>
+                                {bookingStatusLabel(b.status)}
+                              </Badge>
+
+                              <AssignUnitDropdown
+                                booking={b}
+                                units={units}
+                                bookingsByUnit={bookingsByUnit}
+                                onAssign={(unitId) =>
+                                  assignUnitToBooking(String(b.id), unitId)
+                                }
+                                onCancelBooking={() =>
+                                  handleCancelBooking(String(b.id))
+                                }
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {editingUnit && (
-        <EditUnitModal
-          unit={editingUnit.unit}
-          index={editingUnit.index}
-          onClose={() => setEditingUnit(null)}
-          onSave={(payload) => saveUnitEdits(editingUnit.unit, payload)}
-        />
-      )}
+        {editingUnit && (
+          <EditUnitModal
+            unit={editingUnit.unit}
+            index={editingUnit.index}
+            onClose={() => setEditingUnit(null)}
+            onSave={(payload) => saveUnitEdits(editingUnit.unit, payload)}
+          />
+        )}
+      </div>
     </div>
   );
 }
