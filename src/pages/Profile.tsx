@@ -101,15 +101,48 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafd] pt-20 lg:pt-24">
+    <div className="min-h-screen w-full max-w-full bg-[#f8fafd] pt-20 lg:pt-24 overflow-x-hidden">
       {/* Hero band */}
       <ProfileHero user={user} />
 
-      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 -mt-20 relative z-10 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
-          <SideNav tab={tab} setTab={setTab} onLogout={handleLogout} />
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-10 -mt-16 sm:-mt-20 relative z-10 pb-20 sm:pb-24 w-full">
+        {/* Mobile Horizontal Scrollable Tab Bar — sticky so it stays reachable while scrolling */}
+        <div className="lg:hidden sticky top-16 z-30 -mx-4 px-4 mb-6 bg-[#f8fafd]/95 backdrop-blur-sm border-b border-[#e1e8f0] pt-2">
+          <div className="overflow-x-auto no-scrollbar scroll-smooth">
+            <div className="flex items-center gap-2 min-w-max pb-3">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                const active = tab === t.key;
+                const danger = t.key === "danger";
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => setTab(t.key)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold transition-all border shrink-0 ${
+                      active
+                        ? danger
+                          ? "bg-red-50 text-red-700 border-red-200 shadow-sm"
+                          : "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
+                        : danger
+                          ? "bg-white text-red-600 border-red-200"
+                          : "bg-white text-[#3d4f6b] border-[#e1e8f0]"
+                    }`}
+                  >
+                    <Icon size={14} />
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
 
-          <section className="bg-white border border-[#e1e8f0] rounded-[22px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 lg:gap-8 items-start w-full">
+          <div className="hidden lg:block">
+            <SideNav tab={tab} setTab={setTab} onLogout={handleLogout} />
+          </div>
+
+          <section className="min-w-0 bg-white border border-[#e1e8f0] rounded-[20px] sm:rounded-[22px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
             {tab === "personal" && (
               <PersonalTab user={user} setUser={setUser} />
             )}
@@ -132,25 +165,27 @@ function ProfileHero({ user }: { user: NonNullable<SessionUser> }) {
 
   return (
     <div
-      className="relative h-[260px] bg-cover bg-center"
+      className="relative h-[220px] sm:h-[260px] w-full bg-cover bg-center"
       style={{
         backgroundImage:
           "linear-gradient(180deg, rgba(13,44,92,0.65) 0%, rgba(13,44,92,0.85) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=400&fit=crop)",
       }}
     >
-      <div className="max-w-[1240px] mx-auto h-full px-6 lg:px-10 flex items-end pb-24">
-        <div className="flex items-center gap-5 text-white">
-          <div className="w-[92px] h-[92px] rounded-full bg-[#0d2c5c] border-[3px] border-[#c69a3f] shadow-[0_8px_24px_rgba(13,44,92,0.3)] flex items-center justify-center font-['Cormorant_Garamond',serif] text-[34px] font-semibold text-white">
+      <div className="max-w-[1240px] mx-auto h-full px-4 sm:px-6 lg:px-10 flex items-end pb-20 sm:pb-24">
+        <div className="flex items-center gap-4 sm:gap-5 text-white min-w-0 w-full">
+          <div className="w-[76px] h-[76px] sm:w-[92px] sm:h-[92px] rounded-full bg-[#0d2c5c] border-[3px] border-[#c69a3f] shadow-[0_8px_24px_rgba(13,44,92,0.3)] flex items-center justify-center font-['Cormorant_Garamond',serif] text-[28px] sm:text-[34px] font-semibold text-white shrink-0">
             {initials}
           </div>
-          <div>
-            <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] sm:text-[10.5px] font-bold tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#c69a3f] mb-1">
               Contul meu
             </p>
-            <h1 className="font-['Cormorant_Garamond',serif] text-[36px] leading-none font-medium">
+            <h1 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[36px] leading-tight font-medium truncate">
               {fullName}
             </h1>
-            <p className="text-[13px] text-white/80 mt-1">{user.email}</p>
+            <p className="text-[12px] sm:text-[13px] text-white/80 mt-0.5 truncate">
+              {user.email}
+            </p>
           </div>
         </div>
       </div>
@@ -190,7 +225,7 @@ function SideNav({
               }`}
             >
               <span
-                className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                   active
                     ? danger
                       ? "bg-red-100 text-red-700"
@@ -207,7 +242,7 @@ function SideNav({
                   {t.label}
                 </p>
                 <p
-                  className={`text-[11px] mt-0.5 ${
+                  className={`text-[11px] mt-0.5 truncate ${
                     active
                       ? danger
                         ? "text-red-500"
@@ -220,7 +255,7 @@ function SideNav({
               </div>
               <ChevronRight
                 size={14}
-                className={`opacity-40 transition-transform duration-200 group-hover:translate-x-0.5 ${
+                className={`opacity-40 transition-transform duration-200 group-hover:translate-x-0.5 shrink-0 ${
                   active ? "opacity-80" : ""
                 }`}
               />
@@ -252,14 +287,14 @@ function SectionHead({
   description: string;
 }) {
   return (
-    <header className="px-8 pt-8 pb-6 border-b border-[#e1e8f0]">
-      <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-2">
+    <header className="px-5 sm:px-8 pt-6 sm:pt-8 pb-5 sm:pb-6 border-b border-[#e1e8f0]">
+      <p className="text-[10px] sm:text-[10.5px] font-bold tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5 sm:mb-2">
         {eyebrow}
       </p>
-      <h2 className="font-['Cormorant_Garamond',serif] text-[28px] font-medium text-[#0d2c5c] leading-tight">
+      <h2 className="font-['Cormorant_Garamond',serif] text-[24px] sm:text-[28px] font-medium text-[#0d2c5c] leading-tight">
         {title}
       </h2>
-      <p className="text-[13.5px] text-[#6b7c99] mt-2 max-w-[560px]">
+      <p className="text-[13px] sm:text-[13.5px] text-[#6b7c99] mt-1.5 sm:mt-2 max-w-[560px]">
         {description}
       </p>
     </header>
@@ -284,12 +319,10 @@ function PersonalTab({
     null,
   );
 
-  // Sincronizează datele la montare sau dacă user se schimbă
   useEffect(() => {
     let active = true;
     (async () => {
       try {
-        // Dacă sesiunea curentă nu are complet numele/prenumele, preluăm detaliile de la un endpoint dedicat dacă există, sau folosim user-ul existent
         const data = await apiFetch<Record<string, any>>("/users/me").catch(
           () => null,
         );
@@ -302,7 +335,7 @@ function PersonalTab({
           });
         }
       } catch {
-        // fallback pe props
+        // fallback
       }
     })();
     return () => {
@@ -346,16 +379,19 @@ function PersonalTab({
         description="Actualizează informațiile de contact și modul în care apari pe rezervările tale la Casa Esy."
       />
 
-      <form onSubmit={handleSubmit} className="p-8 space-y-8">
-        <div className="flex items-center gap-5">
-          <div className="w-[86px] h-[86px] rounded-full bg-[#0d2c5c] text-white border-2 border-[#c69a3f] flex items-center justify-center font-['Cormorant_Garamond',serif] text-[30px] font-semibold shadow-md">
+      <form
+        onSubmit={handleSubmit}
+        className="p-5 sm:p-8 space-y-6 sm:space-y-8"
+      >
+        <div className="flex items-center gap-4 sm:gap-5">
+          <div className="w-[72px] h-[72px] sm:w-[86px] sm:h-[86px] rounded-full bg-[#0d2c5c] text-white border-2 border-[#c69a3f] flex items-center justify-center font-['Cormorant_Garamond',serif] text-[26px] sm:text-[30px] font-semibold shadow-md shrink-0">
             {initials}
           </div>
-          <div>
-            <p className="text-[14px] font-semibold text-[#0d2c5c]">
+          <div className="min-w-0">
+            <p className="text-[13px] sm:text-[14px] font-semibold text-[#0d2c5c]">
               Monograma ta
             </p>
-            <p className="text-[12.5px] text-[#6b7c99] mt-0.5">
+            <p className="text-[12px] sm:text-[12.5px] text-[#6b7c99] mt-0.5">
               Se generează automat din numele tău.
             </p>
           </div>
@@ -363,7 +399,7 @@ function PersonalTab({
 
         <Divider />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           <Field label="Prenume">
             <input
               type="text"
@@ -415,14 +451,14 @@ function PersonalTab({
 
         {status && (
           <div
-            className={`flex items-center gap-2 text-[13px] font-medium px-4 py-3 rounded-xl border ${
+            className={`flex items-center gap-2 text-[12.5px] sm:text-[13px] font-medium px-4 py-3 rounded-xl border ${
               status.ok
                 ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                 : "bg-red-50 text-red-800 border-red-200"
             }`}
           >
             {status.ok ? <Check size={16} /> : <TriangleAlert size={16} />}
-            {status.msg}
+            <span>{status.msg}</span>
           </div>
         )}
 
@@ -430,7 +466,7 @@ function PersonalTab({
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-r from-[#c69a3f] to-[#b3862f] text-[#0d2c5c] text-[11px] font-bold uppercase tracking-[0.16em] rounded-full hover:from-[#0d2c5c] hover:to-[#12386f] hover:text-white transition-all shadow-[0_8px_20px_-8px_rgba(198,154,63,0.8)] disabled:opacity-60"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-[#c69a3f] to-[#b3862f] text-[#0d2c5c] text-[11px] font-bold uppercase tracking-[0.16em] rounded-full hover:from-[#0d2c5c] hover:to-[#12386f] hover:text-white transition-all shadow-[0_8px_20px_-8px_rgba(198,154,63,0.8)] disabled:opacity-60"
           >
             <Save size={15} />
             {saving ? "Se salvează…" : "Salvează modificările"}
@@ -553,12 +589,12 @@ function PasswordResetFlow({ email }: { email: string }) {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 overflow-hidden">
       <div className="flex items-center gap-3">
-        <span className="w-9 h-9 rounded-full bg-[#f8fafd] text-[#0d2c5c] border border-[#e1e8f0] flex items-center justify-center">
+        <span className="w-9 h-9 rounded-full bg-[#f8fafd] text-[#0d2c5c] border border-[#e1e8f0] flex items-center justify-center shrink-0">
           <KeyRound size={16} />
         </span>
-        <div>
+        <div className="min-w-0">
           <h3 className="text-[15px] font-semibold text-[#0d2c5c] leading-tight">
             Schimbă parola
           </h3>
@@ -574,14 +610,14 @@ function PasswordResetFlow({ email }: { email: string }) {
           type="button"
           onClick={requestCode}
           disabled={sending}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[12px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-50 shadow-sm"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[12px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-50 shadow-sm"
         >
           <Mailbox size={15} />
           {sending ? "Se trimite…" : "Trimite cod de resetare pe email"}
         </button>
       ) : (
         <form onSubmit={submitReset} className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Field label="Cod primit pe email">
               <input
                 type="text"
@@ -612,7 +648,7 @@ function PasswordResetFlow({ email }: { email: string }) {
           </div>
 
           {(next.length > 0 || confirm.length > 0) && (
-            <ul className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1.5 text-[12px]">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1.5 text-[12px]">
               {[
                 ["length", "8–64 caractere"],
                 ["lowercase", "O literă mică"],
@@ -625,7 +661,9 @@ function PasswordResetFlow({ email }: { email: string }) {
                 return (
                   <li
                     key={k}
-                    className={`flex items-center gap-1.5 ${ok ? "text-emerald-700 font-medium" : "text-[#6b7c99]"}`}
+                    className={`flex items-center gap-1.5 ${
+                      ok ? "text-emerald-700 font-medium" : "text-[#6b7c99]"
+                    }`}
                   >
                     <Check size={13} className={ok ? "" : "opacity-30"} />
                     {label}
@@ -635,19 +673,19 @@ function PasswordResetFlow({ email }: { email: string }) {
             </ul>
           )}
 
-          <div className="flex items-center gap-3 justify-between">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-between">
             <button
               type="button"
               onClick={requestCode}
               disabled={sending}
-              className="text-[12px] font-semibold text-[#0d2c5c] hover:text-[#c69a3f] transition-colors"
+              className="text-[12px] font-semibold text-[#0d2c5c] hover:text-[#c69a3f] transition-colors text-left"
             >
               Retrimite codul
             </button>
             <button
               type="submit"
               disabled={!strong || !code || sending}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[12px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0d2c5c] text-white text-[13px] font-semibold rounded-[12px] hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               <Shield size={15} />
               {sending ? "Se salvează…" : "Confirmă parola nouă"}
@@ -700,7 +738,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
 
   const revokeSession = async (session: Session) => {
     try {
-      const result = await apiFetch<
+      const result = await apiFetch
         | {
             current_session_revoked?: boolean;
             revoked_current?: boolean;
@@ -736,10 +774,9 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
     }
   };
 
-  // Detectare sigură dacă este logat cu Google (prin provider sau prezența flag-ului)
   const provider = (user.provider || "").toLowerCase();
   const isGoogle =
-    provider.includes("google") || user.email?.endsWith("@gmail.com"); // poți ajusta dacă e cazul, dar proprietatea provider e stabilă acum
+    provider.includes("google") || user.email?.endsWith("@gmail.com");
   const otherSessions = sessions.filter((s) => !s.is_current);
 
   return (
@@ -750,14 +787,14 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
         description="Metoda de autentificare, parola și dispozitivele de pe care ești conectat la Casa Esy."
       />
 
-      <div className="p-8 space-y-10">
+      <div className="p-5 sm:p-8 space-y-8 sm:space-y-10">
         {/* Auth provider banner */}
-        <div className="relative overflow-hidden rounded-[20px] bg-[#0d2c5c] text-white p-7 border border-[#c69a3f]/30 shadow-lg">
-          <div className="absolute -right-16 -top-20 w-64 h-64 rounded-full bg-[#c69a3f]/10 blur-2xl" />
-          <div className="absolute right-8 -bottom-24 w-52 h-52 rounded-full bg-white/5" />
-          <div className="relative flex flex-col md:flex-row md:items-center gap-6 md:justify-between">
-            <div className="flex items-start gap-5">
-              <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.25)] shrink-0">
+        <div className="relative overflow-hidden rounded-[20px] bg-[#0d2c5c] text-white p-5 sm:p-7 border border-[#c69a3f]/30 shadow-lg">
+          <div className="absolute -right-16 -top-20 w-64 h-64 rounded-full bg-[#c69a3f]/10 blur-2xl pointer-events-none" />
+          <div className="absolute right-8 -bottom-24 w-52 h-52 rounded-full bg-white/5 pointer-events-none" />
+          <div className="relative flex flex-col lg:flex-row lg:items-center gap-6 lg:justify-between">
+            <div className="flex items-start gap-4 sm:gap-5 min-w-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.25)] shrink-0">
                 {isGoogle ? (
                   <svg width="24" height="24" viewBox="0 0 24 24">
                     <path
@@ -781,26 +818,26 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                   <KeyRound size={22} className="text-[#0d2c5c]" />
                 )}
               </div>
-              <div>
-                <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-[10.5px] font-bold tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#c69a3f] mb-1 sm:mb-1.5">
                   Metodă de autentificare
                 </p>
-                <h3 className="font-['Cormorant_Garamond',serif] text-[26px] leading-tight font-medium text-white">
+                <h3 className="font-['Cormorant_Garamond',serif] text-[22px] sm:text-[26px] leading-tight font-medium text-white truncate">
                   {isGoogle ? "Cont Google" : "Email și parolă"}
                 </h3>
-                <p className="text-[13px] text-white/80 mt-1.5 max-w-[420px]">
+                <p className="text-[12.5px] sm:text-[13px] text-white/80 mt-1 sm:mt-1.5 max-w-[420px]">
                   {isGoogle
                     ? "Autentificarea este gestionată prin Google. Securitatea și parola contului tău sunt administrate direct din setările Google."
                     : "Te autentifici cu adresa de email și o parolă administrată de Casa Esy."}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[0.2em] uppercase text-emerald-300 bg-emerald-400/10 border border-emerald-300/30 px-3.5 py-2 rounded-full">
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[10.5px] font-bold tracking-[0.18em] uppercase text-emerald-300 bg-emerald-400/10 border border-emerald-300/30 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full">
                 <ShieldCheck size={13} /> Activ
               </span>
               {isGoogle && (
-                <a
+                
                   href="https://myaccount.google.com/security"
                   target="_blank"
                   rel="noreferrer"
@@ -814,15 +851,15 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
         </div>
 
         {isGoogle ? (
-          <div className="flex items-start gap-4 p-6 rounded-[18px] border border-[#e1e8f0] bg-[#f8fafd]">
+          <div className="flex items-start gap-4 p-5 sm:p-6 rounded-[18px] border border-[#e1e8f0] bg-[#f8fafd]">
             <div className="w-10 h-10 rounded-full bg-white border border-[#e1e8f0] flex items-center justify-center shrink-0">
               <Lock size={16} className="text-[#6b7c99]" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[14px] font-semibold text-[#0d2c5c]">
                 Autentificare securizată prin Google
               </p>
-              <p className="text-[13px] text-[#6b7c99] mt-1 max-w-[560px]">
+              <p className="text-[12.5px] sm:text-[13px] text-[#6b7c99] mt-1 max-w-[560px]">
                 Deoarece folosești Google pentru a te loga, nu ai nevoie de o
                 parolă separată Casa Esy.
               </p>
@@ -834,23 +871,27 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
 
         <Divider />
 
-        {/* Sessions — real, GET/DELETE /users/me/sessions */}
-        <div>
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
-            <div>
-              <p className="text-[10.5px] font-bold tracking-[0.3em] uppercase text-[#c69a3f] mb-1.5">
+        {/* Sessions */}
+        <div className="min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-5">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-[10.5px] font-bold tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#c69a3f] mb-1 sm:mb-1.5">
                 Dispozitive
               </p>
-              <h3 className="font-['Cormorant_Garamond',serif] text-[24px] font-medium text-[#0d2c5c] leading-tight">
+              <h3 className="font-['Cormorant_Garamond',serif] text-[22px] sm:text-[24px] font-medium text-[#0d2c5c] leading-tight">
                 Sesiuni active
               </h3>
-              <p className="text-[12.5px] text-[#6b7c99] mt-1">
+              <p className="text-[12px] sm:text-[12.5px] text-[#6b7c99] mt-0.5 sm:mt-1">
                 {sessionsLoading
                   ? "Se verifică dispozitivele conectate…"
-                  : `${sessions.length} ${sessions.length === 1 ? "dispozitiv conectat" : "dispozitive conectate"}`}
+                  : `${sessions.length} ${
+                      sessions.length === 1
+                        ? "dispozitiv conectat"
+                        : "dispozitive conectate"
+                    }`}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={loadSessions}
                 className="inline-flex items-center gap-2 text-[12px] font-semibold text-[#0d2c5c] border border-[#e1e8f0] bg-white px-4 py-2 rounded-full hover:border-[#0d2c5c] hover:bg-[#f8fafd] transition-colors"
@@ -869,11 +910,11 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
           </div>
 
           {sessionsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {[0, 1].map((i) => (
                 <div
                   key={i}
-                  className="h-[116px] rounded-[18px] border border-[#e1e8f0] bg-[#f8fafd] animate-pulse"
+                  className="h-[120px] rounded-[18px] border border-[#e1e8f0] bg-[#f8fafd] animate-pulse"
                 />
               ))}
             </div>
@@ -884,7 +925,7 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
               text="Dispozitivele de pe care te conectezi vor apărea aici."
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {sessions.map((s) => {
                 const kind = deviceKind(s);
                 const meta = DEVICE_META[kind];
@@ -898,15 +939,15 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                 return (
                   <article
                     key={s.id}
-                    className={`relative p-5 rounded-[18px] border transition-all ${
+                    className={`relative p-4 sm:p-5 rounded-[18px] border transition-all flex flex-col justify-between min-w-0 ${
                       s.is_current
                         ? "border-[#c69a3f]/60 bg-[#fdf8ec]/30 shadow-sm"
                         : "border-[#e1e8f0] bg-white hover:border-[#0d2c5c]/30 hover:shadow-sm"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3.5 sm:gap-4 min-w-0">
                       <div
-                        className={`w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 ${
+                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-[14px] flex items-center justify-center shrink-0 ${
                           s.is_current
                             ? "bg-[#0d2c5c] text-white"
                             : "bg-[#f8fafd] text-[#0d2c5c] border border-[#e1e8f0]"
@@ -916,29 +957,37 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-[14px] font-semibold text-[#0d2c5c] truncate">
+                          <p className="text-[13.5px] sm:text-[14px] font-semibold text-[#0d2c5c] truncate max-w-full">
                             {browser || meta.label}
                           </p>
                           {s.is_current && (
-                            <span className="text-[9.5px] font-bold tracking-[0.18em] uppercase text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                              Sesiunea curentă
+                            <span className="text-[9px] sm:text-[9.5px] font-bold tracking-[0.15em] sm:tracking-[0.18em] uppercase text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 sm:px-2.5 py-0.5 rounded-full shrink-0">
+                              Curentă
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#6b7c99] mt-1">
+                        <p className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.15em] sm:tracking-[0.18em] uppercase text-[#6b7c99] mt-0.5 sm:mt-1 truncate">
                           {meta.label}
                           {os ? ` · ${os}` : ""}
                         </p>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-[12px] text-[#3d4f6b]">
-                          <span className="inline-flex items-center gap-1.5">
-                            <MapPin size={12} className="text-[#c69a3f]" />
-                            {[s.city, s.country_code]
-                              .filter(Boolean)
-                              .join(", ") || "Locație necunoscută"}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2.5 sm:mt-3 text-[11.5px] sm:text-[12px] text-[#3d4f6b]">
+                          <span className="inline-flex items-center gap-1 truncate max-w-full">
+                            <MapPin
+                              size={12}
+                              className="text-[#c69a3f] shrink-0"
+                            />
+                            <span className="truncate">
+                              {[s.city, s.country_code]
+                                .filter(Boolean)
+                                .join(", ") || "Locație necunoscută"}
+                            </span>
                           </span>
                           {s.created_at && (
-                            <span className="inline-flex items-center gap-1.5">
-                              <Clock size={12} className="text-[#c69a3f]" />
+                            <span className="inline-flex items-center gap-1 shrink-0">
+                              <Clock
+                                size={12}
+                                className="text-[#c69a3f] shrink-0"
+                              />
                               {new Date(s.created_at).toLocaleDateString(
                                 "ro-RO",
                                 {
@@ -949,18 +998,13 @@ function SecurityTab({ user }: { user: NonNullable<SessionUser> }) {
                               )}
                             </span>
                           )}
-                          {s.ip_address && (
-                            <span className="font-mono text-[11.5px] text-[#6b7c99]">
-                              {s.ip_address}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
-                    <div className="mt-4 pt-4 border-t border-[#e1e8f0] flex justify-end">
+                    <div className="mt-4 pt-3.5 border-t border-[#e1e8f0] flex justify-end">
                       <button
                         onClick={() => revokeSession(s)}
-                        className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-red-600 border border-red-200 bg-white px-3.5 py-2 rounded-full hover:bg-red-50 transition-colors"
+                        className="inline-flex items-center gap-1.5 text-[11.5px] sm:text-[12px] font-semibold text-red-600 border border-red-200 bg-white px-3.5 py-2 rounded-full hover:bg-red-50 transition-colors"
                       >
                         <LogOut size={12} /> Deconectează
                       </button>
@@ -1057,8 +1101,8 @@ function ReservationsTab() {
         description="Vezi rezervările active, istoricul și detaliile fiecărui sejur."
       />
 
-      <div className="p-8">
-        <div className="inline-flex p-1 bg-[#f8fafd] border border-[#e1e8f0] rounded-full mb-6">
+      <div className="p-5 sm:p-8">
+        <div className="flex p-1 bg-[#f8fafd] border border-[#e1e8f0] rounded-full mb-6 w-full sm:w-fit">
           {[
             { k: "upcoming" as const, label: "Viitoare / Active" },
             { k: "past" as const, label: "Trecute" },
@@ -1066,7 +1110,7 @@ function ReservationsTab() {
             <button
               key={t.k}
               onClick={() => setScope(t.k)}
-              className={`px-5 py-2 text-[12.5px] font-semibold rounded-full transition-all ${
+              className={`flex-1 sm:flex-initial px-4 sm:px-5 py-2 text-[12px] sm:text-[12.5px] font-semibold rounded-full transition-all text-center ${
                 scope === t.k
                   ? "bg-[#0d2c5c] text-white shadow-sm"
                   : "text-[#3d4f6b] hover:text-[#0d2c5c]"
@@ -1099,34 +1143,37 @@ function ReservationsTab() {
               return (
                 <article
                   key={r.id}
-                  className="group relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-[20px] border border-[#e1e8f0] bg-white hover:border-[#c69a3f]/50 hover:shadow-[0_8px_30px_rgba(13,44,92,0.06)] transition-all"
+                  className="group relative flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 p-5 sm:p-6 rounded-[20px] border border-[#e1e8f0] bg-white hover:border-[#c69a3f]/50 hover:shadow-[0_8px_30px_rgba(13,44,92,0.06)] transition-all"
                 >
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2.5 flex-wrap">
+                  <div className="space-y-2 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {r.booking_code && (
-                        <span className="text-[11px] font-bold tracking-[0.15em] text-[#c69a3f] bg-[#c69a3f]/10 px-2.5 py-1 rounded-md">
+                        <span className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.12em] sm:tracking-[0.15em] text-[#c69a3f] bg-[#c69a3f]/10 px-2.5 py-1 rounded-md">
                           #{r.booking_code}
                         </span>
                       )}
                       <StatusPill status={r.status} />
                       {isPaid && (
-                        <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                        <span className="text-[9.5px] sm:text-[10px] font-bold tracking-[0.12em] sm:tracking-[0.15em] uppercase text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 sm:px-3 py-1 rounded-full">
                           Achitat
                         </span>
                       )}
                       {r.unit_number && (
-                        <span className="text-[11px] font-medium text-[#6b7c99] bg-[#f8fafd] border border-[#e1e8f0] px-2.5 py-1 rounded-md">
+                        <span className="text-[10.5px] sm:text-[11px] font-medium text-[#6b7c99] bg-[#f8fafd] border border-[#e1e8f0] px-2.5 py-1 rounded-md">
                           Cameră {r.unit_number}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="text-[18px] font-semibold text-[#0d2c5c] tracking-tight">
+                    <h4 className="text-[17px] sm:text-[18px] font-semibold text-[#0d2c5c] tracking-tight truncate">
                       {r.room?.title || "Cameră Casa Esy"}
                     </h4>
 
-                    <div className="flex items-center gap-2 text-[13px] text-[#6b7c99] font-normal">
-                      <CalendarCheck size={14} className="text-[#c69a3f]" />
+                    <div className="flex items-center gap-2 text-[12.5px] sm:text-[13px] text-[#6b7c99] font-normal flex-wrap">
+                      <CalendarCheck
+                        size={14}
+                        className="text-[#c69a3f] shrink-0"
+                      />
                       <span>
                         {fmt(r.check_in)} → {fmt(r.check_out)}
                       </span>
@@ -1135,13 +1182,13 @@ function ReservationsTab() {
                     </div>
                   </div>
 
-                  <div className="flex md:flex-col items-center md:items-end justify-between pt-4 md:pt-0 border-t md:border-t-0 border-[#e1e8f0]">
+                  <div className="flex md:flex-col items-center md:items-end justify-between pt-3 sm:pt-4 md:pt-0 border-t md:border-t-0 border-[#e1e8f0] shrink-0">
                     {r.total_price != null && (
                       <div className="text-left md:text-right">
-                        <span className="text-[10.5px] font-bold tracking-[0.15em] uppercase text-[#6b7c99] block md:hidden">
+                        <span className="text-[10px] sm:text-[10.5px] font-bold tracking-[0.12em] sm:tracking-[0.15em] uppercase text-[#6b7c99] block md:hidden">
                           Total
                         </span>
-                        <span className="text-[20px] font-bold text-[#0d2c5c] tracking-tight">
+                        <span className="text-[18px] sm:text-[20px] font-bold text-[#0d2c5c] tracking-tight">
                           {r.total_price.toLocaleString("ro-RO")} RON
                         </span>
                       </div>
@@ -1166,7 +1213,9 @@ function StatusPill({ status }: { status: string }) {
   };
   return (
     <span
-      className={`text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1 rounded-full border ${map[status] || map.completed}`}
+      className={`text-[9.5px] sm:text-[10px] font-bold tracking-[0.12em] sm:tracking-[0.15em] uppercase px-2.5 sm:px-3 py-1 rounded-full border ${
+        map[status] || map.completed
+      }`}
     >
       {STATUS_LABEL[status] || status}
     </span>
@@ -1209,14 +1258,14 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
         title="Ștergere cont"
         description="Ștergerea contului este permanentă și revocă automat toate sesiunile tale active."
       />
-      <div className="p-8 space-y-5">
-        <div className="p-5 rounded-[16px] border border-red-200 bg-red-50/40">
-          <div className="flex items-start justify-between gap-6">
-            <div>
+      <div className="p-5 sm:p-8 space-y-5">
+        <div className="p-4 sm:p-5 rounded-[16px] border border-red-200 bg-red-50/40">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6">
+            <div className="min-w-0">
               <p className="text-[14px] font-semibold text-red-900">
                 Șterge permanent contul
               </p>
-              <p className="text-[12.5px] text-red-800/80 mt-1 max-w-[520px]">
+              <p className="text-[12px] sm:text-[12.5px] text-red-800/80 mt-1 max-w-[520px]">
                 Toate rezervările și datele tale vor fi șterse definitiv.
                 Această acțiune nu poate fi anulată.
               </p>
@@ -1224,7 +1273,7 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
             {!confirmOpen && (
               <button
                 onClick={() => setConfirmOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-[12.5px] font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors whitespace-nowrap shadow-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[12.5px] font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors whitespace-nowrap shadow-sm shrink-0"
               >
                 <Trash2 size={14} /> Șterge contul
               </button>
@@ -1245,21 +1294,21 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
               {err && (
                 <p className="text-[12.5px] text-red-700 font-medium">{err}</p>
               )}
-              <div className="flex gap-2 justify-end">
+              <div className="flex flex-col sm:flex-row gap-2 justify-end">
                 <button
                   onClick={() => {
                     setConfirmOpen(false);
                     setWord("");
                     setErr("");
                   }}
-                  className="px-5 py-2.5 text-[12.5px] font-semibold text-[#0d2c5c] border border-[#e1e8f0] rounded-xl bg-white hover:bg-[#f8fafd] transition-colors"
+                  className="w-full sm:w-auto px-5 py-2.5 text-[12.5px] font-semibold text-[#0d2c5c] border border-[#e1e8f0] rounded-xl bg-white hover:bg-[#f8fafd] transition-colors"
                 >
                   Renunță
                 </button>
                 <button
                   disabled={!canDelete || busy}
                   onClick={doDelete}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-[12.5px] font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[12.5px] font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   <Trash2 size={14} />
                   {busy ? "Se șterge…" : "Confirm ștergerea"}
@@ -1287,12 +1336,16 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-[#6b7c99]">
+    <label className="flex flex-col gap-1.5 min-w-0">
+      <span className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.12em] sm:tracking-[0.15em] uppercase text-[#6b7c99]">
         {label}
       </span>
       {children}
-      {hint && <span className="text-[11.5px] text-[#6b7c99]">{hint}</span>}
+      {hint && (
+        <span className="text-[11px] sm:text-[11.5px] text-[#6b7c99]">
+          {hint}
+        </span>
+      )}
     </label>
   );
 }
@@ -1311,14 +1364,16 @@ function EmptyState({
   text: string;
 }) {
   return (
-    <div className="text-center py-16">
+    <div className="text-center py-12 sm:py-16 px-4">
       <div className="w-14 h-14 rounded-full bg-[#f8fafd] border border-[#e1e8f0] text-[#0d2c5c] flex items-center justify-center mx-auto mb-4">
         <Icon size={22} />
       </div>
-      <p className="font-['Cormorant_Garamond',serif] text-[22px] text-[#0d2c5c]">
+      <p className="font-['Cormorant_Garamond',serif] text-[20px] sm:text-[22px] text-[#0d2c5c]">
         {title}
       </p>
-      <p className="text-[13px] text-[#6b7c99] mt-1.5">{text}</p>
+      <p className="text-[12.5px] sm:text-[13px] text-[#6b7c99] mt-1.5 max-w-[320px] mx-auto">
+        {text}
+      </p>
     </div>
   );
 }
