@@ -8,7 +8,7 @@ import {
   Search,
   CheckCircle2,
   Copy,
-  MoreHorizontal,
+  MoreHorizontal, // <-- Import nou pentru meniul de acțiuni
 } from "lucide-react";
 import { Badge, statusTone, TableSkeleton, EmptyState, Modal } from "./ui";
 import {
@@ -33,7 +33,7 @@ const STATUSES = [
   "cancelled",
 ] as const;
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 10; // Numărul de elemente pe o pagină
 
 export default function BookingsTab() {
   const { toast } = useToast();
@@ -42,12 +42,14 @@ export default function BookingsTab() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Filtre
   const [status, setStatus] = useState<string>("all");
   const [roomId, setRoomId] = useState<string>("all");
   const [email, setEmail] = useState("");
 
+  // Paginare & Meniu Dropdown
   const [page, setPage] = useState(1);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null); // <-- State pentru meniul de acțiuni deschis
 
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -79,10 +81,12 @@ export default function BookingsTab() {
     void load();
   }, []);
 
+  // Resetăm pagina la 1 dacă modificăm filtrele
   useEffect(() => {
     setPage(1);
   }, [status, roomId, email]);
 
+  // Aplicăm filtrele
   const filtered = useMemo(
     () =>
       bookings.filter((b) => {
@@ -100,6 +104,7 @@ export default function BookingsTab() {
     [bookings, status, roomId, email, users],
   );
 
+  // Aplicăm paginarea
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
   const paginatedBookings = filtered.slice(
     (page - 1) * PAGE_SIZE,
@@ -192,12 +197,13 @@ export default function BookingsTab() {
     "w-full py-3 px-4 bg-black/[0.02] border border-black/10 rounded-xl text-[14px] text-black outline-none transition-all focus:bg-white focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#6b7c99]";
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-10 px-4 sm:px-6">
+    <div className="max-w-7xl mx-auto space-y-8 pb-10">
+      {/* ── HEADER ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
-        className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"
+        className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1"
       >
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -212,12 +218,13 @@ export default function BookingsTab() {
         </div>
         <button
           onClick={() => void load()}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md w-full sm:w-auto"
+          className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md"
         >
           <RefreshCw size={12} /> Reîmprospătează
         </button>
       </motion.div>
 
+      {/* ── TOOLBAR / FILTERS ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -275,6 +282,7 @@ export default function BookingsTab() {
         </div>
       </motion.div>
 
+      {/* ── TABLE ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -298,7 +306,7 @@ export default function BookingsTab() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto w-full">
+            <div className="overflow-x-auto pb-10">
               <table className="w-full min-w-[900px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
@@ -381,6 +389,7 @@ export default function BookingsTab() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col items-start gap-1">
+                            {/* NUME */}
                             <button
                               onClick={() =>
                                 copyToClipboard(b.user_id, "ID Client")
@@ -399,10 +408,12 @@ export default function BookingsTab() {
                               )}
                             </button>
 
+                            {/* EMAIL */}
                             <span className="text-[13px] text-[#6b7c99] block">
                               {displayEmail}
                             </span>
 
+                            {/* COD REZERVARE */}
                             {b.booking_code && (
                               <button
                                 onClick={() =>
@@ -443,6 +454,8 @@ export default function BookingsTab() {
                             {money(b.total_price)}
                           </span>
                         </td>
+
+                        {/* COLOANA ACȚIUNI REFĂCUTĂ PENTRU DROPDOWN */}
                         <td className="px-6 py-4 text-right relative">
                           <button
                             onClick={() =>
@@ -460,11 +473,13 @@ export default function BookingsTab() {
 
                           {activeMenu === String(b.id) && (
                             <>
+                              {/* Overlay invizibil pentru a închide meniul la click în afară */}
                               <div
                                 className="fixed inset-0 z-40"
                                 onClick={() => setActiveMenu(null)}
                               />
 
+                              {/* Meniul Dropdown */}
                               <div className="absolute right-6 top-10 z-50 mt-1 w-44 origin-top-right rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-black/5 py-1.5 focus:outline-none flex flex-col items-start overflow-hidden">
                                 {b.status === "pending" && (
                                   <button
@@ -516,7 +531,7 @@ export default function BookingsTab() {
                                       setCancelReason("");
                                       setActiveMenu(null);
                                     }}
-                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-black/5 pt-2"
+                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f4f6f9] transition-colors mt-1 border-t border-black/5 pt-2"
                                   >
                                     <Trash2 size={14} /> Anulează
                                   </button>
@@ -532,24 +547,25 @@ export default function BookingsTab() {
               </table>
             </div>
 
+            {/* CONTROALE PAGINARE */}
             {totalPages > 1 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-black/5 bg-black/[0.01] px-6 py-4">
+              <div className="flex items-center justify-between border-t border-black/5 bg-black/[0.01] px-6 py-4">
                 <span className="text-[12px] font-medium text-[#6b7c99]">
                   Pagina <strong className="text-black">{page}</strong> din{" "}
                   <strong className="text-black">{totalPages}</strong>
                 </span>
-                <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex gap-2">
                   <button
                     disabled={page === 1}
                     onClick={() => setPage((p) => p - 1)}
-                    className="flex-1 sm:flex-none rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
+                    className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
                   >
                     Înapoi
                   </button>
                   <button
                     disabled={page === totalPages}
                     onClick={() => setPage((p) => p + 1)}
-                    className="flex-1 sm:flex-none rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
+                    className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
                   >
                     Înainte
                   </button>
@@ -560,6 +576,7 @@ export default function BookingsTab() {
         )}
       </motion.div>
 
+      {/* ── MODALS ── */}
       <Modal
         open={!!cancelTarget}
         title={`Anulare rezervare #${
@@ -577,7 +594,7 @@ export default function BookingsTab() {
               placeholder="ex: solicitare client..."
             />
           </FormField>
-          <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3 border-t border-black/5 pt-5">
+          <div className="mt-8 flex justify-end gap-3 border-t border-black/5 pt-5">
             <button
               onClick={() => setCancelTarget(null)}
               className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"
@@ -587,7 +604,7 @@ export default function BookingsTab() {
             <button
               disabled={busy === `${cancelTarget?.id}-cancel`}
               onClick={() => void submitCancel()}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-red-700 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#07203f] disabled:opacity-60"
             >
               Confirmă anularea
             </button>
@@ -612,7 +629,7 @@ export default function BookingsTab() {
                 onChange={(e) => setForm({ ...form, check_in: e.target.value })}
               />
               {formErr.check_in && (
-                <span className="text-[11px] text-red-600 mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.check_in}
                 </span>
               )}
@@ -627,7 +644,7 @@ export default function BookingsTab() {
                 }
               />
               {formErr.check_out && (
-                <span className="text-[11px] text-red-600 mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.check_out}
                 </span>
               )}
@@ -643,13 +660,13 @@ export default function BookingsTab() {
                 }
               />
               {formErr.guests && (
-                <span className="text-[11px] text-red-600 mt-1">
+                <span className="text-[11px] text-[#0d2c5c] mt-1">
                   {formErr.guests}
                 </span>
               )}
             </FormField>
           </div>
-          <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3 border-t border-black/5 pt-5">
+          <div className="mt-8 flex justify-end gap-3 border-t border-black/5 pt-5">
             <button
               onClick={() => setEditTarget(null)}
               className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"

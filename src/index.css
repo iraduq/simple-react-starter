@@ -12,8 +12,7 @@
   --text-muted: #4f6280;
   --text-light: #6b7c99;
   --bg-white: #ffffff;
-  --bg-cream: #f9f7f2;
-  --bg-soft: #f4f6f9;
+
   --border-light: #e1e8f0;
   --border-gold: rgba(198, 154, 63, 0.35);
   --shadow-soft: 0 20px 60px rgba(13, 44, 92, 0.08);
@@ -27,6 +26,11 @@ body {
   color: var(--text-primary);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
 }
