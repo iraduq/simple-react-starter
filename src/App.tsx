@@ -15,6 +15,7 @@ import Rooms from "./pages/Rooms";
 import RoomDetail from "./pages/RoomDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ScrollToTop from "./components/ScrollToTop"; // Ajustează calea dacă este necesar
 import VerifyEmail from "./pages/VerifyEmail";
 import Profile from "./pages/Profile";
 import Places from "./pages/Places";
@@ -127,6 +128,7 @@ function App() {
       <GoogleTranslate />
 
       <Router>
+        <ScrollToTop />
         <AppInner />
       </Router>
     </ToastProvider>
