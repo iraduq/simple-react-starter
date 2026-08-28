@@ -53,6 +53,7 @@ interface PlaceItem {
   lng?: number;
   thumb?: string;
   img?: string;
+  image_url?: string;
   images?: PlaceImage[];
 }
 
@@ -101,7 +102,6 @@ export default function AdminPlacesTab() {
   const paged = usePaged(filtered, 10);
 
   const load = useCallback(async () => {
-    setLoading(true);
     try {
       const data = await get<unknown>("/places");
       setPlaces(list<PlaceItem>(data));
@@ -113,8 +113,20 @@ export default function AdminPlacesTab() {
   }, [toast]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    let active = true;
+    (async () => {
+      setLoading(true);
+      const data = await get<unknown>("/places").catch(() => null);
+      if (!active) return;
+      if (data) {
+        setPlaces(list<PlaceItem>(data));
+      }
+      setLoading(false);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const openCreate = () => {
     setEditing(null);
@@ -514,8 +526,23 @@ function PlaceMediaManager({
   }, [place.id]);
 
   useEffect(() => {
-    void refreshPlace();
-  }, [refreshPlace]);
+    let active = true;
+    (async () => {
+      const data = await get<unknown>(`/places`).catch(() => null);
+      if (!active) return;
+      if (data) {
+        const all = list<PlaceItem>(data);
+        const updated = all.find((p) => String(p.id) === String(place.id));
+        if (updated) {
+          setCurrentPlace(updated);
+          setImages(updated.images || []);
+        }
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [place.id]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
