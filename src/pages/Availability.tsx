@@ -199,155 +199,182 @@ export default function Availability() {
 
       {/* ── ZONE CU FUNDAL ALB CARE CONȚINE REZULTATELE ── */}
       <div className="bg-[#f8fafd] flex-1 relative flex flex-col rounded-t-[30px] md:rounded-t-[40px] shadow-[0_-20px_40px_rgba(5,11,22,0.3)] z-20">
-        {/* ── SEARCH WIDGET (Folosind DatePicker elegant) ── */}
+        {/* ── SEARCH WIDGET (Premium Gold Wavy Style) ── */}
         <div className="relative z-30 max-w-[1000px] mx-auto px-5 md:px-10 -mt-10 md:-mt-12 w-full">
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             onSubmit={submit}
-            className="bg-white rounded-[20px] md:rounded-full shadow-[0_20px_50px_-15px_rgba(0,0,0,0.2)] border border-[#e1e8f0] p-2 md:p-3 flex flex-col md:flex-row gap-2 items-stretch md:items-center"
+            className="flex w-full flex-col lg:flex-row items-stretch rounded-[20px] bg-white shadow-[0_15px_40px_rgba(13,44,92,0.12)] border border-[#e1e8f0]"
           >
-            <div className="flex flex-1 flex-col md:flex-row gap-2 bg-[#f8fafd] border border-[#e1e8f0] rounded-[16px] md:rounded-full p-1.5">
-              {/* Check-in DatePicker */}
-              <DatePicker
-                label={
-                  <>
-                    <Calendar
-                      size={10}
-                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                    />
-                    Check-in
-                  </>
-                }
-                value={checkIn}
-                onChange={handleCheckIn}
-                minDate={today}
-                variant="bar"
-              />
+            {/* Check-in DatePicker */}
+            <DatePicker
+              label={
+                <>
+                  <Calendar
+                    size={10}
+                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                  />
+                  Check-in
+                </>
+              }
+              value={checkIn}
+              onChange={handleCheckIn}
+              minDate={today}
+              variant="bar"
+            />
 
-              {/* Check-out DatePicker */}
-              <DatePicker
-                label={
-                  <>
-                    <Calendar
-                      size={10}
-                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                    />
-                    Check-out
-                  </>
-                }
-                value={checkOut}
-                onChange={setCheckOut}
-                minDate={checkIn || today}
-                variant="bar"
-              />
+            {/* Check-out DatePicker */}
+            <DatePicker
+              label={
+                <>
+                  <Calendar
+                    size={10}
+                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                  />
+                  Check-out
+                </>
+              }
+              value={checkOut}
+              onChange={setCheckOut}
+              minDate={checkIn || today}
+              variant="bar"
+            />
 
-              {/* OASPEȚI Dropdown */}
-              <div
-                ref={guestsRef}
-                className="relative flex-1 flex flex-col justify-center px-6 py-4.5"
+            {/* OASPEȚI Dropdown */}
+            <div
+              ref={guestsRef}
+              className="relative flex-1 flex flex-col justify-center px-6 py-4 lg:py-0"
+            >
+              <button
+                type="button"
+                onClick={() => setGuestsOpen((o) => !o)}
+                className="font-sans text-left w-full leading-[1.3] transition-colors duration-150 bg-transparent border-none p-0 text-sm cursor-pointer"
               >
-                <button
-                  type="button"
-                  onClick={() => setGuestsOpen((o) => !o)}
-                  className="font-sans text-left w-full leading-[1.3] transition-colors duration-150 bg-transparent border-none p-0 text-sm cursor-pointer"
+                <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
+                  <Users
+                    size={10}
+                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                  />
+                  Oaspeți
+                </span>
+                <span
+                  className={
+                    guestsOpen
+                      ? "text-[#0d2c5c] block truncate font-semibold"
+                      : "text-[#3c4043] block truncate font-semibold"
+                  }
                 >
-                  <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
-                    <Users
-                      size={10}
-                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                    />
-                    Oaspeți
-                  </span>
-                  <span
-                    className={
-                      guestsOpen
-                        ? "text-[#0d2c5c] block truncate font-semibold"
-                        : "text-[#3c4043]/70 block truncate font-semibold"
-                    }
-                  >
-                    {adults} {adults === 1 ? "adult" : "adulți"}
-                    {children > 0 &&
-                      ` · ${children} ${children === 1 ? "copil" : "copii"}`}
-                  </span>
-                </button>
+                  {adults} {adults === 1 ? "adult" : "adulți"}
+                  {children > 0 &&
+                    ` · ${children} ${children === 1 ? "copil" : "copii"}`}
+                </span>
+              </button>
 
-                {guestsOpen && (
-                  <div className="absolute left-0 right-0 md:left-auto md:right-0 md:w-[280px] top-[calc(100%+12px)] z-30 rounded-[20px] border border-[#e1e8f0] bg-white p-5 shadow-[0_15px_40px_rgba(13,44,92,0.15)]">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-[12px] font-semibold text-[#0d2c5c]">
-                        Adulți
+              {guestsOpen && (
+                <div className="absolute left-0 right-0 md:left-auto md:right-0 md:w-[280px] top-[calc(100%+12px)] z-30 rounded-[20px] border border-[#e1e8f0] bg-white p-5 shadow-[0_15px_40px_rgba(13,44,92,0.15)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[12px] font-semibold text-[#0d2c5c]">
+                      Adulți
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={adults <= 1}
+                        onClick={() => setAdults((g) => Math.max(1, g - 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
+                      >
+                        −
+                      </button>
+                      <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
+                        {adults}
                       </span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          disabled={adults <= 1}
-                          onClick={() => setAdults((g) => Math.max(1, g - 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
-                        >
-                          −
-                        </button>
-                        <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
-                          {adults}
-                        </span>
-                        <button
-                          type="button"
-                          disabled={adults >= 6}
-                          onClick={() => setAdults((g) => Math.min(6, g + 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-4 border-t border-[#eef2f7] flex items-start justify-between gap-3">
-                      <span className="text-[12px] font-semibold text-[#0d2c5c]">
-                        Copii
-                        <span className="mt-1 block text-[10px] font-normal leading-snug text-[#8595aa]">
-                          Până la 12 ani.
-                        </span>
-                      </span>
-                      <div className="flex items-center gap-2 pt-0.5">
-                        <button
-                          type="button"
-                          disabled={children <= 0}
-                          onClick={() => setChildren((g) => Math.max(0, g - 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
-                        >
-                          −
-                        </button>
-                        <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
-                          {children}
-                        </span>
-                        <button
-                          type="button"
-                          disabled={children >= 4}
-                          onClick={() => setChildren((g) => Math.min(4, g + 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
-                        >
-                          +
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        disabled={adults >= 6}
+                        onClick={() => setAdults((g) => Math.min(6, g + 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
-                )}
-              </div>
+
+                  <div className="mt-4 pt-4 border-t border-[#eef2f7] flex items-start justify-between gap-3">
+                    <span className="text-[12px] font-semibold text-[#0d2c5c]">
+                      Copii
+                      <span className="mt-1 block text-[10px] font-normal leading-snug text-[#8595aa]">
+                        Până la 12 ani.
+                      </span>
+                    </span>
+                    <div className="flex items-center gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        disabled={children <= 0}
+                        onClick={() => setChildren((g) => Math.max(0, g - 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
+                      >
+                        −
+                      </button>
+                      <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
+                        {children}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={children >= 4}
+                        onClick={() => setChildren((g) => Math.min(4, g + 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5 cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Submit Button */}
+            {/* BUTONUL WAVY - PREMIUM GOLD */}
             <button
               type="submit"
               disabled={loading}
-              className="group md:w-auto w-full inline-flex items-center justify-center gap-2 rounded-[16px] md:rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-8 py-3.5 md:h-14 text-[11px] font-bold uppercase tracking-[0.16em] text-white shadow-[0_6px_16px_-6px_rgba(198,154,63,0.8)] transition-all hover:shadow-[0_10px_20px_-6px_rgba(198,154,63,0.9)] hover:-translate-y-0.5 shrink-0 disabled:opacity-60 cursor-pointer"
+              className="group relative flex min-h-[60px] lg:min-h-[72px] min-w-[140px] lg:min-w-[170px] items-center justify-center overflow-hidden rounded-b-[20px] lg:rounded-none lg:rounded-r-[20px] shrink-0 disabled:opacity-60 cursor-pointer"
             >
-              {loading ? (
-                <Loader2 size={15} className="animate-spin" />
-              ) : (
-                <Search size={15} />
-              )}
-              Caută
+              {/* SVG Val doar pe Desktop */}
+              <svg
+                className="absolute inset-0 h-full w-full text-[#c69a3f] drop-shadow-[-6px_0_15px_rgba(198,154,63,0.2)] transition-colors duration-300 group-hover:text-[#b58933] hidden lg:block"
+                preserveAspectRatio="none"
+                viewBox="0 0 100 100"
+              >
+                <path
+                  fill="currentColor"
+                  d="M15,0 L100,0 L100,100 L5,100 C20,70 20,30 15,0 Z"
+                />
+              </svg>
+
+              {/* Fallback pentru mobil */}
+              <div className="absolute inset-0 bg-[#c69a3f] transition-colors duration-300 group-hover:bg-[#b58933] lg:hidden" />
+
+              {/* Efect de luciu (shine) la trecerea cu mouse-ul */}
+              <span className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[700ms] ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]" />
+
+              {/* Conținutul butonului */}
+              <span className="relative z-10 flex items-center gap-2 lg:pl-3 text-[13px] font-bold uppercase tracking-[0.18em] text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">
+                {loading ? (
+                  <Loader2
+                    size={16}
+                    strokeWidth={2.5}
+                    className="animate-spin"
+                  />
+                ) : (
+                  <Search
+                    size={16}
+                    strokeWidth={2.5}
+                    className="transition-transform duration-300 group-hover:scale-110"
+                  />
+                )}
+                Caută
+              </span>
             </button>
           </motion.form>
         </div>

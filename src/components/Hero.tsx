@@ -1,4 +1,4 @@
-import { Users, ArrowRight, Calendar } from "lucide-react";
+import { Users, Calendar, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,12 +9,6 @@ const today = new Date().toISOString().split("T")[0];
 
 // Cât timp rămâne textul complet ascuns înainte să "iasă" din spate (ms)
 const REVEAL_DELAY = 1600;
-
-// Input-uri reduse în padding și text size pt a părea mai fine
-const inputCls =
-  "w-full rounded-xl border-none bg-transparent px-2 py-1 text-[14px] font-semibold text-[#0d2c5c] outline-none ring-0 cursor-pointer";
-const labelCls =
-  "mb-0.5 block text-[9.5px] font-bold uppercase tracking-[0.16em] text-[#8595aa]";
 
 export default function Hero() {
   const [checkIn, setCheckIn] = useState("");
@@ -85,37 +79,72 @@ export default function Hero() {
       },
     }),
   };
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let animationId: number;
+
+    const checkLoop = () => {
+      // Verificăm timpul de 60 de ori pe secundă
+      if (video.duration && video.currentTime >= video.duration - 0.05) {
+        // Dăm înapoi 2 secunde fix înainte să se termine
+        video.currentTime = video.duration - 0.5;
+      }
+      animationId = requestAnimationFrame(checkLoop);
+    };
+
+    const handlePlay = () => {
+      animationId = requestAnimationFrame(checkLoop);
+    };
+
+    const handlePause = () => {
+      cancelAnimationFrame(animationId);
+    };
+
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+    };
+  }, []);
 
   return (
-    <section id="hero" className="relative bg-[#050b16] overflow-hidden">
-      {/* ── VIDEO DE FUNDAL & FILTRE CROMATICE ── */}
+    <section id="hero" className="relative bg-[#0d2c5c] overflow-hidden">
+      {/* ── VIDEO DE FUNDAL & FILTRE CROMATICE (Adaptate la albastrul marin) ── */}
       <div className="absolute inset-0 z-0">
         <video
           ref={videoRef}
           autoPlay
           muted
-          loop
           playsInline
           preload="auto"
           poster="/hero-poster.jpg"
-          className="h-full w-full object-cover saturate-50 contrast-125 brightness-[0.85]"
+          className="h-full w-full object-cover saturate-50 contrast-110 brightness-100"
         >
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
-
+        {/* 1. Strat pentru a "vopsi" clipul cu nuanța brandului */}
         <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-color" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050b16]/95 via-[#0d2c5c]/40 to-[#050b16]/95" />
-        <div className="absolute inset-0 bg-[#050b16]/30 mix-blend-multiply" />
+
+        {/* 2. Strat pentru a adânci culoarea, păstrând albastrul marin bogat */}
+        <div className="absolute inset-0 bg-[#0b2146]/40 mix-blend-multiply" />
+
+        {/* 3. Gradient tot din albastrul brandului pentru a asigura lizibilitatea perfectă la extremități */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/95 via-[#0d2c5c]/40 to-[#0d2c5c]/95" />
       </div>
 
-      {/* Ornamente aurii ambientale */}
+      {/* Ornamente aurii/albastre ambientale */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-[#c69a3f]/10 blur-3xl z-[1]"
+        className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-[#c69a3f]/10 blur-[100px] z-[1]"
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute top-40 -right-32 w-[520px] h-[520px] rounded-full bg-[#0d2c5c]/20 blur-3xl z-[1]"
+        className="pointer-events-none absolute top-40 -right-32 w-[520px] h-[520px] rounded-full bg-[#1e4d8c]/30 blur-[100px] z-[1]"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-22 sm:pt-36 md:pt-48 pb-16 md:pb-32">
@@ -161,161 +190,181 @@ export default function Hero() {
             initial="hidden"
             animate={revealed ? "visible" : "hidden"}
             custom={0.4}
-            className="max-w-[620px] mx-auto text-[13.5px] sm:text-[16px] text-white/85 leading-[1.6] sm:leading-[1.85] font-light hidden sm:block"
+            className="max-w-[620px] mx-auto text-[13.5px] sm:text-[16px] text-white/90 leading-[1.6] sm:leading-[1.85] font-light hidden sm:block"
           >
             Vila Casa Esy — refugiul tău pe malul mării. Camere rafinate,
             priveliști liniștitoare și ospitalitate caldă la fiecare pas.
           </motion.p>
         </div>
 
-        {/* BARA DE CĂUTARE PREMIUM (Zveltă & Mai fină) */}
+        {/* BARA DE CĂUTARE NOUĂ (Glassmorphism & Wave Button Gold) */}
         <motion.div
           variants={emerge}
           initial="hidden"
           animate={revealed ? "visible" : "hidden"}
           custom={0.7}
-          className="relative z-30 max-w-[1000px] mx-auto mt-5 sm:mt-10 mb-4 w-full"
+          className="relative z-30 max-w-[950px] mx-auto mt-6 sm:mt-10 mb-4 w-full"
         >
           <form
             onSubmit={handleSearch}
-            className="bg-white rounded-[20px] md:rounded-full shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] border border-white/20 p-2 md:p-3 flex flex-col md:flex-row gap-2 items-stretch md:items-center"
+            className="flex w-full flex-col lg:flex-row items-stretch rounded-[20px] bg-white/90 backdrop-blur-md shadow-[0_15px_40px_rgba(0,0,0,0.3)]"
           >
-            <div className="flex flex-1 flex-col md:flex-row gap-2 bg-[#f8fafd] border border-[#e1e8f0] rounded-[16px] md:rounded-full p-1.5">
-              <DatePicker
-                label={
-                  <>
-                    <Calendar
-                      size={10}
-                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                    />{" "}
-                    Check-in
-                  </>
-                }
-                value={checkIn}
-                onChange={handleCheckIn}
-                minDate={today}
-                variant="bar"
-              />
-              <DatePicker
-                label={
-                  <>
-                    <Calendar
-                      size={10}
-                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                    />{" "}
-                    Check-out
-                  </>
-                }
-                value={checkOut}
-                onChange={setCheckOut}
-                minDate={checkIn || today}
-                variant="bar"
-              />
+            <DatePicker
+              label={
+                <>
+                  <Calendar
+                    size={10}
+                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                  />{" "}
+                  Check-in
+                </>
+              }
+              value={checkIn}
+              onChange={handleCheckIn}
+              minDate={today}
+              variant="bar"
+            />
 
-              {/* OASPEȚI Dropdown */}
-              {/* OASPEȚI Dropdown — stilizat identic cu DatePicker variant="bar" */}
-              <div
-                ref={guestsRef}
-                className="relative flex-1 flex flex-col justify-center px-6 py-4.5"
+            <DatePicker
+              label={
+                <>
+                  <Calendar
+                    size={10}
+                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                  />{" "}
+                  Check-out
+                </>
+              }
+              value={checkOut}
+              onChange={setCheckOut}
+              minDate={checkIn || today}
+              variant="bar"
+            />
+
+            {/* OASPEȚI Dropdown */}
+            <div
+              ref={guestsRef}
+              className="relative flex-1 flex flex-col justify-center px-6 py-4 lg:py-0"
+            >
+              <button
+                type="button"
+                onClick={() => setGuestsOpen((o) => !o)}
+                className="font-sans text-left w-full leading-[1.3] transition-colors duration-150 bg-transparent border-none p-0 text-sm"
               >
-                <button
-                  type="button"
-                  onClick={() => setGuestsOpen((o) => !o)}
-                  className="font-sans text-left w-full leading-[1.3] transition-colors duration-150 bg-transparent border-none p-0 text-sm"
+                <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
+                  <Users
+                    size={10}
+                    className="inline mr-1 text-[#c69a3f] -mt-0.5"
+                  />
+                  Oaspeți
+                </span>
+                <span
+                  className={
+                    guestsOpen
+                      ? "text-[#0d2c5c] block truncate font-medium"
+                      : "text-[#3c4043] block truncate"
+                  }
                 >
-                  <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] mb-1.5 select-none">
-                    <Users
-                      size={10}
-                      className="inline mr-1 text-[#c69a3f] -mt-0.5"
-                    />
-                    Oaspeți
-                  </span>
-                  <span
-                    className={
-                      guestsOpen
-                        ? "text-[#0d2c5c] block truncate"
-                        : "text-[#3c4043]/70 block truncate"
-                    }
-                  >
-                    {adults} {adults === 1 ? "adult" : "adulți"}
-                    {children > 0 &&
-                      ` · ${children} ${children === 1 ? "copil" : "copii"}`}
-                  </span>
-                </button>
+                  {adults} {adults === 1 ? "adult" : "adulți"}
+                  {children > 0 &&
+                    ` · ${children} ${children === 1 ? "copil" : "copii"}`}
+                </span>
+              </button>
 
-                {guestsOpen && (
-                  <div className="absolute left-0 right-0 md:left-auto md:right-0 md:w-[280px] top-[calc(100%+12px)] z-30 rounded-[20px] border border-[#e1e8f0] bg-white p-5 shadow-[0_15px_40px_rgba(13,44,92,0.15)]">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-[12px] font-semibold text-[#0d2c5c]">
-                        Adulți
+              {guestsOpen && (
+                <div className="absolute left-0 right-0 md:left-auto md:right-0 md:w-[280px] top-[calc(100%+12px)] z-30 rounded-[20px] border border-[#e1e8f0] bg-white p-5 shadow-[0_15px_40px_rgba(13,44,92,0.15)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[12px] font-semibold text-[#0d2c5c]">
+                      Adulți
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={adults <= 1}
+                        onClick={() => setAdults((g) => Math.max(1, g - 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
+                      >
+                        −
+                      </button>
+                      <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
+                        {adults}
                       </span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          disabled={adults <= 1}
-                          onClick={() => setAdults((g) => Math.max(1, g - 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
-                        >
-                          −
-                        </button>
-                        <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
-                          {adults}
-                        </span>
-                        <button
-                          type="button"
-                          disabled={adults >= 6}
-                          onClick={() => setAdults((g) => Math.min(6, g + 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-4 border-t border-[#eef2f7] flex items-start justify-between gap-3">
-                      <span className="text-[12px] font-semibold text-[#0d2c5c]">
-                        Copii
-                        <span className="mt-1 block text-[10px] font-normal leading-snug text-[#8595aa]">
-                          Până la 12 ani.
-                        </span>
-                      </span>
-                      <div className="flex items-center gap-2 pt-0.5">
-                        <button
-                          type="button"
-                          disabled={children <= 0}
-                          onClick={() => setChildren((g) => Math.max(0, g - 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
-                        >
-                          −
-                        </button>
-                        <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
-                          {children}
-                        </span>
-                        <button
-                          type="button"
-                          disabled={children >= 4}
-                          onClick={() => setChildren((g) => Math.min(4, g + 1))}
-                          className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
-                        >
-                          +
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        disabled={adults >= 6}
+                        onClick={() => setAdults((g) => Math.min(6, g + 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
-                )}
-              </div>
+
+                  <div className="mt-4 pt-4 border-t border-[#eef2f7] flex items-start justify-between gap-3">
+                    <span className="text-[12px] font-semibold text-[#0d2c5c]">
+                      Copii
+                      <span className="mt-1 block text-[10px] font-normal leading-snug text-[#8595aa]">
+                        Până la 12 ani.
+                      </span>
+                    </span>
+                    <div className="flex items-center gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        disabled={children <= 0}
+                        onClick={() => setChildren((g) => Math.max(0, g - 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
+                      >
+                        −
+                      </button>
+                      <span className="text-sm font-semibold text-[#0d2c5c] w-5 text-center">
+                        {children}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={children >= 4}
+                        onClick={() => setChildren((g) => Math.min(4, g + 1))}
+                        className="w-7 h-7 rounded-full border border-[#e1e8f0] flex items-center justify-center text-sm text-[#3c4043] disabled:opacity-30 hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Submit Button - Slimmer */}
+            {/* BUTONUL WAVY - PREMIUM GOLD */}
             <button
               type="submit"
-              className="group md:w-auto w-full inline-flex items-center justify-center gap-2 rounded-[16px] md:rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-8 py-3.5 md:h-14 text-[11px] font-bold uppercase tracking-[0.16em] text-white shadow-[0_6px_16px_-6px_rgba(198,154,63,0.8)] transition-all hover:shadow-[0_10px_20px_-6px_rgba(198,154,63,0.9)] hover:-translate-y-0.5 shrink-0"
+              className="group relative flex min-h-[60px] lg:min-h-[72px] min-w-[140px] lg:min-w-[170px] items-center justify-center overflow-hidden rounded-b-[20px] lg:rounded-none lg:rounded-r-[20px] shrink-0"
             >
-              Caută
-              <ArrowRight
-                size={14}
-                className="transition-transform duration-200 group-hover:translate-x-1"
-              />
+              {/* SVG Val doar pe Desktop */}
+              <svg
+                className="absolute inset-0 h-full w-full text-[#c69a3f] drop-shadow-[-6px_0_15px_rgba(198,154,63,0.2)] transition-colors duration-300 group-hover:text-[#b58933] hidden lg:block"
+                preserveAspectRatio="none"
+                viewBox="0 0 100 100"
+              >
+                <path
+                  fill="currentColor"
+                  d="M15,0 L100,0 L100,100 L5,100 C20,70 20,30 15,0 Z"
+                />
+              </svg>
+
+              {/* Fallback pentru mobil */}
+              <div className="absolute inset-0 bg-[#c69a3f] transition-colors duration-300 group-hover:bg-[#b58933] lg:hidden" />
+
+              {/* Efect de luciu (shine) la trecerea cu mouse-ul */}
+              <span className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[700ms] ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]" />
+
+              {/* Conținutul butonului */}
+              <span className="relative z-10 flex items-center gap-2 lg:pl-3 text-[13px] font-bold uppercase tracking-[0.18em] text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">
+                <Search
+                  size={16}
+                  strokeWidth={2.5}
+                  className="transition-transform duration-300 group-hover:scale-110"
+                />{" "}
+                Caută
+              </span>
             </button>
           </form>
         </motion.div>
@@ -326,19 +375,27 @@ export default function Hero() {
           initial="hidden"
           animate={revealed ? "visible" : "hidden"}
           custom={0.85}
-          className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[10.5px] font-semibold tracking-[0.18em] uppercase text-white/75"
+          className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[10.5px] font-semibold tracking-[0.18em] uppercase text-white/80"
         >
-          <span className="flex items-center gap-2">
-            <span className="h-1 w-1 rounded-full bg-[var(--gold)]" /> 150 m de
-            plajă
+          <span className="group flex items-center gap-2 cursor-default">
+            <span className="block h-1 w-1 rotate-45 bg-[#c69a3f] shadow-[0_0_8px_rgba(198,154,63,0.7)] transition-transform duration-300 group-hover:scale-150" />
+            <span className="drop-shadow-md transition-colors duration-300 group-hover:text-white">
+              150 m de plajă
+            </span>
           </span>
-          <span className="flex items-center gap-2">
-            <span className="h-1 w-1 rounded-full bg-[var(--gold)]" /> Rezervare
-            directă
+
+          <span className="group flex items-center gap-2 cursor-default">
+            <span className="block h-1 w-1 rotate-45 bg-[#c69a3f] shadow-[0_0_8px_rgba(198,154,63,0.7)] transition-transform duration-300 group-hover:scale-150" />
+            <span className="drop-shadow-md transition-colors duration-300 group-hover:text-white">
+              Rezervare directă
+            </span>
           </span>
-          <span className="flex items-center gap-2">
-            <span className="h-1 w-1 rounded-full bg-[var(--gold)]" /> Check-in
-            prietenos
+
+          <span className="group flex items-center gap-2 cursor-default">
+            <span className="block h-1 w-1 rotate-45 bg-[#c69a3f] shadow-[0_0_8px_rgba(198,154,63,0.7)] transition-transform duration-300 group-hover:scale-150" />
+            <span className="drop-shadow-md transition-colors duration-300 group-hover:text-white">
+              Check-in prietenos
+            </span>
           </span>
         </motion.div>
       </div>

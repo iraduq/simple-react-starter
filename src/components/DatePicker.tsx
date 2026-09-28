@@ -227,7 +227,8 @@ export default function DatePicker({
       className={
         variant === "field"
           ? "relative flex flex-col"
-          : "relative flex-1 flex flex-col justify-center px-6 py-4.5"
+          : // Aici am adăugat linia de separare (after:w-px) care se ascunde automat la ultimul element (last:after:hidden)
+            "relative flex-1 flex flex-col justify-center px-6 py-4.5 after:content-[''] after:absolute after:right-0 after:top-1/4 after:h-1/2 after:w-px after:bg-gray-300/80 last:after:hidden"
       }
       ref={wrapperRef}
     >

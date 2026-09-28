@@ -39,15 +39,25 @@ export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
   const [currentUser, setCurrentUser] = useState<SessionUser>(getCachedUser());
 
+  const headerRef = useRef<HTMLElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const acctRef = useRef<HTMLDivElement>(null);
 
+  // Închide meniurile dacă dai click în afara lor
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node))
+      // Închide selectorul de limbă
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
         setLangOpen(false);
-      if (acctRef.current && !acctRef.current.contains(e.target as Node))
+      }
+      // Închide selectorul de cont
+      if (acctRef.current && !acctRef.current.contains(e.target as Node)) {
         setAcctOpen(false);
+      }
+      // Închide meniul de mobil dacă se dă click oriunde în afara header-ului
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setMobileOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -108,13 +118,13 @@ export default function Navbar() {
 
   const activeLang = LANGS.find((l) => l.code === lang) || LANGS[0];
 
-  // Am scos `langOpen` si `acctOpen` de aici pentru a pastra transparenta pe Hero Image
   const solid = !isHome || scrolled || mobileOpen;
 
   return (
     <>
-      {/* ── HEADER — fixat sus, solid pe pagini interioare sau transparent doar pe hero pe acasă ── */}
+      {/* ── HEADER — fixat sus ── */}
       <header
+        ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-500 before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-gradient-to-r before:from-transparent before:via-[#c69a3f] before:to-transparent ${
           solid
             ? "bg-white/[0.94] backdrop-blur-[18px] border-[#c69a3f]/20 shadow-[0_1px_0_rgba(198,154,63,0.18),0_8px_32px_rgba(13,44,92,0.1),0_2px_8px_rgba(13,44,92,0.06)]"
@@ -181,7 +191,8 @@ export default function Navbar() {
               <button
                 onClick={() => {
                   setLangOpen((v) => !v);
-                  setAcctOpen(false);
+                  setAcctOpen(false); // Închidem contul dacă deschidem limba
+                  setMobileOpen(false);
                 }}
                 aria-haspopup="true"
                 aria-expanded={langOpen}
@@ -252,7 +263,8 @@ export default function Navbar() {
               <button
                 onClick={() => {
                   setAcctOpen((v) => !v);
-                  setLangOpen(false);
+                  setLangOpen(false); // Închidem limba dacă deschidem contul
+                  setMobileOpen(false);
                 }}
                 aria-haspopup="true"
                 aria-expanded={acctOpen}
@@ -335,23 +347,23 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* CTA BUTTON */}
+            {/* CTA BUTTON - Stilizat uniform pentru desktop */}
             <Link
               to="/disponibilitate"
-              className={`group relative hidden sm:inline-flex items-center overflow-hidden ml-1 lg:ml-2 px-4 lg:px-6 py-2.5 lg:py-3 text-[13px] lg:text-[14.5px] font-medium rounded transition-all duration-200 hover:-translate-y-px ${
-                solid
-                  ? "bg-[#c69a3f] hover:bg-[#b58933] text-white"
-                  : "bg-white/10 border border-white/50 text-white hover:bg-white/20"
-              }`}
+              className="group relative hidden sm:inline-flex items-center justify-center overflow-hidden ml-1 lg:ml-2 px-4 lg:px-6 py-2.5 lg:py-[11px] text-[13px] lg:text-[14px] font-bold tracking-[0.1em] uppercase rounded transition-all duration-300 hover:-translate-y-0.5 shadow-[0_4px_15px_rgba(13,44,92,0.15)] hover:shadow-[0_8px_25px_rgba(198,154,63,0.3)] bg-[#0d2c5c] text-white hover:bg-[#c69a3f] hover:text-[#0d2c5c]"
             >
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[550ms] ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]" />
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[600ms] ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg]" />
               <span className="relative whitespace-nowrap">Rezervă Acum</span>
             </Link>
 
             {/* HAMBURGER */}
             <button
               type="button"
-              onClick={() => setMobileOpen((v) => !v)}
+              onClick={() => {
+                setMobileOpen((v) => !v);
+                setAcctOpen(false);
+                setLangOpen(false);
+              }}
               aria-label={mobileOpen ? "Închide meniul" : "Deschide meniul"}
               aria-expanded={mobileOpen}
               className={`lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded transition-colors ${
@@ -387,10 +399,11 @@ export default function Navbar() {
                 </NavLink>
               ))}
             </nav>
+            {/* CTA BUTTON - Stilizat uniform pentru mobil */}
             <Link
               to="/disponibilitate"
               onClick={() => setMobileOpen(false)}
-              className="mt-4 flex items-center justify-center rounded bg-[#c69a3f] px-5 py-3 text-[12px] font-bold uppercase tracking-[0.16em] text-white"
+              className="mt-4 flex items-center justify-center rounded px-5 py-3.5 text-[12px] font-bold uppercase tracking-[0.16em] transition-all duration-300 shadow-[0_4px_15px_rgba(13,44,92,0.15)] bg-[#0d2c5c] text-white hover:bg-[#c69a3f] hover:text-[#0d2c5c]"
             >
               Rezervă Acum
             </Link>
