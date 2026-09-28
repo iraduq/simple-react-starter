@@ -191,14 +191,17 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white font-sans max-[899px]:bg-[radial-gradient(circle_at_top_right,#e6efff,#f4f7fb)]">
+    <div className="flex min-h-screen bg-white font-sans relative">
+      {/* 1. CONTAINER IMAGINE */}
+      {/* Pe mobil este 'absolute inset-0' pentru a fi fundal. Pe desktop (>900px) revine la 'relative flex-[1.2]' */}
       <div
-        className="relative flex-[1.2] hidden min-[900px]:block bg-cover bg-center overflow-hidden"
+        className="absolute inset-0 z-0 min-[900px]:relative min-[900px]:flex-[1.2] bg-cover bg-center overflow-hidden"
         style={{
           backgroundImage:
             "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
         }}
       >
+        {/* Gradientul peste imagine */}
         <div
           className="absolute inset-0"
           style={{
@@ -207,15 +210,17 @@ export default function Login() {
           }}
         />
 
+        {/* Poligonul - ascuns pe mobil pentru a nu tăia din fundal */}
         <svg
-          className="absolute bottom-0 -right-px w-[15%] h-full z-[2]"
+          className="absolute bottom-0 -right-px w-[15%] h-full z-[2] max-[899px]:hidden"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
           <polygon fill="#ffffff" points="0,100 100,0 100,100" />
         </svg>
 
-        <div className="relative z-[3] h-full flex flex-col justify-between p-[50px_80px_80px_50px] text-white">
+        {/* Textul de pe imagine - ascuns pe mobil pentru a nu se suprapune cu formularul */}
+        <div className="relative z-[3] h-full flex-col justify-between p-[50px_80px_80px_50px] text-white hidden min-[900px]:flex">
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.1em] text-white/80 hover:text-white transition-all duration-200 hover:-translate-x-1 self-start"
@@ -234,8 +239,11 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-[3] max-[899px]:bg-transparent">
-        <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_10px_40px_rgba(13,44,92,0.14)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
+      {/* 2. CONTAINER FORMULAR */}
+      {/* Z-index mărit (z-10) pentru a sta peste imaginea de pe mobil */}
+      <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-10 w-full min-h-screen min-[900px]:min-h-0">
+        {/* Cardul alb - i-am adăugat o ușoară transparență (bg-white/95) pe mobil pentru un aspect modern peste imagine */}
+        <div className="w-full max-w-[420px] max-[899px]:bg-white/95 max-[899px]:backdrop-blur-sm max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_15px_50px_rgba(13,44,92,0.4)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
           <Link
             to="/"
             className="flex flex-col items-center mb-10 no-underline"

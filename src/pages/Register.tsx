@@ -257,12 +257,17 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white font-['Albert_Sans',sans-serif] max-[899px]:bg-[radial-gradient(circle_at_top_right,#e6efff,#f4f7fb)] [&_input]:font-['Albert_Sans',sans-serif] [&_button]:font-['Albert_Sans',sans-serif] [&_.PhoneInputInput]:font-['Albert_Sans',sans-serif]">
+    <div className="flex min-h-screen font-['Albert_Sans',sans-serif] relative bg-transparent [&_input]:font-['Albert_Sans',sans-serif] [&_button]:font-['Albert_Sans',sans-serif] [&_.PhoneInputInput]:font-['Albert_Sans',sans-serif]">
+      {/* 
+        1. FUNDALUL GLOBAL (Imaginea)
+        Am schimbat h-[100dvh] cu inset-0. Astfel, imaginea este ancorată perfect 
+        de ecran și nu mai sare la scroll când dispare bara de URL pe mobil.
+      */}
       <div
-        className="relative flex-[1.2] hidden min-[900px]:block bg-cover bg-center overflow-hidden"
+        className="fixed inset-0 -z-10 bg-cover bg-center min-[900px]:relative min-[900px]:z-0 min-[900px]:flex-[1.2] overflow-hidden"
         style={{
           backgroundImage:
-            "url(https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80)",
+            "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
         }}
       >
         <div
@@ -272,14 +277,16 @@ export default function Register() {
               "linear-gradient(to right, rgba(13,44,92,0.4) 0%, rgba(13,44,92,0.85) 100%)",
           }}
         />
+
+        {/* Forma grafică și textul (doar pe desktop) */}
         <svg
-          className="absolute bottom-0 -right-px w-[15%] h-full z-[2]"
+          className="absolute bottom-0 -right-px w-[15%] h-full z-[2] max-[899px]:hidden"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
           <polygon fill="#ffffff" points="0,100 100,0 100,100" />
         </svg>
-        <div className="relative z-[3] h-full flex flex-col justify-between p-[50px_80px_80px_50px] text-white">
+        <div className="relative z-[3] h-full flex-col justify-between p-[50px_80px_80px_50px] text-white hidden min-[900px]:flex">
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.1em] text-white/80 hover:text-white transition-all duration-200 hover:-translate-x-1 self-start"
@@ -298,8 +305,13 @@ export default function Register() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-[3] max-[899px]:bg-transparent">
-        <div className="w-full max-w-[420px] max-[899px]:bg-white max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_10px_40px_rgba(13,44,92,0.14)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
+      {/* 
+        2. CONTAINERUL FORMULARULUI 
+        Am eliminat `items-center` și am pus `m-auto` pe cardul alb. 
+        Asta previne tăierea părții de sus a formularului și repară scroll-ul.
+      */}
+      <div className="flex-1 relative z-10 w-full min-h-screen flex flex-col min-[900px]:bg-white px-5 py-8">
+        <div className="w-full max-w-[420px] m-auto bg-white/95 backdrop-blur-sm p-6 sm:p-10 rounded-2xl shadow-[0_15px_50px_rgba(13,44,92,0.4)] min-[900px]:shadow-none min-[900px]:backdrop-blur-none min-[900px]:bg-transparent">
           <Link
             to="/"
             className="flex flex-col items-center mb-10 no-underline"
@@ -474,7 +486,7 @@ export default function Register() {
                   focusInputOnCountrySelection={false}
                 />
                 {touched.phone && (
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none z-10">
                     {fieldValidity.phone ? (
                       <CheckCircle2
                         size={17}
