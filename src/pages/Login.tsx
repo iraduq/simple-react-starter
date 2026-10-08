@@ -95,15 +95,19 @@ export default function Login() {
       if (res.ok) {
         saveTokensFrom(data);
         markAuthSession();
-        const session = await fetchSession(true);
-        if (session && (session as any).is_active === false) {
+
+        const userRole = data?.role || data?.user?.role;
+        const isActive = data?.is_active ?? data?.user?.is_active ?? true;
+
+        if (isActive === false) {
           clearAuthTokens();
           notifySessionChange();
           setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
           return;
         }
+
         notifySessionChange();
-        const userRole = session?.role;
+
         if (userRole === "admin") {
           navigate("/admin");
         } else if (userRole === "menajera") {
@@ -169,26 +173,38 @@ export default function Login() {
         }),
       });
 
+      const contentType = res.headers.get("content-type");
+      const data = contentType?.includes("application/json")
+        ? await res.json()
+        : null;
+
       if (res.ok) {
-        saveTokensFrom(await res.json().catch(() => null));
+        saveTokensFrom(data);
         markAuthSession();
-        const session = await fetchSession(true);
-        if (session && (session as any).is_active === false) {
+
+        const userRole = data?.role || data?.user?.role;
+        const isActive = data?.is_active ?? data?.user?.is_active ?? true;
+
+        if (isActive === false) {
           clearAuthTokens();
           notifySessionChange();
           setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
           return;
         }
+
         notifySessionChange();
-        navigate(session?.role === "admin" ? "/admin" : "/profile");
+        navigate(userRole === "admin" ? "/admin" : "/profile");
         return;
       }
 
-      const contentType = res.headers.get("content-type");
       let detail: string | undefined;
-      if (contentType && contentType.includes("application/json")) {
-        const data = (await res.json()) as Record<string, unknown>;
-        if (data && typeof data.detail === "string") detail = data.detail;
+      if (
+        data &&
+        typeof data === "object" &&
+        "detail" in data &&
+        typeof data.detail === "string"
+      ) {
+        detail = data.detail;
       }
       handleAuthFailure(res.status, detail);
     } catch (error) {
