@@ -1,2 +1,5 @@
-/api/*  https://backend-licenta-i0lr.onrender.com/:splat  200
-/*      /index.html                                     200
+[[redirects]]
+  from = "/api/*"
+  to = "https://backend-licenta-i0lr.onrender.com/:splat"
+  status = 200
+  force = true
