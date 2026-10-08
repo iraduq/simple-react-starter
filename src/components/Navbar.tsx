@@ -64,19 +64,38 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (!hasSession()) {
-      fetchSession().then(() => {
+    let isMounted = true;
+
+    const updateAuthStatus = async () => {
+      try {
+        const session = await fetchSession(true);
+        if (isMounted) {
+          setIsAuthenticated(
+            Boolean(session && (session as any).is_active !== false),
+          );
+          setCurrentUser(getCachedUser());
+        }
+      } catch {
+        if (isMounted) {
+          setIsAuthenticated(false);
+          setCurrentUser(null as any);
+        }
+      }
+    };
+
+    updateAuthStatus();
+
+    const unsubscribe = onSessionChange(() => {
+      if (isMounted) {
         setIsAuthenticated(hasSession());
         setCurrentUser(getCachedUser());
-      });
-    } else {
-      setIsAuthenticated(hasSession()); // Asigură actualizarea stării de autentificare
-      setCurrentUser(getCachedUser());
-    }
-    return onSessionChange(() => {
-      setIsAuthenticated(hasSession());
-      setCurrentUser(getCachedUser());
+      }
     });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [location.pathname]);
 
   useEffect(() => {
