@@ -106,6 +106,8 @@ export default function Login() {
           return;
         }
 
+        // 🌟 Forțăm preluarea sesiunii pentru a popula cache-ul global de utilizator instant
+        await fetchSession(true);
         notifySessionChange();
 
         if (userRole === "admin") {
@@ -192,6 +194,8 @@ export default function Login() {
           return;
         }
 
+        // 🌟 Forțăm preluarea sesiunii și la Google Login
+        await fetchSession(true);
         notifySessionChange();
         navigate(userRole === "admin" ? "/admin" : "/profile");
         return;
@@ -221,7 +225,6 @@ export default function Login() {
   return (
     <div className="flex min-h-screen bg-white font-sans relative">
       {/* 1. CONTAINER IMAGINE */}
-      {/* Pe mobil este 'absolute inset-0' pentru a fi fundal. Pe desktop (>900px) revine la 'relative flex-[1.2]' */}
       <div
         className="absolute inset-0 z-0 min-[900px]:relative min-[900px]:flex-[1.2] bg-cover bg-center overflow-hidden"
         style={{
@@ -229,7 +232,6 @@ export default function Login() {
             "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
         }}
       >
-        {/* Gradientul peste imagine */}
         <div
           className="absolute inset-0"
           style={{
@@ -238,7 +240,6 @@ export default function Login() {
           }}
         />
 
-        {/* Poligonul - ascuns pe mobil pentru a nu tăia din fundal */}
         <svg
           className="absolute bottom-0 -right-px w-[15%] h-full z-[2] max-[899px]:hidden"
           viewBox="0 0 100 100"
@@ -247,7 +248,6 @@ export default function Login() {
           <polygon fill="#ffffff" points="0,100 100,0 100,100" />
         </svg>
 
-        {/* Textul de pe imagine - ascuns pe mobil pentru a nu se suprapune cu formularul */}
         <div className="relative z-[3] h-full flex-col justify-between p-[50px_80px_80px_50px] text-white hidden min-[900px]:flex">
           <Link
             to="/"
@@ -268,9 +268,7 @@ export default function Login() {
       </div>
 
       {/* 2. CONTAINER FORMULAR */}
-      {/* Z-index mărit (z-10) pentru a sta peste imaginea de pe mobil */}
       <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-10 w-full min-h-screen min-[900px]:min-h-0">
-        {/* Cardul alb - i-am adăugat o ușoară transparență (bg-white/95) pe mobil pentru un aspect modern peste imagine */}
         <div className="w-full max-w-[420px] max-[899px]:bg-white/95 max-[899px]:backdrop-blur-sm max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_15px_50px_rgba(13,44,92,0.4)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
           <Link
             to="/"

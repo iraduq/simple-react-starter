@@ -35,7 +35,6 @@ export const fetchSession = async (force = false): Promise<SessionUser> => {
 
   fetchPromise = (async () => {
     try {
-      // MODIFICARE AICI: Folosim apiFetch în loc de fetch simplu
       const data = await apiFetch<SessionUser>("/auth/me");
       cachedUser = data;
       hasFetched = true;
@@ -56,6 +55,13 @@ export const getCachedUser = () => cachedUser;
 
 export const hasSession = () => Boolean(cachedUser);
 
+// 🌟 Funcție nouă pentru a goli cache-ul atunci când utilizatorul se loghează
+export const invalidateSession = () => {
+  cachedUser = null;
+  hasFetched = false;
+  notifySessionChange();
+};
+
 export const notifySessionChange = () => {
   window.dispatchEvent(new Event(SESSION_CHANGED_EVENT));
 };
@@ -65,7 +71,7 @@ export const clearSession = async () => {
   const hadStoredAuth = hasStoredAuth();
   clearAuthTokens();
   cachedUser = null;
-  hasFetched = true;
+  hasFetched = true; // Setăm true pentru că sigur nu mai are sesiune
   notifySessionChange();
 
   try {
@@ -73,11 +79,13 @@ export const clearSession = async () => {
       await fetch(`${API_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+        headers: accessToken
+          ? { Authorization: `Bearer ${accessToken}` }
+          : undefined,
       });
     }
   } catch {
-    // ignorăm eroarea de rețea, tot ștergem starea locală
+    // ignorăm eroarea de rețea
   }
 };
 
