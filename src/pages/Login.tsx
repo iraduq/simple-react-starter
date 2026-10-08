@@ -56,12 +56,24 @@ export default function Login() {
   const handleAuthFailure = (status: number, detail?: string) => {
     if (isDeactivated(status, detail)) {
       setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
-    } else {
-      setLoginError({
-        message: detail || `Eroare la autentificare (${status}).`,
-        deactivated: false,
-      });
+      return;
     }
+    let userFriendlyMessage = detail;
+    if (status === 401 || status === 400) {
+      userFriendlyMessage =
+        "Adresa de email sau parola este incorectă. Te rugăm să încerci din nou.";
+    } else if (status === 404) {
+      userFriendlyMessage =
+        "Nu am găsit un cont asociat acestei adrese de email.";
+    } else if (status >= 500) {
+      userFriendlyMessage =
+        "A apărut o problemă pe server. Te rugăm să revii mai târziu.";
+    }
+
+    setLoginError({
+      message: userFriendlyMessage || "A apărut o eroare la autentificare.",
+      deactivated: false,
+    });
   };
 
   const handleLocalLogin = async (e: React.FormEvent) => {
