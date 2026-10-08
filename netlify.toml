@@ -10,5 +10,4 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "SAMEORIGIN"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    X-XSS-Protection = "1; mode=block"
-    Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval';"
+    Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline'; connect-src 'self' https://backend-licenta-i0lr.onrender.com https://*.googleapis.com;"
