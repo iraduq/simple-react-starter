@@ -10,4 +10,6 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "SAMEORIGIN"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
     Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline'; connect-src 'self' https://backend-licenta-i0lr.onrender.com https://*.googleapis.com;"

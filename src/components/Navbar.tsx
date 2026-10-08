@@ -70,13 +70,14 @@ export default function Navbar() {
         setCurrentUser(getCachedUser());
       });
     } else {
+      setIsAuthenticated(hasSession()); // Asigură actualizarea stării de autentificare
       setCurrentUser(getCachedUser());
     }
     return onSessionChange(() => {
       setIsAuthenticated(hasSession());
       setCurrentUser(getCachedUser());
     });
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
