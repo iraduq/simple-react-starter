@@ -110,6 +110,14 @@ function AppInner() {
           }
         />
         <Route
+          path="/admin/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/housekeeping"
           element={
             <ProtectedRoute>
