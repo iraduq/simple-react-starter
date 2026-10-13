@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -13,6 +13,7 @@ import {
   X,
   Menu,
   DoorOpen,
+  TrendingUp,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -193,6 +194,15 @@ function SidebarContent({
           </button>
         );
       })}
+      <Link
+        to="/admin/analytics"
+        className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold text-[#2a3b52] transition-all duration-200 hover:bg-[#f4f6f9] hover:text-[#0d2c5c] sm:text-[13.5px]"
+      >
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f4f6f9] text-[#0d2c5c]">
+          <TrendingUp size={15} strokeWidth={1.75} />
+        </span>
+        Analize & Rapoarte AI
+      </Link>
       <div className="mt-3 border-t border-[#eef2f7] pt-3">
         <button
           onClick={() => void onLogout()}

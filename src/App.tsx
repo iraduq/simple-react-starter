@@ -36,6 +36,7 @@ import Gdpr from "./pages/Gdpr";
 import Footer from "./components/Footer";
 import BookingSuccess from "./pages/BookingSuccess";
 import Housekeeping from "./pages/Housekeeping";
+import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 
 const MainLayout = () => {
   return (
