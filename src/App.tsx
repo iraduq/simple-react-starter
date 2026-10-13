@@ -36,6 +36,7 @@ import Gdpr from "./pages/Gdpr";
 import Footer from "./components/Footer";
 import BookingSuccess from "./pages/BookingSuccess";
 import Housekeeping from "./pages/Housekeeping";
+import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 
 const MainLayout = () => {
   return (
@@ -106,6 +107,14 @@ function AppInner() {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsDashboard />
             </ProtectedRoute>
           }
         />
