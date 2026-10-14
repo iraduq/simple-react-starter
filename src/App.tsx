@@ -34,6 +34,7 @@ import Privacy from "./pages/Privacy";
 import Cookies from "./pages/Cookies";
 import Gdpr from "./pages/Gdpr";
 import Footer from "./components/Footer";
+import ChatWidget from "./components/ChatWidget";
 import BookingSuccess from "./pages/BookingSuccess";
 import Housekeeping from "./pages/Housekeeping";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
@@ -46,6 +47,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <Footer />
+      <ChatWidget />
     </>
   );
 };
