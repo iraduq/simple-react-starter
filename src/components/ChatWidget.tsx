@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Anchor, ArrowUpRight, BedDouble, Send, X } from "lucide-react";
+import { ArrowUpRight, BedDouble, MapPin, Send, Sparkle, Tag, X } from "lucide-react";
 import { ron } from "../lib/format";
 
 const CHAT_URL = `${import.meta.env.VITE_API_URL || "https://backend-licenta-i0lr.onrender.com"}/api/chat`;
@@ -30,6 +30,60 @@ type Msg = {
 };
 
 const QUICK = [
+  { label: "Camere libere", text: "Ce camere aveți disponibile?", Icon: BedDouble },
+  { label: "Prețuri", text: "Care sunt prețurile?", Icon: Tag },
+  { label: "Facilități", text: "Ce facilități oferiți?", Icon: Sparkle },
+  { label: "Locație", text: "Cum ajung la vilă?", Icon: MapPin },
+];
+
+function RobotAvatar({ size = 32, ring = false }: { size?: number; ring?: boolean }) {
+  return (
+    <span
+      className="shrink-0 rounded-full"
+      style={{
+        width: size,
+        height: size,
+        padding: ring ? 2 : 0,
+        background: ring ? "linear-gradient(135deg, var(--gold-light), var(--gold))" : "transparent",
+        boxShadow: "0 4px 12px rgba(7,32,63,.25)",
+      }}
+    >
+      <svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden>
+        <defs>
+          <linearGradient id="rb-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#1a3a6e" />
+            <stop offset="1" stopColor="#07203f" />
+          </linearGradient>
+          <linearGradient id="rb-head" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#ffffff" />
+            <stop offset="1" stopColor="#dfe7f2" />
+          </linearGradient>
+          <linearGradient id="rb-gold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#e6b85c" />
+            <stop offset="1" stopColor="#c69a3f" />
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="32" fill="url(#rb-bg)" />
+        <path d="M6 46 Q16 40 26 46 T46 46 T66 46 V64 H-2Z" fill="#c69a3f" opacity=".18" />
+        <line x1="32" y1="14" x2="32" y2="9" stroke="url(#rb-gold)" strokeWidth="2.4" strokeLinecap="round" />
+        <circle cx="32" cy="8" r="3" fill="url(#rb-gold)" />
+        <rect x="11" y="27" width="5" height="10" rx="2.5" fill="url(#rb-gold)" />
+        <rect x="48" y="27" width="5" height="10" rx="2.5" fill="url(#rb-gold)" />
+        <rect x="15" y="14" width="34" height="30" rx="12" fill="url(#rb-head)" />
+        <rect x="19.5" y="20" width="25" height="15" rx="7.5" fill="#0d2c5c" />
+        <ellipse cx="26.5" cy="27.5" rx="2.6" ry="3.2" fill="#e6b85c" />
+        <ellipse cx="37.5" cy="27.5" rx="2.6" ry="3.2" fill="#e6b85c" />
+        <circle cx="27.4" cy="26.4" r=".9" fill="#fff" />
+        <circle cx="38.4" cy="26.4" r=".9" fill="#fff" />
+        <path d="M28 39 Q32 41.5 36 39" stroke="#0d2c5c" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+        <path d="M22 50 h20 a4 4 0 0 1 4 4 v10 h-28 v-10 a4 4 0 0 1 4 -4z" fill="url(#rb-head)" />
+        <circle cx="32" cy="56" r="2.6" fill="url(#rb-gold)" />
+      </svg>
+    </span>
+  );
+}
+
+const OLD_QUICK = [
   "Ce camere aveți disponibile?",
   "Care sunt prețurile?",
   "Ce facilități oferiți?",
@@ -147,17 +201,12 @@ export default function ChatWidget() {
               className="flex items-center gap-3 px-5 py-4"
               style={{ background: "linear-gradient(135deg, var(--navy-deep), var(--navy))" }}
             >
-              <div
-                className="grid h-10 w-10 place-items-center rounded-full"
-                style={{ border: "1px solid var(--gold)", color: "var(--gold)" }}
-              >
-                <Anchor size={18} />
-              </div>
+              <RobotAvatar size={44} ring />
               <div className="flex-1">
-                <p className="text-xl leading-tight" style={{ fontFamily: "var(--font-display)", color: "#fff" }}>
+                <p className="text-[17px] font-bold leading-tight tracking-tight" style={{ color: "#fff" }}>
                   Esy · Asistent Virtual
                 </p>
-                <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em]" style={{ color: "var(--gold-pale)" }}>
+                <p className="mt-0.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--gold-light)" }}>
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
@@ -182,10 +231,12 @@ export default function ChatWidget() {
                   key={m.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
+                  className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
+                  {m.role === "model" && <RobotAvatar size={30} />}
+                  <div className={`flex min-w-0 max-w-[85%] flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
                   <div
-                    className={`max-w-[85%] whitespace-pre-wrap px-4 py-2.5 text-sm leading-relaxed ${
+                    className={`whitespace-pre-wrap px-4 py-2.5 text-[14px] font-medium leading-relaxed ${
                       m.role === "user" ? "rounded-2xl rounded-br-sm" : "rounded-2xl rounded-bl-sm"
                     }`}
                     style={
@@ -193,7 +244,7 @@ export default function ChatWidget() {
                         ? { background: "var(--navy)", color: "#fff" }
                         : {
                             background: "#fff",
-                            color: "var(--text-secondary)",
+                            color: "var(--navy)",
                             border: `1px solid ${m.error ? "#f3c6c6" : "var(--border-light)"}`,
                           }
                     }
@@ -216,11 +267,13 @@ export default function ChatWidget() {
                       ))}
                     </div>
                   )}
+                  </div>
                 </motion.div>
               ))}
 
               {loading && (
-                <div className="flex items-start">
+                <div className="flex items-end gap-2">
+                  <RobotAvatar size={30} />
                   <div
                     className="flex gap-1.5 rounded-2xl rounded-bl-sm bg-white px-4 py-3"
                     style={{ border: "1px solid var(--border-light)" }}
@@ -240,20 +293,46 @@ export default function ChatWidget() {
               )}
             </div>
 
-            {/* Quick chips */}
-            <div className="flex gap-2 overflow-x-auto px-4 pt-3 pb-1 bg-white" style={{ scrollbarWidth: "none" }}>
-              {QUICK.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => send(q)}
-                  disabled={loading}
-                  className="shrink-0 rounded-full px-3 py-1.5 text-xs transition-colors disabled:opacity-50"
-                  style={{ border: "1px solid var(--border-gold)", color: "var(--navy)", background: "#fffdf8" }}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
+            {/* Quick actions */}
+            {messages.length <= 1 ? (
+              <div className="grid grid-cols-2 gap-2 bg-white px-4 pt-3 pb-1">
+                {QUICK.map(({ label, text, Icon }) => (
+                  <motion.button
+                    key={label}
+                    whileHover={{ y: -2 }}
+                    onClick={() => send(text)}
+                    disabled={loading}
+                    className="group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors disabled:opacity-50"
+                    style={{ border: "1px solid var(--border-light)", background: "#fff" }}
+                  >
+                    <span
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+                      style={{ background: "var(--navy)", color: "var(--gold)" }}
+                    >
+                      <Icon size={15} strokeWidth={2.2} />
+                    </span>
+                    <span className="text-[12.5px] font-semibold leading-tight" style={{ color: "var(--navy)" }}>
+                      {label}
+                    </span>
+                  </motion.button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex gap-1.5 overflow-x-auto bg-white px-4 pt-3 pb-1" style={{ scrollbarWidth: "none" }}>
+                {QUICK.map(({ label, text, Icon }) => (
+                  <button
+                    key={label}
+                    onClick={() => send(text)}
+                    disabled={loading}
+                    className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold disabled:opacity-50"
+                    style={{ background: "var(--gold-pale)", color: "var(--navy)" }}
+                  >
+                    <Icon size={13} strokeWidth={2.4} style={{ color: "var(--gold)" }} />
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Input */}
             <form onSubmit={onSubmit} className="flex items-center gap-2 bg-white px-4 pb-4 pt-2">
