@@ -78,8 +78,8 @@ const WELCOME: Msg = {
 /* ── Bot avatar ── */
 function BotAvatar({ size = 32 }: { size?: number }) {
   return (
-    <span className="shrink-0" style={{ width: size, height: size }}>
-      <svg viewBox="0 0 48 48" width="100%" height="100%" aria-hidden>
+    <span className="inline-block shrink-0" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden>
         <defs>
           <linearGradient id="esy-bg" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stopColor="#2f6fd6" />
