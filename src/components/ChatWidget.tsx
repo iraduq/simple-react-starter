@@ -1,22 +1,29 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, BedDouble, MapPin, Send, Sparkle, Tag, X } from "lucide-react";
+import { ArrowUpRight, BedDouble, MapPin, Send, Sparkles, Tag, Users, X } from "lucide-react";
 import { ron } from "../lib/format";
 
-const CHAT_URL = `${import.meta.env.VITE_API_URL || "https://backend-licenta-i0lr.onrender.com"}/api/chat`;
+const API_BASE = (import.meta.env.VITE_API_URL || "https://backend-licenta-i0lr.onrender.com").replace(/\/$/, "");
+const CHAT_URL = `${API_BASE}/api/chat`;
 const SESSION_KEY = "casaesy_chat_session";
 
+type RoomImg = { image_url?: string; url?: string } | string;
 type RoomCard = {
   id?: string | number;
   title?: string;
   name?: string;
   image_url?: string;
   image?: string;
+  thumbnail?: string;
+  images?: RoomImg[];
   price_per_night?: number;
   base_price?: number;
   total_price?: number;
+  estimated_total?: number;
   nights?: number;
+  max_guests?: number;
+  capacity?: number;
   booking_url?: string;
 };
 type Cta = { label: string; url?: string; href?: string; message?: string };
@@ -32,62 +39,8 @@ type Msg = {
 const QUICK = [
   { label: "Camere libere", text: "Ce camere aveți disponibile?", Icon: BedDouble },
   { label: "Prețuri", text: "Care sunt prețurile?", Icon: Tag },
-  { label: "Facilități", text: "Ce facilități oferiți?", Icon: Sparkle },
+  { label: "Facilități", text: "Ce facilități oferiți?", Icon: Sparkles },
   { label: "Locație", text: "Cum ajung la vilă?", Icon: MapPin },
-];
-
-function RobotAvatar({ size = 32, ring = false }: { size?: number; ring?: boolean }) {
-  return (
-    <span
-      className="shrink-0 rounded-full"
-      style={{
-        width: size,
-        height: size,
-        padding: ring ? 2 : 0,
-        background: ring ? "linear-gradient(135deg, var(--gold-light), var(--gold))" : "transparent",
-        boxShadow: "0 4px 12px rgba(7,32,63,.25)",
-      }}
-    >
-      <svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden>
-        <defs>
-          <linearGradient id="rb-bg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#1a3a6e" />
-            <stop offset="1" stopColor="#07203f" />
-          </linearGradient>
-          <linearGradient id="rb-head" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#ffffff" />
-            <stop offset="1" stopColor="#dfe7f2" />
-          </linearGradient>
-          <linearGradient id="rb-gold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#e6b85c" />
-            <stop offset="1" stopColor="#c69a3f" />
-          </linearGradient>
-        </defs>
-        <circle cx="32" cy="32" r="32" fill="url(#rb-bg)" />
-        <path d="M6 46 Q16 40 26 46 T46 46 T66 46 V64 H-2Z" fill="#c69a3f" opacity=".18" />
-        <line x1="32" y1="14" x2="32" y2="9" stroke="url(#rb-gold)" strokeWidth="2.4" strokeLinecap="round" />
-        <circle cx="32" cy="8" r="3" fill="url(#rb-gold)" />
-        <rect x="11" y="27" width="5" height="10" rx="2.5" fill="url(#rb-gold)" />
-        <rect x="48" y="27" width="5" height="10" rx="2.5" fill="url(#rb-gold)" />
-        <rect x="15" y="14" width="34" height="30" rx="12" fill="url(#rb-head)" />
-        <rect x="19.5" y="20" width="25" height="15" rx="7.5" fill="#0d2c5c" />
-        <ellipse cx="26.5" cy="27.5" rx="2.6" ry="3.2" fill="#e6b85c" />
-        <ellipse cx="37.5" cy="27.5" rx="2.6" ry="3.2" fill="#e6b85c" />
-        <circle cx="27.4" cy="26.4" r=".9" fill="#fff" />
-        <circle cx="38.4" cy="26.4" r=".9" fill="#fff" />
-        <path d="M28 39 Q32 41.5 36 39" stroke="#0d2c5c" strokeWidth="1.8" fill="none" strokeLinecap="round" />
-        <path d="M22 50 h20 a4 4 0 0 1 4 4 v10 h-28 v-10 a4 4 0 0 1 4 -4z" fill="url(#rb-head)" />
-        <circle cx="32" cy="56" r="2.6" fill="url(#rb-gold)" />
-      </svg>
-    </span>
-  );
-}
-
-const OLD_QUICK = [
-  "Ce camere aveți disponibile?",
-  "Care sunt prețurile?",
-  "Ce facilități oferiți?",
-  "Cum ajung la vilă?",
 ];
 
 const uid = () =>
@@ -104,11 +57,59 @@ function getSessionId() {
   return id;
 }
 
+function absUrl(u?: string) {
+  if (!u) return undefined;
+  if (/^(https?:|data:|blob:)/.test(u)) return u;
+  return `${API_BASE}${u.startsWith("/") ? "" : "/"}${u}`;
+}
+
+function roomImage(r: RoomCard) {
+  const first = r.images?.[0];
+  const fromArr = typeof first === "string" ? first : first?.image_url || first?.url;
+  return absUrl(r.image_url || r.image || r.thumbnail || fromArr);
+}
+
 const WELCOME: Msg = {
   id: "welcome",
   role: "model",
-  text: "Bună! Sunt Esy, asistentul virtual al Vilei Casa Esy. Te pot ajuta cu camere, prețuri și rezervări. 🌊",
+  text: "Bună! Sunt Esy, asistentul virtual al Vilei Casa Esy. Te ajut cu camere, prețuri și rezervări.",
 };
+
+/* ── Bot avatar ── */
+function BotAvatar({ size = 32 }: { size?: number }) {
+  return (
+    <span className="shrink-0" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 48 48" width="100%" height="100%" aria-hidden>
+        <defs>
+          <linearGradient id="esy-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#2f6fd6" />
+            <stop offset="1" stopColor="#0d2c5c" />
+          </linearGradient>
+          <linearGradient id="esy-face" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#ffffff" />
+            <stop offset="1" stopColor="#e4ecf8" />
+          </linearGradient>
+        </defs>
+        <rect width="48" height="48" rx="16" fill="url(#esy-bg)" />
+        <circle cx="24" cy="9.5" r="2.2" fill="#9cc4ff" />
+        <rect x="23.1" y="10.5" width="1.8" height="4" rx=".9" fill="#9cc4ff" />
+        <rect x="10" y="14.5" width="28" height="22" rx="9" fill="url(#esy-face)" />
+        <rect x="14" y="19" width="20" height="11" rx="5.5" fill="#0d2c5c" />
+        <motion.g
+          animate={{ scaleY: [1, 1, 0.1, 1] }}
+          transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
+          style={{ originY: "24.5px" }}
+        >
+          <rect x="18" y="22" width="3.4" height="5" rx="1.7" fill="#7fd3ff" />
+          <rect x="26.6" y="22" width="3.4" height="5" rx="1.7" fill="#7fd3ff" />
+        </motion.g>
+        <rect x="7" y="22" width="3" height="7" rx="1.5" fill="#9cc4ff" />
+        <rect x="38" y="22" width="3" height="7" rx="1.5" fill="#9cc4ff" />
+        <path d="M21 33 q3 2 6 0" stroke="#0d2c5c" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      </svg>
+    </span>
+  );
+}
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -123,7 +124,7 @@ export default function ChatWidget() {
   }, [messages, loading]);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 250);
+    if (open && !loading) setTimeout(() => inputRef.current?.focus(), 250);
   }, [open, loading]);
 
   async function send(text: string) {
@@ -143,8 +144,14 @@ export default function ChatWidget() {
       });
       if (!res.ok) throw new Error(String(res.status));
       const data = await res.json();
-      const reply: string =
-        data.reply ?? data.response ?? data.text ?? data.message ?? "";
+      const reply: string = data.reply ?? data.response ?? data.text ?? data.message ?? "";
+      const ctas = Array.isArray(data.ctas)
+        ? data.ctas
+        : Array.isArray(data.cta)
+          ? data.cta
+          : data.cta
+            ? [data.cta]
+            : undefined;
       setMessages((p) => [
         ...p,
         {
@@ -152,13 +159,7 @@ export default function ChatWidget() {
           role: "model",
           text: reply || "Îmi pare rău, nu am un răspuns acum.",
           rooms: Array.isArray(data.rooms) ? data.rooms : undefined,
-          ctas: Array.isArray(data.ctas)
-            ? data.ctas
-            : Array.isArray(data.cta)
-              ? data.cta
-              : data.cta
-                ? [data.cta]
-                : undefined,
+          ctas,
         },
       ]);
     } catch {
@@ -168,7 +169,7 @@ export default function ChatWidget() {
           id: uid(),
           role: "model",
           error: true,
-          text: "Momentan nu mă pot conecta. Te rog încearcă din nou în câteva clipe sau scrie-ne la pagina de Contact.",
+          text: "Momentan nu mă pot conecta. Încearcă din nou în câteva clipe sau scrie-ne pe pagina de Contact.",
           ctas: [{ label: "Contact", url: "/contact" }],
         },
       ]);
@@ -190,42 +191,42 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
-            transition={{ type: "spring", stiffness: 260, damping: 26 }}
-            className="flex flex-col overflow-hidden rounded-2xl bg-white w-[calc(100vw-2.5rem)] sm:w-[380px] h-[min(600px,calc(100vh-7rem))]"
-            style={{ boxShadow: "0 30px 80px rgba(7,32,63,.35), 0 8px 24px rgba(7,32,63,.18)" }}
+            transition={{ type: "spring", stiffness: 280, damping: 28 }}
+            className="flex flex-col overflow-hidden rounded-[28px] w-[calc(100vw-2.5rem)] sm:w-[400px] h-[min(640px,calc(100vh-7rem))]"
+            style={{
+              background: "#ffffff",
+              boxShadow: "0 40px 90px -20px rgba(7,32,63,.45), 0 0 0 1px rgba(13,44,92,.06)",
+            }}
             role="dialog"
             aria-label="Esy · Asistent Virtual"
           >
             {/* Header */}
-            <div
-              className="flex items-center gap-3 px-5 py-4"
-              style={{ background: "linear-gradient(135deg, var(--navy-deep), var(--navy))" }}
-            >
-              <RobotAvatar size={44} ring />
+            <div className="relative flex items-center gap-3 px-5 pt-5 pb-4" style={{ background: "#ffffff" }}>
+              <div className="relative">
+                <BotAvatar size={44} />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
+              </div>
               <div className="flex-1">
-                <p className="text-[17px] font-bold leading-tight tracking-tight" style={{ color: "#fff" }}>
+                <p className="text-[16px] font-bold tracking-tight" style={{ color: "var(--navy)", fontFamily: "var(--font-body)" }}>
                   Esy · Asistent Virtual
                 </p>
-                <p className="mt-0.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--gold-light)" }}>
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                  </span>
-                  Online acum
+                <p className="text-[12px] font-medium" style={{ color: "#16a34a" }}>
+                  Online · răspunde imediat
                 </p>
               </div>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Închide chatul"
-                className="rounded-full p-1.5 transition-opacity opacity-70 hover:opacity-100"
-                style={{ color: "#fff" }}
+                className="grid h-9 w-9 place-items-center rounded-full transition-colors"
+                style={{ background: "#f1f5fb", color: "var(--navy)" }}
               >
-                <X size={20} />
+                <X size={18} />
               </button>
+              <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: "#eef2f8" }} />
             </div>
 
             {/* Messages */}
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4" style={{ background: "#f7f9fc" }}>
+            <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5" style={{ background: "#f6f8fc" }}>
               {messages.map((m) => (
                 <motion.div
                   key={m.id}
@@ -233,58 +234,59 @@ export default function ChatWidget() {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {m.role === "model" && <RobotAvatar size={30} />}
-                  <div className={`flex min-w-0 max-w-[85%] flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
-                  <div
-                    className={`whitespace-pre-wrap px-4 py-2.5 text-[14px] font-medium leading-relaxed ${
-                      m.role === "user" ? "rounded-2xl rounded-br-sm" : "rounded-2xl rounded-bl-sm"
-                    }`}
-                    style={
-                      m.role === "user"
-                        ? { background: "var(--navy)", color: "#fff" }
-                        : {
-                            background: "#fff",
-                            color: "var(--navy)",
-                            border: `1px solid ${m.error ? "#f3c6c6" : "var(--border-light)"}`,
-                          }
-                    }
-                  >
-                    {m.text}
-                  </div>
-
-                  {m.rooms && m.rooms.length > 0 && (
-                    <div className="mt-2 flex w-full flex-col gap-2">
-                      {m.rooms.map((r, i) => (
-                        <RoomCardView key={r.id ?? i} room={r} />
-                      ))}
+                  {m.role === "model" && <BotAvatar size={28} />}
+                  <div className={`flex min-w-0 flex-col ${m.role === "user" ? "max-w-[80%] items-end" : "max-w-[88%] items-start"}`}>
+                    <div
+                      className={`whitespace-pre-wrap px-4 py-2.5 text-[14px] font-medium leading-relaxed ${
+                        m.role === "user" ? "rounded-[20px] rounded-br-md" : "rounded-[20px] rounded-bl-md"
+                      }`}
+                      style={
+                        m.role === "user"
+                          ? { background: "linear-gradient(135deg, #1f56b0, var(--navy))", color: "#fff" }
+                          : {
+                              background: "#fff",
+                              color: "#0f1f38",
+                              boxShadow: "0 1px 2px rgba(13,44,92,.06)",
+                              border: m.error ? "1px solid #f3c6c6" : "1px solid #e8edf5",
+                            }
+                      }
+                    >
+                      {m.text}
                     </div>
-                  )}
 
-                  {m.ctas && m.ctas.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {m.ctas.map((c, i) => (
-                        <CtaButton key={i} cta={c} onMessage={send} />
-                      ))}
-                    </div>
-                  )}
+                    {m.rooms && m.rooms.length > 0 && (
+                      <div className="mt-2.5 flex w-full flex-col gap-2.5">
+                        {m.rooms.map((r, i) => (
+                          <RoomCardView key={r.id ?? i} room={r} />
+                        ))}
+                      </div>
+                    )}
+
+                    {m.ctas && m.ctas.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {m.ctas.map((c, i) => (
+                          <CtaButton key={i} cta={c} onMessage={send} />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
 
               {loading && (
                 <div className="flex items-end gap-2">
-                  <RobotAvatar size={30} />
+                  <BotAvatar size={28} />
                   <div
-                    className="flex gap-1.5 rounded-2xl rounded-bl-sm bg-white px-4 py-3"
-                    style={{ border: "1px solid var(--border-light)" }}
+                    className="flex gap-1.5 rounded-[20px] rounded-bl-md bg-white px-4 py-3.5"
+                    style={{ border: "1px solid #e8edf5" }}
                     aria-label="Esy scrie..."
                   >
                     {[0, 1, 2].map((i) => (
                       <motion.span
                         key={i}
                         className="h-2 w-2 rounded-full"
-                        style={{ background: "var(--gold)" }}
-                        animate={{ y: [0, -5, 0], opacity: [0.5, 1, 0.5] }}
+                        style={{ background: "#2f6fd6" }}
+                        animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
                         transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
                       />
                     ))}
@@ -294,66 +296,46 @@ export default function ChatWidget() {
             </div>
 
             {/* Quick actions */}
-            {messages.length <= 1 ? (
-              <div className="grid grid-cols-2 gap-2 bg-white px-4 pt-3 pb-1">
-                {QUICK.map(({ label, text, Icon }) => (
-                  <motion.button
-                    key={label}
-                    whileHover={{ y: -2 }}
-                    onClick={() => send(text)}
-                    disabled={loading}
-                    className="group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors disabled:opacity-50"
-                    style={{ border: "1px solid var(--border-light)", background: "#fff" }}
-                  >
-                    <span
-                      className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
-                      style={{ background: "var(--navy)", color: "var(--gold)" }}
-                    >
-                      <Icon size={15} strokeWidth={2.2} />
-                    </span>
-                    <span className="text-[12.5px] font-semibold leading-tight" style={{ color: "var(--navy)" }}>
-                      {label}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
-            ) : (
-              <div className="flex gap-1.5 overflow-x-auto bg-white px-4 pt-3 pb-1" style={{ scrollbarWidth: "none" }}>
-                {QUICK.map(({ label, text, Icon }) => (
-                  <button
-                    key={label}
-                    onClick={() => send(text)}
-                    disabled={loading}
-                    className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold disabled:opacity-50"
-                    style={{ background: "var(--gold-pale)", color: "var(--navy)" }}
-                  >
-                    <Icon size={13} strokeWidth={2.4} style={{ color: "var(--gold)" }} />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="flex gap-2 overflow-x-auto bg-white px-4 pt-3" style={{ scrollbarWidth: "none" }}>
+              {QUICK.map(({ label, text, Icon }) => (
+                <button
+                  key={label}
+                  onClick={() => send(text)}
+                  disabled={loading}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition-colors disabled:opacity-50 hover:bg-[#e6eefb]"
+                  style={{ background: "#f1f5fb", color: "var(--navy)" }}
+                >
+                  <Icon size={14} strokeWidth={2.2} style={{ color: "#2f6fd6" }} />
+                  {label}
+                </button>
+              ))}
+            </div>
 
             {/* Input */}
-            <form onSubmit={onSubmit} className="flex items-center gap-2 bg-white px-4 pb-4 pt-2">
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Scrie un mesaj..."
-                maxLength={1000}
-                className="flex-1 rounded-full px-4 py-2.5 text-sm outline-none transition-shadow focus:shadow-[0_0_0_3px_rgba(198,154,63,.25)]"
-                style={{ border: "1px solid var(--border-light)", color: "var(--navy)", background: "#f7f9fc" }}
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                aria-label="Trimite"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full transition-opacity disabled:opacity-40"
-                style={{ background: "var(--navy)", color: "var(--gold)" }}
+            <form onSubmit={onSubmit} className="bg-white px-4 pb-4 pt-3">
+              <div
+                className="flex items-center gap-2 rounded-full py-1.5 pl-4 pr-1.5 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(47,111,214,.18)]"
+                style={{ background: "#f1f5fb", border: "1px solid #e4eaf3" }}
               >
-                <Send size={17} />
-              </button>
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Scrie un mesaj…"
+                  maxLength={1000}
+                  className="flex-1 bg-transparent text-[14px] font-medium outline-none placeholder:text-slate-400"
+                  style={{ color: "var(--navy)" }}
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  aria-label="Trimite"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition-opacity disabled:opacity-40"
+                  style={{ background: "linear-gradient(135deg, #2f6fd6, var(--navy))", color: "#fff" }}
+                >
+                  <Send size={16} />
+                </button>
+              </div>
             </form>
           </motion.div>
         )}
@@ -361,14 +343,14 @@ export default function ChatWidget() {
 
       <motion.button
         onClick={() => setOpen((o) => !o)}
+        whileHover={{ y: -2 }}
         whileTap={{ scale: 0.94 }}
         aria-label={open ? "Închide asistentul" : "Deschide asistentul virtual"}
-        className="relative grid h-14 w-14 place-items-center rounded-full"
+        className="relative grid h-16 w-16 place-items-center rounded-[22px]"
         style={{
-          background: "linear-gradient(135deg, var(--navy-soft), var(--navy-deep))",
-          color: "var(--gold)",
-          border: "1px solid var(--border-gold)",
-          boxShadow: "0 14px 34px rgba(7,32,63,.4)",
+          background: "linear-gradient(135deg, #2f6fd6, var(--navy))",
+          color: "#fff",
+          boxShadow: "0 18px 40px -8px rgba(13,44,92,.55)",
         }}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -378,31 +360,19 @@ export default function ChatWidget() {
             animate={{ rotate: 0, opacity: 1 }}
             exit={{ rotate: 90, opacity: 0 }}
             transition={{ duration: 0.18 }}
+            className="grid place-items-center"
           >
-            {open ? <X size={22} /> : <BotIcon />}
+            {open ? <X size={24} /> : <BotAvatar size={52} />}
           </motion.span>
         </AnimatePresence>
         {!open && (
-          <span className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70" style={{ background: "var(--gold)" }} />
-            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2" style={{ background: "var(--gold)", borderColor: "var(--navy-deep)" }} />
+          <span className="absolute -right-1 -top-1 flex h-4 w-4">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+            <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
           </span>
         )}
       </motion.button>
     </div>
-  );
-}
-
-function BotIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="8" width="16" height="11" rx="4" />
-      <path d="M12 8V5" />
-      <circle cx="12" cy="4" r="1" />
-      <circle cx="9" cy="13.5" r="1" fill="currentColor" />
-      <circle cx="15" cy="13.5" r="1" fill="currentColor" />
-      <path d="M2 13v2M22 13v2" />
-    </svg>
   );
 }
 
@@ -411,42 +381,63 @@ function isExternal(url: string) {
 }
 
 function RoomCardView({ room }: { room: RoomCard }) {
+  const [broken, setBroken] = useState(false);
   const title = room.title || room.name || "Cameră";
-  const img = room.image_url || room.image;
+  const img = roomImage(room);
   const perNight = room.price_per_night ?? room.base_price;
-  const total = room.total_price ?? (perNight && room.nights ? perNight * room.nights : undefined);
+  const total =
+    room.total_price ?? room.estimated_total ?? (perNight && room.nights ? perNight * room.nights : undefined);
+  const guests = room.max_guests ?? room.capacity;
   const url = room.booking_url || (room.id != null ? `/camere/${room.id}` : "/camere");
+  const btnCls =
+    "flex items-center justify-center gap-1.5 rounded-full py-2.5 text-[13px] font-semibold";
+  const btnStyle = { background: "linear-gradient(135deg, #2f6fd6, var(--navy))", color: "#fff" };
 
   return (
-    <div className="flex overflow-hidden rounded-xl bg-white" style={{ border: "1px solid var(--border-light)" }}>
-      <div className="h-auto w-24 shrink-0" style={{ background: "var(--gold-pale)" }}>
-        {img ? (
-          <img src={img} alt={title} className="h-full w-full object-cover" loading="lazy" />
+    <div className="overflow-hidden rounded-2xl bg-white" style={{ border: "1px solid #e8edf5", boxShadow: "0 6px 18px -8px rgba(13,44,92,.18)" }}>
+      <div className="relative aspect-[16/9] w-full" style={{ background: "#e9eff8" }}>
+        {img && !broken ? (
+          <img src={img} alt={title} onError={() => setBroken(true)} className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <div className="grid h-full place-items-center" style={{ color: "var(--gold)" }}>
-            <BedDouble size={22} />
+          <div className="grid h-full place-items-center" style={{ color: "#8aa3c7" }}>
+            <BedDouble size={32} />
           </div>
         )}
-      </div>
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        <p className="text-lg leading-tight" style={{ fontFamily: "var(--font-display)", color: "var(--navy)" }}>{title}</p>
         {perNight != null && (
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            <strong style={{ color: "var(--navy)" }}>{ron(perNight)}</strong> / noapte
-          </p>
+          <span
+            className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[12px] font-bold backdrop-blur"
+            style={{ background: "rgba(255,255,255,.92)", color: "var(--navy)" }}
+          >
+            {ron(perNight)} <span className="font-medium opacity-60">/ noapte</span>
+          </span>
         )}
-        {total != null && (
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Total estimat{room.nights ? ` (${room.nights} nopți)` : ""}: <strong style={{ color: "var(--gold)" }}>{ron(total)}</strong>
+      </div>
+      <div className="space-y-2 p-3.5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[15px] font-bold leading-tight" style={{ color: "var(--navy)", fontFamily: "var(--font-body)" }}>
+            {title}
           </p>
+          {guests != null && (
+            <span className="flex shrink-0 items-center gap-1 text-[12px] font-medium" style={{ color: "#5a6b85" }}>
+              <Users size={13} /> {guests}
+            </span>
+          )}
+        </div>
+        {total != null && (
+          <div className="flex items-center justify-between rounded-xl px-3 py-2" style={{ background: "#f1f5fb" }}>
+            <span className="text-[12px] font-medium" style={{ color: "#5a6b85" }}>
+              Total estimat{room.nights ? ` · ${room.nights} nopți` : ""}
+            </span>
+            <span className="text-[14px] font-bold" style={{ color: "var(--navy)" }}>{ron(total)}</span>
+          </div>
         )}
         {isExternal(url) ? (
-          <a href={url} className="mt-1 inline-flex w-fit items-center gap-1 rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.14em]" style={{ background: "var(--navy)", color: "#fff" }}>
-            Rezervă <ArrowUpRight size={12} />
+          <a href={url} className={btnCls} style={btnStyle}>
+            Rezervă acum <ArrowUpRight size={14} />
           </a>
         ) : (
-          <Link to={url} className="mt-1 inline-flex w-fit items-center gap-1 rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.14em]" style={{ background: "var(--navy)", color: "#fff" }}>
-            Rezervă <ArrowUpRight size={12} />
+          <Link to={url} className={btnCls} style={btnStyle}>
+            Rezervă acum <ArrowUpRight size={14} />
           </Link>
         )}
       </div>
@@ -456,8 +447,8 @@ function RoomCardView({ room }: { room: RoomCard }) {
 
 function CtaButton({ cta, onMessage }: { cta: Cta; onMessage: (t: string) => void }) {
   const url = cta.url || cta.href;
-  const cls = "inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-medium";
-  const style = { background: "var(--gold)", color: "var(--navy-deep)" };
+  const cls = "inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[12.5px] font-semibold";
+  const style = { background: "#fff", color: "var(--navy)", border: "1px solid #d6e0ee" };
   if (!url) {
     return (
       <button className={cls} style={style} onClick={() => onMessage(cta.message || cta.label)}>
@@ -467,11 +458,11 @@ function CtaButton({ cta, onMessage }: { cta: Cta; onMessage: (t: string) => voi
   }
   return isExternal(url) ? (
     <a href={url} target="_blank" rel="noreferrer" className={cls} style={style}>
-      {cta.label} <ArrowUpRight size={12} />
+      {cta.label} <ArrowUpRight size={13} />
     </a>
   ) : (
     <Link to={url} className={cls} style={style}>
-      {cta.label} <ArrowUpRight size={12} />
+      {cta.label} <ArrowUpRight size={13} />
     </Link>
   );
 }
