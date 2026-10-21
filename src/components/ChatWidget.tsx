@@ -15,7 +15,7 @@ import { ron } from "../lib/format";
 const API_BASE = (
   import.meta.env.VITE_API_URL || "https://backend-licenta-i0lr.onrender.com"
 ).replace(/\/$/, "");
-const CHAT_URL = `${API_BASE}/api/chat`;
+const CHAT_URL = `${API_BASE}/api/chat/`;
 const SESSION_KEY = "casaesy_chat_session";
 
 type RoomImg = { image_url?: string; url?: string } | string;
