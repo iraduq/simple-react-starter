@@ -611,7 +611,36 @@ export default function ChatWidget() {
                               }
                         }
                       >
-                        {m.text}
+                        {m.role === "model" && hasRooms
+                          ? (() => {
+                              const parts = m.text.split(
+                                /(?=\n\n|\n[A-ZĂÂÎȘȚ]|Doriți|Puteți|Vă|Întrebarea)/,
+                              );
+                              const intro = parts[0] || m.text;
+                              const outro = parts.slice(1).join("\n") || "";
+
+                              return (
+                                <div className="space-y-3">
+                                  <p>{intro}</p>
+
+                                  <div className="my-2 flex w-full flex-col gap-3">
+                                    {(m.rooms?.length ? m.rooms : m.cards)?.map(
+                                      (r, i) => (
+                                        <RoomCardView
+                                          key={r.room_id ?? r.id ?? i}
+                                          room={r}
+                                        />
+                                      ),
+                                    )}
+                                  </div>
+
+                                  {outro && (
+                                    <p className="mt-2 font-medium">{outro}</p>
+                                  )}
+                                </div>
+                              );
+                            })()
+                          : m.text}
                       </div>
 
                       {hasRooms && (
