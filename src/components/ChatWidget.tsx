@@ -20,6 +20,7 @@ const SESSION_KEY = "casaesy_chat_session";
 
 type RoomImg = { image_url?: string; url?: string } | string;
 type RoomCard = {
+  room_id?: string | number;
   id?: string | number;
   title?: string;
   name?: string;
@@ -35,6 +36,7 @@ type RoomCard = {
   max_guests?: number;
   capacity?: number;
   booking_url?: string;
+  url?: string;
 };
 type Cta = { label: string; url?: string; href?: string; message?: string };
 type Msg = {
@@ -42,6 +44,7 @@ type Msg = {
   role: "user" | "model";
   text: string;
   rooms?: RoomCard[];
+  cards?: RoomCard[];
   ctas?: Cta[];
   error?: boolean;
 };
@@ -189,7 +192,7 @@ function BotAvatar({ size = 32 }: { size?: number }) {
   );
 }
 
-/* ── Teaser: întâi "scrie...", apoi mesajul, apoi dispare și se repetă ── */
+/* ── Teaser ── */
 type TeaserPhase = "hidden" | "typing" | "message";
 
 function EsyTeaser({ onOpen }: { onOpen: () => void }) {
@@ -268,7 +271,6 @@ function EsyTeaser({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-/* ── WelcomeBlock: design curat, tipografie nativă aerisită, carduri cu text bold și imagini reale ── */
 function WelcomeBlock({
   onPick,
   disabled,
@@ -420,6 +422,7 @@ export default function ChatWidget() {
           role: "model",
           text: reply || "Îmi pare rău, nu am un răspuns acum.",
           rooms: Array.isArray(data.rooms) ? data.rooms : undefined,
+          cards: Array.isArray(data.cards) ? data.cards : undefined,
           ctas,
         },
       ]);
@@ -462,7 +465,7 @@ export default function ChatWidget() {
             role="dialog"
             aria-label="Vila Casa Esy · Asistent Virtual"
           >
-            {/* Header cu textul exact cerut */}
+            {/* Header */}
             <div
               className="relative flex items-center gap-3.5 px-5 pt-5 pb-4.5"
               style={{
@@ -566,7 +569,9 @@ export default function ChatWidget() {
                   );
                 }
 
-                const solo = !m.rooms?.length && !m.ctas?.length;
+                const hasRooms =
+                  (m.rooms?.length ?? 0) > 0 || (m.cards?.length ?? 0) > 0;
+                const solo = !hasRooms && !m.ctas?.length;
 
                 return (
                   <motion.div
@@ -609,11 +614,16 @@ export default function ChatWidget() {
                         {m.text}
                       </div>
 
-                      {m.rooms && m.rooms.length > 0 && (
+                      {hasRooms && (
                         <div className="mt-3 flex w-full flex-col gap-3">
-                          {m.rooms.map((r, i) => (
-                            <RoomCardView key={r.id ?? i} room={r} />
-                          ))}
+                          {(m.rooms?.length ? m.rooms : m.cards)?.map(
+                            (r, i) => (
+                              <RoomCardView
+                                key={r.room_id ?? r.id ?? i}
+                                room={r}
+                              />
+                            ),
+                          )}
                         </div>
                       )}
 
@@ -697,7 +707,6 @@ export default function ChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Butonul de jos + teaserul din stânga lui */}
       <div className="flex items-end gap-3">
         {!open && <EsyTeaser onOpen={() => setOpen(true)} />}
 
@@ -758,7 +767,9 @@ function RoomCardView({ room }: { room: RoomCard }) {
     (perNight && room.nights ? perNight * room.nights : undefined);
   const guests = room.max_guests ?? room.capacity;
   const url =
-    room.booking_url || (room.id != null ? `/camere/${room.id}` : "/camere");
+    room.booking_url ||
+    room.url ||
+    (room.id != null ? `/camere/${room.id}` : "/camere");
   const btnCls =
     "flex items-center justify-center gap-1.5 rounded-full py-2.5 text-[13px] font-semibold transition-all hover:opacity-95 active:scale-98 shadow-sm";
   const btnStyle = {
