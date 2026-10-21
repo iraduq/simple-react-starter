@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, BedDouble, MapPin, Send, Sparkles, Tag, Users, X } from "lucide-react";
+import { ArrowUpRight, BedDouble, Clock, MapPin, Send, Sparkles, Tag, Users, X } from "lucide-react";
 import { ron } from "../lib/format";
 
 const API_BASE = (import.meta.env.VITE_API_URL || "https://backend-licenta-i0lr.onrender.com").replace(/\/$/, "");
@@ -197,29 +197,61 @@ export default function ChatWidget() {
             <div
               className="relative flex items-center gap-3 px-5 pt-5 pb-4"
               style={{
-                background: "linear-gradient(160deg, #123661 0%, var(--navy) 55%, var(--navy-deep) 100%)",
+                background: "linear-gradient(160deg, #1a4a8c 0%, var(--navy) 55%, var(--navy-deep) 100%)",
                 boxShadow: "0 10px 24px -12px rgba(7,32,63,.55)",
               }}
             >
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ background: "radial-gradient(140px 70px at 88% 0%, rgba(79,140,247,.35), transparent 70%)" }}
+              />
               <div className="relative">
+                <motion.span
+                  className="absolute -inset-1 rounded-[16px]"
+                  style={{ background: "rgba(46,204,113,.35)" }}
+                  animate={{ opacity: [0, 0.45, 0], scale: [1, 1.12, 1] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut" }}
+                />
                 <BotAvatar size={42} />
                 <span
                   className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2"
-                  style={{ background: "#22c55e", borderColor: "var(--navy)" }}
+                  style={{ background: "#2ecc71", borderColor: "var(--navy)" }}
                 />
               </div>
-              <div className="flex-1">
-                <p className="text-[16px] font-bold tracking-tight text-white" style={{ fontFamily: "var(--font-body)" }}>
-                  Esy · Asistent Virtual
-                </p>
-                <p className="text-[12px] font-semibold" style={{ color: "#9cc4ff" }}>
-                  Online · răspunde imediat
-                </p>
+              <div className="relative flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-[16px] font-bold tracking-tight text-white" style={{ fontFamily: "var(--font-body)" }}>
+                    Esy · Asistent Virtual
+                  </p>
+                  <span
+                    className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+                    style={{ background: "rgba(46,204,113,.16)", color: "#7bed9f", border: "1px solid rgba(46,204,113,.4)" }}
+                  >
+                    <motion.span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ background: "#2ecc71" }}
+                      animate={{ opacity: [1, 0.3, 1] }}
+                      transition={{ duration: 1.6, repeat: Infinity }}
+                    />
+                    Live
+                  </span>
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  <p className="truncate text-[12px] font-semibold" style={{ color: "#9cc4ff" }}>
+                    Răspunde imediat
+                  </p>
+                  <span
+                    className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-semibold"
+                    style={{ background: "rgba(255,255,255,.12)", color: "rgba(255,255,255,.88)", border: "1px solid rgba(255,255,255,.18)" }}
+                  >
+                    <Clock size={10} /> Disponibil 24/7
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Închide chatul"
-                className="grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-white/10"
+                className="relative grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-white/10"
                 style={{ color: "rgba(255,255,255,.85)" }}
               >
                 <X size={18} strokeWidth={1.75} />
