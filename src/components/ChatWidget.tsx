@@ -585,7 +585,11 @@ export default function ChatWidget() {
                   >
                     {m.role === "model" && <BotAvatar size={28} />}
                     <div
-                      className={`flex min-w-0 flex-col ${m.role === "user" ? "max-w-[82%] items-end" : "max-w-[88%] items-start"}`}
+                      className={`flex min-w-0 flex-col ${
+                        m.role === "user"
+                          ? "max-w-[82%] items-end"
+                          : "max-w-[88%] items-start"
+                      }`}
                     >
                       <div
                         className={`whitespace-pre-wrap px-4 py-3 text-[14px] leading-relaxed ${
@@ -613,15 +617,20 @@ export default function ChatWidget() {
                       >
                         {m.role === "model" && hasRooms
                           ? (() => {
-                              const parts = m.text.split(
-                                /(?=\n\n|\n[A-ZĂÂÎȘȚ]|Doriți|Puteți|Vă|Întrebarea)/,
-                              );
-                              const intro = parts[0] || m.text;
-                              const outro = parts.slice(1).join("\n") || "";
+                              const paragraphs = m.text
+                                .split(/\n\s*\n/)
+                                .map((p) => p.trim())
+                                .filter(Boolean);
+
+                              const intro = paragraphs[0] || "";
+                              const outro =
+                                paragraphs.length > 1
+                                  ? paragraphs[paragraphs.length - 1]
+                                  : "";
 
                               return (
-                                <div className="space-y-3">
-                                  <p>{intro}</p>
+                                <div className="space-y-2.5">
+                                  {intro && <p>{intro}</p>}
 
                                   <div className="my-2 flex w-full flex-col gap-3">
                                     {(m.rooms?.length ? m.rooms : m.cards)?.map(
@@ -634,27 +643,14 @@ export default function ChatWidget() {
                                     )}
                                   </div>
 
-                                  {outro && (
-                                    <p className="mt-2 font-medium">{outro}</p>
+                                  {outro && outro !== intro && (
+                                    <p className="font-medium pt-1">{outro}</p>
                                   )}
                                 </div>
                               );
                             })()
                           : m.text}
                       </div>
-
-                      {hasRooms && (
-                        <div className="mt-3 flex w-full flex-col gap-3">
-                          {(m.rooms?.length ? m.rooms : m.cards)?.map(
-                            (r, i) => (
-                              <RoomCardView
-                                key={r.room_id ?? r.id ?? i}
-                                room={r}
-                              />
-                            ),
-                          )}
-                        </div>
-                      )}
 
                       {m.ctas && m.ctas.length > 0 && (
                         <div className="mt-2.5 flex flex-wrap gap-2">
