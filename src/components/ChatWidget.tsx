@@ -78,34 +78,27 @@ const WELCOME: Msg = {
 /* ── Bot avatar ── */
 function BotAvatar({ size = 32 }: { size?: number }) {
   return (
-    <span className="inline-block shrink-0" style={{ width: size, height: size }}>
-      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden>
-        <defs>
-          <linearGradient id="esy-bg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#2f6fd6" />
-            <stop offset="1" stopColor="#0d2c5c" />
-          </linearGradient>
-          <linearGradient id="esy-face" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#ffffff" />
-            <stop offset="1" stopColor="#e4ecf8" />
-          </linearGradient>
-        </defs>
-        <rect width="48" height="48" rx="16" fill="url(#esy-bg)" />
-        <circle cx="24" cy="9.5" r="2.2" fill="#9cc4ff" />
-        <rect x="23.1" y="10.5" width="1.8" height="4" rx=".9" fill="#9cc4ff" />
-        <rect x="10" y="14.5" width="28" height="22" rx="9" fill="url(#esy-face)" />
-        <rect x="14" y="19" width="20" height="11" rx="5.5" fill="#0d2c5c" />
-        <motion.g
-          animate={{ scaleY: [1, 1, 0.1, 1] }}
-          transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
-          style={{ originY: "24.5px" }}
-        >
-          <rect x="18" y="22" width="3.4" height="5" rx="1.7" fill="#7fd3ff" />
-          <rect x="26.6" y="22" width="3.4" height="5" rx="1.7" fill="#7fd3ff" />
-        </motion.g>
-        <rect x="7" y="22" width="3" height="7" rx="1.5" fill="#9cc4ff" />
-        <rect x="38" y="22" width="3" height="7" rx="1.5" fill="#9cc4ff" />
-        <path d="M21 33 q3 2 6 0" stroke="#0d2c5c" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+    <span
+      className="inline-grid shrink-0 place-items-center overflow-hidden"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size >= 40 ? 13 : Math.round(size * 0.34),
+        background: "linear-gradient(150deg, #16386b, #07203f)",
+        border: "1px solid rgba(198,154,63,.55)",
+      }}
+      aria-hidden
+    >
+      <svg viewBox="0 0 48 48" width={size} height={size}>
+        <circle cx="24" cy="10.5" r="2" fill="#e6c98a" />
+        <rect x="23.2" y="11.5" width="1.6" height="3.5" rx=".8" fill="#e6c98a" />
+        <rect x="10" y="14.5" width="28" height="21" rx="9" fill="#ffffff" />
+        <rect x="15" y="19" width="18" height="10" rx="5" fill="#0d2c5c" />
+        <rect x="18.5" y="21.6" width="3" height="5" rx="1.5" fill="#c69a3f" />
+        <rect x="26.5" y="21.6" width="3" height="5" rx="1.5" fill="#c69a3f" />
+        <rect x="7" y="21.5" width="3" height="6" rx="1.5" fill="#c69a3f" />
+        <rect x="38" y="21.5" width="3" height="6" rx="1.5" fill="#c69a3f" />
+        <path d="M21 32.5 q3 1.8 6 0" stroke="#c69a3f" strokeWidth="1.6" fill="none" strokeLinecap="round" />
       </svg>
     </span>
   );
@@ -192,41 +185,50 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 280, damping: 28 }}
-            className="flex flex-col overflow-hidden rounded-[28px] w-[calc(100vw-2.5rem)] sm:w-[400px] h-[min(640px,calc(100vh-7rem))]"
+            className="flex flex-col overflow-hidden rounded-2xl w-[calc(100vw-2.5rem)] sm:w-[400px] h-[min(640px,calc(100vh-7rem))]"
             style={{
               background: "#ffffff",
-              boxShadow: "0 40px 90px -20px rgba(7,32,63,.45), 0 0 0 1px rgba(13,44,92,.06)",
+              boxShadow: "0 40px 90px -20px rgba(7,32,63,.5), 0 0 0 1px rgba(198,154,63,.18)",
             }}
             role="dialog"
             aria-label="Esy · Asistent Virtual"
           >
             {/* Header */}
-            <div className="relative flex items-center gap-3 px-5 pt-5 pb-4" style={{ background: "#ffffff" }}>
+            <div
+              className="relative flex items-center gap-3 px-5 pt-5 pb-4"
+              style={{
+                background: "linear-gradient(160deg, #123661 0%, var(--navy) 55%, var(--navy-deep) 100%)",
+                boxShadow: "0 10px 24px -12px rgba(7,32,63,.55)",
+              }}
+            >
               <div className="relative">
-                <BotAvatar size={44} />
-                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
+                <BotAvatar size={42} />
+                <span
+                  className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2"
+                  style={{ background: "#22c55e", borderColor: "var(--navy)" }}
+                />
               </div>
               <div className="flex-1">
-                <p className="text-[16px] font-bold tracking-tight" style={{ color: "var(--navy)", fontFamily: "var(--font-body)" }}>
+                <p className="text-[16px] font-bold tracking-tight text-white" style={{ fontFamily: "var(--font-body)" }}>
                   Esy · Asistent Virtual
                 </p>
-                <p className="text-[12px] font-medium" style={{ color: "#16a34a" }}>
+                <p className="text-[12px] font-semibold" style={{ color: "var(--gold-light)" }}>
                   Online · răspunde imediat
                 </p>
               </div>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Închide chatul"
-                className="grid h-9 w-9 place-items-center rounded-full transition-colors"
-                style={{ background: "#f1f5fb", color: "var(--navy)" }}
+                className="grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-white/10"
+                style={{ color: "rgba(255,255,255,.85)" }}
               >
-                <X size={18} />
+                <X size={18} strokeWidth={1.75} />
               </button>
-              <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: "#eef2f8" }} />
+              <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: "rgba(198,154,63,.35)" }} />
             </div>
 
             {/* Messages */}
-            <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5" style={{ background: "#f6f8fc" }}>
+            <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-5 py-6" style={{ background: "#ffffff" }}>
               {messages.map((m) => (
                 <motion.div
                   key={m.id}
@@ -234,20 +236,19 @@ export default function ChatWidget() {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {m.role === "model" && <BotAvatar size={28} />}
+                  {m.role === "model" && <BotAvatar size={24} />}
                   <div className={`flex min-w-0 flex-col ${m.role === "user" ? "max-w-[80%] items-end" : "max-w-[88%] items-start"}`}>
                     <div
-                      className={`whitespace-pre-wrap px-4 py-2.5 text-[14px] font-medium leading-relaxed ${
-                        m.role === "user" ? "rounded-[20px] rounded-br-md" : "rounded-[20px] rounded-bl-md"
+                      className={`whitespace-pre-wrap px-4 py-3 text-[14px] font-semibold leading-relaxed ${
+                        m.role === "user" ? "rounded-[16px] rounded-br-md" : "rounded-[16px] rounded-tl-sm"
                       }`}
                       style={
                         m.role === "user"
                           ? { background: "linear-gradient(135deg, #1f56b0, var(--navy))", color: "#fff" }
                           : {
-                              background: "#fff",
-                              color: "#0f1f38",
-                              boxShadow: "0 1px 2px rgba(13,44,92,.06)",
-                              border: m.error ? "1px solid #f3c6c6" : "1px solid #e8edf5",
+                              background: "#FBF9F6",
+                              color: "var(--text-primary)",
+                              border: m.error ? "1px solid #f0d5d5" : "none",
                             }
                       }
                     >
@@ -275,10 +276,10 @@ export default function ChatWidget() {
 
               {loading && (
                 <div className="flex items-end gap-2">
-                  <BotAvatar size={28} />
+                  <BotAvatar size={24} />
                   <div
-                    className="flex gap-1.5 rounded-[20px] rounded-bl-md bg-white px-4 py-3.5"
-                    style={{ border: "1px solid #e8edf5" }}
+                    className="flex gap-1.5 rounded-[16px] rounded-tl-sm px-4 py-3.5"
+                    style={{ background: "#FBF9F6" }}
                     aria-label="Esy scrie..."
                   >
                     {[0, 1, 2].map((i) => (
@@ -296,26 +297,31 @@ export default function ChatWidget() {
             </div>
 
             {/* Quick actions */}
-            <div className="flex gap-2 overflow-x-auto bg-white px-4 pt-3" style={{ scrollbarWidth: "none" }}>
+            <div className="flex gap-2 overflow-x-auto px-4 pt-3" style={{ background: "#ffffff", scrollbarWidth: "none" }}>
               {QUICK.map(({ label, text, Icon }) => (
                 <button
                   key={label}
                   onClick={() => send(text)}
                   disabled={loading}
-                  className="flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition-colors disabled:opacity-50 hover:bg-[#e6eefb]"
-                  style={{ background: "#f1f5fb", color: "var(--navy)" }}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition-shadow hover:shadow-[0_4px_12px_-4px_rgba(13,44,92,.28)] disabled:opacity-50"
+                  style={{
+                    background: "#ffffff",
+                    color: "var(--navy)",
+                    border: "1px solid rgba(198,154,63,.45)",
+                    boxShadow: "0 2px 6px -2px rgba(13,44,92,.12)",
+                  }}
                 >
-                  <Icon size={14} strokeWidth={2.2} style={{ color: "#2f6fd6" }} />
+                  <Icon size={14} strokeWidth={2.2} style={{ color: "var(--gold)" }} />
                   {label}
                 </button>
               ))}
             </div>
 
             {/* Input */}
-            <form onSubmit={onSubmit} className="bg-white px-4 pb-4 pt-3">
+            <form onSubmit={onSubmit} className="px-4 pb-4 pt-3" style={{ background: "#ffffff" }}>
               <div
-                className="flex items-center gap-2 rounded-full py-1.5 pl-4 pr-1.5 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(47,111,214,.18)]"
-                style={{ background: "#f1f5fb", border: "1px solid #e4eaf3" }}
+                className="flex items-center gap-2 rounded-full py-1.5 pl-4 pr-1.5 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(198,154,63,.18)]"
+                style={{ background: "#F7F4EF", border: "1px solid rgba(198,154,63,.25)" }}
               >
                 <input
                   ref={inputRef}
@@ -323,17 +329,21 @@ export default function ChatWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Scrie un mesaj…"
                   maxLength={1000}
-                  className="flex-1 bg-transparent text-[14px] font-medium outline-none placeholder:text-slate-400"
-                  style={{ color: "var(--navy)" }}
+                  className="flex-1 bg-transparent text-[14px] font-semibold outline-none placeholder:text-slate-400"
+                  style={{ color: "var(--text-primary)" }}
                 />
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
                   aria-label="Trimite"
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition-opacity disabled:opacity-40"
-                  style={{ background: "linear-gradient(135deg, #2f6fd6, var(--navy))", color: "#fff" }}
+                  style={{
+                    background: "linear-gradient(140deg, #d9ae5e, var(--gold))",
+                    color: "#fff",
+                    boxShadow: "0 6px 14px -4px rgba(198,154,63,.5)",
+                  }}
                 >
-                  <Send size={16} />
+                  <Send size={15} />
                 </button>
               </div>
             </form>
@@ -348,9 +358,10 @@ export default function ChatWidget() {
         aria-label={open ? "Închide asistentul" : "Deschide asistentul virtual"}
         className="relative grid h-16 w-16 place-items-center rounded-[22px]"
         style={{
-          background: "linear-gradient(135deg, #2f6fd6, var(--navy))",
+          background: "linear-gradient(150deg, #16386b, var(--navy-deep))",
+          border: "1px solid rgba(198,154,63,.55)",
           color: "#fff",
-          boxShadow: "0 18px 40px -8px rgba(13,44,92,.55)",
+          boxShadow: "0 18px 44px -10px rgba(7,32,63,.6)",
         }}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -391,7 +402,7 @@ function RoomCardView({ room }: { room: RoomCard }) {
   const url = room.booking_url || (room.id != null ? `/camere/${room.id}` : "/camere");
   const btnCls =
     "flex items-center justify-center gap-1.5 rounded-full py-2.5 text-[13px] font-semibold";
-  const btnStyle = { background: "linear-gradient(135deg, #2f6fd6, var(--navy))", color: "#fff" };
+  const btnStyle = { background: "linear-gradient(135deg, #16386b, var(--navy))", color: "#fff" };
 
   return (
     <div className="overflow-hidden rounded-2xl bg-white" style={{ border: "1px solid #e8edf5", boxShadow: "0 6px 18px -8px rgba(13,44,92,.18)" }}>
