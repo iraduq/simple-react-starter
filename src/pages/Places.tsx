@@ -1,9 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
-  LayoutGrid,
-  List,
   Star,
   Plus,
   Pencil,
@@ -11,14 +8,30 @@ import {
   MapPin,
   X,
   Image as ImageIcon,
-  Award,
-  Sparkles,
   Loader2,
+  Utensils,
+  Phone,
+  Clock,
+  ArrowRight,
+  Sparkles,
+  Umbrella,
 } from "lucide-react";
 import { apiFetch, ApiError } from "../lib/api";
 import { getCachedUser, type SessionUser } from "../lib/auth";
 import { useToast } from "../components/Toast";
 import { API_URL } from "../lib/admin";
+
+type MenuItem = {
+  id: string | number;
+  name: string;
+  description?: string;
+  price: string;
+};
+
+type MenuCategory = {
+  categoryName: string;
+  items: MenuItem[];
+};
 
 type Place = {
   id: number;
@@ -34,6 +47,9 @@ type Place = {
   images?: Array<{ id: string | number; image_url?: string; url?: string }>;
   badge: string | null;
   rating: number;
+  phone?: string | null;
+  schedule?: string | null;
+  menu?: MenuCategory[];
 };
 
 type PlaceForm = {
@@ -46,28 +62,25 @@ type PlaceForm = {
   image_url: string;
   badge: string;
   rating: number;
+  phone: string;
+  schedule: string;
 };
 
 const EMPTY_FORM: PlaceForm = {
   title: "",
-  category: "",
+  category: "restaurant",
   description: "",
   lat: 0,
   lng: 0,
   thumb_url: "",
   image_url: "",
   badge: "",
-  rating: 0,
+  rating: 5.0,
+  phone: "",
+  schedule: "",
 };
 
-const CATEGORIES = [
-  "plaja",
-  "restaurant",
-  "hotel",
-  "atracție",
-  "bar",
-  "magazin",
-];
+const CATEGORIES = ["toate", "restaurant", "hotel", "plaja", "bar", "atracție"];
 
 const getPlaceImageUrl = (place: any) => {
   const rawUrl =
@@ -84,25 +97,132 @@ const getPlaceImageUrl = (place: any) => {
   return `${API_URL}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
 };
 
+/* ───────────────────────────────────────────────
+   DECOR: Elemente plutitoare subtile pe fundal
+─────────────────────────────────────────────── */
+const float = (duration: number, amp = 25, rot = 6, delay = 0) => ({
+  animate: { y: [0, -amp, 0], rotate: [0, rot, 0] },
+  transition: {
+    duration,
+    repeat: Infinity,
+    ease: "easeInOut" as const,
+    delay,
+  },
+});
+
+function SunRing({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 120 120" fill="none" className={className}>
+      <circle cx="60" cy="60" r="22" stroke="currentColor" strokeWidth="1.2" />
+      <circle
+        cx="60"
+        cy="60"
+        r="34"
+        stroke="currentColor"
+        strokeWidth="0.8"
+        strokeDasharray="2 5"
+      />
+      {Array.from({ length: 16 }).map((_, i) => {
+        const a = (i * Math.PI * 2) / 16;
+        const x1 = 60 + Math.cos(a) * 44;
+        const y1 = 60 + Math.sin(a) * 44;
+        const x2 = 60 + Math.cos(a) * (i % 2 ? 52 : 58);
+        const y2 = 60 + Math.sin(a) * (i % 2 ? 52 : 58);
+        return (
+          <line
+            key={i}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function Shell({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" className={className}>
+      <path
+        d="M50 92 L8 44 Q50 -8 92 44 Z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      {[-30, -15, 0, 15, 30].map((o) => (
+        <path
+          key={o}
+          d={`M50 92 Q${50 + o * 0.4} 50 ${50 + o * 0.7} 22`}
+          stroke="currentColor"
+          strokeWidth="0.9"
+          strokeLinecap="round"
+        />
+      ))}
+      <path
+        d="M40 92 h20"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function FloatingDecor() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden z-[1]"
+    >
+      <div className="absolute top-[20%] -left-32 h-[500px] w-[500px] rounded-full bg-[#0d2c5c]/[0.02] blur-[140px]" />
+      <div className="absolute top-[50%] -right-40 h-[600px] w-[600px] rounded-full bg-[#1e4d8c]/[0.03] blur-[150px]" />
+
+      <motion.div
+        {...float(12, 18, 5)}
+        className="absolute top-[15%] right-[8%] opacity-15 hidden md:block"
+      >
+        <SunRing className="h-32 w-32 text-[#0d2c5c]" />
+      </motion.div>
+
+      <motion.div
+        {...float(15, 14, -4, 1)}
+        className="absolute top-[35%] left-[3%] opacity-10 hidden lg:block"
+      >
+        <Shell className="h-24 w-24 text-[#0d2c5c]" />
+      </motion.div>
+    </div>
+  );
+}
+
+const REVEAL_DELAY = 1200;
+
 export default function Places() {
   const { toast } = useToast();
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"grid" | "list">("grid");
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [sortBy, setSortBy] = useState<"rating-desc" | "rating-asc" | "title">(
-    "rating-desc",
-  );
+  const [category, setCategory] = useState("toate");
   const [detailPlace, setDetailPlace] = useState<Place | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Place | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Place | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const user = getCachedUser() as NonNullable<SessionUser> | null;
 
   const canCreate = user?.permissions?.includes("places:create") ?? false;
   const canUpdate = user?.permissions?.includes("places:update") ?? false;
   const canDelete = user?.permissions?.includes("places:delete") ?? false;
+
+  useEffect(() => {
+    const t = setTimeout(() => setRevealed(true), REVEAL_DELAY);
+    return () => clearTimeout(t);
+  }, []);
 
   const loadPlaces = async () => {
     setLoading(true);
@@ -111,7 +231,7 @@ export default function Places() {
       setPlaces(data);
     } catch (e) {
       if (e instanceof ApiError) toast(e.message, "error");
-      else toast("Nu am putut încărca locațiile.", "error");
+      else toast("Nu am putut încărca locațiile partenere.", "error");
     } finally {
       setLoading(false);
     }
@@ -123,24 +243,11 @@ export default function Places() {
 
   const filtered = useMemo(() => {
     let result = places;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q),
-      );
+    if (category !== "toate") {
+      result = result.filter((p) => p.category?.toLowerCase() === category);
     }
-    if (category !== "all") {
-      result = result.filter((p) => p.category === category);
-    }
-    result = [...result].sort((a, b) => {
-      if (sortBy === "rating-desc") return b.rating - a.rating;
-      if (sortBy === "rating-asc") return a.rating - b.rating;
-      return a.title.localeCompare(b.title);
-    });
     return result;
-  }, [places, search, category, sortBy]);
+  }, [places, category]);
 
   const openEdit = (place: Place) => {
     setEditing(place);
@@ -154,13 +261,13 @@ export default function Places() {
           method: "PATCH",
           body: JSON.stringify(formData),
         });
-        toast("Locația a fost actualizată.", "success");
+        toast("Locația parteneră a fost actualizată.", "success");
       } else {
         await apiFetch("/places", {
           method: "POST",
           body: JSON.stringify(formData),
         });
-        toast("Locația a fost adăugată.", "success");
+        toast("Locația parteneră a fost adăugată.", "success");
       }
       setFormOpen(false);
       setEditing(null);
@@ -184,415 +291,296 @@ export default function Places() {
     }
   };
 
+  const emerge = {
+    hidden: { opacity: 0, scale: 0.55, y: 30, filter: "blur(18px)" },
+    visible: (custom: number = 0) => ({
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        duration: 1.1,
+        ease: [0.16, 1, 0.3, 1] as const,
+        delay: custom,
+      },
+    }),
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8fafd] relative overflow-hidden">
-      {/* ── HEADER BOGAT (DARK NAVY) ── */}
-      <section className="relative z-20 bg-[#0d2c5c] px-5 md:px-10 pt-32 md:pt-44 pb-32 md:pb-40 text-center overflow-hidden">
-        {/* Glow Effects animate în Header */}
-        <motion.div
-          animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#c69a3f]/15 rounded-full blur-[100px] pointer-events-none"
-        />
-        <motion.div
-          animate={{ x: [0, -40, 0], y: [0, 30, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#1e4d8c]/30 rounded-full blur-[120px] pointer-events-none"
-        />
+    <div className="relative bg-white text-[#1a1a1a] overflow-hidden min-h-screen">
+      <FloatingDecor />
 
-        {/* Auroră / Vortex auriu rotativ pentru senzația de viață */}
-        <motion.div
-          animate={{
-            rotate: 360,
-            scale: [1, 1.1, 1],
-            opacity: [0.08, 0.12, 0.08],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[conic-gradient(from_0deg,transparent_0_200deg,#c69a3f_360deg)] rounded-full blur-[80px] pointer-events-none"
-        />
+      {/* ── HERO ── */}
+      <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-40 z-10">
+        <div className="absolute inset-0 z-0">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            poster="/hero-poster.jpg"
+            className="h-full w-full object-cover saturate-50 contrast-110 brightness-100"
+          >
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-color" />
+          <div className="absolute inset-0 bg-[#0b2146]/40 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/95 via-[#0d2c5c]/40 to-[#0d2c5c]/95" />
+        </div>
 
-        {/* Particule fine plutitoare (Praf de stele / Explorare) */}
-        {[...Array(12)].map((_, i) => (
-          <motion.span
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-white pointer-events-none"
-            style={{ left: `${5 + i * 8}%`, top: `${15 + (i % 4) * 20}%` }}
-            animate={{
-              y: [0, -25, 0],
-              opacity: [0.1, Math.random() * 0.5 + 0.3, 0.1],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 5 + i * 0.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.2,
-            }}
-          />
-        ))}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-10 text-center [perspective:1200px]">
+          <motion.p
+            variants={emerge}
+            initial="hidden"
+            animate={revealed ? "visible" : "hidden"}
+            custom={0}
+            className="font-sans text-[10px] sm:text-[11px] font-bold tracking-[0.22em] uppercase text-[var(--gold)] mb-3 sm:mb-4 flex items-center justify-center gap-3"
+          >
+            <span className="w-6 sm:w-8 h-px bg-[var(--gold)]/60" />
+            Locații Partenere & Facilități · Vila Casa Esy
+            <span className="w-6 sm:w-8 h-px bg-[var(--gold)]/60" />
+          </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
-          className="relative z-10 max-w-4xl mx-auto"
-        >
-          <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-5 flex items-center justify-center gap-4">
-            <span className="w-10 h-px bg-gradient-to-r from-transparent to-[#c69a3f]/80" />
-            Explorare · Vila Casa Esy
-            <span className="w-10 h-px bg-gradient-to-l from-transparent to-[#c69a3f]/80" />
-          </p>
+          <motion.h1
+            variants={emerge}
+            initial="hidden"
+            animate={revealed ? "visible" : "hidden"}
+            custom={0.15}
+            className="font-['Cormorant_Garamond',serif] text-[clamp(2.5rem,5.5vw,5.2rem)] font-normal text-white leading-[1.05] tracking-[-0.015em] mb-4 sm:mb-6 [text-shadow:0_4px_30px_rgba(0,0,0,0.35)]"
+          >
+            Restaurante, plaje & facilități, <br className="hidden md:block" />
+            <em className="italic text-[var(--gold)]">
+              recomandate pentru tine
+            </em>
+          </motion.h1>
 
-          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.6rem,5vw,4.5rem)] font-normal text-white leading-[1.1] tracking-[-0.01em] mb-7 relative inline-block">
-            Locații & destinații,{" "}
-            {/* Shimmer effect pe textul auriu (Acum e aliniat perfect) */}
-            <span className="relative inline-block">
-              <em className="italic text-[#c69a3f] relative z-10">
-                de neratat în zonă
-              </em>
-              <span className="absolute inset-0 overflow-hidden pointer-events-none z-20">
-                <motion.span
-                  animate={{ left: ["-100%", "200%"] }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatDelay: 4,
-                    ease: "easeInOut",
-                  }}
-                  className="absolute top-0 bottom-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
-                />
-              </span>
-            </span>
-          </h1>
+          <motion.p
+            variants={emerge}
+            initial="hidden"
+            animate={revealed ? "visible" : "hidden"}
+            custom={0.4}
+            className="max-w-[620px] mx-auto text-[14px] sm:text-[17px] text-white/90 leading-[1.6] sm:leading-[1.85] font-light"
+          >
+            Explorează opțiunile noastre partenere, consultă meniurile digitale
+            cu prețuri și bucură-te de un sejur complet în zonă.
+          </motion.p>
+        </div>
 
-          <p className="max-w-[640px] mx-auto text-[16px] text-white/80 leading-[1.85] font-light">
-            Descoperă cele mai bune locuri din apropiere — de la plaje liniștite
-            și atracții turistice, până la restaurante cu specific local.
-          </p>
-        </motion.div>
-
-        {/* ── TRANZIȚIE JOS: Val fluid ── */}
-        <div className="absolute bottom-[-1px] left-0 right-0 w-full overflow-hidden leading-none z-0 pointer-events-none">
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
           <svg
             viewBox="0 0 1200 120"
             preserveAspectRatio="none"
-            className="relative block w-full h-[50px] md:h-[90px]"
+            className="relative block w-full h-[50px] md:h-[80px]"
           >
             <path
-              d="M0,120 C200,80 400,20 600,60 C800,100 1000,40 1200,80 L1200,120 L0,120 Z"
-              className="fill-[#f8fafd]"
-            />
+              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.43,121.22,201.2,112.5,242.47,107.45,283.47,84.14,321.39,56.44Z"
+              className="fill-white"
+            ></path>
           </svg>
         </div>
       </section>
 
-      {/* ── AMBIENT BACKGROUND ORBS (CONTENT) ── */}
-      <motion.div
-        animate={{ scale: [1, 1.12, 1], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] bg-[#c69a3f]/5 rounded-full blur-[100px] pointer-events-none z-0"
-      />
-      <motion.div
-        animate={{ scale: [1.05, 1, 1.05], opacity: [0.4, 0.7, 0.4] }}
-        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-[10%] left-[-10%] w-[800px] h-[800px] bg-[#0d2c5c]/5 rounded-full blur-[120px] pointer-events-none z-0"
-      />
-
-      {/* ── SVG WATERMARKS (TEMATICĂ EXPLORARE / HARTĂ) ── */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 mt-[400px]">
-        {/* 1. Hartă cu Pin (AURIU) - Dreapta Sus */}
-        <motion.div
-          animate={{ y: [0, -15, 0], rotate: [-2, 2, -2] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[5%] right-[2%] w-[220px] h-[220px] opacity-[0.06] md:opacity-[0.08]"
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="#c69a3f"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path
-              d="M30 60 L80 40 L140 60 L140 160 L80 140 L30 160 Z"
-              fill="#c69a3f"
-              fillOpacity="0.05"
-            />
-            <path d="M80 40 L80 140 M140 60 L140 160" strokeOpacity="0.6" />
-            {/* Location Pin */}
-            <path
-              d="M120 70 C120 50, 150 50, 150 70 C150 90, 135 110, 135 110 C135 110, 120 90, 120 70 Z"
-              fill="#c69a3f"
-              fillOpacity="0.1"
-            />
-            <circle cx="135" cy="70" r="6" />
-          </svg>
-        </motion.div>
-
-        {/* 2. Binoclu (NAVY) - Centru Stânga */}
-        <motion.div
-          animate={{ rotate: [-3, 3, -3], scale: [1, 1.02, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[35%] left-[2%] w-[280px] h-[280px] opacity-[0.03] md:opacity-[0.04]"
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="#122F5B"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path
-              d="M40 70 L60 150 L90 150 L80 70 Z"
-              fill="#122F5B"
-              fillOpacity="0.05"
-            />
-            <path
-              d="M160 70 L140 150 L110 150 L120 70 Z"
-              fill="#122F5B"
-              fillOpacity="0.05"
-            />
-            {/* Lents */}
-            <ellipse cx="60" cy="150" rx="15" ry="5" />
-            <ellipse cx="140" cy="150" rx="15" ry="5" />
-            {/* Bridge */}
-            <path d="M85 100 L115 100 M83 120 L117 120" strokeWidth="6" />
-            {/* Eye pieces */}
-            <path d="M45 70 L75 70 M125 70 L155 70" strokeWidth="8" />
-          </svg>
-        </motion.div>
-
-        {/* 3. Balon cu aer cald (NAVY) - Stânga Jos */}
-        <motion.div
-          animate={{ y: [0, -30, 0], x: [0, 10, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[5%] left-[5%] w-[250px] h-[250px] opacity-[0.03] md:opacity-[0.04]"
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="#122F5B"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path
-              d="M100 20 C150 20, 150 80, 100 130 C50 80, 50 20, 100 20 Z"
-              fill="#122F5B"
-              fillOpacity="0.05"
-            />
-            <path
-              d="M100 20 L100 130 M70 40 Q100 130 100 130 M130 40 Q100 130 100 130"
-              strokeWidth="2"
-              strokeOpacity="0.5"
-            />
-            <path
-              d="M85 150 L115 150 L110 170 L90 170 Z"
-              fill="#122F5B"
-              fillOpacity="0.1"
-            />
-            <path d="M90 130 L85 150 M110 130 L115 150" strokeWidth="2" />
-            {/* Clouds */}
-            <path
-              d="M20 100 Q40 80 60 100 T100 100 M140 60 Q160 40 180 60 T220 60"
-              strokeWidth="2"
-              strokeOpacity="0.3"
-            />
-          </svg>
-        </motion.div>
-
-        {/* 4. Busolă terestră (AURIU+NAVY) - Dreapta Jos */}
-        <div
-          className="absolute bottom-[15%] right-[-5%] w-[400px] h-[400px] opacity-[0.05]"
-          style={{ animation: "spin 200s linear infinite" }}
-        >
-          <svg viewBox="0 0 200 200" fill="none">
-            <circle
-              cx="100"
-              cy="100"
-              r="80"
-              stroke="#c69a3f"
-              strokeWidth="2"
-              strokeDasharray="5 10"
-            />
-            <circle cx="100" cy="100" r="65" stroke="#122F5B" strokeWidth="1" />
-            <path
-              d="M100 10 L110 90 L190 100 L110 110 L100 190 L90 110 L10 100 L90 90 Z"
-              fill="#122F5B"
-              fillOpacity="0.2"
-            />
-            <path
-              d="M100 30 L105 95 L170 100 L105 105 L100 170 L95 105 L30 100 L95 95 Z"
-              fill="#c69a3f"
-              fillOpacity="0.4"
-            />
-            <circle cx="100" cy="100" r="8" fill="#122F5B" />
-          </svg>
-        </div>
-      </div>
-
-      {/* ── TOOLBAR ── */}
-      <div className="max-w-7xl mx-auto px-5 md:px-10 relative z-20 -mt-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white border border-[#e1e8f0] rounded-2xl md:rounded-full shadow-[0_8px_30px_rgba(13,44,92,0.06)] p-3 md:p-4 flex flex-col md:flex-row gap-4 items-stretch md:items-center"
-        >
-          <div className="relative flex-1">
-            <Search
-              size={18}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-[#c69a3f]"
-            />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Caută locații, atracții, restaurante..."
-              className="w-full pl-12 pr-4 py-3 bg-[#f8fafd] border border-transparent rounded-full text-[14px] text-[#0d2c5c] outline-none transition-all hover:bg-[#f0f5fc] focus:bg-white focus:border-[#c69a3f]/40 focus:ring-2 focus:ring-[#c69a3f]/10 placeholder:text-[#8595aa]"
-            />
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 hide-scrollbar items-center">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="px-5 py-3 bg-[#f8fafd] border border-transparent rounded-full text-[13px] font-semibold text-[#0d2c5c] outline-none hover:bg-[#f0f5fc] focus:bg-white focus:border-[#c69a3f]/40 focus:ring-2 focus:ring-[#c69a3f]/10 cursor-pointer transition-all shrink-0"
-            >
-              <option value="all">Toate categoriile</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c.charAt(0).toUpperCase() + c.slice(1)}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="px-5 py-3 bg-[#f8fafd] border border-transparent rounded-full text-[13px] font-semibold text-[#0d2c5c] outline-none hover:bg-[#f0f5fc] focus:bg-white focus:border-[#c69a3f]/40 focus:ring-2 focus:ring-[#c69a3f]/10 cursor-pointer transition-all shrink-0"
-            >
-              <option value="rating-desc">Rating: Descrescător</option>
-              <option value="rating-asc">Rating: Crescător</option>
-              <option value="title">Alfabetic</option>
-            </select>
-
-            <div className="flex gap-1 p-1 bg-[#f8fafd] rounded-full shrink-0 items-center border border-transparent">
-              <button
-                onClick={() => setView("grid")}
-                className={`p-2 rounded-full transition-all ${
-                  view === "grid"
-                    ? "bg-white text-[#c69a3f] shadow-sm border border-[#e1e8f0]"
-                    : "text-[#8595aa] hover:text-[#0d2c5c]"
-                }`}
-              >
-                <LayoutGrid size={16} />
-              </button>
-              <button
-                onClick={() => setView("list")}
-                className={`p-2 rounded-full transition-all ${
-                  view === "list"
-                    ? "bg-white text-[#c69a3f] shadow-sm border border-[#e1e8f0]"
-                    : "text-[#8595aa] hover:text-[#0d2c5c]"
-                }`}
-              >
-                <List size={16} />
-              </button>
+      {/* ── LISTA DE LOCAȚII ── */}
+      <section className="relative scroll-mt-24 py-16 md:py-24 px-5 md:px-10 z-10 bg-transparent">
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-24 text-[#c69a3f]">
+              <Loader2 size={32} className="animate-spin mb-4" />
+              <span className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#0d2c5c]">
+                Se încarcă locațiile partenere...
+              </span>
             </div>
+          ) : filtered.length === 0 ? (
+            <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-12 md:p-16 text-center max-w-2xl mx-auto shadow-sm">
+              <MapPin
+                size={34}
+                strokeWidth={1.5}
+                className="mx-auto mb-5 text-[#94a3b8]"
+              />
+              <p className="font-['Cormorant_Garamond',serif] text-[30px] text-[#0d2c5c] mb-3">
+                Nicio locație în această categorie
+              </p>
+              <p className="text-[15px] text-[#64748b] font-light">
+                Selectează altă categorie sau adaugă un partener nou.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-14 md:gap-16">
+              <AnimatePresence mode="popLayout">
+                {filtered.map((place, idx) => {
+                  const flip = idx % 2 === 1;
+                  const cardCornerStyle = flip
+                    ? "rounded-[36px] rounded-tr-[90px] rounded-bl-[90px]"
+                    : "rounded-[36px] rounded-tl-[90px] rounded-br-[90px]";
 
-            {canCreate && (
-              <>
-                <div className="hidden md:block w-px h-8 bg-[#e1e8f0] mx-1 shrink-0"></div>
-              </>
-            )}
-          </div>
-        </motion.div>
-      </div>
+                  const imageUrl = getPlaceImageUrl(place);
 
-      {/* ── CONTENT ── */}
-      <div className="max-w-7xl mx-auto px-5 md:px-10 py-12 md:py-20 relative z-10">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 text-[#c69a3f]">
-            <Loader2 size={32} className="animate-spin mb-4" />
-            <span className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#0d2c5c]">
-              Se încarcă locațiile...
-            </span>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white border border-[#e1e8f0] shadow-sm text-[#8595aa] mb-5">
-              <MapPin size={28} />
-            </span>
-            <p className="font-['Cormorant_Garamond',serif] text-[32px] text-[#0d2c5c] leading-tight">
-              Nicio locație găsită
-            </p>
-            <p className="text-[15px] text-[#5a6b85] mt-2 max-w-sm font-light">
-              Încearcă alte cuvinte cheie sau schimbă categoria pentru a găsi
-              ceea ce cauți.
-            </p>
-          </div>
-        ) : view === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((place, idx) => (
-                <motion.div
-                  layout
-                  key={place.id}
-                  initial={{ opacity: 0, y: 28 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{
-                    duration: 0.5,
-                    delay: (idx % 3) * 0.08,
-                    ease: [0.22, 1, 0.36, 1] as const,
-                  }}
-                >
-                  <PlaceCard
-                    place={place}
-                    onClick={() => setDetailPlace(place)}
-                    canUpdate={canUpdate}
-                    canDelete={canDelete}
-                    onEdit={() => openEdit(place)}
-                    onDelete={() => setDeleteTarget(place)}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((place, idx) => (
-                <motion.div
-                  layout
-                  key={place.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{
-                    duration: 0.5,
-                    delay: (idx % 5) * 0.05,
-                    ease: [0.22, 1, 0.36, 1] as const,
-                  }}
-                >
-                  <PlaceRow
-                    place={place}
-                    onClick={() => setDetailPlace(place)}
-                    canUpdate={canUpdate}
-                    canDelete={canDelete}
-                    onEdit={() => openEdit(place)}
-                    onDelete={() => setDeleteTarget(place)}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-      </div>
+                  return (
+                    <motion.article
+                      key={place.id}
+                      layout
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                      onClick={() => setDetailPlace(place)}
+                      className={`group cursor-pointer relative overflow-hidden bg-white/95 backdrop-blur border border-[#e2e8f0] shadow-[0_15px_40px_-15px_rgba(13,44,92,0.08)] hover:shadow-[0_25px_60px_-15px_rgba(13,44,92,0.14)] transition-all duration-500 p-6 md:p-10 ${cardCornerStyle}`}
+                    >
+                      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                        {/* Imagine stânga */}
+                        <div
+                          className={`relative z-10 lg:col-span-7 ${
+                            flip ? "lg:order-2" : ""
+                          }`}
+                        >
+                          <div
+                            className={`relative h-[280px] sm:h-[320px] md:h-[390px] overflow-hidden group bg-[#0d2c5c] shadow-md ${
+                              flip
+                                ? "rounded-tr-[80px] rounded-bl-[80px]"
+                                : "rounded-tl-[80px] rounded-br-[80px]"
+                            }`}
+                          >
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={place.title}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white">
+                                <ImageIcon size={40} />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
 
-      {/* ── MODALS ── */}
+                            {place.badge && (
+                              <span
+                                className={`absolute top-5 z-10 rounded-full bg-white/95 backdrop-blur-md px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#0d2c5c] shadow ${
+                                  flip ? "left-6" : "right-6"
+                                }`}
+                              >
+                                {place.badge}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Detalii dreapta */}
+                        <div
+                          className={`relative z-10 lg:col-span-5 flex flex-col justify-between h-full ${
+                            flip ? "lg:order-1" : ""
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="inline-flex items-center gap-2.5 font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
+                                <span className="h-px w-6 bg-[#c69a3f]/60" />
+                                {place.category}
+                              </span>
+                              <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#0d2c5c] bg-[#f8fafc] border border-[#e2e8f0] px-3.5 py-1 rounded-full">
+                                <Star
+                                  size={13}
+                                  className="text-[#c69a3f] fill-[#c69a3f]"
+                                />
+                                {place.rating.toFixed(1)}
+                              </span>
+                            </div>
+
+                            <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,2.8vw,2.8rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-4">
+                              {place.title}
+                            </h3>
+
+                            <p className="font-sans text-[14.5px] leading-[1.75] font-normal text-[#475569] mb-6 line-clamp-3">
+                              {place.description}
+                            </p>
+
+                            <div className="grid grid-cols-2 gap-3 mb-6">
+                              <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+                                <Clock size={16} className="text-[#c69a3f]" />
+                                <div>
+                                  <span className="block text-[10px] uppercase font-bold text-[#94a3b8]">
+                                    Program
+                                  </span>
+                                  <span className="text-[12.5px] font-semibold text-[#0d2c5c]">
+                                    {place.schedule || "Zilnic"}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+                                <Phone size={16} className="text-[#c69a3f]" />
+                                <div>
+                                  <span className="block text-[10px] uppercase font-bold text-[#94a3b8]">
+                                    Telefon
+                                  </span>
+                                  <span className="text-[12.5px] font-semibold text-[#0d2c5c]">
+                                    {place.phone || "Disponibil"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Panou de acțiune */}
+                          <div className="relative overflow-hidden rounded-3xl bg-[#0d2c5c] p-5 sm:p-6 shadow-[0_15px_35px_-10px_rgba(13,44,92,0.3)]">
+                            <div className="flex items-center justify-between text-white">
+                              <div>
+                                <span className="block font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-1">
+                                  {place.category === "restaurant" ||
+                                  place.category === "bar"
+                                    ? "Meniu Digital & Prețuri"
+                                    : "Informații & Facilități"}
+                                </span>
+                                <span className="font-['Cormorant_Garamond',serif] text-[22px] font-medium">
+                                  {place.category === "restaurant" ||
+                                  place.category === "bar"
+                                    ? "Vezi Meniul cu Prețuri"
+                                    : "Vezi Detalii & Tarife"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-2 bg-[#c69a3f] px-5 py-3 rounded-2xl text-[11px] font-bold uppercase tracking-wider text-white shadow">
+                                  Detalii <ArrowRight size={14} />
+                                </span>
+
+                                {(canUpdate || canDelete) && (
+                                  <div
+                                    className="flex gap-1"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {canUpdate && (
+                                      <button
+                                        onClick={() => openEdit(place)}
+                                        className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"
+                                      >
+                                        <Pencil size={14} />
+                                      </button>
+                                    )}
+                                    {canDelete && (
+                                      <button
+                                        onClick={() => setDeleteTarget(place)}
+                                        className="p-2.5 rounded-xl bg-red-500/20 hover:bg-red-500 text-white transition-all"
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.article>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── MODALE ── */}
       {detailPlace && (
         <PlaceDetailModal
           place={detailPlace}
@@ -608,6 +596,8 @@ export default function Places() {
                   thumb_url: editing.thumb_url ?? "",
                   image_url: editing.image_url ?? "",
                   badge: editing.badge ?? "",
+                  phone: editing.phone ?? "",
+                  schedule: editing.schedule ?? "",
                 }
               : EMPTY_FORM
           }
@@ -621,247 +611,19 @@ export default function Places() {
       )}
       {deleteTarget && (
         <ConfirmDialog
-          title="Șterge locația"
-          message={`Ești sigur că vrei să ștergi „${deleteTarget.title}"? Această acțiune nu poate fi anulată.`}
+          title="Șterge locația parteneră"
+          message={`Ești sigur că vrei să ștergi „${deleteTarget.title}"?`}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
         />
       )}
-
-      {/* Linie subtilă jos */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-light)] z-20" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-40 bg-[var(--gold)] z-20" />
     </div>
   );
 }
 
-/* ─────────────── PLACE CARD (grid) ─────────────── */
-function PlaceCard({
-  place,
-  onClick,
-  canUpdate,
-  canDelete,
-  onEdit,
-  onDelete,
-}: any) {
-  return (
-    <article
-      onClick={onClick}
-      className="group cursor-pointer relative rounded-[4px] overflow-hidden border border-[#e1e8f0] bg-white shadow-[0_2px_20px_rgba(13,44,92,0.04)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_24px_60px_rgba(13,44,92,0.13)] flex flex-col h-full"
-    >
-      {/* Linie aurie subțire sus, apare la hover */}
-      <span className="absolute left-0 right-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#c69a3f] to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center z-30" />
-
-      <div className="relative h-[250px] overflow-hidden bg-[#0d2c5c]">
-        {getPlaceImageUrl(place) ? (
-          <img
-            src={getPlaceImageUrl(place)}
-            alt={place.title}
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.07]"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#8595aa] bg-[#f8fafd]">
-            <ImageIcon size={32} strokeWidth={1.4} />
-          </div>
-        )}
-
-        {/* Voal navy elegant */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c]/85 via-[#0d2c5c]/10 to-transparent z-10" />
-
-        {place.badge && (
-          <div className="absolute top-4 left-4 z-20">
-            <BadgePill badge={place.badge} />
-          </div>
-        )}
-
-        {/* Rating discret, editorial */}
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 shadow-[0_4px_14px_rgba(13,44,92,0.18)]">
-          <Star size={12} className="text-[#c69a3f] fill-[#c69a3f]" />
-          <span className="text-[11.5px] font-semibold text-[#0d2c5c] pt-[1px]">
-            {Number(place.rating || 0).toFixed(1)}
-          </span>
-        </div>
-
-        {/* Categorie + titlu peste imagine */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 px-7 pb-6">
-          <span className="flex items-center gap-2.5 text-[9.5px] font-bold tracking-[0.22em] uppercase text-[#e6c67c] mb-2">
-            <span className="w-6 h-px bg-[#c69a3f]/70" />
-            {place.category}
-          </span>
-          <h3 className="font-['Cormorant_Garamond',serif] text-[27px] md:text-[29px] font-normal text-white leading-[1.15]">
-            {place.title}
-          </h3>
-        </div>
-      </div>
-
-      <div className="p-7 flex flex-col flex-1 relative z-10">
-        <p className="font-sans text-[14.5px] leading-[1.8] font-light text-[#5a6b85] line-clamp-3">
-          {place.description}
-        </p>
-
-        <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#0d2c5c] transition-colors duration-300 group-hover:text-[#c69a3f]">
-          Descoperă locația
-          <span className="w-6 h-px bg-current transition-all duration-500 group-hover:w-10" />
-        </span>
-
-        {(canUpdate || canDelete) && (
-          <div className="flex gap-2 mt-auto pt-6 mt-6 border-t border-[#eef2f7]">
-            {canUpdate && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="flex-1 inline-flex justify-center items-center gap-2 rounded-full border border-[#0d2c5c]/15 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
-              >
-                <Pencil size={12} /> Edit
-              </button>
-            )}
-            {canDelete && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-                className="flex-1 inline-flex justify-center items-center gap-2 rounded-full border border-red-200 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-red-600 transition-all hover:bg-red-50 hover:border-red-300"
-              >
-                <Trash2 size={12} /> Șterge
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-    </article>
-  );
-}
-
-/* ─────────────── PLACE ROW (list) ─────────────── */
-function PlaceRow({
-  place,
-  onClick,
-  canUpdate,
-  canDelete,
-  onEdit,
-  onDelete,
-}: any) {
-  return (
-    <article
-      onClick={onClick}
-      className="group relative cursor-pointer flex flex-col sm:flex-row bg-white rounded-[4px] overflow-hidden border border-[#e1e8f0] shadow-[0_2px_16px_rgba(13,44,92,0.04)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(13,44,92,0.10)]"
-    >
-      <div className="pointer-events-none absolute inset-0 rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 [box-shadow:inset_0_0_0_1.5px_rgba(198,154,63,0.3)] z-20" />
-
-      <div className="relative w-full sm:w-72 h-56 sm:h-auto shrink-0 overflow-hidden bg-[#0d2c5c]">
-        {getPlaceImageUrl(place) ? (
-          <div className="w-full h-full relative overflow-hidden">
-            <motion.img
-              src={getPlaceImageUrl(place)}
-              alt={place.title}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-[#0d2c5c]/10 mix-blend-overlay" />
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#8595aa] bg-[#f8fafd]">
-            <ImageIcon size={32} />
-          </div>
-        )}
-
-        <div className="pointer-events-none absolute inset-0 overflow-hidden z-10">
-          <motion.div
-            initial={{ x: "-150%" }}
-            whileHover={{ x: "200%" }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12"
-          />
-        </div>
-
-        {place.badge && (
-          <div className="absolute top-4 left-4 z-20">
-            <BadgePill badge={place.badge} />
-          </div>
-        )}
-      </div>
-
-      <div className="flex-1 p-7 md:p-8 flex flex-col justify-center relative z-10">
-        <div className="flex items-center gap-3 mb-2.5">
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
-            {place.category}
-          </span>
-          <div className="flex items-center gap-1.5 ml-auto bg-[#f8fafd] px-2.5 py-1 rounded-full border border-[#e1e8f0]">
-            <Star
-              size={12}
-              className="text-[#c69a3f] fill-[#c69a3f] animate-[pulse_3s_ease-in-out_infinite]"
-            />
-            <span className="text-[12px] font-bold text-[#0d2c5c] pt-0.5">
-              {place.rating.toFixed(1)}
-            </span>
-          </div>
-        </div>
-        <h3 className="font-['Cormorant_Garamond',serif] text-[28px] font-normal text-[#0d2c5c] leading-tight transition-colors duration-300 group-hover:text-[#c69a3f]">
-          {place.title}
-        </h3>
-        <p className="font-sans text-[14.5px] leading-[1.65] font-light text-[#5a6b85] mt-3 line-clamp-2">
-          {place.description}
-        </p>
-
-        {(canUpdate || canDelete) && (
-          <div className="flex gap-2 mt-6">
-            {canUpdate && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="inline-flex items-center gap-2 rounded-full border border-[#e1e8f0] px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#c69a3f] hover:bg-[#c69a3f]/5"
-              >
-                <Pencil size={12} /> Edit
-              </button>
-            )}
-            {canDelete && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-                className="inline-flex items-center gap-2 rounded-full border border-red-100 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-red-600 transition-all hover:bg-red-50 hover:border-red-300"
-              >
-                <Trash2 size={12} /> Șterge
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-    </article>
-  );
-}
-
-/* ─────────────── BADGE ─────────────── */
-function BadgePill({ badge }: { badge: string }) {
-  const isRecommended = badge.toLowerCase() === "recomandat";
-  const isNew = badge.toLowerCase() === "nou";
-  const Icon = isRecommended ? Award : isNew ? Sparkles : Award;
-  return (
-    <div
-      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-bold tracking-[0.18em] uppercase shadow-md border ${
-        isRecommended
-          ? "bg-gradient-to-r from-[#c69a3f] to-[#b3862f] text-[#0d2c5c] border-[#fdfcf9]/30"
-          : isNew
-            ? "bg-emerald-600 text-white border-emerald-500/50"
-            : "bg-[#0d2c5c] text-white border-white/20"
-      }`}
-    >
-      <Icon size={11} strokeWidth={2.5} />
-      {badge}
-    </div>
-  );
-}
-
-/* ─────────────── DETAIL MODAL ─────────────── */
-/* ─────────────── DETAIL MODAL (Cu butoane stânga/dreapta pe poza principală) ─────────────── */
+/* ───────────────────────────────────────────────
+   MODAL DETALII INTELIGENT
+─────────────────────────────────────────────── */
 function PlaceDetailModal({
   place,
   onClose,
@@ -869,7 +631,6 @@ function PlaceDetailModal({
   place: Place;
   onClose: () => void;
 }) {
-  // Colectăm toate imaginile disponibile
   const allImages = useMemo(() => {
     const list: string[] = [];
     if (place.images && Array.isArray(place.images)) {
@@ -878,8 +639,7 @@ function PlaceDetailModal({
         if (u) list.push(u);
       });
     }
-    const mainThumb =
-      place.thumb || place.image_url || place.thumb_url || place.img;
+    const mainThumb = getPlaceImageUrl(place);
     if (mainThumb && !list.includes(mainThumb)) {
       list.unshift(mainThumb);
     }
@@ -887,180 +647,254 @@ function PlaceDetailModal({
   }, [place]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const activeImg = allImages[currentIndex] || "";
+  const cat = place.category?.toLowerCase();
 
-  // Funcții de navigare stânga / dreapta
-  const prevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
-  };
+  const renderContentBycategory = () => {
+    if (cat === "restaurant" || cat === "bar") {
+      const sampleMenu: MenuCategory[] = place.menu || [
+        {
+          categoryName: "Specialități & Preparate Recomandate",
+          items: [
+            {
+              id: 1,
+              name: "File de doradă la grătar cu sos de lămâie",
+              description: "Servit cu legume proaspete de sezon",
+              price: "75 RON",
+            },
+            {
+              id: 2,
+              name: "Antricot de vită Black Angus",
+              description: "Gătit la perfecțiune cu unt aromatizat cu ierburi",
+              price: "120 RON",
+            },
+            {
+              id: 3,
+              name: "Paste cu fructe de mare proaspete",
+              description: "Creveți, scoici, calamari și sos alb de vin",
+              price: "68 RON",
+            },
+          ],
+        },
+        {
+          categoryName: "Băuturi & Cocktailuri",
+          items: [
+            {
+              id: 4,
+              name: "Mojito Clasic / Fructul Pasiunii",
+              description: "Rom, mentă proaspătă, lime, apă minerală",
+              price: "34 RON",
+            },
+            {
+              id: 5,
+              name: "Vin alb sec - Domeniile Sâmburești",
+              description: "Sticlă 750ml",
+              price: "110 RON",
+            },
+          ],
+        },
+      ];
 
-  const nextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
-  };
-
-  return (
-    <Modal onClose={onClose} maxWidth="max-w-3xl">
-      {/* ── Imaginea principală cu butoane de navigare ── */}
-      <div className="relative h-72 md:h-96 overflow-hidden bg-[#0d2c5c] group">
-        {activeImg ? (
-          <img
-            src={
-              activeImg.startsWith("http")
-                ? activeImg
-                : `${API_URL}${activeImg}`
-            }
-            alt={place.title}
-            className="w-full h-full object-cover transition-all duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#8595aa]">
-            <ImageIcon size={48} />
+      return (
+        <div className="bg-white rounded-[24px] border border-[#e2e8f0] p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-6 border-b border-[#f1f5f9] pb-4">
+            <Utensils className="text-[#c69a3f]" size={22} />
+            <h3 className="font-['Cormorant_Garamond',serif] text-[26px] text-[#0d2c5c]">
+              Meniu Digital & Prețuri
+            </h3>
           </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c] via-[#0d2c5c]/40 to-transparent opacity-90"></div>
-
-        {/* Buton Închidere X */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] hover:scale-110 transition-all z-30"
-        >
-          <X size={20} strokeWidth={1.5} />
-        </button>
-
-        {/* Butoane Stânga / Dreapta (Apar la hover sau sunt vizibile pe mobil) */}
-        {allImages.length > 1 && (
-          <>
-            <button
-              onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] transition-all z-30"
-              title="Imaginea anterioară"
-            >
-              ‹
-            </button>
-            <button
-              onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] hover:border-[#c69a3f] hover:text-[#0d2c5c] transition-all z-30"
-              title="Imaginea următoare"
-            >
-              ›
-            </button>
-
-            {/* Indicator număr imagini (ex: 1 / 4) */}
-            <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white text-[11px] font-bold tracking-wider z-30">
-              {currentIndex + 1} / {allImages.length}
-            </div>
-          </>
-        )}
-
-        <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 right-6 z-20">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
-              {place.category}
-            </span>
-            {place.badge && <BadgePill badge={place.badge} />}
+          <div className="space-y-6">
+            {sampleMenu.map((catItem, idx) => (
+              <div key={idx}>
+                <h5 className="text-[12px] font-bold uppercase tracking-widest text-[#c69a3f] mb-4">
+                  {catItem.categoryName}
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {catItem.items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9] flex justify-between items-start gap-4"
+                    >
+                      <div>
+                        <h6 className="font-semibold text-[14px] text-[#0d2c5c] mb-1">
+                          {item.name}
+                        </h6>
+                        {item.description && (
+                          <p className="text-[12px] text-[#64748b] font-light">
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                      <span className="font-bold text-[14px] text-[#c69a3f] shrink-0">
+                        {item.price}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[40px] md:text-[52px] text-white leading-none">
-            {place.title}
-          </h2>
         </div>
-      </div>
+      );
+    }
 
-      <div className="p-6 md:p-10 bg-white overflow-y-auto max-h-[calc(90vh-24rem)]">
-        {/* ── Galerie Thumbnails cu sincronizare ── */}
-        {allImages.length > 1 && (
-          <div className="mb-8">
-            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] block mb-3">
-              Galerie foto ({allImages.length})
-            </span>
-            <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar cursor-pointer">
-              {allImages.map((url, idx) => {
-                const fullUrl = url.startsWith("http")
-                  ? url
-                  : `${API_URL}${url}`;
-                const isSelected = currentIndex === idx;
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`relative shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                      isSelected
-                        ? "border-[#c69a3f] scale-105 shadow-md"
-                        : "border-transparent opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <img
-                      src={fullUrl}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                );
-              })}
+    if (cat === "plaja") {
+      return (
+        <div className="bg-white rounded-[24px] border border-[#e2e8f0] p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-6 border-b border-[#f1f5f9] pb-4">
+            <Umbrella className="text-[#c69a3f]" size={22} />
+            <h3 className="font-['Cormorant_Garamond',serif] text-[26px] text-[#0d2c5c]">
+              Tarife & Facilități Plajă Parteneră
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9] flex justify-between items-center">
+              <div>
+                <h6 className="font-semibold text-[14px] text-[#0d2c5c]">
+                  Șezlong standard + Umbrelă
+                </h6>
+                <p className="text-[12px] text-[#64748b]">
+                  Tarif pe zi (include prosop)
+                </p>
+              </div>
+              <span className="font-bold text-[14px] text-[#c69a3f]">
+                50 RON
+              </span>
+            </div>
+            <div className="p-4 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9] flex justify-between items-center">
+              <div>
+                <h6 className="font-semibold text-[14px] text-[#0d2c5c]">
+                  Pat Baldachin VIP
+                </h6>
+                <p className="text-[12px] text-[#64748b]">
+                  Capacitate 2-3 persoane
+                </p>
+              </div>
+              <span className="font-bold text-[14px] text-[#c69a3f]">
+                150 RON
+              </span>
             </div>
           </div>
-        )}
-
-        <div className="flex items-center gap-2 mb-7 bg-[#f8fafd] border border-[#e1e8f0] w-fit px-4 py-2 rounded-full">
-          <Star size={16} className="text-[#c69a3f] fill-[#c69a3f]" />
-          <span className="text-[15px] font-bold text-[#0d2c5c] pt-0.5">
-            {place.rating.toFixed(1)}{" "}
-            <span className="font-medium text-[#8595aa]">/ 5</span>
-          </span>
-          <span className="text-[#8595aa] text-[13px] font-light ml-1 pt-0.5">
-            (recenzii oaspeți)
-          </span>
         </div>
+      );
+    }
 
-        <p className="text-[15.5px] text-[#3d4f6b] leading-[1.85] font-light">
-          {place.description}
+    return (
+      <div className="bg-white rounded-[24px] border border-[#e2e8f0] p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="text-[#c69a3f]" size={20} />
+          <h3 className="font-['Cormorant_Garamond',serif] text-[24px] text-[#0d2c5c]">
+            Informații Utile & Recomandări
+          </h3>
+        </div>
+        <p className="text-[14.5px] text-[#64748b] font-light leading-relaxed">
+          Această locație este partener oficial al vilei noastre. Oaspeții
+          beneficiază de asistență la rezervare direct prin recepție.
         </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 mt-10 pt-8 border-t border-[#e1e8f0]">
-          <div className="flex items-center gap-3 px-5 py-4 bg-[#f8fafd] rounded-xl border border-[#e1e8f0] flex-1">
-            <MapPin size={20} className="text-[#c69a3f]" strokeWidth={1.5} />
-            <span className="text-[13px] text-[#0d2c5c] font-semibold tracking-wide uppercase">
-              Latitudine:{" "}
-              <span className="font-light text-[#5a6b85] ml-1">
-                {place.lat}
-              </span>
-            </span>
-          </div>
-          <div className="flex items-center gap-3 px-5 py-4 bg-[#f8fafd] rounded-xl border border-[#e1e8f0] flex-1">
-            <MapPin size={20} className="text-[#c69a3f]" strokeWidth={1.5} />
-            <span className="text-[13px] text-[#0d2c5c] font-semibold tracking-wide uppercase">
-              Longitudine:{" "}
-              <span className="font-light text-[#5a6b85] ml-1">
-                {place.lng}
-              </span>
-            </span>
-          </div>
-        </div>
       </div>
-    </Modal>
-  );
-}
+    );
+  };
 
-/* ─────────────── MODALS (Form, Confirm, Shell) ─────────────── */
-
-function Modal({ children, onClose, maxWidth }: any) {
   return (
     <div
-      className="fixed inset-0 z-[9000] flex items-center justify-center p-4 bg-[#0d2c5c]/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
+      className="fixed inset-0 z-[9000] flex items-center justify-center p-4 bg-[#0d2c5c]/70 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-[26px] shadow-2xl w-full ${maxWidth} max-h-[90vh] overflow-hidden animate-[scaleIn_0.3s_ease-out] flex flex-col border border-white/20`}
+        className="bg-white rounded-[32px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20"
         onClick={(e) => e.stopPropagation()}
       >
-        {children}
+        <div className="relative h-72 md:h-80 overflow-hidden bg-[#0d2c5c]">
+          {activeImg ? (
+            <img
+              src={
+                activeImg.startsWith("http")
+                  ? activeImg
+                  : `${API_URL}${activeImg}`
+              }
+              alt={place.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white">
+              <ImageIcon size={48} />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c] via-[#0d2c5c]/40 to-transparent" />
+
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-[#c69a3f] transition-all z-30"
+          >
+            <X size={20} />
+          </button>
+
+          <div className="absolute bottom-6 left-6 right-6 z-20">
+            <span className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[var(--gold)] mb-1 block">
+              {place.category}
+            </span>
+            <h2 className="font-['Cormorant_Garamond',serif] text-[36px] md:text-[44px] text-white leading-none">
+              {place.title}
+            </h2>
+          </div>
+        </div>
+
+        <div className="p-6 md:p-8 overflow-y-auto space-y-8 bg-[#fafafc]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-[#e2e8f0]">
+              <Star className="text-[#c69a3f] fill-[#c69a3f]" size={20} />
+              <div>
+                <span className="block text-[10px] uppercase font-bold text-[#94a3b8]">
+                  Rating
+                </span>
+                <span className="text-[14px] font-semibold text-[#0d2c5c]">
+                  {place.rating.toFixed(1)} / 5.0
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-[#e2e8f0]">
+              <Clock className="text-[#c69a3f]" size={20} />
+              <div>
+                <span className="block text-[10px] uppercase font-bold text-[#94a3b8]">
+                  Program
+                </span>
+                <span className="text-[14px] font-semibold text-[#0d2c5c]">
+                  {place.schedule || "09:00 - 23:00"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-[#e2e8f0]">
+              <Phone className="text-[#c69a3f]" size={20} />
+              <div>
+                <span className="block text-[10px] uppercase font-bold text-[#94a3b8]">
+                  Contact
+                </span>
+                <span className="text-[14px] font-semibold text-[#0d2c5c]">
+                  {place.phone || "+40 722 000 000"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#94a3b8] mb-2">
+              Despre locație
+            </h4>
+            <p className="text-[15px] text-[#475569] font-light leading-relaxed">
+              {place.description}
+            </p>
+          </div>
+
+          {renderContentBycategory()}
+        </div>
       </div>
     </div>
   );
 }
 
+/* ───────────────────────────────────────────────
+   MODAL ADMIN (ADĂUGARE / EDITARE)
+─────────────────────────────────────────────── */
 function PlaceFormModal({ initial, isEdit, onClose, onSubmit }: any) {
   const [form, setForm] = useState<PlaceForm>(initial);
   const [saving, setSaving] = useState(false);
@@ -1073,207 +907,167 @@ function PlaceFormModal({ initial, isEdit, onClose, onSubmit }: any) {
   };
 
   const fieldInput =
-    "w-full py-3.5 px-4 bg-[#f8fafd] border border-[#e1e8f0] rounded-xl text-[14px] text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f]/50 focus:ring-2 focus:ring-[#c69a3f]/10 placeholder:text-[#a4b0c1]";
+    "w-full py-3.5 px-4 bg-[#f8fafd] border border-[#e2e8f0] rounded-2xl text-[14px] text-[#0d2c5c] outline-none focus:bg-white focus:border-[#c69a3f]/50";
 
   return (
-    <Modal onClose={onClose} maxWidth="max-w-xl">
-      <div className="flex items-center justify-between px-8 py-6 border-b border-[#e1e8f0]">
-        <h2 className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c] leading-none">
-          {isEdit ? "Editează locația" : "Adaugă locație nouă"}
-        </h2>
-        <button
-          onClick={onClose}
-          className="text-[#8595aa] hover:text-[#0d2c5c] transition-colors p-1"
-        >
-          <X size={22} strokeWidth={1.5} />
-        </button>
-      </div>
-      <form
-        onSubmit={submit}
-        className="p-8 space-y-6 overflow-y-auto hide-scrollbar"
+    <div
+      className="fixed inset-0 z-[9000] flex items-center justify-center p-4 bg-[#0d2c5c]/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-[32px] shadow-2xl w-full max-w-xl overflow-hidden flex flex-col border border-white/20"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <FormField label="Titlu">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-[#e1e8f0]">
+          <h2 className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c]">
+            {isEdit
+              ? "Editează Locația Parteneră"
+              : "Adaugă Locație Parteneră Nouă"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-[#8595aa] hover:text-[#0d2c5c]"
+          >
+            <X size={22} />
+          </button>
+        </div>
+        <form
+          onSubmit={submit}
+          className="p-8 space-y-5 max-h-[75vh] overflow-y-auto"
+        >
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
+              Titlu Locație
+            </label>
             <input
               type="text"
               required
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               className={fieldInput}
-              placeholder="ex: Plaja Mamaia Nord"
+              placeholder="ex: Restaurant Terasa Malul Mării"
             />
-          </FormField>
-          <FormField label="Categorie">
+          </div>
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
+              Categorie Partener
+            </label>
             <select
-              required
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
               className={fieldInput}
             >
-              <option value="">Selectează…</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c.charAt(0).toUpperCase() + c.slice(1)}
-                </option>
-              ))}
+              <option value="restaurant">Restaurant</option>
+              <option value="hotel">Hotel</option>
+              <option value="plaja">Plajă</option>
+              <option value="bar">Bar</option>
+              <option value="atracție">Atracție</option>
             </select>
-          </FormField>
-        </div>
-        <FormField label="Descriere">
-          <textarea
-            required
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className={`${fieldInput} min-h-[100px] resize-y`}
-            placeholder="Descriere scurtă a locației…"
-          />
-        </FormField>
-        <div className="grid grid-cols-2 gap-5">
-          <FormField label="Latitudine">
-            <input
-              type="number"
-              step="any"
+          </div>
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
+              Descriere detaliată
+            </label>
+            <textarea
               required
-              value={form.lat}
+              value={form.description}
               onChange={(e) =>
-                setForm({ ...form, lat: parseFloat(e.target.value) })
+                setForm({ ...form, description: e.target.value })
               }
-              className={fieldInput}
-              placeholder="44.2488"
+              className={`${fieldInput} min-h-[90px]`}
+              placeholder="Detalii despre specific, atmosferă, servicii..."
             />
-          </FormField>
-          <FormField label="Longitudine">
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
+                Telefon rezervări
+              </label>
+              <input
+                type="text"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className={fieldInput}
+                placeholder="+40 7..."
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
+                Program de lucru
+              </label>
+              <input
+                type="text"
+                value={form.schedule}
+                onChange={(e) => setForm({ ...form, schedule: e.target.value })}
+                className={fieldInput}
+                placeholder="10:00 - 24:00"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
+              URL Imagine Principală
+            </label>
             <input
-              type="number"
-              step="any"
-              required
-              value={form.lng}
-              onChange={(e) =>
-                setForm({ ...form, lng: parseFloat(e.target.value) })
-              }
+              type="url"
+              value={form.image_url}
+              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
               className={fieldInput}
-              placeholder="28.6653"
+              placeholder="https://images.pexels.com/..."
             />
-          </FormField>
-        </div>
-        <FormField label="URL Thumbnail">
-          <input
-            type="url"
-            value={form.thumb_url}
-            onChange={(e) => setForm({ ...form, thumb_url: e.target.value })}
-            className={fieldInput}
-            placeholder="https://…"
-          />
-        </FormField>
-        <FormField label="URL Imagine (high-res)">
-          <input
-            type="url"
-            value={form.image_url}
-            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-            className={fieldInput}
-            placeholder="https://…"
-          />
-        </FormField>
-        <div className="grid grid-cols-2 gap-5">
-          <FormField label="Badge (Opțional)">
-            <input
-              type="text"
-              value={form.badge}
-              onChange={(e) => setForm({ ...form, badge: e.target.value })}
-              className={fieldInput}
-              placeholder="Recomandat / Nou"
-            />
-          </FormField>
-          <FormField label="Rating (0-5)">
-            <input
-              type="number"
-              step="0.1"
-              min="0"
-              max="5"
-              required
-              value={form.rating}
-              onChange={(e) =>
-                setForm({ ...form, rating: parseFloat(e.target.value) })
-              }
-              className={fieldInput}
-            />
-          </FormField>
-        </div>
-        <div className="flex justify-end gap-3 pt-6 border-t border-[#e1e8f0] mt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.1em] text-[#3d4f6b] border border-[#e1e8f0] hover:bg-[#f8fafd] hover:border-[#0d2c5c] hover:text-[#0d2c5c] transition-all"
-          >
-            Renunță
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#b3862f] px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:shadow-[0_8px_20px_-8px_rgba(198,154,63,0.8)] disabled:opacity-60"
-          >
-            {saving ? (
-              <Loader2 size={15} className="animate-spin" />
-            ) : (
-              <Plus size={15} />
-            )}
-            {isEdit ? "Salvează" : "Adaugă"}
-          </button>
-        </div>
-      </form>
-    </Modal>
+          </div>
+          <div className="flex justify-end gap-3 pt-6 border-t border-[#e2e8f0]">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#64748b] border border-[#e2e8f0]"
+            >
+              Renunță
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-2 rounded-full bg-[#c69a3f] hover:bg-[#b58933] px-7 py-3 text-[11px] font-bold uppercase tracking-wider text-white shadow"
+            >
+              {saving && <Loader2 size={14} className="animate-spin" />}
+              {isEdit ? "Salvează Modificările" : "Adaugă Partener"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
 function ConfirmDialog({ title, message, onConfirm, onCancel }: any) {
   return (
-    <Modal onClose={onCancel} maxWidth="max-w-md">
-      <div className="p-8 md:p-10">
-        <div className="flex flex-col items-center text-center gap-5">
-          <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center shrink-0 border border-red-100 shadow-sm">
-            <Trash2 size={26} className="text-red-500" strokeWidth={1.5} />
-          </div>
-          <div>
-            <h3 className="font-['Cormorant_Garamond',serif] text-[30px] text-[#0d2c5c] leading-tight mb-2">
-              {title}
-            </h3>
-            <p className="text-[14.5px] text-[#5a6b85] leading-relaxed max-w-[280px] mx-auto font-light">
-              {message}
-            </p>
-          </div>
-        </div>
-        <div className="flex justify-center gap-3 mt-10">
+    <div
+      className="fixed inset-0 z-[9000] flex items-center justify-center p-4 bg-[#0d2c5c]/70 backdrop-blur-sm"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c] mb-3">
+          {title}
+        </h3>
+        <p className="text-[14px] text-[#64748b] mb-8 font-light">{message}</p>
+        <div className="flex justify-center gap-3">
           <button
             onClick={onCancel}
-            className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-[0.1em] text-[#3d4f6b] border border-[#e1e8f0] hover:bg-[#f8fafd] hover:border-[#0d2c5c] transition-all"
+            className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#64748b] border border-[#e2e8f0]"
           >
             Anulează
           </button>
           <button
             onClick={onConfirm}
-            className="inline-flex items-center gap-2 rounded-full bg-red-600 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-red-700 hover:shadow-lg"
+            className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-wider bg-red-600 text-white shadow hover:bg-red-700"
           >
-            <Trash2 size={14} /> Șterge definitiv
+            Șterge
           </button>
         </div>
       </div>
-    </Modal>
-  );
-}
-
-function FormField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-2">
-      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8595aa] ml-1">
-        {label}
-      </span>
-      {children}
-    </label>
+    </div>
   );
 }

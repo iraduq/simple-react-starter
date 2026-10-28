@@ -102,64 +102,222 @@ const amenityIcon = (label: string) => {
 
 const REVEAL_DELAY = 1200;
 
+/* ───────────────────────────────────────────────
+   DECOR: SVG-uri plutitoare pe întreg fundalul paginii
+─────────────────────────────────────────────── */
+const float = (duration: number, amp = 25, rot = 6, delay = 0) => ({
+  animate: { y: [0, -amp, 0], rotate: [0, rot, 0] },
+  transition: {
+    duration,
+    repeat: Infinity,
+    ease: "easeInOut" as const,
+    delay,
+  },
+});
+
+function SunRing({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 120 120" fill="none" className={className}>
+      <circle cx="60" cy="60" r="22" stroke="currentColor" strokeWidth="1.2" />
+      <circle
+        cx="60"
+        cy="60"
+        r="34"
+        stroke="currentColor"
+        strokeWidth="0.8"
+        strokeDasharray="2 5"
+      />
+      {Array.from({ length: 16 }).map((_, i) => {
+        const a = (i * Math.PI * 2) / 16;
+        const x1 = 60 + Math.cos(a) * 44;
+        const y1 = 60 + Math.sin(a) * 44;
+        const x2 = 60 + Math.cos(a) * (i % 2 ? 52 : 58);
+        const y2 = 60 + Math.sin(a) * (i % 2 ? 52 : 58);
+        return (
+          <line
+            key={i}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function Shell({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" className={className}>
+      <path
+        d="M50 92 L8 44 Q50 -8 92 44 Z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      {[-30, -15, 0, 15, 30].map((o) => (
+        <path
+          key={o}
+          d={`M50 92 Q${50 + o * 0.4} 50 ${50 + o * 0.7} 22`}
+          stroke="currentColor"
+          strokeWidth="0.9"
+          strokeLinecap="round"
+        />
+      ))}
+      <path
+        d="M40 92 h20"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function FloatingDecor() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden z-[1]"
+    >
+      <div className="absolute top-[20%] -left-32 h-[500px] w-[500px] rounded-full bg-[#0d2c5c]/[0.02] blur-[140px]" />
+      <div className="absolute top-[50%] -right-40 h-[600px] w-[600px] rounded-full bg-[#1e4d8c]/[0.03] blur-[150px]" />
+      <div className="absolute top-[80%] -left-40 h-[500px] w-[500px] rounded-full bg-[#0d2c5c]/[0.02] blur-[140px]" />
+
+      <motion.div
+        {...float(12, 18, 5)}
+        className="absolute top-[15%] right-[8%] opacity-15 hidden md:block"
+      >
+        <SunRing className="h-32 w-32 text-[#0d2c5c]" />
+      </motion.div>
+
+      <motion.div
+        {...float(15, 14, -4, 1)}
+        className="absolute top-[35%] left-[3%] opacity-10 hidden lg:block"
+      >
+        <Shell className="h-24 w-24 text-[#0d2c5c]" />
+      </motion.div>
+
+      <motion.div
+        {...float(13, 16, 8, 2)}
+        className="absolute top-[65%] right-[5%] opacity-12 hidden lg:block"
+      >
+        <Shell className="h-28 w-28 text-[#0d2c5c]" />
+      </motion.div>
+
+      <motion.div
+        {...float(14, 20, -5, 1.5)}
+        className="absolute top-[85%] left-[6%] opacity-15 hidden md:block"
+      >
+        <SunRing className="h-28 w-28 text-[#0d2c5c]" />
+      </motion.div>
+    </div>
+  );
+}
+
+/* ───────────────────────────────────────────────
+   GALERIE FOTO MODERNĂ CU COLȚURI ASIMETRICE
+─────────────────────────────────────────────── */
 function RoomGallery({
   images,
   alt,
   badge,
+  flip,
 }: {
   images: string[];
   alt: string;
   badge?: string;
+  flip?: boolean;
 }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const mainImg = images[activeIdx] || FALLBACK_IMG;
+  const thumbs = images.slice(0, 4);
+  const extra = images.length - thumbs.length;
+
+  const cornerStyle = flip
+    ? "rounded-tr-[80px] rounded-bl-[80px]"
+    : "rounded-tl-[80px] rounded-br-[80px]";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-white rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none">
-      {/* ── IMAGINEA PRINCIPALĂ (Stânga / Mare) ── */}
-      <div className="md:col-span-8 relative h-[260px] sm:h-[320px] md:h-[350px] rounded-[20px] overflow-hidden group shadow-sm bg-[#0d2c5c]">
-        <img
-          src={mainImg}
-          alt={`${alt} – principală`}
-          loading="lazy"
-          onError={(e) =>
-            ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)
-          }
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        />
+    <div className="relative flex flex-col gap-4">
+      <div
+        className={`relative h-[280px] sm:h-[320px] md:h-[390px] overflow-hidden group bg-[#0d2c5c] shadow-[0_15px_35px_-10px_rgba(13,44,92,0.15)] ${cornerStyle}`}
+      >
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={mainImg}
+            src={mainImg}
+            alt={`${alt} – imagine ${activeIdx + 1}`}
+            loading="lazy"
+            onError={(e) =>
+              ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)
+            }
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1000ms] ease-out group-hover:scale-105"
+          />
+        </AnimatePresence>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+
         {badge && (
-          <span className="absolute top-3 left-3 rounded-full bg-white/95 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] shadow z-10">
+          <span
+            className={`absolute top-5 z-10 rounded-full bg-white/95 backdrop-blur-md px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#0d2c5c] shadow-md ${
+              flip ? "left-6" : "right-6"
+            }`}
+          >
             {badge}
+          </span>
+        )}
+
+        {images.length > 1 && (
+          <span
+            className={`absolute bottom-6 z-10 rounded-full bg-black/60 backdrop-blur-md px-3.5 py-1 text-[11px] font-semibold tracking-wider text-white shadow ${
+              flip ? "right-6" : "left-6"
+            }`}
+          >
+            {activeIdx + 1} / {images.length}
           </span>
         )}
       </div>
 
-      {/* ── IMAGINILE SECUNDARE (Dreapta / Miniaturi moderne) ── */}
       {images.length > 1 && (
-        <div className="md:col-span-4 grid grid-cols-2 md:grid-cols-1 gap-3">
-          {images.slice(1, 3).map((src, idx) => {
-            const actualIndex = idx + 1;
-            const isActive = activeIdx === actualIndex;
+        <div className="relative grid grid-cols-4 gap-3 px-1">
+          {thumbs.map((src, idx) => {
+            const isActive = activeIdx === idx;
+            const isLast = idx === thumbs.length - 1 && extra > 0;
             return (
-              <div
+              <button
+                type="button"
                 key={src + idx}
-                onClick={() => setActiveIdx(actualIndex)}
-                className={`relative h-[120px] md:h-[169px] rounded-[16px] overflow-hidden cursor-pointer group shadow-sm transition-all duration-300 ${
+                onClick={() => setActiveIdx(idx)}
+                className={`relative h-[68px] sm:h-[76px] rounded-2xl overflow-hidden transition-all duration-300 shadow-sm ${
                   isActive
-                    ? "ring-2 ring-[#c69a3f] scale-[0.98]"
-                    : "opacity-80 hover:opacity-100 hover:scale-[1.02]"
+                    ? "ring-2 ring-[#0d2c5c] ring-offset-2 ring-offset-white scale-[1.02]"
+                    : "opacity-70 hover:opacity-100 hover:-translate-y-0.5"
                 }`}
               >
                 <img
                   src={src}
-                  alt={`${alt} – miniatură ${actualIndex + 1}`}
+                  alt={`${alt} – miniatură ${idx + 1}`}
                   loading="lazy"
                   onError={(e) =>
                     ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)
                   }
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover"
                 />
-              </div>
+                {isLast && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-[#0d2c5c]/75 text-[13px] font-bold text-white backdrop-blur-[2px]">
+                    +{extra}
+                  </span>
+                )}
+              </button>
             );
           })}
         </div>
@@ -170,14 +328,10 @@ function RoomGallery({
 
 function RoomSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 rounded-[28px] overflow-hidden border border-[#e1e8f0] bg-white shadow-sm">
-      <div className="h-[300px] md:h-[380px] bg-[#f4f7fb] animate-pulse" />
-      <div className="p-8 md:p-12 flex flex-col gap-4">
-        <div className="h-3 w-24 rounded bg-[#eef2f7] animate-pulse" />
-        <div className="h-9 w-3/4 rounded bg-[#eef2f7] animate-pulse" />
-        <div className="h-20 w-full rounded bg-[#eef2f7] animate-pulse" />
-        <div className="h-12 w-1/2 rounded bg-[#eef2f7] animate-pulse" />
-      </div>
+    <div className="rounded-[40px] overflow-hidden border border-[#e2e8f0] bg-white p-8 shadow-sm">
+      <div className="h-[340px] bg-[#f1f5f9] rounded-[28px] animate-pulse mb-6" />
+      <div className="h-8 w-1/2 rounded bg-[#f1f5f9] animate-pulse mb-4" />
+      <div className="h-20 w-full rounded bg-[#f1f5f9] animate-pulse" />
     </div>
   );
 }
@@ -308,9 +462,12 @@ export default function Rooms() {
   };
 
   return (
-    <div className="bg-[#fafbfc] text-[#1a1a1a]">
-      {/* ── HERO 1:1 STILUL PRIMEI PAGINI ── */}
-      <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-40">
+    <div className="relative bg-white text-[#1a1a1a] overflow-hidden">
+      {/* ── ELEMENTE PLUTITOARE PE ÎNTREGUL FUNDAL AL PAGINII ── */}
+      <FloatingDecor />
+
+      {/* ── HERO ── */}
+      <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-40 z-10">
         <div className="absolute inset-0 z-0">
           <video
             ref={videoRef}
@@ -387,7 +544,6 @@ export default function Rooms() {
           </motion.p>
         </div>
 
-        {/* Val fluid curbat jos */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
           <svg
             viewBox="0 0 1200 120"
@@ -396,21 +552,22 @@ export default function Rooms() {
           >
             <path
               d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.43,121.22,201.2,112.5,242.47,107.45,283.47,84.14,321.39,56.44Z"
-              className="fill-[#fafbfc]"
+              className="fill-white"
             ></path>
           </svg>
         </div>
       </section>
 
-      {/* ── LISTĂ CAMERE (BENTO STYLE) ── */}
+      {/* ── LISTĂ CAMERE (FUNDAL ALB PUR) ── */}
       <section
         ref={listRef}
-        className="scroll-mt-24 py-16 md:py-24 px-5 md:px-10"
+        className="relative scroll-mt-24 py-16 md:py-24 px-5 md:px-10 z-10 bg-transparent"
       >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
             <div>
-              <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3">
+              <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
+                <span className="h-px w-8 bg-[#c69a3f]/60" />
                 {searched ? "Rezultatele căutării" : "Alege-ți spațiul"}
               </p>
               <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.2rem,4vw,3.2rem)] font-normal leading-[1.1] text-[#0d2c5c]">
@@ -427,7 +584,7 @@ export default function Rooms() {
               </h2>
               {searched && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white border border-[#e1e8f0] px-4 py-2 text-[12.5px] font-semibold text-[#0d2c5c] shadow-sm">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/9fta backdrop-blur border border-[#e2e8f0] px-4 py-2 text-[12.5px] font-semibold text-[#0d2c5c] shadow-sm">
                     {dayLabel(searched.in)} — {dayLabel(searched.out)} ·{" "}
                     {nights} {nights === 1 ? "noapte" : "nopți"} ·{" "}
                     {searched.guests} oaspeți
@@ -435,7 +592,7 @@ export default function Rooms() {
                   <button
                     type="button"
                     onClick={clearSearch}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] px-3.5 py-2 text-[12px] font-semibold text-[#5a6b85] bg-white hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e8f0] px-3.5 py-2 text-[12px] font-semibold text-[#64748b] bg-white hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
                   >
                     <X size={13} /> Arată toate camerele
                   </button>
@@ -452,7 +609,7 @@ export default function Rooms() {
                     className={`px-5 py-2.5 rounded-full border text-[12px] font-bold uppercase tracking-wider transition-all shadow-sm ${
                       activeTab === tab
                         ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
-                        : "bg-white border-[#e1e8f0] text-[#3d4f6b] hover:border-[#c69a3f] hover:text-[#c69a3f]"
+                        : "bg-white border-[#e2e8f0] text-[#475569] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
                     }`}
                   >
                     {tab}
@@ -464,11 +621,11 @@ export default function Rooms() {
 
           {error ? (
             <div className="py-20 text-center">
-              <ImageOff size={32} className="mx-auto mb-4 text-[#8595aa]" />
+              <ImageOff size={32} className="mx-auto mb-4 text-[#94a3b8]" />
               <p className="text-[16px] font-semibold text-[#0d2c5c]">
                 Nu am putut încărca camerele
               </p>
-              <p className="text-[14px] text-[#8595aa]">{error}</p>
+              <p className="text-[14px] text-[#94a3b8]">{error}</p>
             </div>
           ) : loading || searching ? (
             <div className="flex flex-col gap-10">
@@ -477,143 +634,184 @@ export default function Rooms() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-[28px] border border-[#e1e8f0] bg-white p-12 md:p-16 text-center max-w-2xl mx-auto shadow-sm">
+            <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-12 md:p-16 text-center max-w-2xl mx-auto shadow-sm">
               <CalendarX
                 size={34}
                 strokeWidth={1.5}
-                className="mx-auto mb-5 text-[#8595aa]"
+                className="mx-auto mb-5 text-[#94a3b8]"
               />
               <p className="font-['Cormorant_Garamond',serif] text-[30px] text-[#0d2c5c] mb-3">
                 Nicio cameră liberă
               </p>
-              <p className="text-[15px] text-[#5a6b85] font-light">
+              <p className="text-[15px] text-[#64748b] font-light">
                 Încearcă alte date sau alt număr de oaspeți.
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col gap-14 md:gap-16">
               <AnimatePresence mode="popLayout">
                 {filtered.map((room, idx) => {
                   const total = searched
                     ? (room.total ?? room.price * nights)
                     : null;
+                  const flip = idx % 2 === 1;
+
+                  const cardCornerStyle = flip
+                    ? "rounded-[36px] rounded-tr-[90px] rounded-bl-[90px]"
+                    : "rounded-[36px] rounded-tl-[90px] rounded-br-[90px]";
+
                   return (
                     <motion.article
                       key={room.id}
                       layout
-                      initial={{ opacity: 0, y: 30 }}
+                      initial={{ opacity: 0, y: 40 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-50px" }}
-                      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                      className="grid grid-cols-1 lg:grid-cols-12 rounded-[28px] overflow-hidden border border-[#e2e8f0] bg-white shadow-[0_20px_50px_-20px_rgba(13,44,92,0.12)]"
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                      className={`relative overflow-hidden bg-white/95 backdrop-blur border border-[#e2e8f0] shadow-[0_15px_40px_-15px_rgba(13,44,92,0.08)] hover:shadow-[0_25px_60px_-15px_rgba(13,44,92,0.14)] transition-all duration-500 p-6 md:p-10 ${cardCornerStyle}`}
                     >
-                      {/* Partea Stângă - Galeria Bento Modernă */}
-                      <div
-                        className={`lg:col-span-7 ${idx % 2 === 1 ? "lg:order-2" : ""}`}
-                      >
-                        <RoomGallery
-                          images={room.images}
-                          alt={room.title}
-                          badge={room.badge}
-                        />
-                      </div>
-
-                      {/* Partea Dreaptă - Detalii Cameră & Preț */}
-                      <div
-                        className={`lg:col-span-5 flex flex-col justify-between p-7 sm:p-9 lg:p-10 ${idx % 2 === 1 ? "lg:order-1" : ""}`}
-                      >
-                        <div>
-                          <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-2.5">
-                            {String(idx + 1).padStart(2, "0")} · {room.category}
-                          </p>
-                          <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(1.9rem,2.5vw,2.5rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-3.5">
-                            {room.title}
-                          </h3>
-                          {room.description && (
-                            <p className="font-sans text-[14.5px] leading-[1.75] font-light text-[#4a5568] mb-6 line-clamp-3">
-                              {room.description}
-                            </p>
-                          )}
-
-                          <div className="flex flex-wrap gap-x-6 gap-y-2 mb-5 text-[13px] font-semibold text-[#0d2c5c]">
-                            <span className="inline-flex items-center gap-1.5 bg-[#f4f7fb] px-3.5 py-1.5 rounded-xl">
-                              <Users
-                                size={15}
-                                strokeWidth={1.8}
-                                className="text-[#c69a3f]"
-                              />{" "}
-                              max {room.guests} oaspeți
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 bg-[#f4f7fb] px-3.5 py-1.5 rounded-xl">
-                              <Maximize
-                                size={15}
-                                strokeWidth={1.8}
-                                className="text-[#c69a3f]"
-                              />{" "}
-                              {room.size}
-                            </span>
-                          </div>
-
-                          {room.amenities.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mb-8">
-                              {room.amenities.slice(0, 4).map((a) => {
-                                const Icon = amenityIcon(a);
-                                return (
-                                  <span
-                                    key={a}
-                                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#edf2f7] bg-white px-3 py-1 text-[12px] font-medium text-[#4a5568]"
-                                  >
-                                    <Icon
-                                      size={13}
-                                      strokeWidth={1.8}
-                                      className="text-[#c69a3f]"
-                                    />{" "}
-                                    {a}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          )}
+                      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                        {/* ── GALERIE FOTO ── */}
+                        <div
+                          className={`relative z-10 lg:col-span-7 ${
+                            flip ? "lg:order-2" : ""
+                          }`}
+                        >
+                          <RoomGallery
+                            images={room.images}
+                            alt={room.title}
+                            badge={room.badge}
+                            flip={flip}
+                          />
                         </div>
 
-                        <div className="pt-6 border-t border-[#edf2f7] flex items-center justify-between gap-4 flex-wrap">
+                        {/* ── DETALII CAMERĂ & PREȚ ── */}
+                        <div
+                          className={`relative z-10 lg:col-span-5 flex flex-col justify-between h-full ${
+                            flip ? "lg:order-1" : ""
+                          }`}
+                        >
                           <div>
-                            <span className="block font-sans text-[10px] font-bold tracking-[0.18em] uppercase text-[#a0aec0] mb-1">
-                              {total != null
-                                ? `Total ${nights} ${nights === 1 ? "noapte" : "nopți"}`
-                                : "Tarif de la"}
-                            </span>
-                            <div className="flex items-baseline gap-1.5">
-                              <span className="font-sans text-[26px] font-bold leading-none tracking-[-0.02em] text-[#0d2c5c]">
-                                {total != null
-                                  ? ron(total)
-                                  : `${room.price} lei`}
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="inline-flex items-center gap-2.5 font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
+                                <span className="h-px w-6 bg-[#c69a3f]/60" />
+                                {room.category}
                               </span>
-                              <span className="text-[12px] text-[#718096]">
-                                {total != null
-                                  ? `(${ron(room.price)}/noapte)`
-                                  : "/ noapte"}
+                              <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#0d2c5c] bg-[#f8fafc] border border-[#e2e8f0] px-3 py-1 rounded-full">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
+                                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                                </span>
+                                Disponibil
                               </span>
                             </div>
+
+                            <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,2.8vw,2.8rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-4">
+                              {room.title}
+                            </h3>
+
+                            {room.description && (
+                              <p className="font-sans text-[14.5px] leading-[1.75] font-normal text-[#475569] mb-6 line-clamp-3">
+                                {room.description}
+                              </p>
+                            )}
+
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-2 gap-3 mb-6">
+                              <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+                                <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#0d2c5c]">
+                                  <Users size={16} strokeWidth={1.8} />
+                                </div>
+                                <div>
+                                  <span className="block text-[10px] uppercase font-bold tracking-wider text-[#94a3b8]">
+                                    Capacitate
+                                  </span>
+                                  <span className="text-[13px] font-semibold text-[#0d2c5c]">
+                                    Max {room.guests} oaspeți
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+                                <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#0d2c5c]">
+                                  <Maximize size={16} strokeWidth={1.8} />
+                                </div>
+                                <div>
+                                  <span className="block text-[10px] uppercase font-bold tracking-wider text-[#94a3b8]">
+                                    Suprafață
+                                  </span>
+                                  <span className="text-[13px] font-semibold text-[#0d2c5c]">
+                                    {room.size}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {room.amenities.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mb-8">
+                                {room.amenities.slice(0, 4).map((a) => {
+                                  const Icon = amenityIcon(a);
+                                  return (
+                                    <span
+                                      key={a}
+                                      className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-1.5 text-[12px] font-medium text-[#475569]"
+                                    >
+                                      <Icon
+                                        size={13}
+                                        strokeWidth={1.8}
+                                        className="text-[#0d2c5c]"
+                                      />
+                                      {a}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
 
-                          <div className="flex items-center gap-2.5">
-                            <Link
-                              to={`/camere/${room.id}${bookingQuery}`}
-                              className="inline-flex items-center rounded-xl border border-[#0d2c5c]/20 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c] hover:bg-[#0d2c5c]/5"
-                            >
-                              Detalii
-                            </Link>
-                            <Link
-                              to={`/camere/${room.id}${bookingQuery}`}
-                              className="group inline-flex items-center gap-2 rounded-xl bg-[#c69a3f] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-white transition-all hover:bg-[#b58933] shadow-md shadow-[#c69a3f]/20"
-                            >
-                              Rezervă{" "}
-                              <ArrowRight
-                                size={14}
-                                className="transition-transform group-hover:translate-x-1"
-                              />
-                            </Link>
+                          {/* Panou Preț & Butoane (Classic Navy, preț non-italic actualizat) */}
+                          <div className="relative overflow-hidden rounded-3xl bg-[#0d2c5c] p-5 sm:p-6 shadow-[0_15px_35px_-10px_rgba(13,44,92,0.3)]">
+                            <div className="relative flex items-end justify-between gap-4 flex-wrap">
+                              <div>
+                                <span className="block font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-1">
+                                  {total != null
+                                    ? `Total ${nights} ${
+                                        nights === 1 ? "noapte" : "nopți"
+                                      }`
+                                    : "Tarif de la"}
+                                </span>
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-sans text-[24px] sm:text-[26px] font-semibold tracking-normal text-white">
+                                    {total != null
+                                      ? ron(total)
+                                      : `${room.price} lei`}
+                                  </span>
+                                  <span className="text-[11px] font-light text-white/60 tracking-wider uppercase">
+                                    {total != null
+                                      ? `(${ron(room.price)}/noapte)`
+                                      : "/ noapte"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <Link
+                                  to={`/camere/${room.id}${bookingQuery}`}
+                                  className="inline-flex items-center rounded-2xl border border-white/25 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-white transition-all hover:border-white hover:bg-white/10"
+                                >
+                                  Detalii
+                                </Link>
+                                <Link
+                                  to={`/camere/${room.id}${bookingQuery}`}
+                                  className="group/btn inline-flex items-center gap-2 rounded-2xl bg-[#c69a3f] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-white transition-all hover:bg-[#d8ab50] shadow-md shadow-black/20"
+                                >
+                                  Rezervă
+                                  <ArrowRight
+                                    size={14}
+                                    className="transition-transform group-hover/btn:translate-x-1"
+                                  />
+                                </Link>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
