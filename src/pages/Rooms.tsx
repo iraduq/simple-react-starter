@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronLeft,
-  ChevronRight,
   Users,
   Maximize,
   Waves,
@@ -115,12 +113,11 @@ function RoomGallery({
 }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const mainImg = images[activeIdx] || FALLBACK_IMG;
-  const sideImages = images.filter((_, idx) => idx !== activeIdx).slice(0, 2);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 lg:p-4 bg-[#f8fafd] h-full items-center">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-white rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none">
       {/* ── IMAGINEA PRINCIPALĂ (Stânga / Mare) ── */}
-      <div className="lg:col-span-8 relative h-[280px] sm:h-[340px] lg:h-[420px] rounded-[20px] overflow-hidden group shadow-md bg-[#0d2c5c]">
+      <div className="md:col-span-8 relative h-[260px] sm:h-[320px] md:h-[350px] rounded-[20px] overflow-hidden group shadow-sm bg-[#0d2c5c]">
         <img
           src={mainImg}
           alt={`${alt} – principală`}
@@ -130,24 +127,16 @@ function RoomGallery({
           }
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
-
         {badge && (
-          <span className="absolute top-4 left-4 rounded-full bg-white/95 backdrop-blur-md px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] shadow-lg z-10">
+          <span className="absolute top-3 left-3 rounded-full bg-white/95 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] shadow z-10">
             {badge}
-          </span>
-        )}
-
-        {images.length > 1 && (
-          <span className="absolute bottom-4 right-4 rounded-full bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-semibold text-white tracking-wider">
-            {activeIdx + 1} / {images.length}
           </span>
         )}
       </div>
 
-      {/* ── IMAGINILE SECUNDARE (Dreapta / Grid mic bento) ── */}
+      {/* ── IMAGINILE SECUNDARE (Dreapta / Miniaturi moderne) ── */}
       {images.length > 1 && (
-        <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-3 h-full">
+        <div className="md:col-span-4 grid grid-cols-2 md:grid-cols-1 gap-3">
           {images.slice(1, 3).map((src, idx) => {
             const actualIndex = idx + 1;
             const isActive = activeIdx === actualIndex;
@@ -155,10 +144,10 @@ function RoomGallery({
               <div
                 key={src + idx}
                 onClick={() => setActiveIdx(actualIndex)}
-                className={`relative h-[130px] sm:h-[160px] lg:h-[202px] rounded-[16px] overflow-hidden cursor-pointer group shadow-sm transition-all duration-300 ${
+                className={`relative h-[120px] md:h-[169px] rounded-[16px] overflow-hidden cursor-pointer group shadow-sm transition-all duration-300 ${
                   isActive
                     ? "ring-2 ring-[#c69a3f] scale-[0.98]"
-                    : "opacity-85 hover:opacity-100 hover:scale-[1.02]"
+                    : "opacity-80 hover:opacity-100 hover:scale-[1.02]"
                 }`}
               >
                 <img
@@ -170,20 +159,6 @@ function RoomGallery({
                   }
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
-
-                {/* Dacă sunt mai mult de 3 imagini, punem un indicator pe ultima miniatură */}
-                {idx === 1 && images.length > 3 && (
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveIdx(0); // Sau poți deschide un modal dacă vrei
-                    }}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-sm tracking-wider"
-                  >
-                    +{images.length - 3} altele
-                  </div>
-                )}
               </div>
             );
           })}
@@ -195,8 +170,8 @@ function RoomGallery({
 
 function RoomSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 rounded-[24px] overflow-hidden border border-[#e1e8f0] bg-white">
-      <div className="h-[300px] lg:min-h-[420px] bg-[#f4f7fb] animate-pulse" />
+    <div className="grid grid-cols-1 md:grid-cols-2 rounded-[28px] overflow-hidden border border-[#e1e8f0] bg-white shadow-sm">
+      <div className="h-[300px] md:h-[380px] bg-[#f4f7fb] animate-pulse" />
       <div className="p-8 md:p-12 flex flex-col gap-4">
         <div className="h-3 w-24 rounded bg-[#eef2f7] animate-pulse" />
         <div className="h-9 w-3/4 rounded bg-[#eef2f7] animate-pulse" />
@@ -333,8 +308,8 @@ export default function Rooms() {
   };
 
   return (
-    <div className="bg-white text-[#1a1a1a]">
-      {/* ── HERO 1:1 STILUL PRIMEI PAGINI (FĂRĂ CĂUTARE ÎNCĂRCATĂ) ── */}
+    <div className="bg-[#fafbfc] text-[#1a1a1a]">
+      {/* ── HERO 1:1 STILUL PRIMEI PAGINI ── */}
       <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-40">
         <div className="absolute inset-0 z-0">
           <video
@@ -353,7 +328,6 @@ export default function Rooms() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/95 via-[#0d2c5c]/40 to-[#0d2c5c]/95" />
         </div>
 
-        {/* Ornamente aurii/albastre ambientale */}
         <span
           aria-hidden="true"
           className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-[#c69a3f]/10 blur-[100px] z-[1]"
@@ -413,7 +387,7 @@ export default function Rooms() {
           </motion.p>
         </div>
 
-        {/* ── TRANZIȚIE VAL FLUID (WAVE) JOS, EXACT CA PE MAIN ── */}
+        {/* Val fluid curbat jos */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
           <svg
             viewBox="0 0 1200 120"
@@ -422,13 +396,13 @@ export default function Rooms() {
           >
             <path
               d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.43,121.22,201.2,112.5,242.47,107.45,283.47,84.14,321.39,56.44Z"
-              className="fill-white"
+              className="fill-[#fafbfc]"
             ></path>
           </svg>
         </div>
       </section>
 
-      {/* ── LISTĂ CAMERE ── */}
+      {/* ── LISTĂ CAMERE (BENTO STYLE) ── */}
       <section
         ref={listRef}
         className="scroll-mt-24 py-16 md:py-24 px-5 md:px-10"
@@ -453,7 +427,7 @@ export default function Rooms() {
               </h2>
               {searched && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#f4f7fb] px-4 py-2 text-[12.5px] font-semibold text-[#0d2c5c]">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white border border-[#e1e8f0] px-4 py-2 text-[12.5px] font-semibold text-[#0d2c5c] shadow-sm">
                     {dayLabel(searched.in)} — {dayLabel(searched.out)} ·{" "}
                     {nights} {nights === 1 ? "noapte" : "nopți"} ·{" "}
                     {searched.guests} oaspeți
@@ -461,7 +435,7 @@ export default function Rooms() {
                   <button
                     type="button"
                     onClick={clearSearch}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] px-3.5 py-2 text-[12px] font-semibold text-[#5a6b85] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] px-3.5 py-2 text-[12px] font-semibold text-[#5a6b85] bg-white hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
                   >
                     <X size={13} /> Arată toate camerele
                   </button>
@@ -475,7 +449,7 @@ export default function Rooms() {
                     key={tab}
                     type="button"
                     onClick={() => setActiveTab(tab)}
-                    className={`px-5 py-2.5 rounded-full border text-[12px] font-bold uppercase tracking-wider transition-colors ${
+                    className={`px-5 py-2.5 rounded-full border text-[12px] font-bold uppercase tracking-wider transition-all shadow-sm ${
                       activeTab === tab
                         ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
                         : "bg-white border-[#e1e8f0] text-[#3d4f6b] hover:border-[#c69a3f] hover:text-[#c69a3f]"
@@ -503,7 +477,7 @@ export default function Rooms() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-[24px] border border-[#e1e8f0] bg-[#f8fafd] p-12 md:p-16 text-center max-w-2xl mx-auto">
+            <div className="rounded-[28px] border border-[#e1e8f0] bg-white p-12 md:p-16 text-center max-w-2xl mx-auto shadow-sm">
               <CalendarX
                 size={34}
                 strokeWidth={1.5}
@@ -517,7 +491,7 @@ export default function Rooms() {
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-10 md:gap-14">
+            <div className="flex flex-col gap-12">
               <AnimatePresence mode="popLayout">
                 {filtered.map((room, idx) => {
                   const total = searched
@@ -531,9 +505,12 @@ export default function Rooms() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-50px" }}
                       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                      className="grid grid-cols-1 lg:grid-cols-2 rounded-[24px] overflow-hidden border border-[#e1e8f0] bg-white shadow-[0_24px_60px_-35px_rgba(13,44,92,0.25)]"
+                      className="grid grid-cols-1 lg:grid-cols-12 rounded-[28px] overflow-hidden border border-[#e2e8f0] bg-white shadow-[0_20px_50px_-20px_rgba(13,44,92,0.12)]"
                     >
-                      <div className={idx % 2 === 1 ? "lg:order-2" : ""}>
+                      {/* Partea Stângă - Galeria Bento Modernă */}
+                      <div
+                        className={`lg:col-span-7 ${idx % 2 === 1 ? "lg:order-2" : ""}`}
+                      >
                         <RoomGallery
                           images={room.images}
                           alt={room.title}
@@ -541,80 +518,99 @@ export default function Rooms() {
                         />
                       </div>
 
-                      <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-14">
-                        <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-3">
-                          {String(idx + 1).padStart(2, "0")} · {room.category}
-                        </p>
-                        <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(1.9rem,2.8vw,2.7rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-4">
-                          {room.title}
-                        </h3>
-                        {room.description && (
-                          <p className="font-sans text-[15px] leading-[1.8] font-light text-[#3d4f6b] mb-7 line-clamp-4">
-                            {room.description}
+                      {/* Partea Dreaptă - Detalii Cameră & Preț */}
+                      <div
+                        className={`lg:col-span-5 flex flex-col justify-between p-7 sm:p-9 lg:p-10 ${idx % 2 === 1 ? "lg:order-1" : ""}`}
+                      >
+                        <div>
+                          <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-2.5">
+                            {String(idx + 1).padStart(2, "0")} · {room.category}
                           </p>
-                        )}
+                          <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(1.9rem,2.5vw,2.5rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-3.5">
+                            {room.title}
+                          </h3>
+                          {room.description && (
+                            <p className="font-sans text-[14.5px] leading-[1.75] font-light text-[#4a5568] mb-6 line-clamp-3">
+                              {room.description}
+                            </p>
+                          )}
 
-                        <div className="flex flex-wrap gap-x-6 gap-y-3 mb-6 text-[13px] font-semibold text-[#0d2c5c]">
-                          <span className="inline-flex items-center gap-2">
-                            <Users size={16} strokeWidth={1.6} /> max{" "}
-                            {room.guests} oaspeți
-                          </span>
-                          <span className="inline-flex items-center gap-2">
-                            <Maximize size={16} strokeWidth={1.6} /> {room.size}
-                          </span>
+                          <div className="flex flex-wrap gap-x-6 gap-y-2 mb-5 text-[13px] font-semibold text-[#0d2c5c]">
+                            <span className="inline-flex items-center gap-1.5 bg-[#f4f7fb] px-3.5 py-1.5 rounded-xl">
+                              <Users
+                                size={15}
+                                strokeWidth={1.8}
+                                className="text-[#c69a3f]"
+                              />{" "}
+                              max {room.guests} oaspeți
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 bg-[#f4f7fb] px-3.5 py-1.5 rounded-xl">
+                              <Maximize
+                                size={15}
+                                strokeWidth={1.8}
+                                className="text-[#c69a3f]"
+                              />{" "}
+                              {room.size}
+                            </span>
+                          </div>
+
+                          {room.amenities.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-8">
+                              {room.amenities.slice(0, 4).map((a) => {
+                                const Icon = amenityIcon(a);
+                                return (
+                                  <span
+                                    key={a}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#edf2f7] bg-white px-3 py-1 text-[12px] font-medium text-[#4a5568]"
+                                  >
+                                    <Icon
+                                      size={13}
+                                      strokeWidth={1.8}
+                                      className="text-[#c69a3f]"
+                                    />{" "}
+                                    {a}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
 
-                        {room.amenities.length > 0 && (
-                          <ul className="flex flex-wrap gap-2 mb-8">
-                            {room.amenities.slice(0, 6).map((a) => {
-                              const Icon = amenityIcon(a);
-                              return (
-                                <li
-                                  key={a}
-                                  className="flex items-center gap-2 rounded-full bg-[#f4f7fb] px-3.5 py-1.5 text-[12.5px] font-medium text-[#0d2c5c]"
-                                >
-                                  <Icon
-                                    size={13}
-                                    strokeWidth={1.8}
-                                    className="text-[#c69a3f]"
-                                  />{" "}
-                                  {a}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        )}
-
-                        <div className="mt-auto flex items-end justify-between gap-5 pt-7 border-t border-[#e1e8f0] flex-wrap">
+                        <div className="pt-6 border-t border-[#edf2f7] flex items-center justify-between gap-4 flex-wrap">
                           <div>
-                            <span className="block font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-[#8595aa] mb-1.5">
+                            <span className="block font-sans text-[10px] font-bold tracking-[0.18em] uppercase text-[#a0aec0] mb-1">
                               {total != null
                                 ? `Total ${nights} ${nights === 1 ? "noapte" : "nopți"}`
                                 : "Tarif de la"}
                             </span>
-                            <span className="font-sans text-[28px] font-bold leading-none tracking-[-0.02em] text-[#0d2c5c]">
-                              {total != null ? ron(total) : `${room.price} lei`}
-                            </span>
-                            <span className="ml-1.5 text-[12px] font-medium text-[#8595aa]">
-                              {total != null
-                                ? `(${ron(room.price)}/noapte)`
-                                : "/ noapte"}
-                            </span>
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="font-sans text-[26px] font-bold leading-none tracking-[-0.02em] text-[#0d2c5c]">
+                                {total != null
+                                  ? ron(total)
+                                  : `${room.price} lei`}
+                              </span>
+                              <span className="text-[12px] text-[#718096]">
+                                {total != null
+                                  ? `(${ron(room.price)}/noapte)`
+                                  : "/ noapte"}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-3">
+
+                          <div className="flex items-center gap-2.5">
                             <Link
                               to={`/camere/${room.id}${bookingQuery}`}
-                              className="inline-flex items-center rounded-full border border-[#0d2c5c]/25 px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-[#0d2c5c] transition-colors hover:border-[#c69a3f] hover:text-[#c69a3f]"
+                              className="inline-flex items-center rounded-xl border border-[#0d2c5c]/20 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c] hover:bg-[#0d2c5c]/5"
                             >
                               Detalii
                             </Link>
                             <Link
                               to={`/camere/${room.id}${bookingQuery}`}
-                              className="group inline-flex items-center gap-2 rounded-full bg-[#c69a3f] px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-[#b58933]"
+                              className="group inline-flex items-center gap-2 rounded-xl bg-[#c69a3f] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-white transition-all hover:bg-[#b58933] shadow-md shadow-[#c69a3f]/20"
                             >
                               Rezervă{" "}
                               <ArrowRight
-                                size={15}
+                                size={14}
                                 className="transition-transform group-hover:translate-x-1"
                               />
                             </Link>
