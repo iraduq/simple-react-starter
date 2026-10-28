@@ -57,7 +57,7 @@ export default function Hero() {
       adults: String(adults),
       children: String(children),
     });
-    navigate(`/disponibilitate?${params.toString()}`);
+    navigate(`/camere?${params.toString()}`);
   };
 
   const emerge = {

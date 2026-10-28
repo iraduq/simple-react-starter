@@ -245,7 +245,7 @@ export default function Features() {
         {/* Buton Navigare Jos - Funcțional */}
         <div className="mt-16 text-center">
           <button
-            onClick={() => navigate("/disponibilitate")}
+            onClick={() => navigate("/camere")}
             className="group inline-flex items-center gap-4 text-[#0d2c5c] text-xs tracking-[0.25em] uppercase bg-transparent border-none cursor-pointer font-bold"
           >
             <span>Descoperă camerele noastre</span>
