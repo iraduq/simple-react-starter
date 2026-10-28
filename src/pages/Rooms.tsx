@@ -113,63 +113,81 @@ function RoomGallery({
   alt: string;
   badge?: string;
 }) {
-  const [index, setIndex] = useState(0);
-  const go = (dir: number) =>
-    setIndex((i) => (i + dir + images.length) % images.length);
-  return (
-    <div className="group/gal relative h-[280px] sm:h-[340px] lg:h-full lg:min-h-[420px] overflow-hidden bg-[#0d2c5c]">
-      <div
-        className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
-        style={{ transform: `translateX(-${index * 100}%)` }}
-      >
-        {images.map((src, i) => (
-          <img
-            key={src + i}
-            src={src}
-            alt={`${alt} – imaginea ${i + 1}`}
-            loading="lazy"
-            onError={(e) =>
-              ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)
-            }
-            className="w-full h-full shrink-0 object-cover"
-          />
-        ))}
-      </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0d2c5c]/70 to-transparent" />
+  const [activeIdx, setActiveIdx] = useState(0);
+  const mainImg = images[activeIdx] || FALLBACK_IMG;
+  const sideImages = images.filter((_, idx) => idx !== activeIdx).slice(0, 2);
 
-      {images.length > 1 && (
-        <>
-          {[-1, 1].map((d) => (
-            <button
-              key={d}
-              type="button"
-              aria-label={d < 0 ? "Imaginea anterioară" : "Imaginea următoare"}
-              onClick={() => go(d)}
-              className={`absolute top-1/2 -translate-y-1/2 ${d < 0 ? "left-4" : "right-4"} w-10 h-10 rounded-full bg-white/90 text-[#0d2c5c] flex items-center justify-center shadow-md transition-opacity duration-300 opacity-100 lg:opacity-0 lg:group-hover/gal:opacity-100 hover:bg-white`}
-            >
-              {d < 0 ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-            </button>
-          ))}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                aria-label={`Imaginea ${i + 1}`}
-                onClick={() => setIndex(i)}
-                className={`h-[3px] rounded-full transition-all duration-500 ${i === index ? "w-8 bg-white" : "w-3 bg-white/45"}`}
-              />
-            ))}
-          </div>
-          <span className="absolute top-5 right-5 rounded-full bg-[#0d2c5c]/70 backdrop-blur px-3 py-1 text-[11px] font-semibold text-white">
-            {index + 1} / {images.length}
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 lg:p-4 bg-[#f8fafd] h-full items-center">
+      {/* ── IMAGINEA PRINCIPALĂ (Stânga / Mare) ── */}
+      <div className="lg:col-span-8 relative h-[280px] sm:h-[340px] lg:h-[420px] rounded-[20px] overflow-hidden group shadow-md bg-[#0d2c5c]">
+        <img
+          src={mainImg}
+          alt={`${alt} – principală`}
+          loading="lazy"
+          onError={(e) =>
+            ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)
+          }
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+
+        {badge && (
+          <span className="absolute top-4 left-4 rounded-full bg-white/95 backdrop-blur-md px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] shadow-lg z-10">
+            {badge}
           </span>
-        </>
-      )}
-      {badge && (
-        <span className="absolute top-5 left-5 rounded-full bg-white px-3.5 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] shadow">
-          {badge}
-        </span>
+        )}
+
+        {images.length > 1 && (
+          <span className="absolute bottom-4 right-4 rounded-full bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-semibold text-white tracking-wider">
+            {activeIdx + 1} / {images.length}
+          </span>
+        )}
+      </div>
+
+      {/* ── IMAGINILE SECUNDARE (Dreapta / Grid mic bento) ── */}
+      {images.length > 1 && (
+        <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-3 h-full">
+          {images.slice(1, 3).map((src, idx) => {
+            const actualIndex = idx + 1;
+            const isActive = activeIdx === actualIndex;
+            return (
+              <div
+                key={src + idx}
+                onClick={() => setActiveIdx(actualIndex)}
+                className={`relative h-[130px] sm:h-[160px] lg:h-[202px] rounded-[16px] overflow-hidden cursor-pointer group shadow-sm transition-all duration-300 ${
+                  isActive
+                    ? "ring-2 ring-[#c69a3f] scale-[0.98]"
+                    : "opacity-85 hover:opacity-100 hover:scale-[1.02]"
+                }`}
+              >
+                <img
+                  src={src}
+                  alt={`${alt} – miniatură ${actualIndex + 1}`}
+                  loading="lazy"
+                  onError={(e) =>
+                    ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)
+                  }
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+
+                {/* Dacă sunt mai mult de 3 imagini, punem un indicator pe ultima miniatură */}
+                {idx === 1 && images.length > 3 && (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveIdx(0); // Sau poți deschide un modal dacă vrei
+                    }}
+                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-sm tracking-wider"
+                  >
+                    +{images.length - 3} altele
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
