@@ -369,7 +369,7 @@ export default function Navbar() {
 
             {/* CTA BUTTON - Stilizat uniform pentru desktop */}
             <Link
-              to="/disponibilitate"
+              to="/camere"
               className="group relative hidden sm:inline-flex items-center justify-center overflow-hidden ml-1 lg:ml-2 px-4 lg:px-6 py-2.5 lg:py-[11px] text-[13px] lg:text-[14px] font-bold tracking-[0.1em] uppercase rounded transition-all duration-300 hover:-translate-y-0.5 shadow-[0_4px_15px_rgba(13,44,92,0.15)] hover:shadow-[0_8px_25px_rgba(198,154,63,0.3)] bg-[#0d2c5c] text-white hover:bg-[#c69a3f] hover:text-[#0d2c5c]"
             >
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[600ms] ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg]" />
@@ -421,7 +421,7 @@ export default function Navbar() {
             </nav>
             {/* CTA BUTTON - Stilizat uniform pentru mobil */}
             <Link
-              to="/disponibilitate"
+              to="/camere"
               onClick={() => setMobileOpen(false)}
               className="mt-4 flex items-center justify-center rounded px-5 py-3.5 text-[12px] font-bold uppercase tracking-[0.16em] transition-all duration-300 shadow-[0_4px_15px_rgba(13,44,92,0.15)] bg-[#0d2c5c] text-white hover:bg-[#c69a3f] hover:text-[#0d2c5c]"
             >

@@ -157,7 +157,7 @@ export default function AboutSection() {
 
             {/* 5. Buton CTA */}
             <a
-              href="#camere"
+              href="/camere"
               className="group inline-flex items-center justify-center gap-3 bg-[#c69a3f] border border-[#c69a3f] text-white text-[11px] tracking-[0.2em] uppercase font-bold py-4 px-8 rounded-full hover:bg-white hover:border-white hover:text-[#0d2c5c] transition-all duration-300 shadow-[0_10px_30px_-10px_rgba(198,154,63,0.3)] hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.4)] mt-4"
             >
               Descoperă camerele

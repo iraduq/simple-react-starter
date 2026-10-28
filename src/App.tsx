@@ -7,6 +7,7 @@ import {
   Route,
   Outlet,
   useNavigate,
+  Navigate,
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -25,7 +26,6 @@ import { setSessionExpiredHandler } from "./lib/api";
 import { clearSession } from "./lib/auth";
 import Contact from "./pages/Contact";
 import AdminDashboard from "./components/admin/AdminDashboard";
-import Availability from "./pages/Availability";
 import MyBookings from "./pages/MyBookings";
 import PlaceDetail from "./pages/PlaceDetail";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -38,6 +38,10 @@ import ChatWidget from "./components/ChatWidget";
 import BookingSuccess from "./pages/BookingSuccess";
 import Housekeeping from "./pages/Housekeeping";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
+
+function AvailabilityRedirect() {
+  return <Navigate to={`/camere${window.location.search}`} replace />;
+}
 
 const MainLayout = () => {
   return (
@@ -78,7 +82,7 @@ function AppInner() {
         <Route path="/" element={<Home />} />
         <Route path="/camere" element={<Rooms />} />
         <Route path="/camere/:roomId" element={<RoomDetail />} />
-        <Route path="/disponibilitate" element={<Availability />} />
+        <Route path="/disponibilitate" element={<AvailabilityRedirect />} />
         <Route path="/places" element={<Places />} />
         <Route path="/places/:placeId" element={<PlaceDetail />} />
         <Route path="/contact" element={<Contact />} />

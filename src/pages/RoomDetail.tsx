@@ -252,10 +252,10 @@ export default function RoomDetail() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-10 lg:py-14">
       <Link
-        to="/disponibilitate"
+        to="/camere"
         className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#6b7c99] hover:text-[#0d2c5c]"
       >
-        <ChevronLeft size={15} /> Înapoi la disponibilitate
+        <ChevronLeft size={15} /> Înapoi la camere
       </Link>
 
       {images.length > 0 && (

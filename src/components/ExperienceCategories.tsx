@@ -282,7 +282,7 @@ export default function ExperienceCategories() {
           className="mt-[72px] text-center relative z-20"
         >
           <button
-            onClick={() => navigate("/disponibilitate")}
+            onClick={() => navigate("/camere")}
             className="group inline-flex items-center gap-[22px] text-[#0d2c5c] text-xs tracking-[0.25em] uppercase bg-transparent border-none cursor-pointer font-semibold"
           >
             <span>Verifică disponibilitatea camerelor</span>

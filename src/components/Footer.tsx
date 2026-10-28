@@ -81,7 +81,6 @@ export default function Footer() {
               {[
                 { to: "/", label: "Acasă" },
                 { to: "/camere", label: "Camere" },
-                { to: "/disponibilitate", label: "Disponibilitate" },
                 { to: "/places", label: "Locații" },
                 { to: "/contact", label: "Contact" },
               ].map((item) => (
