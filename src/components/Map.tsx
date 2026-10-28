@@ -424,7 +424,11 @@ export default function InteractiveMap() {
           initial={{ opacity: 0, scale: 0.95, y: 30 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
+          transition={{
+            duration: 0.9,
+            delay: 0.2,
+            ease: [0.22, 1, 0.36, 1] as const,
+          }}
           className="relative rounded-[28px] p-[2px] bg-gradient-to-br from-[#c69a3f] via-white/10 to-[#1e4d8c] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.7)]"
         >
           {/* Glare effect peste border-ul hărții */}
