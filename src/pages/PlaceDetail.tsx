@@ -1,96 +1,56 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, MapPin, Star, Loader as Loader2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { getPlace } from "../services/placesService";
-import { httpErrorMessage } from "../services/apiClient";
-import type { Place } from "../types/places";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import PlaceMenu from "../components/PlaceMenu";
+import type { MenuCategory, Place } from "../types/places";
+import { getFullMenu, getPlace, menuForPlace, placeDescription, placeImage } from "../services/placesService";
 
-/** GET /places/{place_id} */
 export default function PlaceDetail() {
-  const { placeId = "" } = useParams();
+  const { placeId } = useParams();
   const [place, setPlace] = useState<Place | null>(null);
+  const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let on = true;
-    setLoading(true);
-    setError(null);
-    getPlace(placeId)
-      .then((p) => on && setPlace(p))
-      .catch((e) => on && setError(httpErrorMessage(e, "Locația nu a putut fi încărcată.")))
-      .finally(() => on && setLoading(false));
-    return () => {
-      on = false;
-    };
+    if (!placeId) return;
+    Promise.allSettled([getPlace(placeId), getFullMenu()]).then(([p, m]) => {
+      if (p.status === "fulfilled") setPlace(p.value);
+      if (m.status === "fulfilled") setMenu(m.value);
+      setLoading(false);
+    });
   }, [placeId]);
 
   if (loading)
     return (
-      <div className="flex min-h-[60vh] items-center justify-center gap-2 text-[#8595aa]">
-        <Loader2 size={16} className="animate-spin" /> Se încarcă…
+      <div className="flex min-h-screen items-center justify-center text-[#c69a3f]">
+        <Loader2 className="animate-spin" />
       </div>
     );
 
-  if (error || !place)
+  if (!place)
     return (
-      <div className="mx-auto max-w-xl px-4 py-24 text-center">
-        <p className="text-[15px] text-red-600">{error ?? "Locația nu a fost găsită."}</p>
-        <Link to="/places" className="mt-4 inline-block text-[13px] font-semibold text-[#0d2c5c] underline">
-          Înapoi la atracții
-        </Link>
+      <div className="min-h-screen pt-40 text-center text-[#0d2c5c]">
+        <p className="font-['Cormorant_Garamond',serif] text-3xl">Locația nu a fost găsită</p>
+        <Link to="/places" className="mt-4 inline-block text-sm font-bold uppercase tracking-[0.16em]">Înapoi</Link>
       </div>
     );
 
-  const img = place.image_url || place.thumb_url;
-
+  const img = placeImage(place);
   return (
-    <article className="mx-auto max-w-[900px] px-4 py-10 lg:py-14">
-      <Link
-        to="/places"
-        className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#6b7c99] hover:text-[#0d2c5c]"
-      >
-        <ArrowLeft size={14} /> Toate atracțiile
-      </Link>
-
-      {img && (
-        <img
-          src={img}
-          alt={place.title}
-          className="mt-6 h-[260px] w-full rounded-2xl object-cover sm:h-[380px]"
-          loading="lazy"
-        />
-      )}
-
-      <h1
-        className="mt-7 text-[clamp(1.7rem,3vw,2.4rem)] leading-tight text-[#0d2c5c]"
-        style={{ fontFamily: "var(--font-display)" }}
-      >
-        {place.title}
-      </h1>
-
-      <div className="mt-3 flex flex-wrap items-center gap-4 text-[13px] text-[#3d4f6b]">
-        {place.category && <span className="rounded-full bg-[#f4e5c8] px-3 py-1 text-[11.5px] font-semibold text-[#8a6413]">{place.category}</span>}
-        {place.rating != null && (
-          <span className="inline-flex items-center gap-1.5">
-            <Star size={14} className="text-[#c69a3f]" /> {Number(place.rating).toFixed(1)}
-          </span>
-        )}
-        {place.lat != null && place.lng != null && (
-          <a
-            className="inline-flex items-center gap-1.5 underline"
-            href={`https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MapPin size={14} className="text-[#c69a3f]" /> Vezi pe hartă
-          </a>
-        )}
-      </div>
-
-      {place.description && (
-        <p className="mt-6 text-[14.5px] leading-relaxed text-[#3d4f6b]">{place.description}</p>
-      )}
-    </article>
+    <div className="min-h-screen bg-white text-[#0d2c5c]">
+      <section className="relative bg-[#0d2c5c] px-5 pb-16 pt-36">
+        {img && <img src={img} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />}
+        <div className="relative mx-auto max-w-5xl">
+          <Link to="/places" className="mb-6 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
+            <ArrowLeft size={14} /> Toate locațiile
+          </Link>
+          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.4rem,5vw,4rem)] text-white">{place.title}</h1>
+          <p className="mt-3 max-w-2xl text-white/80">{placeDescription(place)}</p>
+        </div>
+      </section>
+      <section className="mx-auto max-w-5xl px-5 py-12">
+        <PlaceMenu categories={menuForPlace(menu, place)} />
+      </section>
+    </div>
   );
 }
