@@ -3,7 +3,6 @@ import {
   Plus,
   Pencil,
   Trash2,
-  Star,
   MapPin,
   Upload,
   Image as ImageIcon,
