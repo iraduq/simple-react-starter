@@ -303,8 +303,9 @@ const getPlaceImageUrl = (place: any) => {
 
 const getPlaceMenu = (place: Place): MenuItem[] => {
   const customItems =
-    place.menu?.flatMap((c) => c.items).filter((i) => i.name.trim() !== "") ??
-    [];
+    (Array.isArray(place.menu) ? place.menu : [])
+      .flatMap((c) => (Array.isArray(c?.items) ? c.items : []))
+      .filter((i) => typeof i?.name === "string" && i.name.trim() !== "");
   if (customItems.length > 0) return customItems;
   const fallback =
     DEFAULT_HIGHLIGHTS[place.category?.toLowerCase()] ||
@@ -339,8 +340,14 @@ export default function Places() {
   const loadPlaces = async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<Place[]>("/places");
-      setPlaces(data);
+      const data = await apiFetch<unknown>("/places");
+      const list = Array.isArray(data)
+        ? data
+        : ((data as { items?: Place[]; places?: Place[]; data?: Place[] } | null)?.items ??
+          (data as { places?: Place[] } | null)?.places ??
+          (data as { data?: Place[] } | null)?.data ??
+          []);
+      setPlaces(Array.isArray(list) ? (list as Place[]) : []);
     } catch (e) {
       if (e instanceof ApiError) toast(e.message, "error");
       else toast("Nu am putut încărca locațiile partenere.", "error");
@@ -862,7 +869,7 @@ export default function Places() {
                   phone: editing.phone ?? "",
                   schedule: editing.schedule ?? "",
                   menu:
-                    editing.menu && editing.menu.length > 0
+                    Array.isArray(editing.menu) && editing.menu.length > 0
                       ? editing.menu
                       : [
                           {
