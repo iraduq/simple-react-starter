@@ -3,7 +3,6 @@ import {
   Plus,
   Pencil,
   Trash2,
-  Star,
   MapPin,
   Upload,
   Image as ImageIcon,
@@ -48,9 +47,7 @@ interface PlaceItem {
   desc?: string;
   description?: string;
   badge?: string | null;
-  rating?: number;
-  lat?: number;
-  lng?: number;
+  is_active?: boolean;
   thumb?: string;
   img?: string;
   image_url?: string;
@@ -62,14 +59,13 @@ const EMPTY_FORM = {
   category: "atracție",
   desc: "",
   badge: "",
-  rating: 0,
-  lat: 0,
-  lng: 0,
+  is_active: true,
 };
 
 const CATEGORIES = [
   "plaja",
   "restaurant",
+  "spa",
   "hotel",
   "atracție",
   "bar",
@@ -142,9 +138,7 @@ export default function AdminPlacesTab() {
       category: p.category || "atracție",
       desc: p.desc || p.description || "",
       badge: p.badge || "",
-      rating: Number(p.rating || 0),
-      lat: Number(p.lat || 0),
-      lng: Number(p.lng || 0),
+      is_active: p.is_active !== false,
     });
     setFormErr({});
     setFormOpen(true);
@@ -155,8 +149,6 @@ export default function AdminPlacesTab() {
     if (!form.title.trim()) errs.title = "Numele este obligatoriu.";
     if (!form.category.trim()) errs.category = "Categoria este obligatorie.";
     if (!form.desc.trim()) errs.desc = "Descrierea este obligatorie.";
-    if (form.rating < 0 || form.rating > 5)
-      errs.rating = "Rating între 0 și 5.";
 
     setFormErr(errs);
     if (Object.keys(errs).length) return;
@@ -168,9 +160,7 @@ export default function AdminPlacesTab() {
         category: form.category.trim(),
         desc: form.desc.trim(),
         badge: form.badge.trim() || null,
-        rating: Number(form.rating),
-        lat: Number(form.lat),
-        lng: Number(form.lng),
+        is_active: form.is_active,
       };
       if (editing?.thumb && editing.thumb.length >= 5) {
         body.thumb = editing.thumb;
@@ -249,8 +239,7 @@ export default function AdminPlacesTab() {
                   <tr className="border-b border-[#eef2f7] text-[10px] uppercase tracking-[0.18em] text-[#4f6280]">
                     <th className="px-5 py-3 font-bold">Nume & Categorie</th>
                     <th className="px-5 py-3 font-bold">Badge</th>
-                    <th className="px-5 py-3 font-bold">Rating</th>
-                    <th className="px-5 py-3 font-bold">Coordonate</th>
+                    <th className="px-5 py-3 font-bold">Status</th>
                     <th className="px-5 py-3 text-right font-bold">Acțiuni</th>
                   </tr>
                 </thead>
@@ -301,19 +290,11 @@ export default function AdminPlacesTab() {
                           )}
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className="flex items-center gap-1 font-semibold text-[#0d2c5c]">
-                            <Star
-                              size={13}
-                              className="text-[#4f6280] fill-[#4f6280]"
-                            />
-                            {Number(p.rating || 0).toFixed(1)}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-[12px] text-[#4f6280]">
-                          <span className="flex items-center gap-1">
-                            <MapPin size={12} className="text-[#4f6280]" />
-                            {p.lat != null ? `${p.lat}, ${p.lng}` : "—"}
-                          </span>
+                          {p.is_active === false ? (
+                            <Badge tone="muted">Inactivă</Badge>
+                          ) : (
+                            <Badge tone="green">Activă</Badge>
+                          )}
                         </td>
                         <td className="px-5 py-3.5">
                           <div className="flex justify-end gap-2">
@@ -408,47 +389,18 @@ export default function AdminPlacesTab() {
                   placeholder="Recomandat / Nou"
                 />
               </Field>
-              <Field label="Rating (0-5)" error={formErr.rating}>
-                <input
-                  type="number"
-                  step="0.1"
-                  min={0}
-                  max={5}
-                  className={inputCls}
-                  value={form.rating}
-                  onChange={(e) =>
-                    setForm({ ...form, rating: Number(e.target.value) })
-                  }
-                />
+              <Field label="Status">
+                <label className="flex items-center gap-2 py-2.5 text-sm text-[#0d2c5c]">
+                  <input
+                    type="checkbox"
+                    checked={form.is_active}
+                    onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+                  />
+                  Vizibilă pe site
+                </label>
               </Field>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Latitudine">
-                <input
-                  type="number"
-                  step="any"
-                  className={inputCls}
-                  value={form.lat}
-                  onChange={(e) =>
-                    setForm({ ...form, lat: Number(e.target.value) })
-                  }
-                  placeholder="44.2488"
-                />
-              </Field>
-              <Field label="Longitudine">
-                <input
-                  type="number"
-                  step="any"
-                  className={inputCls}
-                  value={form.lng}
-                  onChange={(e) =>
-                    setForm({ ...form, lng: Number(e.target.value) })
-                  }
-                  placeholder="28.6653"
-                />
-              </Field>
-            </div>
           </div>
 
           <div className="mt-6 flex justify-end gap-2 border-t border-[#eef2f7] pt-4 bg-white">

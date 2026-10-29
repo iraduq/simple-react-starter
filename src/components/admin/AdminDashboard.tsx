@@ -14,6 +14,7 @@ import {
   Menu,
   DoorOpen,
   TrendingUp,
+  UtensilsCrossed,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -23,6 +24,7 @@ import RoomsTab from "./RoomsTab";
 import NomenclatureTab from "./NomenclatureTab";
 import PricingTab from "./PricingTab";
 import AdminPlacesTab from "./AdminPlacesTab";
+import AdminMenuTab from "./AdminMenuTab";
 import UsersTab from "./UsersTab";
 import AuditLogsTab from "./AuditLogsTab";
 import UnitsTab from "./UnitsTab";
@@ -34,6 +36,7 @@ type TabKey =
   | "nomenclature"
   | "pricing"
   | "places"
+  | "menu"
   | "users"
   | "audit";
 
@@ -43,7 +46,8 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "units", label: "Unități fizice", icon: DoorOpen },
   { key: "nomenclature", label: "Facilități", icon: Tags },
   { key: "pricing", label: "Prețuri", icon: DollarSign },
-  { key: "places", label: "Atracții locale", icon: MapPin },
+  { key: "places", label: "Locații", icon: MapPin },
+  { key: "menu", label: "Meniu & Bar", icon: UtensilsCrossed },
   { key: "users", label: "Utilizatori", icon: Users },
   { key: "audit", label: "Jurnal de securitate", icon: Shield },
 ];
@@ -147,6 +151,7 @@ export default function AdminDashboard() {
             {tab === "nomenclature" && <NomenclatureTab />}
             {tab === "pricing" && <PricingTab />}
             {tab === "places" && <AdminPlacesTab />}
+            {tab === "menu" && <AdminMenuTab />}
             {tab === "users" && <UsersTab />}
             {tab === "audit" && <AuditLogsTab />}
           </div>
