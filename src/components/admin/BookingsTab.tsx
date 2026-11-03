@@ -599,7 +599,7 @@ export default function BookingsTab() {
               <button
                 disabled={busy === `${cancelTarget?.id}-cancel`}
                 onClick={() => void submitCancel()}
-                className="inline-flex items-center gap-2 rounded-full bg-red-600 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-red-700 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full bg-[#8c2f39] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#6f232c] disabled:opacity-60"
               >
                 Confirmă anularea
               </button>
@@ -615,6 +615,21 @@ export default function BookingsTab() {
           onClose={() => setEditTarget(null)}
         >
           <div>
+            <div className="mb-6 flex items-center gap-4 rounded-2xl border border-[#e1e8f0] bg-[#f8fafd] p-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0d2c5c] text-[15px] font-bold text-[#e6b85c]">
+                {(editTarget?.guest_name || "O").charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-[14px] font-semibold text-[#0d2c5c]">
+                  {editTarget?.guest_name || "Oaspete"}
+                </p>
+                <p className="truncate text-[12px] text-[#4f6280]">
+                  {editTarget?.room_name || "Cameră"}
+                  {editTarget?.total_price != null && ` · ${editTarget.total_price} RON`}
+                </p>
+              </div>
+            </div>
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#6b7c99]">Perioada & oaspeți</p>
             <div className="grid gap-5 sm:grid-cols-2">
               <FormField label="Check-in">
                 <input
@@ -666,14 +681,14 @@ export default function BookingsTab() {
             <div className="mt-8 flex justify-end gap-3 border-t border-[#eef2f7] pt-5">
               <button
                 onClick={() => setEditTarget(null)}
-                className="rounded-xl border border-[#e1e8f0] bg-white px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#2a3b52] transition-all hover:bg-[#f8fafd] hover:border-[#c69a3f]/40 cursor-pointer"
+                className="rounded-full border border-[#e1e8f0] bg-white px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#2a3b52] transition-all hover:border-[#0d2c5c] cursor-pointer"
               >
                 Renunță
               </button>
               <button
                 disabled={busy === `${editTarget?.id}-edit`}
                 onClick={() => void submitEdit()}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] px-7 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer disabled:opacity-50"
               >
                 Salvează
               </button>
