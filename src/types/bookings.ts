@@ -1,6 +1,10 @@
 export type Booking = {
   id: number | string;
-  status: "pending" | "confirmed" | "completed" | "cancelled" | string;
+  status: "pending" | "confirmed" | "completed" | "cancelled" | "checked_in" | string;
+  booking_code?: string | null;
+  access_pin?: string | null;
+  self_checkin_completed_at?: string | null;
+  unit_number?: string | null;
   room_id?: number | string | null;
   room_name?: string | null;
   check_in?: string | null;

@@ -16,7 +16,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { Badge, TableSkeleton, EmptyState } from "./ui";
+import { Badge, TableSkeleton, EmptyState, Modal, SectionHeader } from "./ui";
 import {
   get,
   post,
@@ -306,77 +306,54 @@ function EditUnitModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl border border-black/10 bg-white p-5 shadow-xl"
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <p
-            className="text-[16px] font-semibold text-black"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Editează unitatea
-          </p>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1 text-black/40 transition-colors hover:bg-black/5 hover:text-black"
-          >
-            <X size={16} />
-          </button>
+    <Modal open={true} title={`Editează unitatea ${unitLabel(unit, index)}`} onClose={onClose} width="max-w-md">
+      <div className="space-y-4">
+        <div>
+          <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b7c99]">
+            Număr unitate
+          </label>
+          <input
+            value={unitNumber}
+            onChange={(e) => setUnitNumber(e.target.value)}
+            className="w-full rounded-xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-2.5 text-[13.5px] font-medium text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f] focus:ring-2 focus:ring-[#c69a3f]/15"
+          />
         </div>
 
-        <div className="space-y-3">
-          <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-black/40">
-              Număr unitate
-            </label>
-            <input
-              value={unitNumber}
-              onChange={(e) => setUnitNumber(e.target.value)}
-              className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[14px] text-black outline-none focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-black/40">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[14px] text-black outline-none focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]"
-            >
-              {STATUSES.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b7c99]">
+            Status
+          </label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full rounded-xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-2.5 text-[13.5px] font-medium text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f] focus:ring-2 focus:ring-[#c69a3f]/15 cursor-pointer"
+          >
+            {STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-6 flex justify-end gap-3 border-t border-[#eef2f7] pt-4">
           <button
             onClick={onClose}
             disabled={saving}
-            className="rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-black transition-all hover:bg-black/5 disabled:opacity-50"
+            className="rounded-xl border border-[#e1e8f0] bg-white px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#2a3b52] transition-all hover:bg-[#f8fafd] hover:border-[#c69a3f]/40 cursor-pointer disabled:opacity-50"
           >
             Anulează
           </button>
           <button
             onClick={() => void handleSave()}
             disabled={saving || !unitNumber.trim()}
-            className="rounded-xl bg-black px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:bg-neutral-800 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer disabled:opacity-50"
           >
             {saving ? "Se salvează…" : "Salvează"}
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

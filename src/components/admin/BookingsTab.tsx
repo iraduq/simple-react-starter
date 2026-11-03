@@ -10,7 +10,7 @@ import {
   Copy,
   MoreHorizontal,
 } from "lucide-react";
-import { Badge, statusTone, TableSkeleton, EmptyState, Modal } from "./ui";
+import { Badge, statusTone, TableSkeleton, EmptyState, Modal, SectionHeader } from "./ui";
 import {
   get,
   post,
@@ -208,45 +208,32 @@ export default function BookingsTab() {
   };
 
   const fieldInput =
-    "w-full py-3 px-4 bg-white border border-black/10 rounded-xl text-[14px] text-black outline-none transition-all focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#6b7c99]";
+    "w-full py-2.5 px-4 bg-[#f8fafd] border border-[#e1e8f0] rounded-xl text-[13.5px] font-medium text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f] focus:ring-2 focus:ring-[#c69a3f]/15 placeholder:text-[#94a3b8]";
 
   return (
-    <div className="w-full min-h-screen bg-white text-black p-4 sm:p-8 space-y-8">
-      <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1"
-        >
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-px bg-black/40" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
-                Operațiuni
-              </span>
-            </div>
-            <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-black leading-none">
-              Gestionare rezervări
-            </h2>
-          </div>
-          <button
-            onClick={() => void load()}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md"
-          >
-            <RefreshCw size={12} /> Reîmprospătează
-          </button>
-        </motion.div>
+    <div className="w-full space-y-4">
+        <SectionHeader
+          eyebrow="Operațiuni"
+          title="Gestionare rezervări"
+          action={
+            <button
+              onClick={() => void load()}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md cursor-pointer"
+            >
+              <RefreshCw size={12} /> Reîmprospătează
+            </button>
+          }
+        />
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{
             duration: 0.5,
             delay: 0.1,
             ease: [0.22, 1, 0.36, 1] as const,
           }}
-          className="rounded-[24px] border border-black/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-5 flex flex-col md:flex-row gap-4 items-stretch md:items-end"
+          className="rounded-2xl border border-[#e1e8f0] bg-white shadow-sm p-5 flex flex-col md:flex-row gap-4 items-stretch md:items-end"
         >
           <FormField label="Status">
             <select
@@ -296,14 +283,14 @@ export default function BookingsTab() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{
             duration: 0.5,
             delay: 0.2,
             ease: [0.22, 1, 0.36, 1] as const,
           }}
-          className="rounded-[24px] border border-black/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col"
+          className="rounded-2xl border border-[#e1e8f0] bg-white shadow-sm overflow-hidden flex flex-col"
         >
           {loading ? (
             <div className="p-6">
@@ -321,7 +308,7 @@ export default function BookingsTab() {
               <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-none overflow-x-auto pb-10">
                 <table className="w-full min-w-[900px] text-left text-sm bg-white">
                   <thead>
-                    <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                    <tr className="border-b border-[#eef2f7] bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
                       <th className="px-6 py-4 font-bold"># ID</th>
                       <th className="px-6 py-4 font-bold">Client</th>
                       <th className="px-6 py-4 font-bold">Cameră</th>
@@ -380,7 +367,7 @@ export default function BookingsTab() {
                       return (
                         <tr
                           key={b.id}
-                          className="border-b border-black/5 last:border-0 hover:bg-black/[0.01] transition-colors bg-white"
+                          className="border-b border-[#eef2f7] last:border-0 hover:bg-[#f8fafd] transition-colors bg-white"
                         >
                           <td className="px-6 py-4">
                             <button
@@ -411,7 +398,7 @@ export default function BookingsTab() {
                                 className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
                                 title="Click pentru a copia ID-ul clientului"
                               >
-                                <span className="block text-[14px] font-semibold text-black">
+                                <span className="block text-[14px] font-semibold text-[#0d2c5c]">
                                   {displayName}
                                 </span>
                                 {b.user_id && (
@@ -435,22 +422,22 @@ export default function BookingsTab() {
                                     )
                                   }
                                   title="Click pentru a copia codul"
-                                  className="mt-0.5 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-black/10 hover:text-black cursor-pointer"
+                                  className="mt-0.5 rounded-md bg-[#f0f4f9] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-black/10 hover:text-[#0d2c5c] cursor-pointer"
                                 >
                                   COD: {b.booking_code}
                                 </button>
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-[14px] font-medium text-black">
+                          <td className="px-6 py-4 text-[14px] font-medium text-[#0d2c5c]">
                             {displayRoomName}
                           </td>
                           <td className="px-6 py-4 text-[13px] text-[#666]">
-                            <span className="font-semibold text-black">
+                            <span className="font-semibold text-[#0d2c5c]">
                               {dateFmt(b.check_in)}
                             </span>
                             <span className="mx-2 text-[#ccc]">→</span>
-                            <span className="font-semibold text-black">
+                            <span className="font-semibold text-[#0d2c5c]">
                               {dateFmt(b.check_out)}
                             </span>
                             <span className="ml-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#6b7c99]">
@@ -464,7 +451,7 @@ export default function BookingsTab() {
                             </Badge>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="inline-flex items-center px-3 py-1 rounded-lg bg-black/5 font-semibold text-black text-[13px]">
+                            <span className="inline-flex items-center px-3 py-1 rounded-lg bg-[#f0f4f9] font-semibold text-[#0d2c5c] text-[13px]">
                               {money(b.total_price)}
                             </span>
                           </td>
@@ -477,7 +464,7 @@ export default function BookingsTab() {
                                     : String(b.id),
                                 )
                               }
-                              className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-transparent hover:border-black/10 hover:bg-black/5 transition-all text-[#6b7c99] hover:text-black"
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-transparent hover:border-black/10 hover:bg-[#f0f4f9] transition-all text-[#6b7c99] hover:text-[#0d2c5c]"
                               title="Acțiuni"
                             >
                               <MoreHorizontal size={18} />
@@ -490,14 +477,14 @@ export default function BookingsTab() {
                                   onClick={() => setActiveMenu(null)}
                                 />
 
-                                <div className="absolute right-6 top-10 z-50 mt-1 w-44 origin-top-right rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-black/5 py-1.5 focus:outline-none flex flex-col items-start overflow-hidden">
+                                <div className="absolute right-6 top-10 z-50 mt-1 w-44 origin-top-right rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#eef2f7] py-1.5 focus:outline-none flex flex-col items-start overflow-hidden">
                                   {b.status === "pending" && (
                                     <button
                                       onClick={() => {
                                         void runAction(b, "confirm");
                                         setActiveMenu(null);
                                       }}
-                                      className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-black hover:bg-black/5 transition-colors"
+                                      className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f0f4f9] transition-colors"
                                     >
                                       <Check
                                         size={14}
@@ -512,7 +499,7 @@ export default function BookingsTab() {
                                         void runAction(b, "complete");
                                         setActiveMenu(null);
                                       }}
-                                      className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-black hover:bg-black/5 transition-colors"
+                                      className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f0f4f9] transition-colors"
                                     >
                                       <CheckCircle2
                                         size={14}
@@ -526,7 +513,7 @@ export default function BookingsTab() {
                                       openEdit(b);
                                       setActiveMenu(null);
                                     }}
-                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-black hover:bg-black/5 transition-colors"
+                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f0f4f9] transition-colors"
                                   >
                                     <Pencil
                                       size={14}
@@ -541,7 +528,7 @@ export default function BookingsTab() {
                                         setCancelReason("");
                                         setActiveMenu(null);
                                       }}
-                                      className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-black/5 pt-2"
+                                      className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-[#eef2f7] pt-2"
                                     >
                                       <Trash2 size={14} /> Anulează
                                     </button>
@@ -558,23 +545,23 @@ export default function BookingsTab() {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-black/5 bg-white px-6 py-4">
+                <div className="flex items-center justify-between border-t border-[#eef2f7] bg-white px-6 py-4">
                   <span className="text-[12px] font-medium text-[#6b7c99]">
-                    Pagina <strong className="text-black">{page}</strong> din{" "}
-                    <strong className="text-black">{totalPages}</strong>
+                    Pagina <strong className="text-[#0d2c5c]">{page}</strong> din{" "}
+                    <strong className="text-[#0d2c5c]">{totalPages}</strong>
                   </span>
                   <div className="flex gap-2">
                     <button
                       disabled={page === 1}
                       onClick={() => setPage((p) => p - 1)}
-                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
+                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
                     >
                       Înapoi
                     </button>
                     <button
                       disabled={page === totalPages}
                       onClick={() => setPage((p) => p + 1)}
-                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-black shadow-sm transition-all hover:bg-black/5 hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
+                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
                     >
                       Înainte
                     </button>
@@ -592,7 +579,7 @@ export default function BookingsTab() {
           }`}
           onClose={() => setCancelTarget(null)}
         >
-          <div className="p-6 bg-white">
+          <div>
             <FormField label="Motiv anulare (opțional)">
               <textarea
                 className={`${fieldInput} min-h-[110px] resize-y mt-2`}
@@ -602,10 +589,10 @@ export default function BookingsTab() {
                 placeholder="ex: solicitare client..."
               />
             </FormField>
-            <div className="mt-8 flex justify-end gap-3 border-t border-black/5 pt-5">
+            <div className="mt-8 flex justify-end gap-3 border-t border-[#eef2f7] pt-5">
               <button
                 onClick={() => setCancelTarget(null)}
-                className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"
+                className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#f0f4f9]"
               >
                 Renunță
               </button>
@@ -627,7 +614,7 @@ export default function BookingsTab() {
           }`}
           onClose={() => setEditTarget(null)}
         >
-          <div className="p-6 bg-white">
+          <div>
             <div className="grid gap-5 sm:grid-cols-2">
               <FormField label="Check-in">
                 <input
@@ -676,17 +663,17 @@ export default function BookingsTab() {
                 )}
               </FormField>
             </div>
-            <div className="mt-8 flex justify-end gap-3 border-t border-black/5 pt-5">
+            <div className="mt-8 flex justify-end gap-3 border-t border-[#eef2f7] pt-5">
               <button
                 onClick={() => setEditTarget(null)}
-                className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"
+                className="rounded-xl border border-[#e1e8f0] bg-white px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#2a3b52] transition-all hover:bg-[#f8fafd] hover:border-[#c69a3f]/40 cursor-pointer"
               >
                 Renunță
               </button>
               <button
                 disabled={busy === `${editTarget?.id}-edit`}
                 onClick={() => void submitEdit()}
-                className="rounded-full bg-black px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer disabled:opacity-50"
               >
                 Salvează
               </button>
@@ -694,7 +681,6 @@ export default function BookingsTab() {
           </div>
         </Modal>
       </div>
-    </div>
   );
 }
 

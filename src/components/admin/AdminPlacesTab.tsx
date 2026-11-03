@@ -204,8 +204,7 @@ export default function AdminPlacesTab() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white text-black p-4 sm:p-8 space-y-8">
-      <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
+    <div className="w-full space-y-4">
         <SectionHeader
           eyebrow="Conținut"
           title="Atracții locale"
@@ -253,7 +252,7 @@ export default function AdminPlacesTab() {
                     return (
                       <tr
                         key={p.id}
-                        className="border-b border-[#f4f6f9] last:border-0 hover:bg-black/[0.01] transition-colors bg-white"
+                        className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#0d2c5c]/[0.01] transition-colors bg-white"
                       >
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
@@ -443,7 +442,6 @@ export default function AdminPlacesTab() {
           />
         )}
       </div>
-    </div>
   );
 }
 
@@ -571,8 +569,8 @@ function PlaceMediaManager({
           onClick={() => fileRef.current?.click()}
           className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
             dragOver
-              ? "border-black bg-black/5"
-              : "border-black/10 hover:border-black/30 hover:bg-black/[0.02]"
+              ? "border-black bg-[#0d2c5c]/5"
+              : "border-[#e1e8f0] hover:border-black/30 hover:bg-[#0d2c5c]/[0.02]"
           }`}
         >
           <input
@@ -586,9 +584,9 @@ function PlaceMediaManager({
           <Upload
             size={28}
             strokeWidth={1.5}
-            className="mx-auto text-black mb-3"
+            className="mx-auto text-[#0d2c5c] mb-3"
           />
-          <p className="text-[14px] font-semibold text-black">
+          <p className="text-[14px] font-semibold text-[#0d2c5c]">
             {uploading
               ? "Se încarcă…"
               : "Trage imagini aici sau click pentru a selecta (multiple)"}
@@ -615,8 +613,8 @@ function PlaceMediaManager({
                     className={`group relative overflow-hidden rounded-xl border ${
                       isPrimary
                         ? "border-amber-500 ring-2 ring-amber-400"
-                        : "border-black/10"
-                    } bg-black/5 h-28`}
+                        : "border-[#e1e8f0]"
+                    } bg-[#0d2c5c]/5 h-28`}
                   >
                     <img
                       src={
@@ -637,7 +635,7 @@ function PlaceMediaManager({
                     {!isPrimary && (
                       <button
                         onClick={() => void setPrimaryImage(img.id)}
-                        className="absolute left-2 top-2 flex h-7 items-center justify-center rounded bg-white/90 px-2 text-[10px] font-bold text-black shadow-md transition-all hover:bg-white opacity-0 group-hover:opacity-100"
+                        className="absolute left-2 top-2 flex h-7 items-center justify-center rounded bg-white/90 px-2 text-[10px] font-bold text-[#0d2c5c] shadow-md transition-all hover:bg-white opacity-0 group-hover:opacity-100"
                         title="Setează ca primă poză"
                       >
                         Setează principală
@@ -665,7 +663,7 @@ function PlaceMediaManager({
         <div className="flex justify-end pt-4 border-t border-black/5 bg-white">
           <button
             onClick={onClose}
-            className="rounded-full bg-black px-6 py-2.5 text-[11px] font-bold uppercase text-white"
+            className="rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[11px] font-bold uppercase text-white"
           >
             Închide
           </button>

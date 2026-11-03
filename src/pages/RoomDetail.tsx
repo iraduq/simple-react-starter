@@ -21,6 +21,7 @@ import DatePicker from "../components/DatePicker";
 import { useToast } from "../components/Toast";
 import { ron, toISODate, nightsBetween, dayLabel } from "../lib/format";
 import { hasSession } from "../lib/auth";
+import { WS_URL } from "../lib/config";
 import {
   RATE_PLANS,
   type BookingPriceCalculation,
@@ -62,11 +63,97 @@ export default function RoomDetail() {
   const [submitting, setSubmitting] = useState(false);
 
   const [blocked, setBlocked] = useState<Set<string>>(new Set());
+  const [liveHeldInfo, setLiveHeldInfo] = useState<{
+    expiresAt: string;
+    checkIn: string;
+    checkOut: string;
+  } | null>(null);
+
+  // Real-time WebSocket connection to prevent double booking and sync room state
+  useEffect(() => {
+    if (!roomId) return;
+    const rawWsUrl = WS_URL.replace(/\/$/, "");
+    const endpoint = `${rawWsUrl}/ws/live`;
+    let ws: WebSocket;
+    let pingInterval: ReturnType<typeof setInterval>;
+
+    try {
+      ws = new WebSocket(endpoint);
+
+      ws.onopen = () => {
+        pingInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send("ping");
+          }
+        }, 25000);
+      };
+
+      ws.onmessage = (event) => {
+        if (event.data === "pong") return;
+        try {
+          const payload = JSON.parse(event.data);
+          if (String(payload.room_id) === String(roomId)) {
+            if (payload.event === "room_held") {
+              setLiveHeldInfo({
+                expiresAt: payload.expires_at,
+                checkIn: payload.check_in ? payload.check_in.slice(0, 10) : "",
+                checkOut: payload.check_out ? payload.check_out.slice(0, 10) : "",
+              });
+            } else if (payload.event === "room_released") {
+              setLiveHeldInfo(null);
+            } else if (payload.event === "room_booked" || payload.event === "payment_confirmed") {
+              setLiveHeldInfo(null);
+              if (payload.check_in && payload.check_out) {
+                const bookedDays = nightsBetween(
+                  payload.check_in.slice(0, 10),
+                  payload.check_out.slice(0, 10)
+                );
+                setBlocked((prev) => {
+                  const next = new Set(prev);
+                  bookedDays.forEach((d) => next.add(d));
+                  return next;
+                });
+                toast(
+                  "Disponibilitatea acestei camere a fost actualizată în timp real de la server.",
+                  "info"
+                );
+              }
+            }
+          }
+        } catch {
+          // ignore non-json
+        }
+      };
+
+      ws.onclose = () => {
+        clearInterval(pingInterval);
+      };
+      ws.onerror = () => {
+        clearInterval(pingInterval);
+      };
+    } catch {
+      // ws unsupported or network failure
+    }
+
+    return () => {
+      clearInterval(pingInterval);
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [roomId, toast]);
 
   const nightList = nightsBetween(checkIn, checkOut);
   const nights = nightList.length;
   const conflictNights = nightList.filter((d) => blocked.has(d));
   const hasConflict = conflictNights.length > 0;
+  const isHeldConflict = Boolean(
+    liveHeldInfo &&
+    checkIn &&
+    checkOut &&
+    liveHeldInfo.checkIn < checkOut &&
+    liveHeldInfo.checkOut > checkIn
+  );
 
   useEffect(() => {
     let active = true;
@@ -488,6 +575,17 @@ export default function RoomDetail() {
                 alegeți alte date.
               </p>
             )}
+            {isHeldConflict && (
+              <div
+                role="alert"
+                className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-[12.5px] text-amber-900"
+              >
+                <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500 animate-pulse" />
+                <span>
+                  Această cameră este reținută temporar de un alt oaspete pentru finalizarea plății. Vă rugăm să așteptați câteva minute sau să alegeți altă perioadă.
+                </span>
+              </div>
+            )}
             {nights === 0 && !quoteError && (
               <p className="text-[12.5px] text-[#8595aa]">
                 Alege datele pentru a vedea prețul total.
@@ -534,6 +632,7 @@ export default function RoomDetail() {
               quoting ||
               nights === 0 ||
               hasConflict ||
+              isHeldConflict ||
               !!quoteError
             }
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0d2c5c] px-5 py-3.5 text-[12px] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#c69a3f] hover:text-[#0d2c5c] disabled:opacity-60"

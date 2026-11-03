@@ -8,6 +8,7 @@ import {
   Outlet,
   useNavigate,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -36,6 +37,7 @@ import Gdpr from "./pages/Gdpr";
 import Footer from "./components/Footer";
 import ChatWidget from "./components/ChatWidget";
 import BookingSuccess from "./pages/BookingSuccess";
+import CheckIn from "./pages/CheckIn";
 import Housekeeping from "./pages/Housekeeping";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 
@@ -44,14 +46,16 @@ function AvailabilityRedirect() {
 }
 
 const MainLayout = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
   return (
     <>
       <Navbar />
       <main>
         <Outlet />
       </main>
-      <Footer />
-      <ChatWidget />
+      {!isAdmin && <Footer />}
+      {!isAdmin && <ChatWidget />}
     </>
   );
 };
@@ -87,6 +91,7 @@ function AppInner() {
         <Route path="/places/:placeId" element={<PlaceDetail />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/booking-success" element={<BookingSuccess />} />
+        <Route path="/checkin/:bookingCode" element={<CheckIn />} />
         <Route path="/termeni-si-conditii" element={<Terms />} />
         <Route path="/confidentialitate" element={<Privacy />} />
         <Route path="/cookies" element={<Cookies />} />

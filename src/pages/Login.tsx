@@ -14,9 +14,11 @@ import {
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { fetchSession, notifySessionChange } from "../lib/auth";
 import { saveTokensFrom, clearAuthTokens, markAuthSession } from "../lib/token";
+import { useToast } from "../components/Toast";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const googleLoginInFlight = useRef(false);
 
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -468,7 +470,7 @@ export default function Login() {
 
               <GoogleAuthButton
                 onSuccess={handleGoogleSuccess}
-                onError={() => alert("Eroare la conectarea cu Google")}
+                onError={() => toast("Eroare la conectarea cu Google", "error")}
                 text="continue_with"
               />
 

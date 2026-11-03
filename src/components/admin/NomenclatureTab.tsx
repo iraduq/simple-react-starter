@@ -19,6 +19,7 @@ import {
   Modal,
   Field,
   inputCls,
+  SectionHeader,
 } from "./ui";
 import { get, post, patch, del, list, errMsg } from "../../lib/admin";
 import { useToast } from "../Toast";
@@ -76,9 +77,11 @@ function DynamicIcon({ name }: { name?: string | null }) {
     return <span className="font-mono text-xs text-[#6b7c99]">{name}</span>;
   const IconComp = entry.icon;
   return (
-    <div className="flex items-center gap-1.5 text-[#0d2c5c]">
-      <IconComp size={16} className="text-[#4f6280]" />
-      <span className="text-xs text-[#2a3b52]">{entry.name}</span>
+    <div className="flex items-center gap-2">
+      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#fdf8ec] text-[#c69a3f] border border-[#f4e5c8] shadow-xs">
+        <IconComp size={14} />
+      </span>
+      <span className="text-xs font-semibold text-[#0d2c5c]">{entry.name}</span>
     </div>
   );
 }
@@ -218,7 +221,8 @@ export default function NomenclatureTab() {
   const section = SECTIONS.find((s) => s.key === active)!;
 
   return (
-    <div>
+    <div className="w-full space-y-4">
+      <SectionHeader eyebrow="Configurări" title="Nomenclator & Facilități" />
       <div className="mb-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-[#e1e8f0] bg-white p-1 sm:w-auto sm:inline-flex">
         {SECTIONS.map((s) => (
           <button
@@ -400,7 +404,7 @@ function NomenclatureSection({ section }: { section: Section }) {
                 {paged.slice.map((item) => (
                   <tr
                     key={item.id}
-                    className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#f9f7f2]"
+                    className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#f8fafd]"
                   >
                     <td className="px-5 py-3.5 font-semibold text-[#0d2c5c]">
                       {item.name}

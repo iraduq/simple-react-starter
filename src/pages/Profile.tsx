@@ -1,6 +1,6 @@
 import { API_URL } from "../lib/config";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   User as UserIcon,
   Shield,
@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Mailbox,
   Lock,
+  Copy,
 } from "lucide-react";
 import {
   clearSession,
@@ -1032,6 +1033,8 @@ type Booking = {
   booking_code?: string;
   unit_number?: string;
   payment_status?: string;
+  access_pin?: string | null;
+  self_checkin_completed_at?: string | null;
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -1046,6 +1049,7 @@ function ReservationsTab() {
   const [scope, setScope] = useState<"upcoming" | "past">("upcoming");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedPin, setCopiedPin] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -1180,6 +1184,52 @@ function ReservationsTab() {
                       <span className="text-[#e1e8f0]">•</span>
                       <span>{nights(r.check_in, r.check_out)} nopți</span>
                     </div>
+
+                    {/* DIGITAL PIN & SELF CHECK-IN */}
+                    {r.access_pin ? (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-gradient-to-r from-[#0c1523] to-[#1a2d48] p-3 text-white">
+                        <div className="flex items-center gap-1.5">
+                          <KeyRound size={15} className="text-[#e6b85c]" />
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-[#e6b85c]">
+                            PIN Smart Lock:
+                          </span>
+                          <span className="font-mono text-[15px] font-black tracking-widest text-white px-2 py-0.5 rounded bg-white/10">
+                            {r.access_pin}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(r.access_pin!);
+                            setCopiedPin(r.access_pin!);
+                            toast(`Codul PIN ${r.access_pin} a fost copiat!`, "success");
+                            setTimeout(() => setCopiedPin(null), 2500);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg bg-white/10 px-2.5 py-1 text-[11px] font-semibold hover:bg-white/20 transition-colors"
+                        >
+                          {copiedPin === r.access_pin ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                          {copiedPin === r.access_pin ? "Copiat" : "Copiază"}
+                        </button>
+                        {r.booking_code && (
+                          <Link
+                            to={`/checkin/${r.booking_code}`}
+                            className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-[#e6b85c] hover:underline"
+                          >
+                            Pass Digital & Tastatură →
+                          </Link>
+                        )}
+                      </div>
+                    ) : r.booking_code && r.status === "confirmed" ? (
+                      <div className="mt-3">
+                        <Link
+                          to={`/checkin/${r.booking_code}`}
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-[#0d2c5c] px-4 py-2 text-[11.5px] font-bold uppercase tracking-wider text-white hover:bg-[#c69a3f] hover:text-[#0c1523] transition-all shadow-sm"
+                        >
+                          <KeyRound size={13} />
+                          Self Check-in Online & Cheie Digitală
+                        </Link>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="flex md:flex-col items-center md:items-end justify-between pt-3 sm:pt-4 md:pt-0 border-t md:border-t-0 border-[#e1e8f0] shrink-0">

@@ -17,6 +17,8 @@ export type Booking = {
   guests?: number | null;
   total_price?: number | null;
   created_at?: string | null;
+  access_pin?: string | null;
+  self_checkin_completed_at?: string | null;
 };
 
 export type RoomImage = {
@@ -32,6 +34,7 @@ export type RoomUnit = {
   unit_number?: string | null;
   status?: string | null;
   is_active?: boolean | null;
+  room_id?: string | number | null;
 };
 
 export type RoomBooking = {
@@ -50,6 +53,8 @@ export type RoomBooking = {
   user_name?: string | null;
   room_id?: string | number | null;
   created_at?: string | null;
+  access_pin?: string | null;
+  self_checkin_completed_at?: string | null;
   user?: {
     email?: string | null;
     first_name?: string | null;
@@ -71,6 +76,7 @@ export type Room = {
   size_sqm?: number | null;
   room_type_id?: number | string | null;
   is_active?: boolean | null;
+  room_id?: string | number | null;
   images?: RoomImage[];
   units?: RoomUnit[];
 };
@@ -106,13 +112,18 @@ export type AdminUser = {
   user_role?: string | null;
   roles?: string[] | null;
   is_active?: boolean | null;
+  room_id?: string | number | null;
   provider?: string | null;
   created_at?: string | null;
+  access_pin?: string | null;
+  self_checkin_completed_at?: string | null;
 };
 
 export type AuditLog = {
   id: number | string;
   created_at?: string | null;
+  access_pin?: string | null;
+  self_checkin_completed_at?: string | null;
   timestamp?: string | null;
   user_email?: string | null;
   user_id?: number | string | null;
@@ -133,6 +144,8 @@ export type SessionInfo = {
   location?: string | null;
   last_seen_at?: string | null;
   created_at?: string | null;
+  access_pin?: string | null;
+  self_checkin_completed_at?: string | null;
   is_current?: boolean | null;
 };
 

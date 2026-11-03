@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { CalendarDays, Loader as Loader2, XCircle } from "lucide-react";
+import { CalendarDays, Loader as Loader2, XCircle, KeyRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import { cancelBooking, myBookings } from "../services/bookingsService";
@@ -125,6 +125,19 @@ export default function MyBookings() {
                     {b.check_in ? dayLabel(b.check_in) : "—"} →{" "}
                     {b.check_out ? dayLabel(b.check_out) : "—"} ·{" "}
                     {ratePlanLabel(b.plan_code)}
+                  </p>
+                  {b.booking_code && (
+                    <div className="mt-2.5">
+                      <Link
+                        to={`/checkin/${b.booking_code}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#0d2c5c] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white hover:bg-[#c69a3f] transition-all"
+                      >
+                        <KeyRound size={12} />
+                        {b.access_pin ? `Cheie Smart Lock: ${b.access_pin}` : "Self Check-in Online"}
+                      </Link>
+                    </div>
+                  )}
+                  <p className="hidden">
                   </p>
                 </div>
                 <div className="flex items-center gap-4">

@@ -2,6 +2,7 @@ import { API_URL } from "../lib/config";
 import { markAuthSession, saveTokensFrom } from "../lib/token";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useToast } from "../components/Toast";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
 import "react-phone-number-input/style.css";
 import GoogleAuthButton from "../components/GoogleAuthButton";
@@ -24,6 +25,7 @@ const inputBase =
 
 export default function Register() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const phoneWrapRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     email: "",
@@ -227,10 +229,10 @@ export default function Register() {
           errorMsg = data.detail;
         }
       }
-      alert(errorMsg);
+      toast(errorMsg, "error");
     } catch (error) {
       console.error("Eroare detaliată Google Login:", error);
-      alert("A apărut o problemă de conexiune cu serverul.");
+      toast("A apărut o problemă de conexiune cu serverul.", "error");
     }
   };
 
@@ -644,7 +646,7 @@ export default function Register() {
 
           <GoogleAuthButton
             onSuccess={handleGoogleSuccess}
-            onError={() => alert("Eroare la conectarea cu Google")}
+            onError={() => toast("Eroare la conectarea cu Google", "error")}
             text="signup_with"
           />
 

@@ -27,7 +27,7 @@ import {
 import { useToast } from "../Toast";
 
 const fieldInput =
-  "w-full py-3 px-4 bg-black/[0.02] border border-black/10 rounded-xl text-[14px] text-black outline-none transition-all focus:bg-white focus:border-black/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#6b7c99]";
+  "w-full py-2.5 px-4 bg-[#f8fafd] border border-[#e1e8f0] rounded-xl text-[13.5px] font-medium text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f] focus:ring-2 focus:ring-[#c69a3f]/15 placeholder:text-[#94a3b8]";
 
 export default function RoomsTab() {
   const { toast } = useToast();
@@ -197,28 +197,28 @@ export default function RoomsTab() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-10">
+    <div className="w-full space-y-4">
       {/* ── HEADER ── */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
         className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1"
       >
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <span className="w-8 h-px bg-black/40" />
+            <span className="w-8 h-px bg-[#0d2c5c]/40" />
             <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
               Inventar
             </span>
           </div>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-black leading-none">
+          <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-[#0d2c5c] leading-none">
             Camere
           </h2>
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-neutral-800"
+          className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[#07203f]"
         >
           <Plus size={14} /> Adaugă cameră
         </button>
@@ -226,8 +226,8 @@ export default function RoomsTab() {
 
       {/* ── CONȚINUT ── */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{
           duration: 0.5,
           delay: 0.1,
@@ -239,16 +239,16 @@ export default function RoomsTab() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-[24px] border border-black/5 bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+                className="rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
               >
-                <div className="h-32 w-full animate-pulse rounded-xl bg-black/5" />
-                <div className="mt-4 h-5 w-2/3 animate-pulse rounded-full bg-black/5" />
-                <div className="mt-2 h-4 w-1/2 animate-pulse rounded-full bg-black/5" />
+                <div className="h-32 w-full animate-pulse rounded-xl bg-[#0d2c5c]/5" />
+                <div className="mt-4 h-5 w-2/3 animate-pulse rounded-full bg-[#0d2c5c]/5" />
+                <div className="mt-2 h-4 w-1/2 animate-pulse rounded-full bg-[#0d2c5c]/5" />
               </div>
             ))}
           </div>
         ) : rooms.length === 0 ? (
-          <div className="rounded-[24px] border border-black/5 bg-white p-16 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-16 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
             <EmptyState
               title="Nicio cameră definită"
               hint="Adaugă prima cameră pentru a începe."
@@ -280,7 +280,7 @@ export default function RoomsTab() {
         onClose={() => setFormOpen(false)}
         width="max-w-2xl"
       >
-        <div className="p-6">
+        <div>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <FormField label="Nume cameră">
@@ -410,13 +410,13 @@ export default function RoomsTab() {
                           key={fac.id}
                           type="button"
                           onClick={() => toggleFacility(fac.id)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12px] font-semibold transition-all ${
+                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-[12px] font-bold transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-black text-white border-black shadow-md"
-                              : "bg-black/[0.02] text-[#2a3b52] border-black/10 hover:border-black/30 hover:bg-white"
+                              ? "bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] text-white border-[#0d2c5c] shadow-xs"
+                              : "bg-[#f8fafd] text-[#2a3b52] border-[#e1e8f0] hover:border-[#c69a3f]/40 hover:bg-white"
                           }`}
                         >
-                          {isSelected && <Check size={12} strokeWidth={3} />}
+                          {isSelected && <Check size={12} strokeWidth={3} className="text-[#c69a3f]" />}
                           {fac.name}
                         </button>
                       );
@@ -440,17 +440,17 @@ export default function RoomsTab() {
             </div>
           </div>
 
-          <div className="mt-8 flex justify-end gap-3 border-t border-black/5 pt-5">
+          <div className="mt-8 flex justify-end gap-3 border-t border-[#eef2f7] pt-5">
             <button
               onClick={() => setFormOpen(false)}
-              className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"
+              className="rounded-xl border border-[#e1e8f0] bg-white px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#2a3b52] transition-all hover:bg-[#f8fafd] hover:border-[#c69a3f]/40 cursor-pointer"
             >
               Renunță
             </button>
             <button
               disabled={saving}
               onClick={() => void submitForm()}
-              className="rounded-full bg-black px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer disabled:opacity-50"
             >
               {saving ? "Se salvează..." : "Salvează"}
             </button>
@@ -463,18 +463,18 @@ export default function RoomsTab() {
         title="Șterge cameră"
         onClose={() => setDeleteTarget(null)}
       >
-        <div className="p-6">
+        <div>
           <p className="text-[14px] text-[#666]">
             Sigur vrei să ștergi camera{" "}
-            <strong className="text-black">
+            <strong className="text-[#0d2c5c]">
               {(deleteTarget as any)?.title || deleteTarget?.name}
             </strong>
             ? Acțiunea este ireversibilă și va șterge toate datele asociate.
           </p>
-          <div className="mt-8 flex justify-end gap-3 border-t border-black/5 pt-5">
+          <div className="mt-8 flex justify-end gap-3 border-t border-[#eef2f7] pt-5">
             <button
               onClick={() => setDeleteTarget(null)}
-              className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5"
+              className="rounded-full border border-[#e1e8f0] px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
             >
               Anulează
             </button>
@@ -515,8 +515,8 @@ function RoomCard({
   const displayTitle = room.title || room.name || "Cameră fără nume";
 
   return (
-    <div className="rounded-[24px] border border-black/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-      <div className="relative h-44 bg-black/[0.02]">
+    <div className="rounded-2xl border border-[#e1e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="relative h-56 sm:h-64 bg-[#f8fafd]">
         {thumb ? (
           <img
             src={imageUrl(thumb)}
@@ -537,8 +537,8 @@ function RoomCard({
 
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center gap-2">
-          <BedDouble size={16} className="text-black" />
-          <h3 className="text-[16px] font-bold text-black leading-tight">
+          <BedDouble size={16} className="text-[#0d2c5c]" />
+          <h3 className="text-[16px] font-bold text-[#0d2c5c] leading-tight">
             {displayTitle}
           </h3>
         </div>
@@ -548,7 +548,7 @@ function RoomCard({
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] font-semibold text-[#6b7c99]">
-          <span className="text-black rounded-lg bg-black/5 px-2 py-1">
+          <span className="font-bold text-[#c69a3f] rounded-lg bg-[#fdf8ec] border border-[#f4e5c8] px-2.5 py-1">
             {money(room.base_price)} / noapte
           </span>
           <span>{room.max_guests_adults || room.capacity || 0} Adulți</span>
@@ -564,13 +564,13 @@ function RoomCard({
             {room.facilities.slice(0, 4).map((f: any) => (
               <span
                 key={f.id}
-                className="text-[9px] uppercase tracking-wider font-bold text-[#6b7c99] bg-black/5 px-2 py-1 rounded-md"
+                className="text-[9px] uppercase tracking-wider font-bold text-[#6b7c99] bg-[#0d2c5c]/5 px-2 py-1 rounded-md"
               >
                 {f.name}
               </span>
             ))}
             {room.facilities.length > 4 && (
-              <span className="text-[9px] uppercase tracking-wider font-bold text-[#6b7c99] bg-black/5 px-2 py-1 rounded-md">
+              <span className="text-[9px] uppercase tracking-wider font-bold text-[#6b7c99] bg-[#0d2c5c]/5 px-2 py-1 rounded-md">
                 +{room.facilities.length - 4}
               </span>
             )}
@@ -580,13 +580,13 @@ function RoomCard({
         <div className="mt-auto pt-6 flex gap-2">
           <button
             onClick={onEdit}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-black/10 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:border-black/30 hover:bg-black/5"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-black/30 hover:bg-[#0d2c5c]/5"
           >
             <Pencil size={12} /> Edit
           </button>
           <button
             onClick={onMedia}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-black/10 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:border-black/30 hover:bg-black/5"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-black/30 hover:bg-[#0d2c5c]/5"
           >
             <Upload size={12} /> Foto
           </button>
@@ -673,7 +673,7 @@ function MediaManager({
 
   return (
     <Modal open title={`Galerie foto: ${displayTitle}`} onClose={onClose}>
-      <div className="p-6">
+      <div>
         {/* Upload zone */}
         <div
           onDragOver={(e) => {
@@ -689,8 +689,8 @@ function MediaManager({
           onClick={() => fileRef.current?.click()}
           className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-all ${
             dragOver
-              ? "border-black bg-black/5"
-              : "border-black/10 hover:border-black/30 hover:bg-black/[0.02]"
+              ? "border-black bg-[#0d2c5c]/5"
+              : "border-[#e1e8f0] hover:border-black/30 hover:bg-[#0d2c5c]/[0.02]"
           }`}
         >
           <input
@@ -704,9 +704,9 @@ function MediaManager({
           <Upload
             size={28}
             strokeWidth={1.5}
-            className="mx-auto text-black mb-3"
+            className="mx-auto text-[#0d2c5c] mb-3"
           />
-          <p className="text-[14px] font-semibold text-black">
+          <p className="text-[14px] font-semibold text-[#0d2c5c]">
             {uploading
               ? "Se încarcă…"
               : "Trage imagini aici sau click pentru a selecta"}
@@ -726,14 +726,14 @@ function MediaManager({
               {images.map((img) => (
                 <div
                   key={img.id}
-                  className="group relative overflow-hidden rounded-xl border border-black/10 bg-black/5"
+                  className="group relative overflow-hidden rounded-xl border border-[#e1e8f0] bg-[#0d2c5c]/5"
                 >
                   <img
                     src={imageUrl(img)}
                     alt=""
                     className="h-28 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-[#0d2c5c]/40 opacity-0 transition-opacity group-hover:opacity-100" />
                   <button
                     onClick={() => void deleteImage(img)}
                     className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#0d2c5c] shadow-sm transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
@@ -744,7 +744,7 @@ function MediaManager({
                     href={imageUrl(img)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute bottom-2 left-2 rounded-md bg-white px-2 py-1 text-[10px] font-bold text-black shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100"
+                    className="absolute bottom-2 left-2 rounded-md bg-white px-2 py-1 text-[10px] font-bold text-[#0d2c5c] shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100"
                   >
                     VEZI
                   </a>
@@ -753,17 +753,17 @@ function MediaManager({
             </div>
           </div>
         ) : (
-          <div className="mt-8 rounded-xl border border-dashed border-black/10 bg-black/[0.01] py-8 text-center">
+          <div className="mt-8 rounded-xl border border-dashed border-[#e1e8f0] bg-[#0d2c5c]/[0.01] py-8 text-center">
             <p className="text-[13px] text-[#6b7c99]">
               Nicio imagine încărcată pentru această cameră
             </p>
           </div>
         )}
 
-        <div className="mt-8 flex justify-end border-t border-black/5 pt-5">
+        <div className="mt-8 flex justify-end border-t border-[#eef2f7] pt-5">
           <button
             onClick={onClose}
-            className="rounded-full bg-black px-8 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800"
+            className="rounded-full bg-[#0d2c5c] px-8 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#07203f]"
           >
             Închide
           </button>

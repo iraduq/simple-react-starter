@@ -324,34 +324,31 @@ export default function PricingTab() {
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen bg-white text-black p-4 sm:p-8 space-y-8">
-        <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
+      <div className="w-full space-y-4">
           <SectionHeader eyebrow="Tarife" title="Prețuri & calendar" />
-          <Card className="p-5 bg-white border border-black/10 rounded-2xl">
-            <Skeleton className="h-10 w-48 bg-black/5" />
+          <Card className="p-5 bg-white border border-[#e1e8f0] rounded-2xl">
+            <Skeleton className="h-10 w-48 bg-[#0d2c5c]/5" />
             <div className="mt-4 grid grid-cols-7 gap-2">
               {Array.from({ length: 35 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 bg-black/5" />
+                <Skeleton key={i} className="h-16 bg-[#0d2c5c]/5" />
               ))}
             </div>
           </Card>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen bg-white text-black p-4 sm:p-8 space-y-8">
-      <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
+    <div className="w-full space-y-4">
         <SectionHeader eyebrow="Tarife" title="Prețuri & calendar" />
 
         {rooms.length === 0 ? (
-          <Card className="bg-white border border-black/10 rounded-2xl">
+          <Card className="bg-white border border-[#e1e8f0] rounded-2xl">
             <EmptyState title="Nicio cameră" hint="Adaugă camere mai întâi." />
           </Card>
         ) : (
           <>
-            <Card className="mb-5 p-4 bg-white border border-black/10 rounded-2xl shadow-sm">
+            <Card className="mb-5 p-4 bg-white border border-[#e1e8f0] rounded-2xl shadow-sm">
               <Field label="Selectează cameră">
                 <select
                   className={inputCls}
@@ -366,9 +363,9 @@ export default function PricingTab() {
                 </select>
               </Field>
               {basePrice != null && (
-                <p className="mt-3 text-[12px] text-black/60">
+                <p className="mt-3 text-[12px] text-[#0d2c5c]/60">
                   Tarif de bază:{" "}
-                  <span className="font-semibold text-black">
+                  <span className="font-semibold text-[#0d2c5c]">
                     {money(Number(basePrice))}
                   </span>{" "}
                   / noapte
@@ -376,31 +373,31 @@ export default function PricingTab() {
               )}
             </Card>
 
-            <Card className="p-4 sm:p-6 bg-white border border-black/10 rounded-2xl shadow-sm">
+            <Card className="p-4 sm:p-6 bg-white border border-[#e1e8f0] rounded-2xl shadow-sm">
               <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setMonthOffset((m) => m - 1)}
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-black/10 bg-white text-black transition-all hover:bg-black/5"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#e1e8f0] bg-white text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <h3
-                    className="text-[16px] font-semibold capitalize text-black"
+                    className="text-[16px] font-semibold capitalize text-[#0d2c5c]"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
                     {monthName}
                   </h3>
                   <button
                     onClick={() => setMonthOffset((m) => m + 1)}
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-black/10 bg-white text-black transition-all hover:bg-black/5"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#e1e8f0] bg-white text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
                   >
                     <ChevronRight size={16} />
                   </button>
                 </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-medium text-black/60">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-medium text-[#0d2c5c]/60">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-5 rounded bg-white border border-black/10" />{" "}
+                    <span className="h-3 w-5 rounded bg-white border border-[#e1e8f0]" />{" "}
                     Standard
                   </span>
                   <span className="flex items-center gap-1.5">
@@ -408,7 +405,7 @@ export default function PricingTab() {
                     Modificat
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-5 rounded bg-black" /> Blocat
+                    <span className="h-3 w-5 rounded bg-[#0d2c5c]" /> Blocat
                   </span>
                 </div>
               </div>
@@ -416,7 +413,7 @@ export default function PricingTab() {
               {calLoading ? (
                 <div className="grid grid-cols-7 gap-2">
                   {Array.from({ length: 35 }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 bg-black/5 rounded-xl" />
+                    <Skeleton key={i} className="h-16 bg-[#0d2c5c]/5 rounded-xl" />
                   ))}
                 </div>
               ) : (
@@ -424,7 +421,7 @@ export default function PricingTab() {
                   {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
                     <div
                       key={d}
-                      className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-black/40 py-2"
+                      className="text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c]/40 py-2"
                     >
                       {d}
                     </div>
@@ -452,10 +449,10 @@ export default function PricingTab() {
                         onClick={() => handleDayClick(day)}
                         className={`relative flex h-[50px] flex-col items-center justify-center gap-0.5 rounded-lg border px-0.5 transition-all hover:scale-[1.02] sm:h-[66px] sm:gap-1 sm:rounded-xl ${
                           blocked
-                            ? "border-black bg-black text-white shadow-sm"
+                            ? "border-black bg-[#0d2c5c] text-white shadow-sm"
                             : isOverride
-                              ? "border-amber-300 bg-amber-50/70 text-black font-semibold shadow-sm ring-1 ring-amber-300/50"
-                              : "border-black/10 bg-white text-black hover:border-black/30 hover:bg-black/[0.02]"
+                              ? "border-amber-300 bg-amber-50/70 text-[#0d2c5c] font-semibold shadow-sm ring-1 ring-amber-300/50"
+                              : "border-black/10 bg-white text-[#0d2c5c] hover:border-black/30 hover:bg-[#0d2c5c]/[0.02]"
                         }`}
                       >
                         {isOverride && !blocked && (
@@ -474,7 +471,7 @@ export default function PricingTab() {
                           />
                         ) : (
                           <span
-                            className={`w-full truncate text-center text-[8.5px] font-semibold leading-none tabular-nums sm:text-[10px] ${isOverride ? "text-amber-800 font-bold" : "text-black/60"}`}
+                            className={`w-full truncate text-center text-[8.5px] font-semibold leading-none tabular-nums sm:text-[10px] ${isOverride ? "text-amber-800 font-bold" : "text-[#0d2c5c]/60"}`}
                           >
                             {Math.round(dayPrice)}
                           </span>
@@ -488,205 +485,164 @@ export default function PricingTab() {
           </>
         )}
 
-        {actionModalOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
-            onClick={() => setActionModalOpen(false)}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl border border-black/10 bg-white p-6 shadow-xl space-y-4"
-            >
-              <div className="flex items-center justify-between border-b border-black/5 pb-3">
-                <h4 className="text-base font-semibold text-black">
-                  Ziua: {selectedDay?.date}
-                </h4>
-                <button
-                  onClick={() => setActionModalOpen(false)}
-                  className="rounded-lg p-1 text-black/40 transition-colors hover:bg-black/5 hover:text-black"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <p className="text-sm text-black/70">
-                Această zi are o regulă sau un preț personalizat.
-              </p>
-
-              <div className="flex flex-col gap-2 pt-1">
-                {selectedDay?.is_override && (
-                  <button
-                    disabled={saving}
-                    onClick={() => void removeOverrideForDate(selectedDay.date)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-xs font-semibold text-red-600 transition-all hover:bg-red-100 disabled:opacity-50"
-                  >
-                    <Trash2 size={14} /> Resetează prețul
-                  </button>
-                )}
-                <button
-                  onClick={() => openRule(selectedDay?.date)}
-                  className="flex w-full items-center justify-center rounded-xl bg-black py-2.5 text-xs font-semibold text-white transition-all hover:bg-neutral-800"
-                >
-                  Editează regula
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {ruleOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
-            onClick={() => setRuleOpen(false)}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between border-b border-black/5 pb-3">
-                <h3 className="text-base font-semibold text-black">
-                  Setează regulă preț & restricții
-                </h3>
-                <button
-                  onClick={() => setRuleOpen(false)}
-                  className="rounded-lg p-1 text-black/40 transition-colors hover:bg-black/5 hover:text-black"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              {ruleErr.general && (
-                <div className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-600 border border-red-100">
-                  {ruleErr.general}
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Data start" error={ruleErr.start_date}>
-                    <input
-                      type="date"
-                      className={inputCls}
-                      value={rule.start_date}
-                      onChange={(e) =>
-                        setRule({ ...rule, start_date: e.target.value })
-                      }
-                    />
-                  </Field>
-                  <Field label="Data sfârșit" error={ruleErr.end_date}>
-                    <input
-                      type="date"
-                      className={inputCls}
-                      value={rule.end_date}
-                      onChange={(e) =>
-                        setRule({ ...rule, end_date: e.target.value })
-                      }
-                    />
-                  </Field>
-                </div>
-
-                <Field
-                  label="Preț nou (RON / noapte)"
-                  error={ruleErr.price_override}
-                >
-                  <input
-                    type="number"
-                    min={0}
-                    className={inputCls}
-                    value={rule.price_override ?? ""}
-                    onChange={(e) =>
-                      setRule({
-                        ...rule,
-                        price_override:
-                          e.target.value === "" ? null : Number(e.target.value),
-                      })
-                    }
-                    disabled={rule.is_blocked}
-                    placeholder={rule.is_blocked ? "Blocat" : "ex: 450"}
-                  />
-                </Field>
-
-                <Field label="Ședere minimă (nopți)" error={ruleErr.min_stay}>
-                  <input
-                    type="number"
-                    min={1}
-                    className={inputCls}
-                    value={rule.min_stay ?? ""}
-                    onChange={(e) =>
-                      setRule({
-                        ...rule,
-                        min_stay:
-                          e.target.value === "" ? null : Number(e.target.value),
-                      })
-                    }
-                    placeholder="ex: 2"
-                  />
-                </Field>
-
-                <div className="space-y-2 pt-1">
-                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-black">
-                    <input
-                      type="checkbox"
-                      checked={rule.is_blocked}
-                      onChange={(e) =>
-                        setRule({ ...rule, is_blocked: e.target.checked })
-                      }
-                      className="h-4 w-4 rounded border-black/20 accent-black"
-                    />
-                    Blochează camera (Indisponibil)
-                  </label>
-
-                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-black">
-                    <input
-                      type="checkbox"
-                      checked={rule.closed_to_arrival}
-                      onChange={(e) =>
-                        setRule({
-                          ...rule,
-                          closed_to_arrival: e.target.checked,
-                        })
-                      }
-                      className="h-4 w-4 rounded border-black/20 accent-black"
-                    />
-                    Fără Check-in în aceste zile (CTA)
-                  </label>
-
-                  <label className="flex items-center gap-2.5 cursor-pointer text-sm text-black">
-                    <input
-                      type="checkbox"
-                      checked={rule.closed_to_departure}
-                      onChange={(e) =>
-                        setRule({
-                          ...rule,
-                          closed_to_departure: e.target.checked,
-                        })
-                      }
-                      className="h-4 w-4 rounded border-black/20 accent-black"
-                    />
-                    Fără Check-out în aceste zile (CTD)
-                  </label>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end gap-2 border-t border-black/5 pt-4">
-                <button
-                  onClick={() => setRuleOpen(false)}
-                  className="rounded-xl border border-black/10 px-4 py-2 text-xs font-semibold text-black transition-all hover:bg-black/5"
-                >
-                  Anulează
-                </button>
+                <Modal
+          open={actionModalOpen}
+          title={`Ziua: ${selectedDay?.date || ""}`}
+          onClose={() => setActionModalOpen(false)}
+          width="max-w-sm"
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-[#4f6280]">
+              Această zi are o regulă sau un preț personalizat.
+            </p>
+            <div className="flex flex-col gap-2.5 pt-1">
+              {selectedDay?.is_override && (
                 <button
                   disabled={saving}
-                  onClick={() => void submitRule()}
-                  className="rounded-xl bg-black px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
+                  onClick={() => void removeOverrideForDate(selectedDay.date)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-[11px] font-bold uppercase tracking-wider text-red-600 transition-all hover:bg-red-100 disabled:opacity-50 cursor-pointer"
                 >
-                  {saving ? "Se aplică…" : "Salvează"}
+                  <Trash2 size={14} /> Resetează prețul
                 </button>
-              </div>
+              )}
+              <button
+                onClick={() => openRule(selectedDay?.date)}
+                className="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] py-2.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer"
+              >
+                Editează regula
+              </button>
             </div>
           </div>
-        )}
+        </Modal>
+
+        <Modal
+          open={ruleOpen}
+          title="Setează regulă preț & restricții"
+          onClose={() => setRuleOpen(false)}
+          width="max-w-md"
+        >
+          <div className="space-y-4">
+            {ruleErr.general && (
+              <div className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-600 border border-red-100">
+                {ruleErr.general}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Data start" error={ruleErr.start_date}>
+                <input
+                  type="date"
+                  className={inputCls}
+                  value={rule.start_date}
+                  onChange={(e) =>
+                    setRule({ ...rule, start_date: e.target.value })
+                  }
+                />
+              </Field>
+              <Field label="Data sfârșit" error={ruleErr.end_date}>
+                <input
+                  type="date"
+                  className={inputCls}
+                  value={rule.end_date}
+                  onChange={(e) =>
+                    setRule({ ...rule, end_date: e.target.value })
+                  }
+                />
+              </Field>
+            </div>
+
+            <Field
+              label="Preț nou (RON / noapte)"
+              error={ruleErr.price_override}
+            >
+              <input
+                type="number"
+                min={0}
+                className={inputCls}
+                value={rule.price_override ?? ""}
+                onChange={(e) =>
+                  setRule({
+                    ...rule,
+                    price_override:
+                      e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                disabled={rule.is_blocked}
+                placeholder={rule.is_blocked ? "Blocat" : "ex: 450"}
+              />
+            </Field>
+
+            <Field label="Ședere minimă (nopți)" error={ruleErr.min_stay}>
+              <input
+                type="number"
+                min={1}
+                className={inputCls}
+                value={rule.min_stay ?? ""}
+                onChange={(e) =>
+                  setRule({
+                    ...rule,
+                    min_stay:
+                      e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                placeholder="ex: 2"
+              />
+            </Field>
+
+            <div className="space-y-2.5 pt-2 border-t border-[#eef2f7]">
+              <label className="flex items-center gap-2.5 cursor-pointer text-sm text-[#0d2c5c] font-medium">
+                <input
+                  type="checkbox"
+                  checked={rule.is_blocked}
+                  onChange={(e) =>
+                    setRule({ ...rule, is_blocked: e.target.checked })
+                  }
+                  className="h-4 w-4 rounded border-[#e1e8f0] text-[#0d2c5c] focus:ring-[#c69a3f] accent-[#0d2c5c]"
+                />
+                Blochează camera (Indisponibil)
+              </label>
+
+              <label className="flex items-center gap-2.5 cursor-pointer text-sm text-[#0d2c5c] font-medium">
+                <input
+                  type="checkbox"
+                  checked={rule.closed_to_arrival}
+                  onChange={(e) =>
+                    setRule({
+                      ...rule,
+                      closed_to_arrival: e.target.checked,
+                    })
+                  }
+                  className="h-4 w-4 rounded border-[#e1e8f0] text-[#0d2c5c] focus:ring-[#c69a3f] accent-[#0d2c5c]"
+                />
+                Fără Check-in în aceste zile (CTA)
+              </label>
+
+              <label className="flex items-center gap-2.5 cursor-pointer text-sm text-[#0d2c5c] font-medium">
+                <input
+                  type="checkbox"
+                  checked={rule.closed_to_departure}
+                  onChange={(e) =>
+                    setRule({
+                      ...rule,
+                      closed_to_departure: e.target.checked,
+                    })
+                  }
+                  className="h-4 w-4 rounded border-[#e1e8f0] text-[#0d2c5c] focus:ring-[#c69a3f] accent-[#0d2c5c]"
+                />
+                Fără Check-out în aceste zile (CTD)
+              </label>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3 border-t border-[#eef2f7] pt-4">
+              <Button variant="ghost" onClick={() => setRuleOpen(false)}>
+                Anulează
+              </Button>
+              <Button disabled={saving} onClick={() => void submitRule()}>
+                {saving ? "Se aplică…" : "Salvează regula"}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
-    </div>
   );
 }

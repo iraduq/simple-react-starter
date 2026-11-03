@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { useEffect, useState, type ReactNode } from "react";
 
 export function Card({
@@ -29,18 +30,20 @@ export function SectionHeader({
     <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
       <div>
         {eyebrow && (
-          <span className="block text-[11px] font-bold uppercase tracking-[0.25em] text-[#c69a3f] mb-2">
-            {eyebrow}
-          </span>
+          <div className="flex items-center gap-3 mb-2">
+            <span className="w-8 h-px bg-[#c69a3f]" />
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
+              {eyebrow}
+            </span>
+          </div>
         )}
         <h2
-          className="text-[clamp(1.5rem,2.4vw,2rem)] leading-tight text-[#0d2c5c]"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-['Cormorant_Garamond',serif] text-[28px] md:text-[34px] font-bold text-[#0d2c5c] leading-none"
         >
           {title}
         </h2>
       </div>
-      {action}
+      {action && <div>{action}</div>}
     </div>
   );
 }
@@ -96,17 +99,17 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[#2a3b52] mb-1.5">
+      <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b7c99] mb-1.5 ml-0.5">
         {label}
       </span>
       {children}
-      {error && <span className="block mt-1 text-[11px] text-[#8c2f39]">{error}</span>}
+      {error && <span className="block mt-1.5 text-[11px] font-medium text-rose-600">{error}</span>}
     </label>
   );
 }
 
 export const inputCls =
-  "w-full rounded-xl border border-[#e1e8f0] bg-white px-3.5 py-2.5 text-sm text-[#0d2c5c] outline-none transition-colors focus:border-[#c69a3f] placeholder:text-[#6b7c99]";
+  "w-full rounded-xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-2.5 text-[13.5px] font-medium text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f] focus:ring-2 focus:ring-[#c69a3f]/15 placeholder:text-[#94a3b8]";
 
 export function Badge({
   children,
@@ -179,24 +182,39 @@ export function Modal({
   width?: string;
 }) {
   if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[500] flex items-start justify-center overflow-y-auto bg-[#07203f]/50 p-4 py-10 backdrop-blur-sm">
-      <div className={`w-full ${width} rounded-2xl border border-[#e1e8f0] bg-white shadow-2xl`}>
-        <div className="flex items-center justify-between border-b border-[#eef2f7] px-6 py-4">
-          <h3 className="text-lg text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
-            {title}
-          </h3>
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-[#07203f]/60 backdrop-blur-md">
+      <div
+        className="fixed inset-0"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        className={`relative z-10 w-full ${width} max-h-[calc(100vh-3rem)] flex flex-col rounded-3xl border border-[#c69a3f]/30 bg-white shadow-[0_25px_70px_rgba(13,44,92,0.25)] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex shrink-0 items-center justify-between border-b border-[#eef2f7] px-6 py-4.5 bg-gradient-to-r from-white via-[#fcfaf6] to-white">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-[#c69a3f]" />
+            <h3
+              className="text-xl font-bold text-[#0d2c5c] tracking-tight"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {title}
+            </h3>
+          </div>
           <button
             onClick={onClose}
-            className="text-[#4f6280] transition-colors hover:text-[#0d2c5c]"
+            className="flex h-8 w-8 items-center justify-center rounded-xl text-[#6b7c99] transition-all hover:bg-[#0d2c5c]/5 hover:text-[#0d2c5c] cursor-pointer"
             aria-label="Închide"
           >
             ✕
           </button>
         </div>
-        <div className="px-6 py-5">{children}</div>
+        <div className="overflow-y-auto px-6 py-6 text-[#2a3b52]">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 /* ─────────────── SEARCH + PAGINARE ─────────────── */
