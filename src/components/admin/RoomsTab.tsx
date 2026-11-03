@@ -10,7 +10,7 @@ import {
   Image as ImageIcon,
   Check,
 } from "lucide-react";
-import { Badge, EmptyState, Modal } from "./ui";
+import { Badge, EmptyState, Modal, SectionHeader } from "./ui";
 import {
   get,
   post,
@@ -203,25 +203,20 @@ export default function RoomsTab() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
-        className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1"
+        className="px-1"
       >
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="w-8 h-px bg-[#0d2c5c]/40" />
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
-              Inventar
-            </span>
-          </div>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-[#0d2c5c] leading-none">
-            Camere
-          </h2>
-        </div>
-        <button
-          onClick={openCreate}
-          className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[#07203f]"
-        >
-          <Plus size={14} /> Adaugă cameră
-        </button>
+        <SectionHeader
+          eyebrow="Cazare"
+          title="Camere"
+          action={
+            <button
+              onClick={openCreate}
+              className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[#07203f]"
+            >
+              <Plus size={14} /> Adaugă cameră
+            </button>
+          }
+        />
       </motion.div>
 
       {/* ── CONȚINUT ── */}

@@ -300,25 +300,18 @@ export default function OverviewTab() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
       >
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 px-1">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-px bg-[#0d2c5c]/40" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
-                În așteptare
-              </span>
-            </div>
-            <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-[#0d2c5c] leading-none">
-              Rezervări recente
-            </h2>
-          </div>
-          <button
-            onClick={() => void load()}
-            className="inline-flex items-center gap-2 rounded-full border border-[#0d2c5c]/10 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
-          >
-            <RefreshCw size={12} /> Reîmprospătează
-          </button>
-        </div>
+        <SectionHeader
+          eyebrow="În așteptare"
+          title="Rezervări recente"
+          action={
+            <button
+              onClick={() => void load()}
+              className="inline-flex items-center gap-2 rounded-full border border-[#0d2c5c]/10 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
+            >
+              <RefreshCw size={12} /> Reîmprospătează
+            </button>
+          }
+        />
 
         <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(13,44,92,0.02)] overflow-hidden">
           {loading ? (
@@ -504,35 +497,28 @@ export default function OverviewTab() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
       >
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 px-1">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-px bg-[#0d2c5c]/40" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
-                Calendar
-              </span>
+        <SectionHeader
+          eyebrow="Calendar"
+          title="Disponibilitate camere"
+          action={
+            <div className="flex items-center gap-1 rounded-full border border-[#0d2c5c]/10 bg-white p-1 shadow-sm">
+              {(["week", "month"] as ViewMode[]).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setViewMode(m)}
+                  className={`rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-200 ${
+                    viewMode === m
+                      ? "bg-[#0d2c5c] text-white"
+                      : "text-[#6b7c99] hover:text-[#0d2c5c]"
+                  }`}
+                >
+                  {m === "week" ? "Săptămână" : "Lună"}
+                </button>
+              ))}
             </div>
-            <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-[#0d2c5c] leading-none">
-              Disponibilitate camere
-            </h2>
-          </div>
-          <div className="flex items-center gap-1 rounded-full border border-[#0d2c5c]/10 bg-white p-1 shadow-sm">
-            {(["week", "month"] as ViewMode[]).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setViewMode(m)}
-                className={`rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-200 ${
-                  viewMode === m
-                    ? "bg-[#0d2c5c] text-white"
-                    : "text-[#6b7c99] hover:text-[#0d2c5c]"
-                }`}
-              >
-                {m === "week" ? "Săptămână" : "Lună"}
-              </button>
-            ))}
-          </div>
-        </div>
+          }
+        />
 
         <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(13,44,92,0.02)] overflow-hidden">
           {/* Header de navigare perioadă */}
