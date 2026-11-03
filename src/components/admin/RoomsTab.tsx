@@ -239,7 +239,7 @@ export default function RoomsTab() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+                className="rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-[0_4px_20px_rgba(13,44,92,0.02)]"
               >
                 <div className="h-32 w-full animate-pulse rounded-xl bg-[#0d2c5c]/5" />
                 <div className="mt-4 h-5 w-2/3 animate-pulse rounded-full bg-[#0d2c5c]/5" />
@@ -248,7 +248,7 @@ export default function RoomsTab() {
             ))}
           </div>
         ) : rooms.length === 0 ? (
-          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-16 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-16 text-center shadow-[0_4px_20px_rgba(13,44,92,0.02)]">
             <EmptyState
               title="Nicio cameră definită"
               hint="Adaugă prima cameră pentru a începe."
@@ -515,7 +515,7 @@ function RoomCard({
   const displayTitle = room.title || room.name || "Cameră fără nume";
 
   return (
-    <div className="rounded-2xl border border-[#e1e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+    <div className="rounded-2xl border border-[#e1e8f0] bg-white shadow-[0_4px_20px_rgba(13,44,92,0.02)] overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_30px_rgba(13,44,92,0.04)]">
       <div className="relative h-56 sm:h-64 bg-[#f8fafd]">
         {thumb ? (
           <img

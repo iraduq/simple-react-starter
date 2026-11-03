@@ -46,7 +46,7 @@ function Kpi({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const }}
-      className="rounded-[24px] border border-[#0d2c5c]/[0.06] bg-white p-7 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-shadow duration-500 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)]"
+      className="rounded-[24px] border border-[#0d2c5c]/[0.06] bg-white p-7 shadow-[0_4px_20px_rgba(13,44,92,0.02)] transition-shadow duration-500 hover:shadow-[0_12px_40px_rgba(13,44,92,0.06)]"
     >
       <div className="flex items-start justify-between">
         <div>
@@ -320,7 +320,7 @@ export default function OverviewTab() {
           </button>
         </div>
 
-        <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(13,44,92,0.02)] overflow-hidden">
           {loading ? (
             <div className="p-6">
               <TableSkeleton />
@@ -534,7 +534,7 @@ export default function OverviewTab() {
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(13,44,92,0.02)] overflow-hidden">
           {/* Header de navigare perioadă */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#0d2c5c]/5 bg-[#0d2c5c]/[0.02] px-6 py-4">
             <div className="flex items-center gap-3">

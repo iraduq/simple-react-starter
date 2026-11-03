@@ -441,7 +441,7 @@ function AssignUnitDropdown({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Caută unitate…"
-                className="w-full rounded-lg border border-[#0d2c5c]/10 bg-white py-1.5 pl-7 pr-2 text-[12px] text-[#0d2c5c] outline-none focus:border-[#0d2c5c]/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]"
+                className="w-full rounded-lg border border-[#0d2c5c]/10 bg-white py-1.5 pl-7 pr-2 text-[12px] text-[#0d2c5c] outline-none focus:border-[#0d2c5c]/30 focus:shadow-[0_0_0_3px_rgba(13,44,92,0.05)]"
               />
             </div>
           </div>
@@ -792,7 +792,7 @@ export default function UnitsTab() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Caută cameră…"
-                  className="w-full rounded-xl border border-[#0d2c5c]/10 bg-white py-2.5 pl-9 pr-3 text-[13px] text-[#0d2c5c] outline-none focus:border-[#0d2c5c]/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#0d2c5c]/40"
+                  className="w-full rounded-xl border border-[#0d2c5c]/10 bg-white py-2.5 pl-9 pr-3 text-[13px] text-[#0d2c5c] outline-none focus:border-[#0d2c5c]/30 focus:shadow-[0_0_0_3px_rgba(13,44,92,0.05)] placeholder:text-[#0d2c5c]/40"
                 />
               </div>
               <div className="max-h-[520px] space-y-1 overflow-y-auto">
@@ -804,7 +804,7 @@ export default function UnitsTab() {
                       onClick={() => setSelectedId(r.id)}
                       className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[13px] font-semibold transition-all ${
                         active
-                          ? "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(0,0,0,0.18)]"
+                          ? "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.18)]"
                           : "text-[#0d2c5c]/70 hover:bg-[#0d2c5c]/5 hover:text-[#0d2c5c]"
                       }`}
                     >
@@ -852,7 +852,7 @@ export default function UnitsTab() {
                       if (e.key === "Enter") void addUnit();
                     }}
                     placeholder="Număr unitate — ex: 101"
-                    className="w-full rounded-xl border border-[#0d2c5c]/10 bg-white px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#0d2c5c]/30 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)] placeholder:text-[#0d2c5c]/40"
+                    className="w-full rounded-xl border border-[#0d2c5c]/10 bg-white px-4 py-3 text-[14px] text-[#0d2c5c] outline-none focus:border-[#0d2c5c]/30 focus:shadow-[0_0_0_3px_rgba(13,44,92,0.05)] placeholder:text-[#0d2c5c]/40"
                   />
                   <button
                     disabled={adding || !unitNumber.trim()}

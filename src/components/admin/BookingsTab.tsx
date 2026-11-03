@@ -477,7 +477,7 @@ export default function BookingsTab() {
                                   onClick={() => setActiveMenu(null)}
                                 />
 
-                                <div className="absolute right-6 top-10 z-50 mt-1 w-44 origin-top-right rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#eef2f7] py-1.5 focus:outline-none flex flex-col items-start overflow-hidden">
+                                <div className="absolute right-6 top-10 z-50 mt-1 w-44 origin-top-right rounded-xl bg-white shadow-[0_4px_20px_rgba(13,44,92,0.08)] border border-[#eef2f7] py-1.5 focus:outline-none flex flex-col items-start overflow-hidden">
                                   {b.status === "pending" && (
                                     <button
                                       onClick={() => {
