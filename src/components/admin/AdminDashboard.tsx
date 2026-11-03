@@ -120,6 +120,35 @@ function Shell({ className = "" }: { className?: string }) {
   );
 }
 
+function Wave({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 60" fill="none" className={className}>
+      {[0, 14, 28].map((o) => (
+        <path key={o} d={`M0 ${16 + o} Q25 ${4 + o} 50 ${16 + o} T100 ${16 + o} T150 ${16 + o} T200 ${16 + o}`} stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      ))}
+    </svg>
+  );
+}
+
+function Anchor({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" className={className} stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <circle cx="50" cy="16" r="7" />
+      <path d="M50 23 V88 M34 36 H66 M16 62 Q22 88 50 88 Q78 88 84 62 M10 66 L16 60 L22 66 M78 66 L84 60 L90 66" />
+    </svg>
+  );
+}
+
+function Compass({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" className={className} stroke="currentColor" strokeWidth="1.1">
+      <circle cx="50" cy="50" r="40" />
+      <circle cx="50" cy="50" r="30" strokeDasharray="1 4" />
+      <path d="M50 14 L57 50 L50 86 L43 50 Z M14 50 L50 43 L86 50 L50 57 Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 const float = (duration: number, y: number, rotate: number, delay = 0) => ({
   animate: {
     y: [-y / 2, y / 2, -y / 2],
@@ -188,7 +217,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
   }
 
   return (
-    <div className="relative h-screen w-full bg-white pt-[68px] sm:pt-20 overflow-hidden">
+    <div className="admin-shell relative h-screen w-full bg-white pt-[68px] sm:pt-20 overflow-hidden">
       {/* ── FLOATING LUXURY BACKGROUND MOTIFS (CASA ESY THEME) ── */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <motion.div
@@ -208,6 +237,18 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
           className="absolute bottom-[8%] left-[24%] opacity-[0.04] hidden md:block"
         >
           <SunRing className="h-44 w-44 text-[#c69a3f]" />
+        </motion.div>
+        <motion.div {...float(20, 18, 4, 0.8)} className="absolute top-[10%] right-[12%] opacity-[0.06] hidden md:block">
+          <Wave className="h-16 w-64 text-[#0d2c5c]" />
+        </motion.div>
+        <motion.div {...float(17, 22, 14, 3)} className="absolute top-[38%] left-[48%] opacity-[0.035] hidden lg:block">
+          <Anchor className="h-40 w-40 text-[#0d2c5c]" />
+        </motion.div>
+        <motion.div {...float(22, 14, 20, 1.2)} className="absolute bottom-[14%] right-[22%] opacity-[0.045] hidden md:block">
+          <Compass className="h-36 w-36 text-[#0d2c5c]" />
+        </motion.div>
+        <motion.div {...float(19, 16, -4, 4)} className="absolute bottom-[34%] left-[3%] opacity-[0.05] hidden xl:block">
+          <Wave className="h-14 w-56 text-[#c69a3f]" />
         </motion.div>
       </div>
 
