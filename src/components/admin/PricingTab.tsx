@@ -449,10 +449,10 @@ export default function PricingTab() {
                         onClick={() => handleDayClick(day)}
                         className={`relative flex h-[50px] flex-col items-center justify-center gap-0.5 rounded-lg border px-0.5 transition-all hover:scale-[1.02] sm:h-[66px] sm:gap-1 sm:rounded-xl ${
                           blocked
-                            ? "border-black bg-[#0d2c5c] text-white shadow-sm"
+                            ? "border-[#0d2c5c] bg-[#0d2c5c] text-white shadow-sm"
                             : isOverride
                               ? "border-amber-300 bg-amber-50/70 text-[#0d2c5c] font-semibold shadow-sm ring-1 ring-amber-300/50"
-                              : "border-black/10 bg-white text-[#0d2c5c] hover:border-black/30 hover:bg-[#0d2c5c]/[0.02]"
+                              : "border-[#0d2c5c]/10 bg-white text-[#0d2c5c] hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/[0.02]"
                         }`}
                       >
                         {isOverride && !blocked && (

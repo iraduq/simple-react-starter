@@ -30,9 +30,11 @@ export function SectionHeader({
     <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
       <div>
         {eyebrow && (
-          <div className="flex items-center gap-3 mb-2">
-            <span className="w-8 h-px bg-[#c69a3f]" />
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
+          <div className="mb-3 inline-flex items-center gap-2.5 rounded-full border border-[#c69a3f]/25 bg-[#fdf8ec] py-1 pl-1.5 pr-3.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0d2c5c]">
+              <span className="h-1.5 w-1.5 rotate-45 bg-[#e6b85c]" />
+            </span>
+            <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#8a6420]">
               {eyebrow}
             </span>
           </div>
@@ -183,35 +185,43 @@ export function Modal({
 }) {
   if (!open) return null;
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-[#07203f]/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-[#07203f]/55 backdrop-blur-md">
+      <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
       <div
-        className="fixed inset-0"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div
-        className={`relative z-10 w-full ${width} max-h-[calc(100vh-3rem)] flex flex-col rounded-3xl border border-[#c69a3f]/30 bg-white shadow-[0_25px_70px_rgba(13,44,92,0.25)] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+        className={`relative z-10 w-full ${width} max-h-[calc(100vh-3rem)] flex flex-col rounded-[28px] bg-white shadow-[0_30px_80px_rgba(7,32,63,0.35)] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-[#eef2f7] px-6 py-4.5 bg-gradient-to-r from-white via-[#fcfaf6] to-white">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-[#c69a3f]" />
-            <h3
-              className="text-xl font-bold text-[#0d2c5c] tracking-tight"
-              style={{ fontFamily: "var(--font-display)" }}
+        <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-[#0d2c5c] via-[#123a72] to-[#07203f] px-6 pt-5 pb-9">
+          <svg viewBox="0 0 120 120" fill="none" className="pointer-events-none absolute -right-6 -top-8 h-36 w-36 text-white/10">
+            <circle cx="60" cy="60" r="22" stroke="currentColor" strokeWidth="1.2" />
+            <circle cx="60" cy="60" r="36" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2 5" />
+            <circle cx="60" cy="60" r="50" stroke="currentColor" strokeWidth="0.6" />
+          </svg>
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#e6b85c]">
+                Vila Casa Esy · Admin
+              </span>
+              <h3
+                className="mt-1 text-[26px] font-semibold leading-tight !text-white"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {title}
+              </h3>
+            </div>
+            <button
+              onClick={onClose}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer"
+              aria-label="Închide"
             >
-              {title}
-            </h3>
+              ✕
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-xl text-[#6b7c99] transition-all hover:bg-[#0d2c5c]/5 hover:text-[#0d2c5c] cursor-pointer"
-            aria-label="Închide"
-          >
-            ✕
-          </button>
+          <svg viewBox="0 0 400 24" preserveAspectRatio="none" className="absolute bottom-0 left-0 h-6 w-full text-white">
+            <path d="M0 24 V12 Q50 0 100 12 T200 12 T300 12 T400 12 V24 Z" fill="currentColor" />
+          </svg>
         </div>
-        <div className="overflow-y-auto px-6 py-6 text-[#2a3b52]">{children}</div>
+        <div className="overflow-y-auto px-6 pb-6 pt-3 text-[#2a3b52]">{children}</div>
       </div>
     </div>,
     document.body

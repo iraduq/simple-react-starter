@@ -239,7 +239,7 @@ export default function RoomsTab() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+                className="rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-[0_4px_20px_rgba(13,44,92,0.02)]"
               >
                 <div className="h-32 w-full animate-pulse rounded-xl bg-[#0d2c5c]/5" />
                 <div className="mt-4 h-5 w-2/3 animate-pulse rounded-full bg-[#0d2c5c]/5" />
@@ -248,7 +248,7 @@ export default function RoomsTab() {
             ))}
           </div>
         ) : rooms.length === 0 ? (
-          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-16 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-16 text-center shadow-[0_4px_20px_rgba(13,44,92,0.02)]">
             <EmptyState
               title="Nicio cameră definită"
               hint="Adaugă prima cameră pentru a începe."
@@ -515,7 +515,7 @@ function RoomCard({
   const displayTitle = room.title || room.name || "Cameră fără nume";
 
   return (
-    <div className="rounded-2xl border border-[#e1e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+    <div className="rounded-2xl border border-[#e1e8f0] bg-white shadow-[0_4px_20px_rgba(13,44,92,0.02)] overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_30px_rgba(13,44,92,0.04)]">
       <div className="relative h-56 sm:h-64 bg-[#f8fafd]">
         {thumb ? (
           <img
@@ -580,13 +580,13 @@ function RoomCard({
         <div className="mt-auto pt-6 flex gap-2">
           <button
             onClick={onEdit}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-black/30 hover:bg-[#0d2c5c]/5"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/5"
           >
             <Pencil size={12} /> Edit
           </button>
           <button
             onClick={onMedia}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-black/30 hover:bg-[#0d2c5c]/5"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/5"
           >
             <Upload size={12} /> Foto
           </button>
@@ -689,8 +689,8 @@ function MediaManager({
           onClick={() => fileRef.current?.click()}
           className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-all ${
             dragOver
-              ? "border-black bg-[#0d2c5c]/5"
-              : "border-[#e1e8f0] hover:border-black/30 hover:bg-[#0d2c5c]/[0.02]"
+              ? "border-[#0d2c5c] bg-[#0d2c5c]/5"
+              : "border-[#e1e8f0] hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/[0.02]"
           }`}
         >
           <input

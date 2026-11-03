@@ -569,8 +569,8 @@ function PlaceMediaManager({
           onClick={() => fileRef.current?.click()}
           className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
             dragOver
-              ? "border-black bg-[#0d2c5c]/5"
-              : "border-[#e1e8f0] hover:border-black/30 hover:bg-[#0d2c5c]/[0.02]"
+              ? "border-[#0d2c5c] bg-[#0d2c5c]/5"
+              : "border-[#e1e8f0] hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/[0.02]"
           }`}
         >
           <input
@@ -660,7 +660,7 @@ function PlaceMediaManager({
           </p>
         )}
 
-        <div className="flex justify-end pt-4 border-t border-black/5 bg-white">
+        <div className="flex justify-end pt-4 border-t border-[#0d2c5c]/5 bg-white">
           <button
             onClick={onClose}
             className="rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[11px] font-bold uppercase text-white"
