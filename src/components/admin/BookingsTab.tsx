@@ -218,7 +218,7 @@ export default function BookingsTab() {
           action={
             <button
               onClick={() => void load()}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#0d2c5c]/10 bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md cursor-pointer"
             >
               <RefreshCw size={12} /> Reîmprospătează
             </button>
@@ -308,7 +308,7 @@ export default function BookingsTab() {
               <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-none overflow-x-auto pb-10">
                 <table className="w-full min-w-[900px] text-left text-sm bg-white">
                   <thead>
-                    <tr className="border-b border-[#eef2f7] bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                    <tr className="border-b border-[#eef2f7] bg-[#0d2c5c]/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
                       <th className="px-6 py-4 font-bold"># ID</th>
                       <th className="px-6 py-4 font-bold">Client</th>
                       <th className="px-6 py-4 font-bold">Cameră</th>
@@ -422,7 +422,7 @@ export default function BookingsTab() {
                                     )
                                   }
                                   title="Click pentru a copia codul"
-                                  className="mt-0.5 rounded-md bg-[#f0f4f9] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-black/10 hover:text-[#0d2c5c] cursor-pointer"
+                                  className="mt-0.5 rounded-md bg-[#f0f4f9] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-[#0d2c5c]/10 hover:text-[#0d2c5c] cursor-pointer"
                                 >
                                   COD: {b.booking_code}
                                 </button>
@@ -464,7 +464,7 @@ export default function BookingsTab() {
                                     : String(b.id),
                                 )
                               }
-                              className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-transparent hover:border-black/10 hover:bg-[#f0f4f9] transition-all text-[#6b7c99] hover:text-[#0d2c5c]"
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-transparent hover:border-[#0d2c5c]/10 hover:bg-[#f0f4f9] transition-all text-[#6b7c99] hover:text-[#0d2c5c]"
                               title="Acțiuni"
                             >
                               <MoreHorizontal size={18} />
@@ -554,14 +554,14 @@ export default function BookingsTab() {
                     <button
                       disabled={page === 1}
                       onClick={() => setPage((p) => p - 1)}
-                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
+                      className="rounded-full border border-[#0d2c5c]/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
                     >
                       Înapoi
                     </button>
                     <button
                       disabled={page === totalPages}
                       onClick={() => setPage((p) => p + 1)}
-                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
+                      className="rounded-full border border-[#0d2c5c]/10 bg-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md disabled:opacity-40 disabled:shadow-none disabled:hover:bg-white"
                     >
                       Înainte
                     </button>
@@ -592,7 +592,7 @@ export default function BookingsTab() {
             <div className="mt-8 flex justify-end gap-3 border-t border-[#eef2f7] pt-5">
               <button
                 onClick={() => setCancelTarget(null)}
-                className="rounded-full border border-black/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#f0f4f9]"
+                className="rounded-full border border-[#0d2c5c]/10 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#f0f4f9]"
               >
                 Renunță
               </button>

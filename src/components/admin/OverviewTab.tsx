@@ -46,7 +46,7 @@ function Kpi({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const }}
-      className="rounded-[24px] border border-black/[0.06] bg-white p-7 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-shadow duration-500 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)]"
+      className="rounded-[24px] border border-[#0d2c5c]/[0.06] bg-white p-7 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-shadow duration-500 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)]"
     >
       <div className="flex items-start justify-between">
         <div>
@@ -54,9 +54,9 @@ function Kpi({
             {label}
           </span>
           {loading ? (
-            <Skeleton className="mt-3 h-8 w-24 rounded-lg bg-black/5" />
+            <Skeleton className="mt-3 h-8 w-24 rounded-lg bg-[#0d2c5c]/5" />
           ) : (
-            <p className="mt-2 font-sans text-[28px] font-bold tracking-tight text-black leading-none">
+            <p className="mt-2 font-sans text-[28px] font-bold tracking-tight text-[#0d2c5c] leading-none">
               {value}
             </p>
           )}
@@ -66,7 +66,7 @@ function Kpi({
             </span>
           )}
         </div>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black/[0.03] text-black border border-black/[0.05] transition-transform duration-500 hover:scale-110">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0d2c5c]/[0.03] text-[#0d2c5c] border border-[#0d2c5c]/[0.05] transition-transform duration-500 hover:scale-110">
           <Icon size={20} strokeWidth={1.5} />
         </span>
       </div>
@@ -303,24 +303,24 @@ export default function OverviewTab() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 px-1">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-px bg-black/40" />
+              <span className="w-8 h-px bg-[#0d2c5c]/40" />
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
                 În așteptare
               </span>
             </div>
-            <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-black leading-none">
+            <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-[#0d2c5c] leading-none">
               Rezervări recente
             </h2>
           </div>
           <button
             onClick={() => void load()}
-            className="inline-flex items-center gap-2 rounded-full border border-black/10 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-black transition-all hover:bg-black/5"
+            className="inline-flex items-center gap-2 rounded-full border border-[#0d2c5c]/10 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
           >
             <RefreshCw size={12} /> Reîmprospătează
           </button>
         </div>
 
-        <div className="rounded-[24px] border border-black/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
           {loading ? (
             <div className="p-6">
               <TableSkeleton />
@@ -336,7 +336,7 @@ export default function OverviewTab() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[900px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-black/5 bg-black/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
+                  <tr className="border-b border-[#0d2c5c]/5 bg-[#0d2c5c]/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
                     <th className="px-6 py-4 font-bold"># ID</th>
                     <th className="px-6 py-4 font-bold">Client</th>
                     <th className="px-6 py-4 font-bold">Cameră</th>
@@ -387,7 +387,7 @@ export default function OverviewTab() {
                     return (
                       <tr
                         key={b.id}
-                        className="border-b border-black/5 last:border-0 transition-colors hover:bg-black/[0.01]"
+                        className="border-b border-[#0d2c5c]/5 last:border-0 transition-colors hover:bg-[#0d2c5c]/[0.01]"
                       >
                         <td className="px-6 py-4">
                           <button
@@ -415,7 +415,7 @@ export default function OverviewTab() {
                               className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
                               title="Click pentru a copia ID-ul clientului"
                             >
-                              <span className="block text-[14px] font-semibold text-black">
+                              <span className="block text-[14px] font-semibold text-[#0d2c5c]">
                                 {displayName}
                               </span>
                               {b.user_id && (
@@ -439,27 +439,27 @@ export default function OverviewTab() {
                                   )
                                 }
                                 title="Click pentru a copia codul"
-                                className="mt-0.5 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-black/10 hover:text-black cursor-pointer"
+                                className="mt-0.5 rounded-md bg-[#0d2c5c]/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] transition-colors hover:bg-[#0d2c5c]/10 hover:text-[#0d2c5c] cursor-pointer"
                               >
                                 COD: {b.booking_code}
                               </button>
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-[13px] font-medium text-black">
+                        <td className="px-6 py-4 text-[13px] font-medium text-[#0d2c5c]">
                           {displayRoomName}
                         </td>
                         <td className="px-6 py-4 text-[13px] text-[#666]">
-                          <span className="font-semibold text-black">
+                          <span className="font-semibold text-[#0d2c5c]">
                             {dateFmt(b.check_in)}
                           </span>
                           <span className="mx-2 text-[#ccc]">→</span>
-                          <span className="font-semibold text-black">
+                          <span className="font-semibold text-[#0d2c5c]">
                             {dateFmt(b.check_out)}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-lg bg-black/5 font-semibold text-black text-[13px]">
+                          <span className="inline-flex items-center px-3 py-1 rounded-lg bg-[#0d2c5c]/5 font-semibold text-[#0d2c5c] text-[13px]">
                             {money(b.total_price)}
                           </span>
                         </td>
@@ -468,14 +468,14 @@ export default function OverviewTab() {
                             <button
                               disabled={busy === `${b.id}-confirm`}
                               onClick={() => void act(b.id, "confirm")}
-                              className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-neutral-800 disabled:opacity-60"
+                              className="inline-flex items-center gap-1.5 rounded-full bg-[#0d2c5c] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#0d2c5c] disabled:opacity-60"
                             >
                               <Check size={12} strokeWidth={2.5} /> Confirmă
                             </button>
                             <button
                               disabled={busy === `${b.id}-cancel`}
                               onClick={() => void act(b.id, "cancel")}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-black transition-all hover:bg-black/5 disabled:opacity-60"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-[#0d2c5c]/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5 disabled:opacity-60"
                             >
                               <X size={12} strokeWidth={2.5} /> Anulează
                             </button>
@@ -507,16 +507,16 @@ export default function OverviewTab() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 px-1">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-px bg-black/40" />
+              <span className="w-8 h-px bg-[#0d2c5c]/40" />
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
                 Calendar
               </span>
             </div>
-            <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-black leading-none">
+            <h2 className="font-['Cormorant_Garamond',serif] text-[32px] md:text-[36px] text-[#0d2c5c] leading-none">
               Disponibilitate camere
             </h2>
           </div>
-          <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white p-1 shadow-sm">
+          <div className="flex items-center gap-1 rounded-full border border-[#0d2c5c]/10 bg-white p-1 shadow-sm">
             {(["week", "month"] as ViewMode[]).map((m) => (
               <button
                 key={m}
@@ -524,8 +524,8 @@ export default function OverviewTab() {
                 onClick={() => setViewMode(m)}
                 className={`rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-200 ${
                   viewMode === m
-                    ? "bg-black text-white"
-                    : "text-[#6b7c99] hover:text-black"
+                    ? "bg-[#0d2c5c] text-white"
+                    : "text-[#6b7c99] hover:text-[#0d2c5c]"
                 }`}
               >
                 {m === "week" ? "Săptămână" : "Lună"}
@@ -534,26 +534,26 @@ export default function OverviewTab() {
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-black/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="rounded-[24px] border border-[#0d2c5c]/5 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
           {/* Header de navigare perioadă */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/5 bg-black/[0.02] px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#0d2c5c]/5 bg-[#0d2c5c]/[0.02] px-6 py-4">
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => shiftRange(-1)}
                 aria-label="Perioada anterioară"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white text-black transition-colors hover:border-black hover:bg-black/5"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#0d2c5c]/10 bg-white text-[#0d2c5c] transition-colors hover:border-[#0d2c5c] hover:bg-[#0d2c5c]/5"
               >
                 <ChevronLeft size={16} />
               </button>
-              <p className="min-w-[190px] text-center text-[15px] font-bold uppercase tracking-wider text-black">
+              <p className="min-w-[190px] text-center text-[15px] font-bold uppercase tracking-wider text-[#0d2c5c]">
                 {rangeLabel}
               </p>
               <button
                 type="button"
                 onClick={() => shiftRange(1)}
                 aria-label="Perioada următoare"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white text-black transition-colors hover:border-black hover:bg-black/5"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#0d2c5c]/10 bg-white text-[#0d2c5c] transition-colors hover:border-[#0d2c5c] hover:bg-[#0d2c5c]/5"
               >
                 <ChevronRight size={16} />
               </button>
@@ -561,7 +561,7 @@ export default function OverviewTab() {
             <button
               type="button"
               onClick={goToday}
-              className="rounded-full border border-black/20 bg-white px-5 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-black transition-colors hover:bg-black/5"
+              className="rounded-full border border-[#0d2c5c]/20 bg-white px-5 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0d2c5c] transition-colors hover:bg-[#0d2c5c]/5"
             >
               Astăzi
             </button>
@@ -592,7 +592,7 @@ export default function OverviewTab() {
                           <div
                             className={`mx-auto flex flex-col items-center rounded-lg px-2 py-1.5 transition-colors ${
                               isToday
-                                ? "bg-black text-white shadow-sm"
+                                ? "bg-[#0d2c5c] text-white shadow-sm"
                                 : "text-[#6b7c99]"
                             }`}
                           >
@@ -601,7 +601,7 @@ export default function OverviewTab() {
                             </span>
                             <span
                               className={`text-[14px] font-semibold mt-0.5 ${
-                                isToday ? "text-white" : "text-black"
+                                isToday ? "text-white" : "text-[#0d2c5c]"
                               }`}
                             >
                               {d.getDate()}
@@ -615,7 +615,7 @@ export default function OverviewTab() {
                 <tbody>
                   {rooms.map((r) => (
                     <tr key={r.id}>
-                      <td className="sticky left-0 bg-white py-1 pr-4 text-[13px] font-semibold text-black">
+                      <td className="sticky left-0 bg-white py-1 pr-4 text-[13px] font-semibold text-[#0d2c5c]">
                         {r.name}
                       </td>
                       {rangeDays.map((d) => {
@@ -627,9 +627,9 @@ export default function OverviewTab() {
                             <span
                               className={`group relative mx-auto block h-8 w-full max-w-[48px] rounded-lg transition-all duration-300 ${
                                 booked
-                                  ? "bg-neutral-800 hover:bg-black shadow-sm scale-[1.02]"
-                                  : "bg-black/[0.03] hover:bg-black/[0.08]"
-                              } ${isToday && !booked ? "ring-1 ring-black/20" : ""}`}
+                                  ? "bg-[#0d2c5c] hover:bg-[#0d2c5c] shadow-sm scale-[1.02]"
+                                  : "bg-[#0d2c5c]/[0.03] hover:bg-[#0d2c5c]/[0.08]"
+                              } ${isToday && !booked ? "ring-1 ring-[#0d2c5c]/20" : ""}`}
                               title={`${r.name} · ${dateFmt(iso)} · ${
                                 booked ? "Rezervat" : "Liber"
                               }`}
@@ -641,7 +641,7 @@ export default function OverviewTab() {
                   ))}
                   {/* Rând de rezumat: grad de ocupare pe zi */}
                   <tr>
-                    <td className="sticky left-0 bg-white pt-4 pr-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] border-t border-black/5">
+                    <td className="sticky left-0 bg-white pt-4 pr-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] border-t border-[#0d2c5c]/5">
                       Ocupare %
                     </td>
                     {rangeDays.map((d) => {
@@ -650,12 +650,12 @@ export default function OverviewTab() {
                       return (
                         <td
                           key={iso}
-                          className="px-1 pt-4 text-center border-t border-black/5"
+                          className="px-1 pt-4 text-center border-t border-[#0d2c5c]/5"
                         >
                           <span
                             className={`text-[11px] font-bold ${
                               pct >= 75
-                                ? "text-black"
+                                ? "text-[#0d2c5c]"
                                 : pct > 0
                                   ? "text-[#666]"
                                   : "text-[#ccc]"
@@ -672,17 +672,17 @@ export default function OverviewTab() {
             )}
 
             {/* Legendă elegantă, B&W */}
-            <div className="mt-8 flex flex-wrap items-center gap-6 text-[10px] font-bold uppercase tracking-[0.1em] text-[#6b7c99] pt-4 border-t border-black/5">
+            <div className="mt-8 flex flex-wrap items-center gap-6 text-[10px] font-bold uppercase tracking-[0.1em] text-[#6b7c99] pt-4 border-t border-[#0d2c5c]/5">
               <span className="flex items-center gap-2.5">
-                <span className="h-3.5 w-6 rounded-md bg-black/[0.03] border border-black/5" />
+                <span className="h-3.5 w-6 rounded-md bg-[#0d2c5c]/[0.03] border border-[#0d2c5c]/5" />
                 Liber
               </span>
               <span className="flex items-center gap-2.5">
-                <span className="h-3.5 w-6 rounded-md bg-neutral-800 shadow-sm" />
+                <span className="h-3.5 w-6 rounded-md bg-[#0d2c5c] shadow-sm" />
                 Rezervat
               </span>
               <span className="flex items-center gap-2.5">
-                <span className="h-3.5 w-6 rounded-md bg-black/[0.03] ring-1 ring-black/20" />
+                <span className="h-3.5 w-6 rounded-md bg-[#0d2c5c]/[0.03] ring-1 ring-[#0d2c5c]/20" />
                 Astăzi
               </span>
               <div className="ml-auto">

@@ -580,13 +580,13 @@ function RoomCard({
         <div className="mt-auto pt-6 flex gap-2">
           <button
             onClick={onEdit}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-black/30 hover:bg-[#0d2c5c]/5"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/5"
           >
             <Pencil size={12} /> Edit
           </button>
           <button
             onClick={onMedia}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-black/30 hover:bg-[#0d2c5c]/5"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#e1e8f0] py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] transition-all hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/5"
           >
             <Upload size={12} /> Foto
           </button>
@@ -689,8 +689,8 @@ function MediaManager({
           onClick={() => fileRef.current?.click()}
           className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-all ${
             dragOver
-              ? "border-black bg-[#0d2c5c]/5"
-              : "border-[#e1e8f0] hover:border-black/30 hover:bg-[#0d2c5c]/[0.02]"
+              ? "border-[#0d2c5c] bg-[#0d2c5c]/5"
+              : "border-[#e1e8f0] hover:border-[#0d2c5c]/30 hover:bg-[#0d2c5c]/[0.02]"
           }`}
         >
           <input
