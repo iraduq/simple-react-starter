@@ -43,3 +43,46 @@ body {
 .skiptranslate {
   display: none !important;
 }
+
+/* ═════════ ADMIN — design unitar (aliniat cu /home) ═════════ */
+.admin-shell {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+}
+.admin-shell h1,
+.admin-shell h2 {
+  font-family: var(--font-display) !important;
+  color: var(--navy) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+.admin-shell main h2 { font-size: clamp(28px, 3vw, 36px); }
+.admin-shell h3,
+.admin-shell h4 {
+  font-family: var(--font-display) !important;
+  color: var(--navy) !important;
+  font-weight: 600 !important;
+  font-size: max(1.15em, 18px);
+}
+/* unifică culorile scăpate din paletă */
+.admin-shell .text-black { color: var(--navy) !important; }
+.admin-shell [class*="text-black/"],
+.admin-shell [class*="text-slate-"],
+.admin-shell [class*="text-gray-"],
+.admin-shell .text-\[\#666\],
+.admin-shell .text-\[\#475569\] { color: var(--text-muted) !important; }
+.admin-shell .text-\[\#ccc\] { color: var(--text-light) !important; }
+.admin-shell [class*="bg-black/40"],
+.admin-shell .bg-neutral-800,
+.admin-shell .bg-blue-600 { background-color: var(--navy) !important; }
+.admin-shell .bg-slate-50,
+.admin-shell .bg-gray-100,
+.admin-shell .bg-\[\#f1f5f9\],
+.admin-shell .bg-\[\#f7f9fc\],
+.admin-shell .bg-\[\#f9f7f2\] { background-color: #f4f6f9 !important; }
+.admin-shell [class*="border-slate-"],
+.admin-shell [class*="border-black/"] { border-color: var(--border-light) !important; }
+/* tab-urile cu fundal propriu devin transparente peste motivele flotante */
+.admin-shell main .min-h-screen { min-height: 0 !important; padding: 0 !important; }
+.admin-shell main .bg-white:not([class*="rounded"]):not([class*="border"]) { background-color: transparent !important; }
