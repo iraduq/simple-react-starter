@@ -20,10 +20,12 @@ export function Card({
 export function SectionHeader({
   eyebrow,
   title,
+  description,
   action,
 }: {
   eyebrow?: string;
   title: string;
+  description?: string;
   action?: ReactNode;
 }) {
   return (
@@ -44,6 +46,11 @@ export function SectionHeader({
         >
           {title}
         </h2>
+        {description && (
+          <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-[#6b7c99]">
+            {description}
+          </p>
+        )}
       </div>
       {action && <div>{action}</div>}
     </div>

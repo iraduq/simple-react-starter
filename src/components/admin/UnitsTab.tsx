@@ -744,34 +744,24 @@ export default function UnitsTab() {
   return (
     <div className="w-full min-h-screen bg-white text-[#0d2c5c] p-4 sm:p-8 space-y-8">
       <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <span className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#0d2c5c]/40">
-              <span className="h-px w-8 bg-[#0d2c5c]/40" /> Inventar
-            </span>
-            <h2
-              className="mt-2 text-[30px] font-semibold text-[#0d2c5c]"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Unități fizice
-            </h2>
-            <p className="mt-1 text-[13px] text-[#0d2c5c]/60">
-              Alege o cameră, vezi statusul fiecărei unități și zilele în care e
-              ocupată — cu oaspetele aferent.
-            </p>
-          </div>
-          {selectedId !== null && (
-            <button
-              onClick={() => {
-                void loadUnits(selectedId);
-                void loadBookings(selectedId);
-              }}
-              className="inline-flex items-center gap-2 rounded-xl border border-[#0d2c5c]/10 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
-            >
-              <RefreshCw size={13} /> Reîncarcă
-            </button>
-          )}
-        </div>
+        <SectionHeader
+          eyebrow="Status & Ocupare"
+          title="Unități fizice"
+          description="Alege o cameră, vezi statusul fiecărei unități și zilele în care e ocupată — cu oaspetele aferent."
+          action={
+            selectedId !== null ? (
+              <button
+                onClick={() => {
+                  void loadUnits(selectedId);
+                  void loadBookings(selectedId);
+                }}
+                className="inline-flex items-center gap-2 rounded-xl border border-[#0d2c5c]/10 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
+              >
+                <RefreshCw size={13} /> Reîncarcă
+              </button>
+            ) : undefined
+          }
+        />
 
         {loading ? (
           <TableSkeleton />
