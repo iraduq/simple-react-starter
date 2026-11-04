@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useMemo,
   useContext,
   useEffect,
   useRef,
@@ -319,16 +320,13 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const contextValue = useMemo(
+    () => ({ status, lastEvent, subscribe, sendPing, notifyMutation }),
+    [status, lastEvent, subscribe, sendPing, notifyMutation],
+  );
+
   return (
-    <AdminLiveSyncContext.Provider
-      value={{
-        status,
-        lastEvent,
-        subscribe,
-        sendPing,
-        notifyMutation,
-      }}
-    >
+    <AdminLiveSyncContext.Provider value={contextValue}>
       {children}
     </AdminLiveSyncContext.Provider>
   );
@@ -402,9 +400,6 @@ export function useAdminLiveSync({
 
       return () => {
         unsubscribe();
-        if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
-        }
       };
     } else {
       // Fallback direct pe BroadcastChannel dacă nu este în Provider
@@ -420,12 +415,16 @@ export function useAdminLiveSync({
 
       return () => {
         unsubscribe();
-        if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
-        }
       };
     }
   }, [context, topic, enabled, triggerDebouncedSync]);
+
+  // Timerul de debounce se anuleaza doar la demontarea componentei
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
 
   // 2. Ascultă focalizarea ferestrei (window focus & tab switch visibilitychange)
   useEffect(() => {
