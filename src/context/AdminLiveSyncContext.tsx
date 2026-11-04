@@ -64,6 +64,8 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "rooms_updated",
     "room_booked",
     "room_released",
+    "room_held",
+    "payment_confirmed",
     "pricing_updated",
     "facilities_updated",
   ],

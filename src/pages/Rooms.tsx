@@ -446,56 +446,6 @@ export default function Rooms() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
-  // Live WebSocket listener to keep search availability up to date
-  useEffect(() => {
-    const rawWsUrl = WS_URL.replace(/\/$/, "");
-    const endpoint = `${rawWsUrl}/ws/live`;
-    let ws: WebSocket;
-    let pingInterval: ReturnType<typeof setInterval>;
-
-    try {
-      ws = new WebSocket(endpoint);
-      ws.onopen = () => {
-        pingInterval = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send("ping");
-          }
-        }, 25000);
-      };
-
-      ws.onmessage = (event) => {
-        if (event.data === "pong") return;
-        try {
-          const payload = JSON.parse(event.data);
-          if (
-            payload.event === "room_booked" ||
-            payload.event === "payment_confirmed" ||
-            payload.event === "room_released" ||
-            payload.event === "rooms_updated" ||
-            payload.event === "pricing_updated"
-          ) {
-            void loadAllRooms();
-            if (searched && searched.in && searched.out) {
-              void runSearch(searched.in, searched.out, adults, children);
-            }
-          }
-        } catch {
-          // ignore
-        }
-      };
-
-      ws.onclose = () => clearInterval(pingInterval);
-      ws.onerror = () => clearInterval(pingInterval);
-    } catch {
-      // ws error ignore
-    }
-
-    return () => {
-      clearInterval(pingInterval);
-      if (ws) ws.close();
-    };
-  }, [searched, adults, children]);
-
   const clearSearch = () => {
     setResults(null);
     setSearched(null);

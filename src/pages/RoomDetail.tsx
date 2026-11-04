@@ -19,6 +19,7 @@ import {
 } from "../services/roomsService";
 import DatePicker from "../components/DatePicker";
 import { useToast } from "../components/Toast";
+import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
 import { ron, toISODate, nightsBetween, dayLabel } from "../lib/format";
 import { hasSession } from "../lib/auth";
 import { WS_URL } from "../lib/config";
@@ -69,81 +70,43 @@ export default function RoomDetail() {
     checkOut: string;
   } | null>(null);
 
-  // Real-time WebSocket connection to prevent double booking and sync room state
-  useEffect(() => {
-    if (!roomId) return;
-    const rawWsUrl = WS_URL.replace(/\/$/, "");
-    const endpoint = `${rawWsUrl}/ws/live`;
-    let ws: WebSocket;
-    let pingInterval: ReturnType<typeof setInterval>;
-
-    try {
-      ws = new WebSocket(endpoint);
-
-      ws.onopen = () => {
-        pingInterval = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send("ping");
+  // Real-time live synchronization to prevent double booking and sync room state
+  useAdminLiveSync({
+    topic: "rooms",
+    onSync: (payload) => {
+      if (!payload || !roomId) return;
+      if (String(payload.room_id) === String(roomId)) {
+        if (payload.event === "room_held") {
+          setLiveHeldInfo({
+            expiresAt: payload.expires_at,
+            checkIn: payload.check_in ? payload.check_in.slice(0, 10) : "",
+            checkOut: payload.check_out ? payload.check_out.slice(0, 10) : "",
+          });
+        } else if (payload.event === "room_released") {
+          setLiveHeldInfo(null);
+        } else if (payload.event === "rooms_updated" || payload.event === "pricing_updated") {
+          apiFetch<RoomDetailType>(`/rooms/${roomId}`).then(setRoom).catch(() => {});
+        } else if (payload.event === "room_booked" || payload.event === "payment_confirmed") {
+          setLiveHeldInfo(null);
+          if (payload.check_in && payload.check_out) {
+            const bookedDays = nightsBetween(
+              payload.check_in.slice(0, 10),
+              payload.check_out.slice(0, 10)
+            );
+            setBlocked((prev) => {
+              const next = new Set(prev);
+              bookedDays.forEach((d) => next.add(d));
+              return next;
+            });
+            toast(
+              "Disponibilitatea acestei camere a fost actualizată în timp real.",
+              "info"
+            );
           }
-        }, 25000);
-      };
-
-      ws.onmessage = (event) => {
-        if (event.data === "pong") return;
-        try {
-          const payload = JSON.parse(event.data);
-          if (String(payload.room_id) === String(roomId)) {
-            if (payload.event === "room_held") {
-              setLiveHeldInfo({
-                expiresAt: payload.expires_at,
-                checkIn: payload.check_in ? payload.check_in.slice(0, 10) : "",
-                checkOut: payload.check_out ? payload.check_out.slice(0, 10) : "",
-              });
-            } else if (payload.event === "room_released") {
-              setLiveHeldInfo(null);
-            } else if (payload.event === "rooms_updated" || payload.event === "pricing_updated") {
-              apiFetch<RoomDetailType>(`/rooms/${roomId}`).then(setRoom).catch(() => {});
-            } else if (payload.event === "room_booked" || payload.event === "payment_confirmed") {
-              setLiveHeldInfo(null);
-              if (payload.check_in && payload.check_out) {
-                const bookedDays = nightsBetween(
-                  payload.check_in.slice(0, 10),
-                  payload.check_out.slice(0, 10)
-                );
-                setBlocked((prev) => {
-                  const next = new Set(prev);
-                  bookedDays.forEach((d) => next.add(d));
-                  return next;
-                });
-                toast(
-                  "Disponibilitatea acestei camere a fost actualizată în timp real de la server.",
-                  "info"
-                );
-              }
-            }
-          }
-        } catch {
-          // ignore non-json
         }
-      };
-
-      ws.onclose = () => {
-        clearInterval(pingInterval);
-      };
-      ws.onerror = () => {
-        clearInterval(pingInterval);
-      };
-    } catch {
-      // ws unsupported or network failure
-    }
-
-    return () => {
-      clearInterval(pingInterval);
-      if (ws) {
-        ws.close();
       }
-    };
-  }, [roomId, toast]);
+    },
+  });
 
   const nightList = nightsBetween(checkIn, checkOut);
   const nights = nightList.length;

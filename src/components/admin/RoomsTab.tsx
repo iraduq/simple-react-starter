@@ -38,8 +38,31 @@ export default function RoomsTab() {
 
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "rooms",
-    onSync: () => load(true),
+    onSync: async (ev) => {
+      console.log("🏨 [RoomsTab LiveSync] Event received:", ev);
+      await load(true);
+      if (
+        ev &&
+        ev.event &&
+        ev.event !== "manual_trigger" &&
+        ev.event !== "window_focus" &&
+        ev.event !== "tab_visible"
+      ) {
+        toast("Camerele au fost actualizate în timp real.", "info");
+      }
+    },
   });
+
+  useEffect(() => {
+    const handleLegacyLiveRooms = () => {
+      console.log("🏨 [RoomsTab] Window live-rooms-sync event triggered");
+      void load(true);
+    };
+    window.addEventListener("live-rooms-sync", handleLegacyLiveRooms);
+    return () => {
+      window.removeEventListener("live-rooms-sync", handleLegacyLiveRooms);
+    };
+  }, []);
   const [editTarget, setEditTarget] = useState<Room | null>(null);
   const [formOpen, setFormOpen] = useState(false);
 
@@ -68,7 +91,13 @@ export default function RoomsTab() {
         get<unknown>("/rooms/facilities"),
       ]);
 
-      if (roomsRes.status === "fulfilled") setRooms(list<Room>(roomsRes.value));
+      if (roomsRes.status === "fulfilled") {
+        const freshRooms = list<Room>(roomsRes.value);
+        console.log(`🏨 [RoomsTab] Successfully loaded ${freshRooms.length} rooms`);
+        setRooms(freshRooms);
+      } else {
+        console.error("❌ [RoomsTab] Rooms fetch rejected:", roomsRes.reason);
+      }
       if (facRes.status === "fulfilled") setFacilities(list<any>(facRes.value));
     } catch (e) {
       if (!silent) toast(errMsg(e), "error");

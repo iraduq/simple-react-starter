@@ -153,8 +153,10 @@ function App() {
       <GoogleTranslate />
 
       <Router>
-        <ScrollToTop />
-        <AppInner />
+        <AdminLiveSyncProvider>
+          <ScrollToTop />
+          <AppInner />
+        </AdminLiveSyncProvider>
       </Router>
     </ToastProvider>
   );
