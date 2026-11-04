@@ -25,21 +25,21 @@ export default function AuditLogsTab() {
 
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "audit",
-    onSync: () => load(),
+    onSync: () => load(true),
   });
   const [sortKey, setSortKey] = useState<SortKey>("timestamp");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const data = await get<unknown>("/admin/audit-logs/");
       setLogs(list<AuditLog>(data));
     } catch (e) {
-      toast(errMsg(e), "error");
+      if (!silent) toast(errMsg(e), "error");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 

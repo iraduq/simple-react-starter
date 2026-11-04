@@ -57,7 +57,7 @@ export default function UsersTab() {
 
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "users",
-    onSync: () => load(),
+    onSync: () => load(true),
   });
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
   const [form, setForm] = useState({ role: "user", is_active: true });
@@ -80,15 +80,15 @@ export default function UsersTab() {
 
   const paged = usePaged(filtered, 10);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const data = await get<unknown>("/users/admin/all");
       setUsers(list<AdminUser>(data));
     } catch (e) {
-      toast(errMsg(e), "error");
+      if (!silent) toast(errMsg(e), "error");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 

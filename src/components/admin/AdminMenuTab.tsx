@@ -22,7 +22,7 @@ const EMPTY_CAT = { name: "", description: "", display_order: 0, is_active: true
 export default function AdminMenuTab() {
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "menu",
-    onSync: () => void load(),
+    onSync: () => void load(true),
   });
   const { toast } = useToast();
   const [cats, setCats] = useState<MenuCategory[]>([]);
@@ -36,8 +36,8 @@ export default function AdminMenuTab() {
   const [catEditing, setCatEditing] = useState<MenuCategory | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [m, p] = await Promise.all([get<unknown>("/menu/full"), get<unknown>("/places")]);
       setCats(list<MenuCategory>(m).map((c) => ({ ...c, items: Array.isArray(c.items) ? c.items : [] })));
@@ -45,7 +45,7 @@ export default function AdminMenuTab() {
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
   useEffect(() => {

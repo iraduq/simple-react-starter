@@ -368,7 +368,7 @@ export default function Rooms() {
     onSync: () => {
       void loadAllRooms();
       if (searched && searched.in && searched.out) {
-        void runSearch(searched.in, searched.out, adults, children);
+        void runSearch(searched.in, searched.out, adults, children, true);
       }
     },
   });
@@ -400,7 +400,7 @@ export default function Rooms() {
     const onLiveRoomsSync = () => {
       void loadAllRooms();
       if (searched && searched.in && searched.out) {
-        void runSearch(searched.in, searched.out, adults, children);
+        void runSearch(searched.in, searched.out, adults, children, true);
       }
     };
 
@@ -410,9 +410,15 @@ export default function Rooms() {
     };
   }, [searched, adults, children]);
 
-  const runSearch = async (ci: string, co: string, ad: number, ch: number) => {
+  const runSearch = async (
+    ci: string,
+    co: string,
+    ad: number,
+    ch: number,
+    silent = false
+  ) => {
     if (!ci || !co) return;
-    setSearching(true);
+    if (!silent) setSearching(true);
     try {
       const res = await searchAvailability({
         check_in: ci,
@@ -432,9 +438,9 @@ export default function Rooms() {
       setSearched({ in: ci, out: co, guests: ad + ch });
       setActiveTab("Toate");
     } catch (err) {
-      toast(httpErrorMessage(err, "Căutarea a eșuat."), "error");
+      if (!silent) toast(httpErrorMessage(err, "Căutarea a eșuat."), "error");
     } finally {
-      setSearching(false);
+      if (!silent) setSearching(false);
     }
   };
 
@@ -669,7 +675,7 @@ export default function Rooms() {
             </div>
           ) : (
             <div className="flex flex-col gap-14 md:gap-16">
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="popLayout" initial={false}>
                 {filtered.map((room, idx) => {
                   const total = searched
                     ? (room.total ?? room.price * nights)
@@ -684,7 +690,7 @@ export default function Rooms() {
                     <motion.article
                       key={room.id}
                       layout
-                      initial={{ opacity: 0, y: 40 }}
+                      initial={false}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-60px" }}
                       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}

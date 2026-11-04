@@ -95,7 +95,7 @@ export default function PricingTab() {
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "pricing",
     onSync: () => {
-      void loadCalendar();
+      void loadCalendar(true);
     },
   });
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -158,9 +158,9 @@ export default function PricingTab() {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
 
-  const loadCalendar = useCallback(async () => {
+  const loadCalendar = useCallback(async (silent = false) => {
     if (!selectedRoom) return;
-    setCalLoading(true);
+    if (!silent) setCalLoading(true);
     try {
       const pad = (n: number) => String(n).padStart(2, "0");
       const firstDay = `${year}-${pad(month + 1)}-01`;

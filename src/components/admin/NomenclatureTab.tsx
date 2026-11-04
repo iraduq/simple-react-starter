@@ -248,7 +248,7 @@ export default function NomenclatureTab() {
 function NomenclatureSection({ section }: { section: Section }) {
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "nomenclature",
-    onSync: () => void load(),
+    onSync: () => void load(true),
   });
   const { toast } = useToast();
   const [items, setItems] = useState<any[]>([]);
@@ -282,15 +282,15 @@ function NomenclatureSection({ section }: { section: Section }) {
 
   const paged = usePaged(filtered, 10);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const data = await get<unknown>(section.endpoint);
       setItems(list<any>(data));
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 

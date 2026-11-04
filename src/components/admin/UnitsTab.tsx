@@ -507,9 +507,9 @@ export default function UnitsTab() {
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "units",
     onSync: async () => {
-      await loadRoomsAndUsers();
+      await loadRoomsAndUsers(true);
       if (selectedId) {
-        await Promise.all([loadUnits(selectedId), loadBookings(selectedId)]);
+        await Promise.all([loadUnits(selectedId, true), loadBookings(selectedId, true)]);
       }
     },
   });
@@ -536,8 +536,8 @@ export default function UnitsTab() {
     index: number;
   } | null>(null);
 
-  const loadRoomsAndUsers = useCallback(async () => {
-    setLoading(true);
+  const loadRoomsAndUsers = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [r, u] = await Promise.all([
         get<unknown>("/rooms"),
@@ -550,13 +550,13 @@ export default function UnitsTab() {
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [selectedId, toast]);
 
   const loadUnits = useCallback(
-    async (roomId: string | number) => {
-      setUnitsLoading(true);
+    async (roomId: string | number, silent = false) => {
+      if (!silent) setUnitsLoading(true);
       try {
         const room = await get<Room>(`/rooms/${roomId}`);
         setUnits(room?.units || []);
@@ -564,21 +564,21 @@ export default function UnitsTab() {
         toast(errMsg(e), "error");
         setUnits([]);
       } finally {
-        setUnitsLoading(false);
+        if (!silent) setUnitsLoading(false);
       }
     },
     [toast],
   );
 
-  const loadBookings = useCallback(async (roomId: string | number) => {
-    setBookingsLoading(true);
+  const loadBookings = useCallback(async (roomId: string | number, silent = false) => {
+    if (!silent) setBookingsLoading(true);
     try {
       const data = await get<unknown>(`/rooms/${roomId}/bookings`);
       setBookings(list<RoomBooking>(data));
     } catch {
       setBookings([]);
     } finally {
-      setBookingsLoading(false);
+      if (!silent) setBookingsLoading(false);
     }
   }, []);
 

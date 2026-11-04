@@ -468,17 +468,7 @@ export function LiveSyncBadge({
   isSyncing?: boolean;
   status?: ConnectionStatus;
 }) {
-  if (isSyncing) {
-    return (
-      <div
-        title="Datele se actualizează automat prin BroadcastChannel & WebSocket"
-        className="inline-flex items-center gap-1.5 rounded-full border border-[#c69a3f]/30 bg-[#fdf8ec] px-3 py-1 text-[11px] font-semibold text-[#8c6b23] shadow-sm transition-all"
-      >
-        <RefreshCw size={11} className="animate-spin text-[#c69a3f]" />
-        <span>Sincronizare live…</span>
-      </div>
-    );
-  }
+  // Sincronizarea este complet silențioasă și instantanee, fără badge animat care să facă layout shift
 
   if (status === "connecting") {
     return (
