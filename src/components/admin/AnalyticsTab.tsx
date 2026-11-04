@@ -18,6 +18,7 @@ import AiBriefCards from "../analytics/AiBriefCards";
 import AnalyticsCharts from "../analytics/AnalyticsCharts";
 import ConversionFunnelCard from "../analytics/ConversionFunnelCard";
 import PricingForecastCard from "../analytics/PricingForecastCard";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 type Tab = "overview" | "funnel" | "forecast";
 const TABS: { key: Tab; label: string }[] = [
@@ -27,6 +28,10 @@ const TABS: { key: Tab; label: string }[] = [
 ];
 
 export default function AnalyticsTab() {
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "analytics",
+    onSync: () => void load(),
+  });
   const { toast } = useToast();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());

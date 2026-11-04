@@ -32,6 +32,7 @@ import {
   API_URL,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 interface PlaceImage {
   id: string;
@@ -73,6 +74,10 @@ const CATEGORIES = [
 ];
 
 export default function AdminPlacesTab() {
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "places",
+    onSync: () => void load(),
+  });
   const { toast } = useToast();
   const [places, setPlaces] = useState<PlaceItem[]>([]);
   const [loading, setLoading] = useState(true);

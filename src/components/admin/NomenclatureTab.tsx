@@ -23,6 +23,7 @@ import {
 } from "./ui";
 import { get, post, patch, del, list, errMsg } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 /* ─────────────── ICON LIBRARY (lucide-react) ─────────────── */
 const LEGACY_ALIASES: Record<string, string> = {
@@ -245,6 +246,10 @@ export default function NomenclatureTab() {
 
 /* ─────────────── SECTION CONTENT ─────────────── */
 function NomenclatureSection({ section }: { section: Section }) {
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "nomenclature",
+    onSync: () => void load(),
+  });
   const { toast } = useToast();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

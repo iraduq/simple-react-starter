@@ -5,6 +5,7 @@ import { get, post, patch, del, upload, list, errMsg } from "../../lib/admin";
 import { Badge, Button, Card, EmptyState, Field, Modal, SectionHeader, TableSkeleton, inputCls } from "./ui";
 import type { MenuCategory, MenuItem, Place } from "../../types/places";
 import { lei } from "../../services/placesService";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 const EMPTY_ITEM = {
   category_id: 0,
@@ -19,6 +20,10 @@ const EMPTY_ITEM = {
 const EMPTY_CAT = { name: "", description: "", display_order: 0, is_active: true, place_id: "" };
 
 export default function AdminMenuTab() {
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "menu",
+    onSync: () => void load(),
+  });
   const { toast } = useToast();
   const [cats, setCats] = useState<MenuCategory[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);

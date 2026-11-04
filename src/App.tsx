@@ -24,6 +24,7 @@ import Places from "./pages/Places";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastProvider, useToast } from "./components/Toast";
 import GlobalLiveSync from "./context/GlobalLiveSync";
+import { AdminLiveSyncProvider } from "./context/AdminLiveSyncContext";
 import { setSessionExpiredHandler } from "./lib/api";
 import { clearSession } from "./lib/auth";
 import Contact from "./pages/Contact";

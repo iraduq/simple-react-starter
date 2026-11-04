@@ -1,5 +1,7 @@
 import { API_URL } from "./config";
 import { apiFetch } from "./api";
+import { emitSyncMutation } from "./broadcastSync";
+export { emitSyncMutation };
 
 export { API_URL };
 

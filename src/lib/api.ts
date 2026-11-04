@@ -1,4 +1,5 @@
 import { API_URL } from "./config";
+import { emitSyncMutation } from "./broadcastSync";
 import {
   getAccessToken,
   getRefreshToken,
@@ -192,6 +193,14 @@ export async function apiFetch<T>(
 
   if (res.status !== 401) {
     if (!res.ok) throw await extractError(res);
+    const method = (options.method || "GET").toUpperCase();
+    if (["POST", "PATCH", "PUT", "DELETE"].includes(method)) {
+      let payload = undefined;
+      if (typeof options.body === "string") {
+        try { payload = JSON.parse(options.body); } catch {}
+      }
+      emitSyncMutation(path, { path, action: method, payload });
+    }
     if (res.status === 204) return undefined as T;
     const data = (await res.json().catch(() => undefined)) as T;
     if (path.startsWith("/auth/")) {

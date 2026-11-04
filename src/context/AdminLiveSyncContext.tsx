@@ -9,22 +9,19 @@ import React, {
 } from "react";
 import { RefreshCw } from "lucide-react";
 import { WS_URL } from "../lib/config";
+import {
+  subscribeToBroadcastSync,
+  emitSyncMutation,
+  type SyncTopic,
+  type SyncMessage,
+} from "../lib/broadcastSync";
 
 export type WebSocketEvent = {
   event: string;
   [key: string]: any;
 };
 
-export type SyncTopic =
-  | "bookings"
-  | "units"
-  | "rooms"
-  | "smartlocks"
-  | "pricing"
-  | "facilities"
-  | "users"
-  | "audit"
-  | "all";
+export type { SyncTopic };
 
 type ConnectionStatus = "connected" | "connecting" | "disconnected";
 
@@ -36,6 +33,7 @@ interface AdminLiveSyncContextType {
     callback: (event: WebSocketEvent) => void
   ) => () => void;
   sendPing: () => void;
+  notifyMutation: (topic: SyncTopic | SyncTopic[], meta?: { path?: string; action?: string }) => void;
 }
 
 const AdminLiveSyncContext = createContext<AdminLiveSyncContextType | null>(null);
@@ -48,6 +46,7 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "payment_confirmed",
     "booking_updated",
     "bookings_updated",
+    "rooms_updated",
   ],
   units: [
     "rooms_updated",
@@ -76,18 +75,34 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "lock_access_denied",
     "payment_confirmed",
     "room_booked",
+    "units_updated",
   ],
   pricing: [
-    "rooms_updated",
     "pricing_updated",
+    "rooms_updated",
     "pricing_rule_applied",
     "pricing_rule_removed",
   ],
   facilities: [
     "facilities_updated",
+    "rooms_updated",
+  ],
+  nomenclature: [
+    "facilities_updated",
+    "rooms_updated",
+  ],
+  places: [
+    "places_updated",
+    "menu_updated",
+  ],
+  menu: [
+    "menu_updated",
+    "places_updated",
   ],
   users: [
     "users_updated",
+    "user_updated",
+    "user_deleted",
   ],
   audit: [
     "booking_updated",
@@ -98,6 +113,19 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "room_released",
     "users_updated",
     "audit_log_created",
+    "rooms_updated",
+    "units_updated",
+  ],
+  lost_found: [
+    "lost_found_updated",
+    "lost_found_item_claimed",
+    "lost_found_item_shipped",
+  ],
+  analytics: [
+    "new_booking_confirmed",
+    "payment_confirmed",
+    "booking_updated",
+    "pricing_updated",
   ],
   all: [],
 };
@@ -114,39 +142,78 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
     new Map()
   );
 
-  const notifySubscribers = useCallback((ev: WebSocketEvent) => {
-    const eventName = ev.event;
-    if (!eventName) return;
+  // Distribuie evenimente către toți abonații pe topicuri
+  const notifySubscribers = useCallback(
+    (ev: WebSocketEvent, targetTopics?: SyncTopic[]) => {
+      const eventName = ev.event;
+      if (!eventName && !targetTopics) return;
 
-    subscribersRef.current.forEach((callbacks, topic) => {
-      let isMatch = false;
-      if (topic === "all") {
-        isMatch = true;
-      } else {
-        const allowed = TOPIC_EVENT_MAP[topic] || [];
-        isMatch = allowed.includes(eventName);
-      }
+      subscribersRef.current.forEach((callbacks, topic) => {
+        let isMatch = false;
 
-      if (isMatch) {
-        callbacks.forEach((cb) => {
-          try {
-            cb(ev);
-          } catch (err) {
-            console.error(`[LiveSync] Error executing callback for topic '${topic}':`, err);
+        // 1. Potrivire directă prin topicuri specificate (ex: din BroadcastChannel)
+        if (targetTopics && (targetTopics.includes(topic) || targetTopics.includes("all"))) {
+          isMatch = true;
+        }
+
+        // 2. Potrivire pe baza TOPIC_EVENT_MAP (ex: din WebSockets)
+        if (!isMatch) {
+          if (topic === "all") {
+            isMatch = true;
+          } else {
+            const allowed = TOPIC_EVENT_MAP[topic] || [];
+            isMatch = allowed.includes(eventName);
           }
-        });
-      }
-    });
-  }, []);
+        }
 
+        if (isMatch) {
+          callbacks.forEach((cb) => {
+            try {
+              cb(ev);
+            } catch (err) {
+              console.error(`[LiveSync] Error executing callback for topic '${topic}':`, err);
+            }
+          });
+        }
+      });
+    },
+    []
+  );
+
+  // 1. ASCULTĂTOR NATIV BROWSER: BroadcastChannel (comunicare inter-taburi fără server)
+  useEffect(() => {
+    const unsubscribeBroadcast = subscribeToBroadcastSync((msg: SyncMessage) => {
+      // Un alt tab sau fereastră din acest browser a făcut o mutație (POST/PATCH/DELETE)
+      notifySubscribers(
+        {
+          event: "broadcast_sync",
+          source: "BroadcastChannel",
+          ...msg,
+        },
+        msg.topics
+      );
+    });
+
+    return () => {
+      unsubscribeBroadcast();
+    };
+  }, [notifySubscribers]);
+
+  // 2. ASCULTĂTOR RECONECTARE ȘI WEBSOCKETS (sincronizare între computere / server)
   const connect = useCallback(() => {
-    if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
+    if (
+      wsRef.current &&
+      (wsRef.current.readyState === WebSocket.OPEN ||
+        wsRef.current.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
 
     let raw = (WS_URL || "wss://backend-licenta-i0lr.onrender.com").trim();
     if (!raw.startsWith("ws://") && !raw.startsWith("wss://")) {
-      raw = raw.replace(/^https?:\/\//, (m: string) => (m.startsWith("https") ? "wss://" : "ws://"));
+      raw = raw.replace(/^https?:\/\//, (m: string) =>
+        m.startsWith("https") ? "wss://" : "ws://"
+      );
     }
     const endpoint = `${raw.replace(/\/$/, "")}/ws/live`;
 
@@ -160,7 +227,6 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
         setStatus("connected");
         backoffRef.current = 1000;
 
-        // Keep-alive heartbeat every 25 seconds
         if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
         pingIntervalRef.current = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
@@ -176,7 +242,7 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
           setLastEvent(parsed);
           notifySubscribers(parsed);
         } catch {
-          // Ignore non-json messages
+          // Ignore non-json
         }
       };
 
@@ -184,7 +250,6 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
         setStatus("disconnected");
         if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
 
-        // Exponential backoff reconnect
         const delay = Math.min(backoffRef.current, 15000);
         backoffRef.current = Math.min(backoffRef.current * 1.5, 15000);
 
@@ -201,8 +266,7 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
           // ignore
         }
       };
-    } catch (err) {
-      console.warn("[LiveSync] Connection attempt failed:", err);
+    } catch {
       setStatus("disconnected");
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = setTimeout(connect, 3000);
@@ -232,6 +296,13 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const notifyMutation = useCallback(
+    (topic: SyncTopic | SyncTopic[], meta?: { path?: string; action?: string }) => {
+      emitSyncMutation(topic, meta);
+    },
+    []
+  );
+
   const subscribe = useCallback(
     (topic: SyncTopic, callback: (event: WebSocketEvent) => void) => {
       if (!subscribersRef.current.has(topic)) {
@@ -254,6 +325,7 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
         lastEvent,
         subscribe,
         sendPing,
+        notifyMutation,
       }}
     >
       {children}
@@ -261,16 +333,24 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook universal de sincronizare live pentru orice componentă / tab din Admin:
+ * 1. Ascultă mutațiile emise de alte taburi prin BroadcastChannel nativ (0ms).
+ * 2. Ascultă evenimentele sosite prin WebSockets de pe server.
+ * 3. Re-sincronizează datele când utilizatorul dă click pe tab (window.onfocus / visibilitychange).
+ */
 export function useAdminLiveSync({
   topic,
   onSync,
   enabled = true,
-  debounceMs = 500,
+  debounceMs = 250,
+  refetchOnFocus = true,
 }: {
   topic: SyncTopic;
   onSync: (event?: WebSocketEvent) => void | Promise<void>;
   enabled?: boolean;
   debounceMs?: number;
+  refetchOnFocus?: boolean;
 }) {
   const context = useContext(AdminLiveSyncContext);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -288,20 +368,17 @@ export function useAdminLiveSync({
       await Promise.resolve(onSyncRef.current(ev));
       setLastSyncTime(new Date());
     } catch (err) {
-      console.error("[LiveSync] Sync handler failed:", err);
+      console.error(`[LiveSync] Sync handler failed for topic '${topic}':`, err);
     } finally {
       setIsSyncing(false);
     }
-  }, []);
+  }, [topic]);
 
-  useEffect(() => {
-    if (!context || !enabled) return;
-
-    const unsubscribe = context.subscribe(topic, (ev) => {
+  const triggerDebouncedSync = useCallback(
+    (ev?: WebSocketEvent) => {
       latestEventRef.current = ev;
       setIsSyncing(true);
 
-      // Trailing debounce to prevent flood freezing
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
@@ -309,6 +386,16 @@ export function useAdminLiveSync({
       debounceTimerRef.current = setTimeout(() => {
         void executeSync(latestEventRef.current);
       }, debounceMs);
+    },
+    [debounceMs, executeSync]
+  );
+
+  // 1. Ascultă evenimentele de pe busul centralizat (WebSockets + BroadcastChannel)
+  useEffect(() => {
+    if (!context || !enabled) return;
+
+    const unsubscribe = context.subscribe(topic, (ev) => {
+      triggerDebouncedSync(ev);
     });
 
     return () => {
@@ -317,7 +404,30 @@ export function useAdminLiveSync({
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [context, topic, enabled, debounceMs, executeSync]);
+  }, [context, topic, enabled, triggerDebouncedSync]);
+
+  // 2. Ascultă focalizarea ferestrei (window focus & tab switch visibilitychange)
+  useEffect(() => {
+    if (!enabled || !refetchOnFocus) return;
+
+    const handleFocus = () => {
+      triggerDebouncedSync({ event: "window_focus", topic });
+    };
+
+    const handleVisibility = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        triggerDebouncedSync({ event: "tab_visible", topic });
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [enabled, refetchOnFocus, topic, triggerDebouncedSync]);
 
   return {
     isConnected: context?.status === "connected",
@@ -325,6 +435,7 @@ export function useAdminLiveSync({
     isSyncing,
     lastSyncTime,
     lastEvent: context?.lastEvent || null,
+    triggerSync: () => triggerDebouncedSync({ event: "manual_trigger", topic }),
   };
 }
 
@@ -338,7 +449,7 @@ export function LiveSyncBadge({
   if (isSyncing) {
     return (
       <div
-        title="Datele se actualizează automat prin WebSocket"
+        title="Datele se actualizează automat prin BroadcastChannel & WebSocket"
         className="inline-flex items-center gap-1.5 rounded-full border border-[#c69a3f]/30 bg-[#fdf8ec] px-3 py-1 text-[11px] font-semibold text-[#8c6b23] shadow-sm transition-all"
       >
         <RefreshCw size={11} className="animate-spin text-[#c69a3f]" />
@@ -362,25 +473,25 @@ export function LiveSyncBadge({
   if (status === "disconnected") {
     return (
       <div
-        title="WebSocket deconectat. Sistemul va reîncerca conectarea automat."
-        className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-500 shadow-sm transition-all"
+        title="BroadcastChannel activ (sincronizare locală între taburi garantată)."
+        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-50/70 px-3 py-1 text-[11px] font-semibold text-emerald-800 shadow-sm transition-all"
       >
-        <span className="h-2 w-2 rounded-full bg-slate-400" />
-        <span>Live offline</span>
+        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        <span>Live Tab Sync</span>
       </div>
     );
   }
 
   return (
     <div
-      title="Conexiune WebSocket activă. Actualizările se produc automat fără reîmprospătare manuală."
+      title="Sincronizare instantanee activă prin BroadcastChannel nativ și WebSockets."
       className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-50/70 px-3 py-1 text-[11px] font-semibold text-emerald-800 shadow-sm transition-all"
     >
       <span className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
       </span>
-      <span>Live sync activ</span>
+      <span>Live Sync</span>
     </div>
   );
 }
