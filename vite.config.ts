@@ -20,6 +20,20 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
+          // Doar in dev: cookie-urile vin de la un backend HTTPS cu Secure +
+          // SameSite=None, pe care browserele le resping pe pagini http://IP.
+          // Cererile sunt same-origin prin proxy, deci le adaptam local.
+          configure: (proxy) => {
+            proxy.on("proxyRes", (proxyRes) => {
+              const sc = proxyRes.headers["set-cookie"];
+              if (!sc) return;
+              proxyRes.headers["set-cookie"] = sc.map((c) =>
+                c
+                  .replace(/;\s*Secure/gi, "")
+                  .replace(/;\s*SameSite=None/gi, "; SameSite=Lax"),
+              );
+            });
+          },
         },
       },
     },
