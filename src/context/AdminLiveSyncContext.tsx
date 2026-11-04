@@ -239,6 +239,7 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
         if (event.data === "pong") return;
         try {
           const parsed: WebSocketEvent = JSON.parse(event.data);
+          console.log("[WebSocket LiveSync] Event received:", parsed);
           setLastEvent(parsed);
           notifySubscribers(parsed);
         } catch {
@@ -343,7 +344,7 @@ export function useAdminLiveSync({
   topic,
   onSync,
   enabled = true,
-  debounceMs = 250,
+  debounceMs = 50,
   refetchOnFocus = true,
 }: {
   topic: SyncTopic;

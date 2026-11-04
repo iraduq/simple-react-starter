@@ -50,10 +50,10 @@ const listeners = new Set<(msg: SyncMessage) => void>();
 
 // Ascultător pentru mesaje sosite prin BroadcastChannel (de la alte taburi)
 if (broadcastChannel) {
-  broadcastChannel.onmessage = (event: MessageEvent<SyncMessage>) => {
+  broadcastChannel.addEventListener("message", (event: MessageEvent<SyncMessage>) => {
     if (!event.data || event.data.sourceTabId === TAB_ID) return;
     notifyLocalListeners(event.data);
-  };
+  });
 }
 
 // Fallback prin StorageEvent pentru browsere sau contexte izolate
