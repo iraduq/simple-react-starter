@@ -177,6 +177,13 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
   const [tab, setTab] = useState<TabKey>(
     initialTab || (queryTab && NAV.some((n) => n.key === queryTab) ? queryTab : "bookings")
   );
+  // Sync queryTab with state when search params change
+  useEffect(() => {
+    if (queryTab && NAV.some((n) => n.key === queryTab) && queryTab !== tab) {
+      setTab(queryTab);
+    }
+  }, [queryTab, tab]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const mainScrollRef = useRef<HTMLElement>(null);
 

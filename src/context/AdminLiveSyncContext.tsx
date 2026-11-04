@@ -152,7 +152,7 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
         let isMatch = false;
 
         // 1. Potrivire directă prin topicuri specificate (ex: din BroadcastChannel)
-        if (targetTopics && (targetTopics.includes(topic) || targetTopics.includes("all"))) {
+        if (targetTopics && (targetTopics.includes(topic) || targetTopics.includes("all") || topic === "all")) {
           isMatch = true;
         }
 
@@ -392,18 +392,38 @@ export function useAdminLiveSync({
 
   // 1. Ascultă evenimentele de pe busul centralizat (WebSockets + BroadcastChannel)
   useEffect(() => {
-    if (!context || !enabled) return;
+    if (!enabled) return;
 
-    const unsubscribe = context.subscribe(topic, (ev) => {
-      triggerDebouncedSync(ev);
-    });
+    if (context) {
+      const unsubscribe = context.subscribe(topic, (ev) => {
+        triggerDebouncedSync(ev);
+      });
 
-    return () => {
-      unsubscribe();
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
+      return () => {
+        unsubscribe();
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current);
+        }
+      };
+    } else {
+      // Fallback direct pe BroadcastChannel dacă nu este în Provider
+      const unsubscribe = subscribeToBroadcastSync((msg) => {
+        if (topic === "all" || msg.topics.includes(topic) || msg.topics.includes("all")) {
+          triggerDebouncedSync({
+            event: "broadcast_sync",
+            source: "BroadcastChannel",
+            ...msg,
+          });
+        }
+      });
+
+      return () => {
+        unsubscribe();
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current);
+        }
+      };
+    }
   }, [context, topic, enabled, triggerDebouncedSync]);
 
   // 2. Ascultă focalizarea ferestrei (window focus & tab switch visibilitychange)
