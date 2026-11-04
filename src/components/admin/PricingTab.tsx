@@ -29,6 +29,7 @@ import {
   del,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 type CalendarDay = {
   date: string;
@@ -91,6 +92,12 @@ type RuleForm = {
 
 export default function PricingTab() {
   const { toast } = useToast();
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "pricing",
+    onSync: () => {
+      void loadCalendar();
+    },
+  });
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [calendar, setCalendar] = useState<CalendarDay[]>([]);
@@ -325,7 +332,7 @@ export default function PricingTab() {
   if (loading) {
     return (
       <div className="w-full space-y-4">
-          <SectionHeader eyebrow="Tarife" title="Prețuri & calendar" />
+          <SectionHeader eyebrow="Tarife" title="Prețuri & calendar" action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />} />
           <Card className="p-5 bg-white border border-[#e1e8f0] rounded-2xl">
             <Skeleton className="h-10 w-48 bg-[#0d2c5c]/5" />
             <div className="mt-4 grid grid-cols-7 gap-2">
@@ -340,7 +347,7 @@ export default function PricingTab() {
 
   return (
     <div className="w-full space-y-4">
-        <SectionHeader eyebrow="Tarife" title="Prețuri & calendar" />
+        <SectionHeader eyebrow="Tarife" title="Prețuri & calendar" action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />} />
 
         {rooms.length === 0 ? (
           <Card className="bg-white border border-[#e1e8f0] rounded-2xl">

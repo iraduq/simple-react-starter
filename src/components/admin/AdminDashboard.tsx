@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
+import { AdminLiveSyncProvider } from "../../context/AdminLiveSyncContext";
 
 import BookingsTab from "./BookingsTab";
 import RoomsTab from "./RoomsTab";
@@ -217,6 +218,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
   }
 
   return (
+    <AdminLiveSyncProvider>
     <div className="admin-shell relative h-screen w-full bg-white pt-[68px] sm:pt-20 overflow-hidden">
       {/* ── FLOATING LUXURY BACKGROUND MOTIFS (CASA ESY THEME) ── */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
@@ -314,6 +316,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
         </main>
       </div>
     </div>
+    </AdminLiveSyncProvider>
   );
 }
 

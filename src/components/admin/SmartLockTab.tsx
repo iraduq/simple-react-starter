@@ -19,6 +19,7 @@ import {
 import { Card, SectionHeader, Button, Badge } from "./ui";
 import SmartLockKeypad from "../SmartLockKeypad";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge, type WebSocketEvent } from "../../context/AdminLiveSyncContext";
 import { WS_URL } from "../../lib/config";
 import {
   get,
@@ -121,119 +122,83 @@ export default function SmartLockTab() {
     };
   }, [fetchData]);
 
-  // Connect to live WebSocket
-  useEffect(() => {
-    const rawWsUrl = WS_URL.replace(/\/$/, "");
-    const endpoint = `${rawWsUrl}/ws/live`;
-    let ws: WebSocket;
-    let pingInterval: ReturnType<typeof setInterval>;
+  const handleLiveEvent = useCallback((ev?: WebSocketEvent) => {
+    if (!ev) return;
+    let newEv: LiveEvent | null = null;
+    const time = new Date().toLocaleTimeString("ro-RO");
 
-    try {
-      ws = new WebSocket(endpoint);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        setWsConnected(true);
-        pingInterval = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send("ping");
-          }
-        }, 25000);
+    if (ev.event === "payment_confirmed") {
+      newEv = {
+        id: Math.random().toString(36).substring(7),
+        type: "payment_confirmed",
+        message: `💳 Plată Stripe: Rezervare #${ev.booking_code || "—"} · ${ev.room_title || "Cameră"}${ev.unit_number ? ` (Ușa ${ev.unit_number})` : ""} · ${ev.guest_name || ev.guest_email || ""}`,
+        timestamp: time,
+        unit: ev.unit_number,
       };
-
-      ws.onmessage = (event) => {
-        if (event.data === "pong") return;
-        try {
-          const payload = JSON.parse(event.data);
-          let newEv: LiveEvent | null = null;
-          const time = new Date().toLocaleTimeString("ro-RO");
-
-          if (payload.event === "payment_confirmed") {
-            newEv = {
-              id: Math.random().toString(36).substring(7),
-              type: "payment_confirmed",
-              message: `💳 Plată Stripe: Rezervare #${payload.booking_code} (${payload.total_price} RON) · ${payload.room_title || "Cameră"}${payload.unit_number ? ` (Ușa ${payload.unit_number})` : ""} · ${payload.guest_name || payload.guest_email || ""}`,
-              timestamp: time,
-              unit: payload.unit_number,
-            };
-            void fetchData();
-          } else if (payload.event === "new_booking_confirmed") {
-            newEv = {
-              id: Math.random().toString(36).substring(7),
-              type: "new_booking",
-              message: `✨ Rezervare nouă: #${payload.booking_code} (${payload.total_price} RON) · ${payload.room_title || "Cameră"} · ${payload.guest_name || payload.guest_email || ""}`,
-              timestamp: time,
-              unit: payload.unit_number,
-            };
-            void fetchData();
-          } else if (payload.event === "room_booked") {
-            newEv = {
-              id: Math.random().toString(36).substring(7),
-              type: "room_booked",
-              message: `📅 Cameră ocupată: ${payload.room_title || payload.room_id} rezervată (${payload.check_in ? payload.check_in.slice(0, 10) : ""} - ${payload.check_out ? payload.check_out.slice(0, 10) : ""})`,
-              timestamp: time,
-            };
-            void fetchData();
-          } else if (payload.event === "door_unlocked") {
-            newEv = {
-              id: Math.random().toString(36).substring(7),
-              type: "door_unlocked",
-              message: `🚪 Clanța camerei ${payload.unit_number} s-a descuiat autorizat.`,
-              timestamp: time,
-              unit: payload.unit_number,
-            };
-          } else if (payload.event === "guest_checked_in") {
-            newEv = {
-              id: Math.random().toString(36).substring(7),
-              type: "guest_checked_in",
-              message: `🛎️ Check-in finalizat pentru ${payload.guest_name || "oaspete"} (Cam ${payload.unit_number || "—"}).`,
-              timestamp: time,
-              unit: payload.unit_number,
-            };
-            void fetchData();
-          } else if (payload.event === "room_held") {
-            newEv = {
-              id: Math.random().toString(36).substring(7),
-              type: "room_held",
-              message: `🔒 Sesiune plată în curs: ${payload.room_title || payload.room_id} reținută temporar (anti-coliziune activ).`,
-              timestamp: time,
-            };
-          } else if (payload.event === "room_released") {
-            newEv = {
-              id: Math.random().toString(36).substring(7),
-              type: "room_released",
-              message: `🔓 Reținerea temporară a camerei a expirat sau a fost eliberată.`,
-              timestamp: time,
-            };
-          }
-
-          if (newEv) {
-            setLiveEvents((prev) => [newEv, ...prev.slice(0, 19)]);
-          }
-        } catch {
-          // ignore non-json
-        }
+      void fetchData();
+    } else if (ev.event === "new_booking_confirmed") {
+      newEv = {
+        id: Math.random().toString(36).substring(7),
+        type: "new_booking",
+        message: `✨ Rezervare nouă: #${ev.booking_code || "—"} · ${ev.room_title || "Cameră"} · ${ev.guest_name || ev.guest_email || ""}`,
+        timestamp: time,
+        unit: ev.unit_number,
       };
-
-      ws.onclose = () => {
-        setWsConnected(false);
-        clearInterval(pingInterval);
+      void fetchData();
+    } else if (ev.event === "room_booked") {
+      newEv = {
+        id: Math.random().toString(36).substring(7),
+        type: "room_booked",
+        message: `📅 Cameră ocupată: ${ev.room_title || ev.room_id} rezervată`,
+        timestamp: time,
       };
-
-      ws.onerror = () => {
-        setWsConnected(false);
+      void fetchData();
+    } else if (ev.event === "door_unlocked") {
+      newEv = {
+        id: Math.random().toString(36).substring(7),
+        type: "door_unlocked",
+        message: `🚪 Clanța camerei ${ev.unit_number || "—"} s-a descuiat autorizat.`,
+        timestamp: time,
+        unit: ev.unit_number,
       };
-    } catch {
-      setWsConnected(false);
+    } else if (ev.event === "guest_checked_in") {
+      newEv = {
+        id: Math.random().toString(36).substring(7),
+        type: "guest_checked_in",
+        message: `🛎️ Check-in finalizat pentru ${ev.guest_name || "oaspete"} (Cam ${ev.unit_number || "—"}).`,
+        timestamp: time,
+        unit: ev.unit_number,
+      };
+      void fetchData();
+    } else if (ev.event === "room_held") {
+      newEv = {
+        id: Math.random().toString(36).substring(7),
+        type: "room_held",
+        message: `🔒 Sesiune în curs: ${ev.room_title || ev.room_id} reținută temporar.`,
+        timestamp: time,
+      };
+    } else if (ev.event === "room_released") {
+      newEv = {
+        id: Math.random().toString(36).substring(7),
+        type: "room_released",
+        message: `🔓 Reținerea temporară a camerei a expirat sau a fost eliberată.`,
+        timestamp: time,
+      };
+      void fetchData();
+    } else if (ev.event === "units_updated" || ev.event === "booking_updated") {
+      void fetchData();
     }
 
-    return () => {
-      clearInterval(pingInterval);
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-    };
+    if (newEv) {
+      setLiveEvents((prev) => [newEv!, ...prev.slice(0, 19)]);
+    }
   }, [fetchData]);
+
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "all",
+    onSync: handleLiveEvent,
+    debounceMs: 150,
+  });
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -384,24 +349,7 @@ export default function SmartLockTab() {
         eyebrow="Hardware IoT & Securitate Acces"
         title="Smart Lock, Clanțe Inteligente & Acces Camere"
         action={
-          <div className="flex items-center gap-3">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold border ${
-                wsConnected
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-amber-200 bg-amber-50 text-amber-700"
-              }`}
-            >
-              <Radio
-                size={13}
-                className={wsConnected ? "animate-pulse text-emerald-600" : "text-amber-600"}
-              />
-              {wsConnected ? "WebSocket Live Conectat" : "Se reconectează..."}
-            </span>
-            <Button variant="ghost" size="sm" onClick={() => void fetchData()} disabled={loading}>
-              <RefreshCw size={13} className={loading ? "animate-spin" : ""} /> Actualizează
-            </Button>
-          </div>
+          <LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />
         }
       />
 

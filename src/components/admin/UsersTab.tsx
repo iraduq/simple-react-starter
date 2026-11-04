@@ -34,6 +34,7 @@ import {
   type RoomBooking,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 const ROLES = ["user", "admin", "menajera"];
 
@@ -53,6 +54,11 @@ export default function UsersTab() {
   const { toast } = useToast();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "users",
+    onSync: () => load(),
+  });
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
   const [form, setForm] = useState({ role: "user", is_active: true });
   const [saving, setSaving] = useState(false);
@@ -167,11 +173,7 @@ export default function UsersTab() {
       <SectionHeader
         eyebrow="Securitate"
         title="Utilizatori"
-        action={
-          <Button variant="ghost" size="sm" onClick={() => void load()}>
-            Reîmprospătează
-          </Button>
-        }
+        action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}
       />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

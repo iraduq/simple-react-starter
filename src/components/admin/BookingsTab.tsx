@@ -4,7 +4,6 @@ import {
   Pencil,
   Trash2,
   Check,
-  RefreshCw,
   Search,
   CheckCircle2,
   Copy,
@@ -24,6 +23,7 @@ import {
   type AdminUser,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 const STATUSES = [
   "all",
@@ -76,8 +76,8 @@ export default function BookingsTab() {
   const [form, setForm] = useState({ check_in: "", check_out: "", guests: 1 });
   const [formErr, setFormErr] = useState<Record<string, string>>({});
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [b, r, u] = await Promise.all([
         get<unknown>("/bookings"),
@@ -88,11 +88,16 @@ export default function BookingsTab() {
       setRooms(list<Room>(r));
       setUsers(list<AdminUser>(u));
     } catch (e) {
-      toast(errMsg(e), "error");
+      if (!silent) toast(errMsg(e), "error");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [toast]);
+
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "bookings",
+    onSync: () => load(true),
+  });
 
   useEffect(() => {
     void load();
@@ -215,14 +220,7 @@ export default function BookingsTab() {
         <SectionHeader
           eyebrow="Operațiuni"
           title="Gestionare rezervări"
-          action={
-            <button
-              onClick={() => void load()}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#0d2c5c]/10 bg-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-sm transition-all hover:bg-[#f0f4f9] hover:border-[#0d2c5c] hover:shadow-md cursor-pointer"
-            >
-              <RefreshCw size={12} /> Reîmprospătează
-            </button>
-          }
+          action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}
         />
 
         <motion.div

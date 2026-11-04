@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
-  RefreshCw,
   MoreVertical,
   Pencil,
   X,
@@ -34,6 +33,7 @@ import {
 } from "../../lib/admin";
 
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 const roomLabel = (r: Room) =>
   (r.name as string) || (r as any).title || `Cameră #${r.id}`;
@@ -504,6 +504,14 @@ function AssignUnitDropdown({
 
 export default function UnitsTab() {
   const { toast } = useToast();
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "units",
+    onSync: async () => {
+      if (selectedId) {
+        await Promise.all([loadUnits(selectedId), loadBookings(selectedId)]);
+      }
+    },
+  });
   const [rooms, setRooms] = useState<Room[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -748,19 +756,7 @@ export default function UnitsTab() {
           eyebrow="Status & Ocupare"
           title="Unități fizice"
           description="Alege o cameră, vezi statusul fiecărei unități și zilele în care e ocupată — cu oaspetele aferent."
-          action={
-            selectedId !== null ? (
-              <button
-                onClick={() => {
-                  void loadUnits(selectedId);
-                  void loadBookings(selectedId);
-                }}
-                className="inline-flex items-center gap-2 rounded-xl border border-[#0d2c5c]/10 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] transition-all hover:bg-[#0d2c5c]/5"
-              >
-                <RefreshCw size={13} /> Reîncarcă
-              </button>
-            ) : undefined
-          }
+          action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}
         />
 
         {loading ? (

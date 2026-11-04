@@ -25,6 +25,7 @@ import {
   type RoomImage,
 } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 const fieldInput =
   "w-full py-2.5 px-4 bg-[#f8fafd] border border-[#e1e8f0] rounded-xl text-[13.5px] font-medium text-[#0d2c5c] outline-none transition-all focus:bg-white focus:border-[#c69a3f] focus:ring-2 focus:ring-[#c69a3f]/15 placeholder:text-[#94a3b8]";
@@ -34,6 +35,11 @@ export default function RoomsTab() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [facilities, setFacilities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "rooms",
+    onSync: () => load(true),
+  });
   const [editTarget, setEditTarget] = useState<Room | null>(null);
   const [formOpen, setFormOpen] = useState(false);
 
@@ -54,8 +60,8 @@ export default function RoomsTab() {
   const [deleteTarget, setDeleteTarget] = useState<Room | null>(null);
   const [mediaRoom, setMediaRoom] = useState<Room | null>(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [roomsRes, facRes] = await Promise.allSettled([
         get<unknown>("/rooms"),
@@ -65,9 +71,9 @@ export default function RoomsTab() {
       if (roomsRes.status === "fulfilled") setRooms(list<Room>(roomsRes.value));
       if (facRes.status === "fulfilled") setFacilities(list<any>(facRes.value));
     } catch (e) {
-      toast(errMsg(e), "error");
+      if (!silent) toast(errMsg(e), "error");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -209,12 +215,15 @@ export default function RoomsTab() {
           eyebrow="Cazare"
           title="Camere"
           action={
-            <button
-              onClick={openCreate}
-              className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[#07203f]"
-            >
-              <Plus size={14} /> Adaugă cameră
-            </button>
+            <div className="flex items-center gap-3">
+              <LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />
+              <button
+                onClick={openCreate}
+                className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[#07203f]"
+              >
+                <Plus size={14} /> Adaugă cameră
+              </button>
+            </div>
           }
         />
       </motion.div>

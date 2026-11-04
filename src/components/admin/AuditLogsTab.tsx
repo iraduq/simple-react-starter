@@ -13,6 +13,7 @@ import {
 } from "./ui";
 import { get, list, dateTimeFmt, errMsg, type AuditLog } from "../../lib/admin";
 import { useToast } from "../Toast";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
 type SortKey = "timestamp" | "user" | "action" | "resource" | "ip";
 type SortDir = "asc" | "desc";
@@ -21,6 +22,11 @@ export default function AuditLogsTab() {
   const { toast } = useToast();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "audit",
+    onSync: () => load(),
+  });
   const [sortKey, setSortKey] = useState<SortKey>("timestamp");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
@@ -100,9 +106,7 @@ export default function AuditLogsTab() {
       <SectionHeader
         eyebrow="Securitate"
         title="Jurnal de audit"
-        action={
-          <Button variant="ghost" size="sm" onClick={() => void load()}>Reîmprospătează</Button>
-        }
+        action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}
       />
 
       <div className="mb-4">

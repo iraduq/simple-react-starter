@@ -12,7 +12,7 @@ import {
   RefreshCw,
   Copy, // <-- Importat Copy
 } from "lucide-react";
-import { Badge, statusTone, TableSkeleton, EmptyState, Skeleton, Pagination, usePaged } from "./ui";
+import { Badge, statusTone, TableSkeleton, EmptyState, Skeleton, Pagination, usePaged, SectionHeader } from "./ui";
 import {
   get,
   post,

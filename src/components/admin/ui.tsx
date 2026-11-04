@@ -1,3 +1,4 @@
+export { LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 import { createPortal } from "react-dom";
 import { useEffect, useState, type ReactNode } from "react";
 
