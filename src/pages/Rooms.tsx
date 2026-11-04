@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -361,6 +362,16 @@ export default function Rooms() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Toate");
+
+  useAdminLiveSync({
+    topic: "rooms",
+    onSync: () => {
+      void loadAllRooms();
+      if (searched && searched.in && searched.out) {
+        void runSearch(searched.in, searched.out, adults, children);
+      }
+    },
+  });
 
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), REVEAL_DELAY);
