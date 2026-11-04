@@ -45,13 +45,7 @@ export default function GlobalLiveSync() {
           const fresh = await fetchSession(true);
           if (fresh) {
             notifySessionChange();
-            const newName = [fresh.first_name, fresh.last_name].filter(Boolean).join(" ");
-            toast(
-              newName
-                ? `Datele tale de profil au fost actualizate live: ${newName}`
-                : "Datele contului tău au fost actualizate în timp real.",
-              "info"
-            );
+            // Sesiunea a fost reîmprospătată silențios în fundal
           }
         }
       }

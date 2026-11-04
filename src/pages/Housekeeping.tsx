@@ -17,6 +17,7 @@ import {
 } from "../services/housekeepingService";
 import { fetchSession, type SessionUser } from "../lib/auth";
 import { useToast } from "../components/Toast";
+import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
 import {
   Badge,
   SearchBox,
@@ -114,6 +115,13 @@ export default function Housekeeping() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
+
+  useAdminLiveSync({
+    topic: "units",
+    onSync: () => {
+      void reload();
+    },
+  });
 
   useEffect(() => {
     let active = true;

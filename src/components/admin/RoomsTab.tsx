@@ -41,15 +41,7 @@ export default function RoomsTab() {
     onSync: async (ev) => {
       console.log("🏨 [RoomsTab LiveSync] Event received:", ev);
       await load(true);
-      if (
-        ev &&
-        ev.event &&
-        ev.event !== "manual_trigger" &&
-        ev.event !== "window_focus" &&
-        ev.event !== "tab_visible"
-      ) {
-        toast("Camerele au fost actualizate în timp real.", "info");
-      }
+
     },
   });
 

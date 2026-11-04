@@ -98,10 +98,7 @@ export default function RoomDetail() {
               bookedDays.forEach((d) => next.add(d));
               return next;
             });
-            toast(
-              "Disponibilitatea acestei camere a fost actualizată în timp real.",
-              "info"
-            );
+
           }
         }
       }
