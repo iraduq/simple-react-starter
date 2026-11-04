@@ -60,7 +60,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "pricing", label: "Prețuri", icon: DollarSign },
   { key: "places", label: "Locații", icon: MapPin },
   { key: "menu", label: "Meniu & Bar", icon: UtensilsCrossed },
-  { key: "analytics", label: "Analize & Rapoarte AI", icon: TrendingUp },
+  { key: "analytics", label: "Rapoarte & Performanță", icon: TrendingUp },
   { key: "users", label: "Utilizatori", icon: Users },
   { key: "audit", label: "Jurnal de securitate", icon: Shield },
 ];

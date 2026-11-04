@@ -46,8 +46,10 @@ const ACRONYMS_MAP: Record<string, string> = {
 };
 
 function enrichAndFormatInlineText(raw: string): React.ReactNode[] {
-  // First, replace known acronyms if not already formatted
-  let formatted = raw;
+  // Strip any raw UUIDs so users never see cryptic IDs
+  let formatted = raw.replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, "Cameră");
+
+  // Replace known acronyms if not already formatted
   Object.entries(ACRONYMS_MAP).forEach(([acronym, fullMeaning]) => {
     // Only replace standalone acronym if not already followed by full text
     const regex = new RegExp(`\\b${acronym}\\b(?!\\s*[-–:]?\\s*${fullMeaning.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')})`, 'g');

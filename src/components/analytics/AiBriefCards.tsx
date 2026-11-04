@@ -1,30 +1,85 @@
-import { Activity, Sparkles } from "lucide-react";
-import { Skeleton } from "../admin/ui";
+import { ClipboardList, TrendingUp } from "lucide-react";
+import { Skeleton, Card } from "../admin/ui";
 import { AiText } from "./shared";
 
-function GradientCard({ icon: Icon, title, text, loading }: {
-  icon: typeof Sparkles; title: string; text?: string; loading: boolean;
+function ReportCard({
+  icon: Icon,
+  badge,
+  title,
+  subtitle,
+  text,
+  loading,
+}: {
+  icon: typeof ClipboardList;
+  badge: string;
+  title: string;
+  subtitle: string;
+  text?: string;
+  loading: boolean;
 }) {
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-[#0d2c5c] via-[#1a3a6e] to-[#c69a3f] p-[1.5px]">
-      <div className="h-full rounded-[15px] bg-white p-6">
-        <div className="mb-4 flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0d2c5c] text-[#e6b85c]">
-            <Icon size={17} />
+    <Card className="p-6 flex flex-col justify-between border border-[#e1e8f0] shadow-sm">
+      <div>
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0d2c5c] text-[#e6b85c]">
+              <Icon size={18} />
+            </span>
+            <div>
+              <h3 className="text-[20px] font-semibold text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+                {title}
+              </h3>
+              <p className="text-[12px] text-[#6b7c99]">{subtitle}</p>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-full bg-[#f4f6f9] border border-[#e1e8f0] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#0d2c5c]">
+            {badge}
           </span>
-          <h3 className="text-[22px] text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>{title}</h3>
         </div>
-        {loading ? <div className="space-y-2"><Skeleton className="h-4" /><Skeleton className="h-4" /><Skeleton className="h-4 w-2/3" /></div> : <AiText text={text} />}
+
+        {loading ? (
+          <div className="space-y-2.5 py-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        ) : (
+          <div className="mt-2 rounded-xl bg-[#fafbfc] border border-[#edf2f7] p-4">
+            <AiText text={text} />
+          </div>
+        )}
       </div>
-    </div>
+    </Card>
   );
 }
 
-export default function AiBriefCards({ brief, narrative, loading }: { brief?: string; narrative?: string; loading: boolean }) {
+export default function AiBriefCards({
+  brief,
+  narrative,
+  loading,
+}: {
+  brief?: string;
+  narrative?: string;
+  loading: boolean;
+}) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <GradientCard icon={Sparkles} title="Sinteză Strategică Executivă" text={brief} loading={loading} />
-      <GradientCard icon={Activity} title="Dinamica Comparativă Lună vs. Lună" text={narrative} loading={loading} />
+    <div className="grid gap-6 lg:grid-cols-2">
+      <ReportCard
+        icon={ClipboardList}
+        badge="Sinteză Lunară"
+        title="Raport de Activitate & Vânzări"
+        subtitle="Analiza performanței veniturilor și a gradului de ocupare"
+        text={brief}
+        loading={loading}
+      />
+      <ReportCard
+        icon={TrendingUp}
+        badge="Comparație"
+        title="Tendințe & Evoluție Sezonieră"
+        subtitle="Comparație cu luna anterioară și măsuri recomandate"
+        text={narrative}
+        loading={loading}
+      />
     </div>
   );
 }

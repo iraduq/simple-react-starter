@@ -23,14 +23,14 @@ import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncCont
 type Tab = "overview" | "funnel" | "forecast";
 const TABS: { key: Tab; label: string }[] = [
   { key: "overview", label: "Prezentare Generală" },
-  { key: "funnel", label: "Pâlnie Conversie AI" },
-  { key: "forecast", label: "Prognoză & Prețuri" },
+  { key: "funnel", label: "Pâlnie Rezervări & Asistență" },
+  { key: "forecast", label: "Prognoză Sezonieră & Tarife" },
 ];
 
 export default function AnalyticsTab() {
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "analytics",
-    onSync: () => void load(),
+    onSync: () => void load(true),
   });
   const { toast } = useToast();
   const now = new Date();
@@ -42,8 +42,8 @@ export default function AnalyticsTab() {
   const [compare, setCompare] = useState<BusinessComparison | null>(null);
   const [funnel, setFunnel] = useState<FunnelAttribution | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     const [r, c, f] = await Promise.allSettled([
       getMonthlyReport(year, month),
       getBusinessCompare(year, month),
@@ -63,7 +63,7 @@ export default function AnalyticsTab() {
         "error",
       );
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [year, month, toast]);
 
   useEffect(() => {
@@ -73,8 +73,8 @@ export default function AnalyticsTab() {
   return (
     <div className="w-full space-y-6">
       <SectionHeader
-        eyebrow="Business Intelligence & AI"
-        title="Analize & Rapoarte Performanță"
+        eyebrow="Gestiune & Performanță"
+        title="Rapoarte & Indicatori de Performanță"
         action={
           <AnalyticsPeriodPicker
             year={year}
