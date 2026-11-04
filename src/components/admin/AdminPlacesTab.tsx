@@ -86,6 +86,9 @@ export default function AdminPlacesTab() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formErr, setFormErr] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const createFileInputRef = useRef<HTMLInputElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<PlaceItem | null>(null);
   const [mediaPlace, setMediaPlace] = useState<PlaceItem | null>(null);
   const [query, setQuery] = useState("");
@@ -132,6 +135,8 @@ export default function AdminPlacesTab() {
   const openCreate = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
+    setNewImageFile(null);
+    setImagePreview(null);
     setFormErr({});
     setFormOpen(true);
   };
@@ -145,6 +150,8 @@ export default function AdminPlacesTab() {
       badge: p.badge || "",
       is_active: p.is_active !== false,
     });
+    setNewImageFile(null);
+    setImagePreview(null);
     setFormErr({});
     setFormOpen(true);
   };
@@ -154,6 +161,9 @@ export default function AdminPlacesTab() {
     if (!form.title.trim()) errs.title = "Numele este obligatoriu.";
     if (!form.category.trim()) errs.category = "Categoria este obligatorie.";
     if (!form.desc.trim()) errs.desc = "Descrierea este obligatorie.";
+    if (!editing && !newImageFile) {
+      errs.image = "Poza pentru locație este obligatorie la adăugarea unei atracții.";
+    }
 
     setFormErr(errs);
     if (Object.keys(errs).length) return;
@@ -174,20 +184,28 @@ export default function AdminPlacesTab() {
         body.img = editing.img;
       }
 
+      let targetId: string | number;
+
       if (editing) {
+        targetId = editing.id;
         await patch(`/places/${editing.id}`, body);
         toast("Locație actualizată.", "success");
       } else {
         const created = await post<PlaceItem>("/places", body);
-        toast("Locație adăugată. Acum poți încărca o imagine!", "success");
-        setFormOpen(false);
-        await load();
-        if (created?.id) {
-          setMediaPlace(created);
-        }
-        return;
+        targetId = created.id;
+        toast("Locație adăugată cu succes.", "success");
       }
+
+      // Dacă s-a selectat o poză nouă (obligatorie la adăugare sau opțională la editare)
+      if (newImageFile) {
+        const fd = new FormData();
+        fd.append("file", newImageFile);
+        await upload(`/places/${targetId}/images`, fd);
+      }
+
       setFormOpen(false);
+      setNewImageFile(null);
+      setImagePreview(null);
       await load();
     } catch (e) {
       toast(errMsg(e), "error");
@@ -250,6 +268,7 @@ export default function AdminPlacesTab() {
                 <tbody>
                   {paged.slice.map((p) => {
                     const thumbImg =
+                      p.img ||
                       p.thumb ||
                       p.image_url ||
                       p.images?.[0]?.image_url ||
@@ -404,6 +423,100 @@ export default function AdminPlacesTab() {
                 </label>
               </Field>
             </div>
+
+            {/* Secțiune Poză Locație (Obligatorie la adăugare) */}
+            <Field
+              label={
+                editing
+                  ? "Poză principală (opțional, alege pentru a schimba poza)"
+                  : "Poză locație (obligatorie) *"
+              }
+              error={formErr.image}
+            >
+              <div className="space-y-3">
+                {imagePreview ? (
+                  <div className="relative h-44 w-full rounded-2xl overflow-hidden border border-[#e1e8f0] bg-slate-50">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewImageFile(null);
+                        setImagePreview(null);
+                      }}
+                      className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 shadow-md hover:bg-white"
+                      title="Șterge selecția"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    <span className="absolute bottom-2 left-2 rounded-full bg-[#0d2c5c]/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white uppercase tracking-wider">
+                      Poză selectată pentru încărcare
+                    </span>
+                  </div>
+                ) : editing?.img || editing?.thumb ? (
+                  <div className="relative h-44 w-full rounded-2xl overflow-hidden border border-[#e1e8f0] bg-slate-50 group">
+                    <img
+                      src={editing.img || editing.thumb}
+                      alt="Imagine curentă"
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-[#0d2c5c]/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => createFileInputRef.current?.click()}
+                        className="rounded-full bg-white px-4 py-2 text-xs font-bold text-[#0d2c5c] shadow hover:bg-slate-100"
+                      >
+                        Înlocuiește poza
+                      </button>
+                    </div>
+                    <span className="absolute bottom-2 left-2 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-white uppercase tracking-wider">
+                      Poză principală curentă
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => createFileInputRef.current?.click()}
+                    className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#e1e8f0] p-6 text-center cursor-pointer transition-all hover:border-[#0d2c5c]/40 hover:bg-[#0d2c5c]/[0.02]"
+                  >
+                    <Upload size={24} className="text-[#0d2c5c] mb-2" />
+                    <p className="text-xs font-bold text-[#0d2c5c]">
+                      Apasă aici pentru a alege poza locației {!editing && "*"}
+                    </p>
+                    <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                      JPG, PNG sau WebP (max. 5MB)
+                    </p>
+                  </div>
+                )}
+
+                <input
+                  ref={createFileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 5 * 1024 * 1024) {
+                        toast("Fișierul depășește limita de 5MB.", "error");
+                        return;
+                      }
+                      setNewImageFile(file);
+                      setImagePreview(URL.createObjectURL(file));
+                      if (formErr.image) {
+                        setFormErr((prev) => {
+                          const n = { ...prev };
+                          delete n.image;
+                          return n;
+                        });
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </Field>
 
           </div>
 
@@ -640,10 +753,10 @@ function PlaceMediaManager({
                     {!isPrimary && (
                       <button
                         onClick={() => void setPrimaryImage(img.id)}
-                        className="absolute left-2 top-2 flex h-7 items-center justify-center rounded bg-white/90 px-2 text-[10px] font-bold text-[#0d2c5c] shadow-md transition-all hover:bg-white opacity-0 group-hover:opacity-100"
-                        title="Setează ca primă poză"
+                        className="absolute left-2 top-2 flex h-7 items-center justify-center rounded bg-white/95 px-2.5 py-1 text-[10px] font-bold text-[#0d2c5c] shadow-md transition-all hover:bg-[#0d2c5c] hover:text-white opacity-90 group-hover:opacity-100"
+                        title="Setează această imagine ca principală pe tot site-ul"
                       >
-                        Setează principală
+                        Alege ca principală
                       </button>
                     )}
 
