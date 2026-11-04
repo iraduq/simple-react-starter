@@ -507,6 +507,7 @@ export default function UnitsTab() {
   const { isSyncing, connectionStatus } = useAdminLiveSync({
     topic: "units",
     onSync: async () => {
+      await loadRoomsAndUsers();
       if (selectedId) {
         await Promise.all([loadUnits(selectedId), loadBookings(selectedId)]);
       }

@@ -101,6 +101,8 @@ export default function RoomDetail() {
               });
             } else if (payload.event === "room_released") {
               setLiveHeldInfo(null);
+            } else if (payload.event === "rooms_updated" || payload.event === "pricing_updated") {
+              apiFetch<RoomDetailType>(`/rooms/${roomId}`).then(setRoom).catch(() => {});
             } else if (payload.event === "room_booked" || payload.event === "payment_confirmed") {
               setLiveHeldInfo(null);
               if (payload.check_in && payload.check_out) {

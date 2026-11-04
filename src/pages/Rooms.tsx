@@ -367,29 +367,37 @@ export default function Rooms() {
     return () => clearTimeout(t);
   }, []);
 
+  const loadAllRooms = async () => {
+    try {
+      const data = await apiFetch<unknown>("/rooms");
+      const arr = Array.isArray(data)
+        ? (data as ApiRoom[])
+        : ((data as { items?: ApiRoom[] })?.items ?? []);
+      setAllRooms(arr.filter((r) => r.is_active !== false).map(mapRoom));
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Nu am putut încărca camerele.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const data = await apiFetch<unknown>("/rooms");
-        const arr = Array.isArray(data)
-          ? (data as ApiRoom[])
-          : ((data as { items?: ApiRoom[] })?.items ?? []);
-        if (active)
-          setAllRooms(arr.filter((r) => r.is_active !== false).map(mapRoom));
-      } catch (e) {
-        if (active)
-          setError(
-            e instanceof Error ? e.message : "Nu am putut încărca camerele.",
-          );
-      } finally {
-        if (active) setLoading(false);
+    void loadAllRooms();
+
+    const onLiveRoomsSync = () => {
+      void loadAllRooms();
+      if (searched && searched.in && searched.out) {
+        void runSearch(searched.in, searched.out, adults, children);
       }
-    })();
-    return () => {
-      active = false;
     };
-  }, []);
+
+    window.addEventListener("live-rooms-sync", onLiveRoomsSync);
+    return () => {
+      window.removeEventListener("live-rooms-sync", onLiveRoomsSync);
+    };
+  }, [searched, adults, children]);
 
   const runSearch = async (ci: string, co: string, ad: number, ch: number) => {
     if (!ci || !co) return;
@@ -448,7 +456,14 @@ export default function Rooms() {
         if (event.data === "pong") return;
         try {
           const payload = JSON.parse(event.data);
-          if (payload.event === "room_booked" || payload.event === "payment_confirmed") {
+          if (
+            payload.event === "room_booked" ||
+            payload.event === "payment_confirmed" ||
+            payload.event === "room_released" ||
+            payload.event === "rooms_updated" ||
+            payload.event === "pricing_updated"
+          ) {
+            void loadAllRooms();
             if (searched && searched.in && searched.out) {
               void runSearch(searched.in, searched.out, adults, children);
             }

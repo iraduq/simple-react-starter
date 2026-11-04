@@ -8,6 +8,7 @@ import React, {
   type ReactNode,
 } from "react";
 import { RefreshCw } from "lucide-react";
+import { WS_URL } from "../lib/config";
 
 export type WebSocketEvent = {
   event: string;
@@ -49,6 +50,7 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "bookings_updated",
   ],
   units: [
+    "rooms_updated",
     "units_updated",
     "unit_assigned",
     "guest_checked_in",
@@ -76,6 +78,7 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "room_booked",
   ],
   pricing: [
+    "rooms_updated",
     "pricing_updated",
     "pricing_rule_applied",
     "pricing_rule_removed",
@@ -141,10 +144,11 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
-    const wsProto = apiBase.startsWith("https") ? "wss:" : "ws:";
-    const wsHost = apiBase.replace(/^https?:\/\//, "");
-    const endpoint = `${wsProto}//${wsHost}/ws/live`;
+    let raw = (WS_URL || "wss://backend-licenta-i0lr.onrender.com").trim();
+    if (!raw.startsWith("ws://") && !raw.startsWith("wss://")) {
+      raw = raw.replace(/^https?:\/\//, (m: string) => (m.startsWith("https") ? "wss://" : "ws://"));
+    }
+    const endpoint = `${raw.replace(/\/$/, "")}/ws/live`;
 
     setStatus("connecting");
 

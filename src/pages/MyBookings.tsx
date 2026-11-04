@@ -36,6 +36,14 @@ export default function MyBookings() {
 
   useEffect(() => {
     void load();
+
+    const onLiveSync = () => {
+      void load();
+    };
+    window.addEventListener("live-bookings-sync", onLiveSync);
+    return () => {
+      window.removeEventListener("live-bookings-sync", onLiveSync);
+    };
   }, [load]);
 
   const cancel = async (b: Booking) => {

@@ -31,6 +31,7 @@ import {
   fetchSession,
   getCachedUser,
   notifySessionChange,
+  onSessionChange,
   type SessionUser,
 } from "../lib/auth";
 import { apiFetch, ApiError } from "../lib/api";
@@ -339,8 +340,22 @@ function PersonalTab({
         // fallback
       }
     })();
+
+    const unsub = onSessionChange(() => {
+      const fresh = getCachedUser();
+      if (fresh && active) {
+        setUser(fresh);
+        setForm({
+          first_name: fresh.first_name || "",
+          last_name: fresh.last_name || "",
+          phone: fresh.phone || "",
+        });
+      }
+    });
+
     return () => {
       active = false;
+      unsub();
     };
   }, [user]);
 

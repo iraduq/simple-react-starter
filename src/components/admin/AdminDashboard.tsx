@@ -17,6 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
+  PackageSearch,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -33,6 +34,7 @@ import AuditLogsTab from "./AuditLogsTab";
 import UnitsTab from "./UnitsTab";
 import SmartLockTab from "./SmartLockTab";
 import AnalyticsTab from "./AnalyticsTab";
+import LostFoundTab from "./LostFoundTab";
 
 export type TabKey =
   | "bookings"
@@ -45,13 +47,15 @@ export type TabKey =
   | "menu"
   | "analytics"
   | "users"
-  | "audit";
+  | "audit"
+  | "lost_found";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
   { key: "rooms", label: "Camere", icon: BedDouble },
   { key: "units", label: "Unități fizice", icon: DoorOpen },
   { key: "smartlocks", label: "Smart Lock & Uși", icon: KeyRound },
+  { key: "lost_found", label: "Lost & Found", icon: PackageSearch },
   { key: "nomenclature", label: "Facilități", icon: Tags },
   { key: "pricing", label: "Prețuri", icon: DollarSign },
   { key: "places", label: "Locații", icon: MapPin },
@@ -312,6 +316,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "analytics" && <AnalyticsTab />}
             {tab === "users" && <UsersTab />}
             {tab === "audit" && <AuditLogsTab />}
+            {tab === "lost_found" && <LostFoundTab />}
           </div>
         </main>
       </div>

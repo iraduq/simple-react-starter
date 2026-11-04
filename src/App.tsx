@@ -23,6 +23,7 @@ import Profile from "./pages/Profile";
 import Places from "./pages/Places";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastProvider, useToast } from "./components/Toast";
+import GlobalLiveSync from "./context/GlobalLiveSync";
 import { setSessionExpiredHandler } from "./lib/api";
 import { clearSession } from "./lib/auth";
 import Contact from "./pages/Contact";
@@ -76,7 +77,9 @@ function AppInner() {
   }, [navigate, toast]);
 
   return (
-    <Routes>
+    <>
+      <GlobalLiveSync />
+      <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
@@ -139,6 +142,7 @@ function AppInner() {
         />
       </Route>
     </Routes>
+    </>
   );
 }
 
