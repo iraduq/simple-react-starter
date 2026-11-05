@@ -337,16 +337,16 @@ export default function PlaceMenu({
       {totalCount > 0 &&
         createPortal(
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[800] w-[92%] max-w-xl">
-            <div className="rounded-full bg-[#0d2c5c] text-white p-3 pl-5 shadow-[0_20px_50px_rgba(7,23,46,0.35)] border border-[#c69a3f]/40 flex items-center justify-between gap-4">
+            <div className="rounded-full bg-[#0d2c5c] text-white p-3 pl-5 shadow-[0_20px_50px_rgba(7,23,46,0.35)] border border-white/15 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#c69a3f] text-[#0d2c5c]">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white">
                   <ShoppingBag size={18} />
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-white text-[#0d2c5c] text-[11px] font-extrabold flex items-center justify-center shadow">
                     {totalCount}
                   </span>
                 </div>
                 <div>
-                  <div className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#e6b85c]">
+                  <div className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#93c5fd]">
                     Coș Room Service în Cameră
                   </div>
                   <div className="text-base font-bold leading-tight">{lei(totalAmount)}</div>
@@ -356,7 +356,7 @@ export default function PlaceMenu({
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
-                className="rounded-full bg-[#c69a3f] hover:bg-[#e6b85c] text-[#0d2c5c] px-5 py-2.5 text-xs font-extrabold uppercase tracking-[0.14em] transition cursor-pointer flex items-center gap-1.5"
+                className="rounded-full bg-white hover:bg-[#dbeafe] text-[#0d2c5c] px-5 py-2.5 text-xs font-extrabold uppercase tracking-[0.14em] transition cursor-pointer flex items-center gap-1.5"
               >
                 Vezi Coșul & Comandă
                 <ArrowRight size={14} />
@@ -379,7 +379,7 @@ export default function PlaceMenu({
               <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-[#0d2c5c] via-[#123a72] to-[#07203f] px-6 sm:px-8 pt-6 pb-10">
                 <div className="relative flex items-start justify-between gap-4">
                   <div>
-                    <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#e6b85c]">
+                    <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#93c5fd]">
                       <Sparkles size={12} /> Room Service · Vila Casa Esy
                     </span>
                     <h3 className="mt-1 font-['Cormorant_Garamond',serif] text-[28px] sm:text-[32px] font-semibold leading-tight text-white">
@@ -412,7 +412,7 @@ export default function PlaceMenu({
                 {/* 1. Cart Review Section */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">
                       1. Produsele din Coșul Tău ({totalCount})
                     </span>
                     {cartLines.length > 0 && (
@@ -497,13 +497,13 @@ export default function PlaceMenu({
 
                 {/* 2. Active Room Verification Section */}
                 <div>
-                  <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f] mb-3">
+                  <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b] mb-3">
                     2. Camera Ta Activă (Cazare Curentă)
                   </span>
 
                   {!hasSession() ? (
-                    <div className="rounded-2xl border border-[#c69a3f]/40 bg-[#fdf8ec] p-5 text-center space-y-3">
-                      <Lock className="mx-auto text-[#c69a3f]" size={24} />
+                    <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-5 text-center space-y-3">
+                      <Lock className="mx-auto text-[#64748b]" size={24} />
                       <div className="font-['Cormorant_Garamond',serif] text-2xl font-semibold text-[#0d2c5c]">
                         Autentificare necesară pentru Room Service
                       </div>
@@ -523,8 +523,8 @@ export default function PlaceMenu({
                       Se verifică camerele tale active pentru ziua de astăzi...
                     </div>
                   ) : activeRooms.length === 0 ? (
-                    <div className="rounded-2xl border border-amber-300 bg-amber-50/70 p-5 text-center space-y-3">
-                      <CalendarX className="mx-auto text-amber-700" size={24} />
+                    <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-5 text-center space-y-3">
+                      <CalendarX className="mx-auto text-[#64748b]" size={24} />
                       <div className="font-['Cormorant_Garamond',serif] text-2xl font-semibold text-[#0d2c5c]">
                         Nicio cameră cu sejur activ astăzi
                       </div>
@@ -551,12 +551,12 @@ export default function PlaceMenu({
                               onClick={() => setSelectedBookingId(r.booking_id)}
                               className={`w-full text-left p-4 rounded-2xl border transition flex items-center justify-between gap-3 cursor-pointer ${
                                 isSelected
-                                  ? "border-[#c69a3f] bg-[#fdf8ec] shadow-sm"
+                                  ? "border-[#0d2c5c] bg-[#eff6ff] shadow-sm"
                                   : "border-[#e2e8f0] bg-white hover:border-[#0d2c5c]"
                               }`}
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-[#0d2c5c] text-[#e6b85c] flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-[#0d2c5c] text-white flex items-center justify-center shrink-0">
                                   <BedDouble size={18} />
                                 </div>
                                 <div>
@@ -584,7 +584,7 @@ export default function PlaceMenu({
                           <select
                             value={paymentMethod}
                             onChange={(e) => setPaymentMethod(e.target.value as any)}
-                            className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm font-semibold text-[#0d2c5c] focus:border-[#c69a3f] focus:bg-white outline-none"
+                            className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm font-semibold text-[#0d2c5c] focus:border-[#0d2c5c] focus:bg-white outline-none"
                           >
                             <option value="room_charge">Trecut pe Contul Camerei</option>
                             <option value="card">Card la Livrare în Cameră (POS)</option>
@@ -600,7 +600,7 @@ export default function PlaceMenu({
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="Ex: fără zahăr, tacâmuri pt. 2 persoane..."
-                            className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm text-[#0d2c5c] focus:border-[#c69a3f] focus:bg-white outline-none"
+                            className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm text-[#0d2c5c] focus:border-[#0d2c5c] focus:bg-white outline-none"
                           />
                         </div>
                       </div>
