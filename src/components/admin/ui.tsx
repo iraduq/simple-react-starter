@@ -1,5 +1,6 @@
 export { LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 import { createPortal } from "react-dom";
+import type React from "react";
 import { useEffect, useState, type ReactNode } from "react";
 
 export function Card({
@@ -23,11 +24,13 @@ export function SectionHeader({
   title,
   description,
   action,
+  actions,
 }: {
   eyebrow?: string;
   title: string;
   description?: string;
   action?: ReactNode;
+  actions?: ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
@@ -53,7 +56,7 @@ export function SectionHeader({
           </p>
         )}
       </div>
-      {action && <div>{action}</div>}
+      {(action || actions) && <div>{action ?? actions}</div>}
     </div>
   );
 }
@@ -184,12 +187,16 @@ export function Modal({
   onClose,
   children,
   width = "max-w-lg",
+  subtitle,
+  footer,
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
   children: ReactNode;
   width?: string;
+  subtitle?: string;
+  footer?: ReactNode;
 }) {
   if (!open) return null;
   return createPortal(
@@ -229,7 +236,15 @@ export function Modal({
             <path d="M0 24 V12 Q50 0 100 12 T200 12 T300 12 T400 12 V24 Z" fill="currentColor" />
           </svg>
         </div>
+        {subtitle && (
+          <div className="px-6 pt-2 text-xs text-[#6b7c99]">{subtitle}</div>
+        )}
         <div className="overflow-y-auto px-6 pb-6 pt-3 text-[#2a3b52]">{children}</div>
+        {footer && (
+          <div className="flex items-center justify-end gap-2 border-t border-[#eef2f7] bg-[#f8fafd] px-6 py-3.5">
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body
@@ -322,4 +337,41 @@ export function Pagination({
       </div>
     </div>
   );
+}
+
+
+export function PrimaryButton(props: BtnProps) {
+  return <Button {...props} variant="primary" />;
+}
+
+export function GhostButton(props: BtnProps) {
+  return <Button {...props} variant="ghost" />;
+}
+
+export const SearchInput = SearchBox;
+
+export function TextInput({
+  className = "",
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} className={`${inputCls} ${className}`} />;
+}
+
+export function Select({
+  className = "",
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select {...props} className={`${inputCls} ${className}`}>
+      {children}
+    </select>
+  );
+}
+
+export function Textarea({
+  className = "",
+  ...props
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea {...props} className={`${inputCls} ${className}`} />;
 }

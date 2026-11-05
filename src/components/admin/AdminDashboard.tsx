@@ -17,7 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -38,6 +38,10 @@ import LostFoundTab from "./LostFoundTab";
 import EmailStudioTab from "./EmailStudioTab";
 import QrStudioTab from "./QrStudioTab";
 import ConversationsTab from "./ConversationsTab";
+import OrdersKdsTab from "./OrdersKdsTab";
+import TapeChartTab from "./TapeChartTab";
+import CouponsTab from "./CouponsTab";
+import ReviewsTab from "./ReviewsTab";
 
 export type TabKey =
   | "bookings"
@@ -54,10 +58,18 @@ export type TabKey =
   | "lost_found"
   | "email_studio"
   | "qr_studio"
-  | "conversations";
+  | "conversations"
+  | "tape_chart"
+  | "orders_kds"
+  | "coupons"
+  | "reviews";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
+  { key: "tape_chart", label: "Diagramă Ocupare (PMS)", icon: CalendarRange },
+  { key: "orders_kds", label: "Comenzi Cameră & Șezlong", icon: ChefHat },
+  { key: "coupons", label: "Cupoane & Reduceri", icon: TicketPercent },
+  { key: "reviews", label: "Recenzii Verificate #BK", icon: Star },
   { key: "rooms", label: "Camere", icon: BedDouble },
   { key: "units", label: "Unități fizice", icon: DoorOpen },
   { key: "smartlocks", label: "Smart Lock & Uși", icon: KeyRound },
@@ -336,6 +348,10 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "email_studio" && <EmailStudioTab />}
             {tab === "qr_studio" && <QrStudioTab />}
             {tab === "conversations" && <ConversationsTab />}
+            {tab === "tape_chart" && <TapeChartTab />}
+            {tab === "orders_kds" && <OrdersKdsTab />}
+            {tab === "coupons" && <CouponsTab />}
+            {tab === "reviews" && <ReviewsTab />}
           </div>
         </main>
       </div>

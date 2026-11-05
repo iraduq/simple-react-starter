@@ -7,6 +7,7 @@ import {
   Loader as Loader2,
   Maximize,
   ShieldCheck,
+  TicketPercent,
   Users,
 } from "lucide-react";
 import { apiFetch } from "../lib/api";
@@ -18,6 +19,7 @@ import {
   unavailableDates,
 } from "../services/roomsService";
 import DatePicker from "../components/DatePicker";
+import RoomReviewsSection from "../components/RoomReviewsSection";
 import { useToast } from "../components/Toast";
 import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
 import { ron, toISODate, nightsBetween, dayLabel } from "../lib/format";
@@ -62,6 +64,16 @@ export default function RoomDetail() {
   const [quoting, setQuoting] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    description: string;
+    discount_type: string;
+    discount_value: number;
+    discount_amount: number;
+    final_total: number;
+  } | null>(null);
 
   const [blocked, setBlocked] = useState<Set<string>>(new Set());
   const [liveHeldInfo, setLiveHeldInfo] = useState<{
@@ -204,6 +216,42 @@ export default function RoomDetail() {
   const subtotal = quote ? adj(quote.subtotal) : null;
   const taxes = quote ? adj(quote.taxes) : null;
   const total = quote ? adj(quote.total_price) : null;
+  const couponDiscount =
+    appliedCoupon && total != null
+      ? appliedCoupon.discount_type === "percent"
+        ? Math.round(total * (appliedCoupon.discount_value / 100))
+        : Math.min(total, appliedCoupon.discount_value)
+      : 0;
+  const finalTotal = total != null ? Math.max(1, total - couponDiscount) : null;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCodeInput.trim()) return;
+    setValidatingCoupon(true);
+    try {
+      const res = await apiFetch<{
+        valid: boolean;
+        code: string;
+        description: string;
+        discount_type: string;
+        discount_value: number;
+        discount_amount: number;
+        final_total: number;
+      }>("/coupons/validate", {
+        method: "POST",
+        body: JSON.stringify({
+          code: couponCodeInput.trim().toUpperCase(),
+          subtotal: total ?? room?.base_price ?? 0,
+        }),
+      });
+      setAppliedCoupon(res);
+      toast(`Cuponul ${res.code} a fost aplicat!`, "success");
+    } catch (err) {
+      setAppliedCoupon(null);
+      toast(httpErrorMessage(err, "Codul promoțional este invalid."), "error");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
   const avgNight =
     quote && quote.nights > 0 ? adj(quote.subtotal) / quote.nights : null;
   const baseTotal = room && nights > 0 ? room.base_price * nights : null;
@@ -245,7 +293,8 @@ export default function RoomDetail() {
             guests_adults: adults,
             guests_children: children,
             rate_plan_code: plan,
-            total_price: total,
+            total_price: finalTotal ?? total,
+            coupon_code: appliedCoupon?.code ?? null,
             special_requests: requests.trim()
               ? requests.trim().slice(0, 500)
               : null,
@@ -378,6 +427,8 @@ export default function RoomDetail() {
               ))}
             </ul>
           )}
+
+          <RoomReviewsSection roomId={String(roomId)} />
 
           {quote && quote.nightly_breakdown.length > 0 && (
             <section className="mt-9 rounded-2xl border border-[#e1e8f0] bg-white p-5">
@@ -519,6 +570,41 @@ export default function RoomDetail() {
             />
           </label>
 
+          <div className="mt-4">
+            <span className={labelCls}>Cod Promoțional / Cupon</span>
+            <div className="flex gap-2">
+              <input
+                value={couponCodeInput}
+                onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                placeholder="Ex: VARA2026 sau ESYVIP"
+                className={`${inputCls} font-mono uppercase`}
+              />
+              <button
+                type="button"
+                disabled={validatingCoupon || !couponCodeInput.trim()}
+                onClick={handleApplyCoupon}
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#fdf8ec] border border-[#c69a3f] px-3.5 py-2 text-xs font-bold text-[#0d2c5c] hover:bg-[#c69a3f] transition cursor-pointer disabled:opacity-50"
+              >
+                <TicketPercent size={14} />
+                {validatingCoupon ? "..." : "Aplică"}
+              </button>
+            </div>
+            {appliedCoupon && (
+              <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs text-emerald-900">
+                <span>
+                  Cupon <strong>{appliedCoupon.code}</strong> aplicat!
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAppliedCoupon(null)}
+                  className="text-rose-700 font-bold hover:underline cursor-pointer"
+                >
+                  Elimină
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="mt-4 space-y-1.5 border-t border-[#eef2f8] pt-4 text-[13.5px]">
             {quoteError && (
               <p
@@ -568,7 +654,14 @@ export default function RoomDetail() {
                 </div>
                 <div className="flex justify-between pt-2 text-[16px] font-bold text-[#0d2c5c]">
                   <span>Total</span>
-                  <span>{quoting ? "…" : ron(total)}</span>
+                  <span>
+                    {quoting ? "…" : ron(finalTotal ?? total)}
+                    {couponDiscount > 0 && (
+                      <span className="ml-2 text-xs font-semibold text-emerald-700">
+                        (-{ron(couponDiscount)} cupon)
+                      </span>
+                    )}
+                  </span>
                 </div>
                 <p className="pt-1 text-[11.5px] leading-relaxed text-[#8595aa]">
                   Preț total pentru {quote.nights}{" "}
@@ -609,6 +702,7 @@ export default function RoomDetail() {
           <p className="mt-2 text-center text-[11px] text-[#8595aa]">
             Plată securizată prin Stripe · Confirmare instantanee pe email
           </p>
+          <div className="hidden" />
         </aside>
       </div>
     </div>
