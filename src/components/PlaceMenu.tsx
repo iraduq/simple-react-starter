@@ -222,17 +222,18 @@ export default function PlaceMenu({
         <p className="mt-4 text-[14.5px] leading-relaxed text-[#475569]">{current.description}</p>
       )}
 
-      <ul className="mt-6 grid gap-5 sm:grid-cols-2">
+      {/* Listă Fine Dining fără carduri — rânduri elegante cu linii punctate către preț */}
+      <ul className="mt-6 divide-y divide-[#0d2c5c]/10 border-t border-[#0d2c5c]/10">
         {current?.items?.map((it) => {
           const inCartQty = cart[String(it.id)]?.qty || 0;
           return (
             <li
               key={it.id}
-              className={`group flex gap-4 rounded-[24px] border border-[#e2e8f0] bg-white p-4 shadow-[0_6px_24px_-12px_rgba(13,44,92,0.08)] transition-all hover:border-[#c69a3f]/60 hover:shadow-[0_14px_34px_-12px_rgba(13,44,92,0.14)] ${
-                it.is_available ? "" : "opacity-60"
+              className={`group flex items-start gap-4 sm:gap-5 py-5 transition-opacity ${
+                it.is_available ? "" : "opacity-55"
               }`}
             >
-              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+              <div className="relative h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-[20px_32px_20px_32px] bg-[#f8fafc] shadow-sm">
                 {it.image_url ? (
                   <img
                     src={it.image_url}
@@ -247,39 +248,46 @@ export default function PlaceMenu({
 
               <div className="min-w-0 flex-1 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-['Cormorant_Garamond',serif] text-[19px] font-semibold leading-snug text-[#0d2c5c]">
+                  <div className="flex items-baseline gap-2">
+                    <h4 className="font-['Cormorant_Garamond',serif] text-[22px] sm:text-[24px] font-semibold leading-snug text-[#0d2c5c]">
                       {it.title}
                     </h4>
-                    <span className="shrink-0 text-[15px] font-bold text-[#0d2c5c]">
+                    <span
+                      aria-hidden="true"
+                      className="flex-1 border-b border-dotted border-[#c69a3f]/50 mx-2 min-w-[20px]"
+                    />
+                    <span className="shrink-0 font-['Cormorant_Garamond',serif] text-[22px] sm:text-[24px] font-bold text-[#0d2c5c]">
                       {lei(it.price)}
                     </span>
                   </div>
                   {it.description && (
-                    <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-[#64748b]">
+                    <p className="mt-1 text-[13.5px] leading-relaxed text-[#475569]">
                       {it.description}
                     </p>
                   )}
                   {it.ingredients && (
-                    <p className="mt-1 text-[11.5px] text-[#94a3b8]">
-                      <span className="font-semibold text-[#475569]">Ingrediente:</span> {it.ingredients}
+                    <p className="mt-1 font-['Cormorant_Garamond',serif] italic text-[15px] text-[#64748b]">
+                      <span className="font-semibold not-italic text-[11.5px] uppercase tracking-wider text-[#c69a3f]">
+                        Ingrediente:
+                      </span>{" "}
+                      {it.ingredients}
                     </p>
                   )}
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#f1f5f9]">
-                  <div className="flex items-center gap-2">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
                     {it.volume_or_weight && (
-                      <span className="rounded-full bg-[#f8fafc] border border-[#e2e8f0] px-2.5 py-0.5 text-[10.5px] font-bold text-[#0d2c5c]">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
                         {it.volume_or_weight}
                       </span>
                     )}
                     {it.is_available ? (
-                      <span className="flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-[0.1em] text-emerald-700">
+                      <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-emerald-700">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" /> Disponibil
                       </span>
                     ) : (
-                      <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-rose-800">
+                      <span className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-rose-700">
                         Indisponibil
                       </span>
                     )}
@@ -291,12 +299,12 @@ export default function PlaceMenu({
                         <button
                           type="button"
                           onClick={() => addItem(it)}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer"
                         >
                           <Plus size={13} /> Adaugă în coș
                         </button>
                       ) : (
-                        <div className="inline-flex items-center gap-2 rounded-full bg-[#fdf8ec] px-2.5 py-1 border border-[#c69a3f]/50">
+                        <div className="inline-flex items-center gap-2.5 rounded-full bg-[#fdf8ec] px-3 py-1 border border-[#c69a3f]/60">
                           <button
                             type="button"
                             onClick={() => decItem(it.id)}

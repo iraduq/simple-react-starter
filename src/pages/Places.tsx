@@ -10,8 +10,6 @@ import {
   Sparkles,
   Search,
   LayoutGrid,
-  Compass,
-  BedDouble,
 } from "lucide-react";
 import PlaceMenu from "../components/PlaceMenu";
 import type { MenuCategory, Place } from "../types/places";
@@ -170,7 +168,6 @@ export default function Places() {
   const reloadPlaces = () => {
     Promise.allSettled([listPlaces(), getFullMenu()]).then(([p, m]) => {
       if (p.status === "fulfilled") {
-        // Excludem locațiile strict de tip șezlong dacă există
         const cleanPlaces = (p.value || []).filter(
           (item) => !/sezlong|șezlong/i.test(item.title || ""),
         );
@@ -280,18 +277,18 @@ export default function Places() {
         </div>
       </section>
 
-      {/* ── CONȚINUT PRINCIPAL ÎN STILUL ROOMS.TSX ── */}
+      {/* ── CONȚINUT PRINCIPAL FĂRĂ CARDURI (în stilul AboutSection.tsx de pe Home) ── */}
       <section className="relative py-16 md:py-24 px-5 md:px-10 z-10 bg-transparent">
         <div className="relative z-10 max-w-7xl mx-auto">
-          {/* Header + Filtre identic cu Rooms.tsx */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+          {/* Header + Filtre */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20">
             <div>
-              <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
-                <span className="h-px w-8 bg-[#c69a3f]/60" />
+              <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
+                <span className="h-px w-10 bg-gradient-to-r from-[#c69a3f] to-transparent" />
                 Experiențe & Meniu Digital
               </p>
-              <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.2rem,4vw,3.2rem)] font-normal leading-[1.1] text-[#0d2c5c]">
-                Toate <em className="italic text-[#c69a3f]">locațiile</em>
+              <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.4rem,4.5vw,3.6rem)] font-normal leading-[1.08] text-[#0d2c5c]">
+                Arome & <em className="italic text-[#c69a3f]">Destinații</em>
               </h2>
             </div>
 
@@ -303,9 +300,9 @@ export default function Places() {
                     key={c.id}
                     type="button"
                     onClick={() => setCategory(c.id)}
-                    className={`px-5 py-2.5 rounded-full border text-[12px] font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
+                    className={`px-5 py-2.5 rounded-full border text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all cursor-pointer ${
                       isActive
-                        ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
+                        ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
                         : "bg-white border-[#e2e8f0] text-[#475569] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
                     }`}
                   >
@@ -324,7 +321,7 @@ export default function Places() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Caută o locație…"
-                  className="w-full rounded-full border border-[#e2e8f0] bg-white py-2.5 pl-9 pr-8 text-[12.5px] text-[#0d2c5c] placeholder:text-[#94a3b8] focus:border-[#c69a3f] focus:outline-none shadow-sm"
+                  className="w-full rounded-full border border-[#e2e8f0] bg-white py-2.5 pl-9 pr-8 text-[12.5px] text-[#0d2c5c] placeholder:text-[#94a3b8] focus:border-[#c69a3f] focus:outline-none"
                 />
                 {searchQuery && (
                   <button
@@ -347,7 +344,7 @@ export default function Places() {
               </span>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-12 md:p-16 text-center max-w-2xl mx-auto shadow-sm">
+            <div className="py-20 text-center max-w-xl mx-auto">
               <MapPin
                 size={34}
                 strokeWidth={1.5}
@@ -361,149 +358,133 @@ export default function Places() {
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-14 md:gap-16">
+            /* Secțiuni ample, deschise (FĂRĂ chenar de card!), exact ca AboutSection.tsx */
+            <div className="space-y-24 md:space-y-36">
               {filtered.map((p, idx) => {
                 const m = meta(p.category);
                 const count = getPlaceItemsCount(p);
                 const flip = idx % 2 === 1;
-                const cardCornerStyle = flip
-                  ? "rounded-[36px] rounded-tr-[90px] rounded-bl-[90px]"
-                  : "rounded-[36px] rounded-tl-[90px] rounded-br-[90px]";
-                const imgCornerStyle = flip
-                  ? "rounded-[26px] rounded-tr-[72px] rounded-bl-[72px]"
-                  : "rounded-[26px] rounded-tl-[72px] rounded-br-[72px]";
+                const organicRadius = flip
+                  ? "rounded-[90px_30px_90px_30px]"
+                  : "rounded-[30px_90px_30px_90px]";
 
                 return (
-                  <motion.article
+                  <motion.div
                     key={p.id}
-                    initial={{ opacity: 0, y: 24 }}
+                    initial={{ opacity: 0, y: 32 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                    className={`relative overflow-hidden bg-white/95 backdrop-blur border border-[#e2e8f0] shadow-[0_15px_40px_-15px_rgba(13,44,92,0.08)] hover:shadow-[0_25px_60px_-15px_rgba(13,44,92,0.14)] transition-all duration-500 p-6 md:p-10 ${cardCornerStyle}`}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center"
                   >
-                    <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                      {/* Imagine în stilul RoomGallery */}
+                    {/* Coloana Imagine Organică Decupată (fără card în jur!) */}
+                    <div
+                      className={`relative lg:col-span-6 ${
+                        flip ? "lg:order-2" : ""
+                      }`}
+                    >
+                      {/* Siluetă decorativă decalată în spate (ca în AboutSection.tsx) */}
                       <div
-                        className={`relative z-10 lg:col-span-7 ${
-                          flip ? "lg:order-2" : ""
-                        }`}
+                        className={`hidden sm:block absolute -bottom-5 ${
+                          flip ? "-left-5" : "-right-5"
+                        } w-[92%] h-[92%] bg-[#fdf8ec] border border-[#c69a3f]/30 ${organicRadius} -z-10`}
+                      />
+
+                      {/* Număr editorial plutitor */}
+                      <div
+                        className={`absolute -top-6 ${
+                          flip ? "right-6" : "left-6"
+                        } z-20 w-16 h-16 rounded-full bg-[#0d2c5c] text-[#e6b85c] border-4 border-white shadow-[0_12px_30px_rgba(13,44,92,0.25)] flex items-center justify-center font-['Cormorant_Garamond',serif] text-2xl italic`}
                       >
-                        <div
-                          onClick={() => setOpen(p)}
-                          className={`group relative h-[300px] sm:h-[380px] w-full overflow-hidden bg-[#f1f5f9] cursor-pointer shadow-md ${imgCornerStyle}`}
-                        >
-                          <img
-                            src={placeImage(p) || m.fallback}
-                            alt={p.title}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c]/65 via-transparent to-transparent" />
-                          {p.badge && (
-                            <span className="absolute top-5 left-5 rounded-full bg-[#c69a3f] px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#0d2c5c] shadow">
-                              {p.badge}
-                            </span>
-                          )}
-                        </div>
+                        0{idx + 1}
                       </div>
 
-                      {/* Detalii în stilul Rooms.tsx */}
                       <div
-                        className={`relative z-10 lg:col-span-5 flex flex-col justify-between h-full ${
-                          flip ? "lg:order-1" : ""
-                        }`}
+                        onClick={() => setOpen(p)}
+                        className={`group relative h-[340px] sm:h-[440px] w-full overflow-hidden bg-[#0d2c5c] cursor-pointer shadow-[0_25px_60px_-20px_rgba(13,44,92,0.3)] ${organicRadius}`}
                       >
-                        <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="inline-flex items-center gap-2.5 font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
-                              <span className="h-px w-6 bg-[#c69a3f]/60" />
-                              {m.label}
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#0d2c5c] bg-[#f8fafc] border border-[#e2e8f0] px-3 py-1 rounded-full">
-                              <span className="relative flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                              </span>
-                              {count > 0 ? `${count} preparate` : "Activ"}
-                            </span>
-                          </div>
+                        <img
+                          src={placeImage(p) || m.fallback}
+                          alt={p.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#071833]/70 via-transparent to-transparent" />
 
-                          <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,2.8vw,2.8rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-4">
-                            {p.title}
-                          </h3>
-
-                          <p className="font-sans text-[14.5px] leading-[1.75] font-normal text-[#475569] mb-6">
-                            {placeDescription(p) ||
-                              "Experimentează servicii de înaltă clasă, ingrediente proaspete și livrare direct în camera ta activă."}
-                          </p>
-
-                          {/* Stats Grid matching Rooms.tsx */}
-                          <div className="grid grid-cols-2 gap-3 mb-6">
-                            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
-                              <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#0d2c5c]">
-                                <BedDouble size={16} strokeWidth={1.8} />
-                              </div>
-                              <div>
-                                <span className="block text-[10px] uppercase font-bold tracking-wider text-[#94a3b8]">
-                                  Room Service
-                                </span>
-                                <span className="text-[13px] font-semibold text-[#0d2c5c]">
-                                  Livrare în Cameră
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
-                              <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#0d2c5c]">
-                                <Compass size={16} strokeWidth={1.8} />
-                              </div>
-                              <div>
-                                <span className="block text-[10px] uppercase font-bold tracking-wider text-[#94a3b8]">
-                                  Disponibilitate
-                                </span>
-                                <span className="text-[13px] font-semibold text-[#0d2c5c]">
-                                  Oaspeți Cazați
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Tags */}
-                          <div className="flex flex-wrap gap-2 mb-6">
-                            {m.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e8f0] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#0d2c5c]"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="pt-5 border-t border-[#f1f5f9] flex items-center justify-between gap-4">
-                          <div>
-                            <span className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#94a3b8]">
-                              Meniu Digital
-                            </span>
-                            <span className="font-['Cormorant_Garamond',serif] text-2xl font-semibold text-[#0d2c5c]">
-                              {count > 0 ? `${count} produse disponibile` : "Vezi detalii"}
-                            </span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => setOpen(p)}
-                            className="inline-flex items-center gap-2.5 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-6 py-3.5 text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all shadow-md cursor-pointer"
-                          >
-                            <span>Deschide Meniul</span>
-                            <ArrowRight size={15} />
-                          </button>
-                        </div>
+                        {p.badge && (
+                          <span className="absolute bottom-6 left-7 rounded-full bg-white/90 backdrop-blur-md px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#0d2c5c]">
+                            {p.badge}
+                          </span>
+                        )}
                       </div>
                     </div>
-                  </motion.article>
+
+                    {/* Coloana Text Editorial Deschis (fără card, fără cutii gri!) */}
+                    <div
+                      className={`lg:col-span-6 flex flex-col items-start ${
+                        flip ? "lg:order-1" : ""
+                      }`}
+                    >
+                      <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
+                        <span className="w-10 h-px bg-[#c69a3f]" />
+                        {m.label}
+                      </p>
+
+                      <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2.3rem,4vw,3.6rem)] font-normal leading-[1.06] tracking-[-0.01em] text-[#0d2c5c] mb-5">
+                        {p.title}
+                      </h3>
+
+                      <p className="font-sans text-[#475569] leading-[1.85] text-[15.5px] font-light mb-6">
+                        {placeDescription(p) ||
+                          "Experimentează servicii de înaltă clasă, ingrediente proaspete și livrare direct în camera ta activă pe toată durata sejurului."}
+                      </p>
+
+                      {/* Statistici aerisite între două linii fine (identic cu AboutSection.tsx linia 142) */}
+                      <div className="grid grid-cols-3 gap-6 w-full py-5 my-2 border-y border-[#0d2c5c]/12">
+                        <div>
+                          <span className="block font-['Cormorant_Garamond',serif] text-[1.75rem] sm:text-[2rem] font-semibold text-[#0d2c5c] leading-none mb-1">
+                            {count > 0 ? `${count}` : "Live"}
+                          </span>
+                          <span className="block text-[9.5px] text-[#c69a3f] uppercase tracking-[0.2em] font-bold">
+                            Preparate în Meniu
+                          </span>
+                        </div>
+
+                        <div>
+                          <span className="block font-['Cormorant_Garamond',serif] text-[1.75rem] sm:text-[2rem] font-semibold text-[#0d2c5c] leading-none mb-1">
+                            În Cameră
+                          </span>
+                          <span className="block text-[9.5px] text-[#c69a3f] uppercase tracking-[0.2em] font-bold">
+                            Room Service
+                          </span>
+                        </div>
+
+                        <div>
+                          <span className="block font-['Cormorant_Garamond',serif] text-[1.75rem] sm:text-[2rem] font-semibold text-[#0d2c5c] leading-none mb-1">
+                            100%
+                          </span>
+                          <span className="block text-[9.5px] text-[#c69a3f] uppercase tracking-[0.2em] font-bold">
+                            Oaspeți Cazați
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Buton Luxury identic cu Home.tsx / ExperienceCategories.tsx */}
+                      <div className="mt-7 flex flex-wrap items-center gap-6">
+                        <button
+                          type="button"
+                          onClick={() => setOpen(p)}
+                          className="group inline-flex items-center gap-4 bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] text-[11.5px] tracking-[0.2em] uppercase font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-[0_12px_30px_-10px_rgba(13,44,92,0.35)] cursor-pointer"
+                        >
+                          <span>Deschide Meniul & Comandă</span>
+                          <ArrowRight
+                            size={16}
+                            className="transition-transform duration-300 group-hover:translate-x-1"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -511,7 +492,7 @@ export default function Places() {
         </div>
       </section>
 
-      {/* ── MODAL MENIU ÎN STILUL SITE-ULUI ── */}
+      {/* ── MODAL MENIU SLIDE-OVER (PĂSTRAT EXACT CUM L-AI APRECIAT) ── */}
       <AnimatePresence>
         {open && (
           <motion.div
