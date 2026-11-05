@@ -67,7 +67,7 @@ export type TabKey =
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
   { key: "tape_chart", label: "Diagramă Ocupare (PMS)", icon: CalendarRange },
-  { key: "orders_kds", label: "Comenzi Cameră & Șezlong", icon: ChefHat },
+  { key: "orders_kds", label: "Comenzi Room Service", icon: ChefHat },
   { key: "coupons", label: "Cupoane & Reduceri", icon: TicketPercent },
   { key: "reviews", label: "Recenzii Verificate #BK", icon: Star },
   { key: "rooms", label: "Camere", icon: BedDouble },

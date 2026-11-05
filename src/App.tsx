@@ -37,6 +37,7 @@ import Privacy from "./pages/Privacy";
 import Cookies from "./pages/Cookies";
 import Gdpr from "./pages/Gdpr";
 import ResortFacilities from "./pages/ResortFacilities";
+import OrderProgress from "./pages/OrderProgress";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import Footer from "./components/Footer";
 import ChatWidget from "./components/ChatWidget";
@@ -96,6 +97,7 @@ function AppInner() {
         <Route path="/disponibilitate" element={<AvailabilityRedirect />} />
         <Route path="/places" element={<Places />} />
         <Route path="/facilitati" element={<ResortFacilities />} />
+        <Route path="/comanda/:orderCode" element={<OrderProgress />} />
         <Route path="/places/:placeId" element={<PlaceDetail />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/booking-success" element={<BookingSuccess />} />

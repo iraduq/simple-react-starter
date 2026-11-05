@@ -88,10 +88,10 @@ export default function Terms() {
         />
       </LegalSection>
 
-      <LegalSection title="6. Comenzi Room Service & Livrare la Șezlong (Meniu Digital)" icon={<UtensilsCrossed size={20} />}>
+      <LegalSection title="6. Comenzi Room Service în Cameră (Meniu Digital)" icon={<UtensilsCrossed size={20} />}>
         <LegalList
           items={[
-            "Oaspeții pot plasa comenzi de preparate culinare și băuturi direct din Meniul Digital pentru livrare în cameră (Room Service), pe plaja privată (la numărul șezlongului/baldachinului) sau la mesele de pe terasă.",
+            "Oaspeții cazați în prezent (cu o rezervare activă în ziua curentă) pot plasa comenzi de preparate culinare și băuturi direct din Meniul Digital pentru livrare în camera alocată.",
             "Opțiunea «Trecut pe Contul Camerei» este disponibilă oaspeților cu o rezervare activă (#BK-...) și implică achitarea consumației înainte sau în momentul check-out-ului.",
             "Informațiile privind gramajele, ingredientele și alergenii (conform Regulamentului UE nr. 1169/2011) sunt afișate în pagina fiecărui produs din meniul digital.",
           ]}

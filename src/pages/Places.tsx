@@ -1,22 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
   MapPin,
   X,
-  ArrowUpRight,
+  ArrowRight,
   Utensils,
   Wine,
-  Waves,
   Sparkles,
   Search,
   LayoutGrid,
-  Clock,
   Compass,
-  CheckCircle2,
-  Phone,
+  BedDouble,
 } from "lucide-react";
-import { useToast } from "../components/Toast";
 import PlaceMenu from "../components/PlaceMenu";
 import type { MenuCategory, Place } from "../types/places";
 import {
@@ -28,9 +24,9 @@ import {
 } from "../services/placesService";
 
 /* ───────────────────────────────────────────────
-   DECOR: SVG-uri plutitoare în stilul Vila Casa Esy
+   DECOR: SVG-uri plutitoare identice cu Rooms.tsx
 ─────────────────────────────────────────────── */
-const floatAnim = (duration: number, amp = 20, rot = 5, delay = 0) => ({
+const float = (duration: number, amp = 25, rot = 6, delay = 0) => ({
   animate: { y: [0, -amp, 0], rotate: [0, rot, 0] },
   transition: {
     duration,
@@ -103,11 +99,32 @@ function Shell({ className = "" }: { className?: string }) {
   );
 }
 
+function FloatingDecor() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden z-[5]"
+    >
+      <motion.div
+        {...float(14, 28, 8, 0)}
+        className="hidden md:block absolute top-[520px] right-[5%] text-[#c69a3f]/25"
+      >
+        <SunRing className="w-28 h-28" />
+      </motion.div>
+      <motion.div
+        {...float(18, 22, -6, 1.5)}
+        className="hidden md:block absolute top-[980px] left-[4%] text-[#0d2c5c]/15"
+      >
+        <Shell className="w-24 h-24" />
+      </motion.div>
+    </div>
+  );
+}
+
 const CATEGORIES = [
   { id: "toate", label: "Toate", icon: LayoutGrid },
   { id: "restaurant", label: "Restaurant", icon: Utensils },
   { id: "bar", label: "Bar & Lounge", icon: Wine },
-  { id: "plaja", label: "Plajă Privată", icon: Waves },
   { id: "spa", label: "SPA & Wellness", icon: Sparkles },
 ];
 
@@ -116,32 +133,25 @@ const CAT_META: Record<
   { label: string; icon: typeof Utensils; fallback: string; tags: string[] }
 > = {
   restaurant: {
-    label: "Restaurant",
+    label: "Restaurant & Room Service",
     icon: Utensils,
     fallback:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&auto=format&fit=crop&q=60",
-    tags: ["Fine Dining", "Fructe de Mare", "Terasă Panoramică"],
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&auto=format&fit=crop&q=80",
+    tags: ["Fine Dining", "Room Service în Cameră", "Terasă Panoramică"],
   },
   bar: {
     label: "Bar & Lounge",
     icon: Wine,
     fallback:
-      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=1200&auto=format&fit=crop&q=60",
-    tags: ["Signature Cocktails", "Apusuri de Soare", "Muzică Ambient"],
-  },
-  plaja: {
-    label: "Plajă Privată",
-    icon: Waves,
-    fallback:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=60",
-    tags: ["Șezlonguri Premium", "Servire pe Plajă", "Briza Mării"],
+      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=1200&auto=format&fit=crop&q=80",
+    tags: ["Cocktailuri de Autor", "Selecție de Vinuri", "Servire în Cameră"],
   },
   spa: {
     label: "SPA & Wellness",
     icon: Sparkles,
     fallback:
-      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&auto=format&fit=crop&q=60",
-    tags: ["Masaj Terapeutic", "Aromaterapie", "Relaxare Totală"],
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&auto=format&fit=crop&q=80",
+    tags: ["Masaj Terapeutic", "Saună Finlandeză", "Relaxare Totală"],
   },
 };
 
@@ -149,7 +159,7 @@ const meta = (c?: string) =>
   CAT_META[c?.toLowerCase() ?? ""] ?? CAT_META.restaurant;
 
 export default function Places() {
-  const { toast } = useToast();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [places, setPlaces] = useState<Place[]>([]);
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -159,7 +169,13 @@ export default function Places() {
 
   const reloadPlaces = () => {
     Promise.allSettled([listPlaces(), getFullMenu()]).then(([p, m]) => {
-      if (p.status === "fulfilled") setPlaces(p.value);
+      if (p.status === "fulfilled") {
+        // Excludem locațiile strict de tip șezlong dacă există
+        const cleanPlaces = (p.value || []).filter(
+          (item) => !/sezlong|șezlong/i.test(item.title || ""),
+        );
+        setPlaces(cleanPlaces);
+      }
       if (m.status === "fulfilled") setMenu(m.value);
       setLoading(false);
     });
@@ -167,15 +183,9 @@ export default function Places() {
 
   useEffect(() => {
     reloadPlaces();
-
-    const onLiveSync = () => {
-      reloadPlaces();
-    };
-
+    const onLiveSync = () => reloadPlaces();
     window.addEventListener("live-places-sync", onLiveSync);
-    return () => {
-      window.removeEventListener("live-places-sync", onLiveSync);
-    };
+    return () => window.removeEventListener("live-places-sync", onLiveSync);
   }, []);
 
   useEffect(() => {
@@ -185,7 +195,6 @@ export default function Places() {
     };
   }, [open]);
 
-  // Filtrare combinată după categorie și text căutat
   const filtered = useMemo(() => {
     let list = places;
     if (category !== "toate") {
@@ -198,392 +207,315 @@ export default function Places() {
           p.title?.toLowerCase().includes(q) ||
           placeDescription(p).toLowerCase().includes(q) ||
           p.badge?.toLowerCase().includes(q) ||
-          p.category?.toLowerCase().includes(q)
+          p.category?.toLowerCase().includes(q),
       );
     }
     return list;
   }, [places, category, searchQuery]);
 
-  // Număr total de produse din meniul asociat unui loc
-  const getPlaceItemsCount = (p: Place) => {
-    return menuForPlace(menu, p).reduce(
-      (s, c) => s + (c.items?.length ?? 0),
-      0
-    );
-  };
+  const getPlaceItemsCount = (p: Place) =>
+    menuForPlace(menu, p).reduce((s, c) => s + (c.items?.length ?? 0), 0);
 
   return (
-    <div className="relative min-h-screen bg-[#fbfbf9] text-[#0d2c5c]">
-      {/* ── HERO LUXURY SECTION ── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#07172e] via-[#0c2242] to-[#07172e] px-5 pt-36 pb-24 text-center sm:pt-44 sm:pb-32">
-        {/* Glow-uri radiale de fundal */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -left-24 h-[450px] w-[450px] rounded-full bg-[#c69a3f]/15 blur-[120px]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-36 -right-32 h-[500px] w-[500px] rounded-full bg-[#1e4d8c]/35 blur-[130px]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-40 w-full max-w-4xl bg-[#c69a3f]/5 blur-[100px]"
-        />
+    <div className="relative bg-white text-[#1a1a1a] overflow-hidden min-h-screen">
+      <FloatingDecor />
 
-        {/* Motive plutitoare marine SVG */}
-        <motion.div
-          {...floatAnim(13, 16, 5)}
-          className="pointer-events-none absolute top-[20%] right-[8%] hidden opacity-20 md:block"
-        >
-          <SunRing className="h-32 w-32 text-[#c69a3f]" />
-        </motion.div>
-        <motion.div
-          {...floatAnim(16, 14, -6, 1)}
-          className="pointer-events-none absolute top-[35%] left-[6%] hidden opacity-15 lg:block"
-        >
-          <Shell className="h-28 w-28 text-[#c69a3f]" />
-        </motion.div>
-
-        <div className="relative z-10 mx-auto max-w-4xl px-4">
-          {/* Eyebrow badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-[#c69a3f]/40 bg-[#c69a3f]/10 px-4 py-1.5 backdrop-blur-md shadow-[0_2px_12px_rgba(198,154,63,0.12)]"
+      {/* ── HERO IDENTIC CU ROOMS.TSX & HOME.TSX ── */}
+      <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-40 z-10">
+        <div className="absolute inset-0 z-0">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster="/hero-poster.jpg"
+            className="h-full w-full object-cover saturate-50 contrast-110 brightness-100"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#c69a3f] shadow-[0_0_8px_#c69a3f]" />
-            <span className="text-[10.5px] font-bold uppercase tracking-[0.24em] text-[#e8c878]">
-              Experiențe & Gastronomie · Vila Casa Esy
-            </span>
-            <span className="h-1.5 w-1.5 rounded-full bg-[#c69a3f] shadow-[0_0_8px_#c69a3f]" />
-          </motion.div>
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-color" />
+          <div className="absolute inset-0 bg-[#0b2146]/40 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/95 via-[#0d2c5c]/40 to-[#0d2c5c]/95" />
+        </div>
 
-          {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-['Cormorant_Garamond',serif] text-[clamp(2.5rem,5.5vw,4.5rem)] font-light leading-[1.08] tracking-tight text-white"
-          >
-            Atracții, Gastronomie &{" "}
-            <em className="italic font-normal text-[#c69a3f]">Relaxare</em> la Malul
-            Mării
-          </motion.h1>
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-10 text-center">
+          <p className="font-sans text-[10px] sm:text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 sm:mb-4 flex items-center justify-center gap-3">
+            <span className="w-6 sm:w-8 h-px bg-[#c69a3f]/60" />
+            Gastronomie & Atracții · Vila Casa Esy
+            <span className="w-6 sm:w-8 h-px bg-[#c69a3f]/60" />
+          </p>
 
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mx-auto mt-6 max-w-2xl text-[15px] sm:text-[16px] font-light leading-relaxed text-white/80"
-          >
-            Descoperă facilitățile exclusiviste ale resortului Vila Casa Esy:
-            restaurant fine dining, cocktail bar la apus, plajă privată și sanctuar
-            SPA — fiecare cu meniul digital actualizat în timp real.
-          </motion.p>
+          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.5rem,5.5vw,5.2rem)] font-normal text-white leading-[1.05] tracking-[-0.015em] mb-4 sm:mb-6 [text-shadow:0_4px_30px_rgba(0,0,0,0.35)]">
+            Locațiile noastre & <br className="hidden md:block" />
+            <em className="italic text-[#c69a3f]">Room Service în cameră</em>
+          </h1>
 
-          {/* Luxury Highlights Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.3 }}
-            className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4"
+          <span
+            className="my-3 hidden sm:flex items-center justify-center gap-3"
+            aria-hidden="true"
           >
-            {[
-              {
-                icon: Utensils,
-                title: "Restaurant",
-                subtitle: "Preparate gourmet",
-              },
-              {
-                icon: Wine,
-                title: "Sunset Bar",
-                subtitle: "Cocktailuri de autor",
-              },
-              {
-                icon: Waves,
-                title: "Plajă Privată",
-                subtitle: "Șezlonguri & briza mării",
-              },
-              {
-                icon: Sparkles,
-                title: "SPA & Masaj",
-                subtitle: "Sanctuar de relaxare",
-              },
-            ].map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-3.5 backdrop-blur-md transition-all duration-300 hover:border-[#c69a3f]/50 hover:bg-white/[0.08]"
-                >
-                  <Icon
-                    size={20}
-                    className="mx-auto mb-2 text-[#c69a3f] transition-transform duration-300 group-hover:scale-110"
-                  />
-                  <div className="text-[13px] font-semibold text-white">
-                    {item.title}
-                  </div>
-                  <div className="mt-0.5 text-[11px] text-white/60">
-                    {item.subtitle}
-                  </div>
-                </div>
-              );
-            })}
-          </motion.div>
+            <span className="h-px w-14 bg-[#c69a3f]/50" />
+            <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]" />
+            <span className="h-px w-14 bg-[#c69a3f]/50" />
+          </span>
+
+          <p className="max-w-[640px] mx-auto text-[14px] sm:text-[17px] text-white/90 leading-[1.6] sm:leading-[1.85] font-light">
+            Răsfoiește locațiile și meniul digital al Vilei Casa Esy. Dacă ești cazat în prezent, poți comanda preparatele preferate direct în camera ta activă.
+          </p>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-[50px] md:h-[80px]"
+          >
+            <path
+              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.43,121.22,201.2,112.5,242.47,107.45,283.47,84.14,321.39,56.44Z"
+              className="fill-white"
+            />
+          </svg>
         </div>
       </section>
 
-      {/* ── BARA DE FILTRE ȘI CĂUTARE LUXURY ── */}
-      <section className="relative z-20 -mt-7 mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="rounded-3xl border border-slate-200/80 bg-white/95 p-3 sm:p-4 shadow-[0_12px_40px_rgba(7,23,46,0.08)] backdrop-blur-xl">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Category Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              {CATEGORIES.map((c) => {
-                const Icon = c.icon;
-                const isActive = category === c.id;
-                const count =
-                  c.id === "toate"
-                    ? places.length
-                    : places.filter((p) => p.category?.toLowerCase() === c.id)
-                        .length;
+      {/* ── CONȚINUT PRINCIPAL ÎN STILUL ROOMS.TSX ── */}
+      <section className="relative py-16 md:py-24 px-5 md:px-10 z-10 bg-transparent">
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Header + Filtre identic cu Rooms.tsx */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+            <div>
+              <p className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
+                <span className="h-px w-8 bg-[#c69a3f]/60" />
+                Experiențe & Meniu Digital
+              </p>
+              <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.2rem,4vw,3.2rem)] font-normal leading-[1.1] text-[#0d2c5c]">
+                Toate <em className="italic text-[#c69a3f]">locațiile</em>
+              </h2>
+            </div>
 
+            <div className="flex flex-wrap items-center gap-2.5">
+              {CATEGORIES.map((c) => {
+                const isActive = category === c.id;
                 return (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => setCategory(c.id)}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300 ${
+                    className={`px-5 py-2.5 rounded-full border text-[12px] font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
                       isActive
-                        ? "bg-[#0d2c5c] text-white shadow-md shadow-[#0d2c5c]/20 ring-1 ring-[#c69a3f]/40"
-                        : "border border-slate-200/80 bg-slate-50/60 text-[#0d2c5c] hover:border-[#c69a3f]/40 hover:bg-white"
+                        ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
+                        : "bg-white border-[#e2e8f0] text-[#475569] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
                     }`}
                   >
-                    <Icon
-                      size={13}
-                      className={isActive ? "text-[#c69a3f]" : "text-slate-400"}
-                    />
-                    <span>{c.label}</span>
-                    <span
-                      className={`ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-semibold ${
-                        isActive
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-200/70 text-slate-600"
-                      }`}
-                    >
-                      {count}
-                    </span>
+                    {c.label}
                   </button>
                 );
               })}
+
+              <div className="relative min-w-[220px]">
+                <Search
+                  size={15}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94a3b8]"
+                />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Caută o locație…"
+                  className="w-full rounded-full border border-[#e2e8f0] bg-white py-2.5 pl-9 pr-8 text-[12.5px] text-[#0d2c5c] placeholder:text-[#94a3b8] focus:border-[#c69a3f] focus:outline-none shadow-sm"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0d2c5c]"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
             </div>
-
-            {/* Căutare rapidă */}
-            <div className="relative min-w-[240px] md:max-w-xs">
-              <Search
-                size={16}
-                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-              />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Caută o locație sau preparat…"
-                className="w-full rounded-full border border-slate-200/80 bg-slate-50/70 py-2.5 pl-9 pr-8 text-[12.5px] text-[#0d2c5c] placeholder:text-slate-400 focus:border-[#c69a3f] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c69a3f]/20 transition-all"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── GRID LOCAȚII ── */}
-      <section className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-28 text-[#c69a3f]">
-            <Loader2 size={36} className="mb-4 animate-spin" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#0d2c5c]">
-              Se încarcă facilitățile Vila Casa Esy…
-            </span>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="mx-auto max-w-md rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#c69a3f]/10 text-[#c69a3f]">
-              <MapPin size={26} strokeWidth={1.5} />
-            </div>
-            <h3 className="font-['Cormorant_Garamond',serif] text-[24px] font-medium text-[#0d2c5c]">
-              Nicio locație găsită
-            </h3>
-            <p className="mt-2 text-[14px] text-slate-500">
-              {searchQuery
-                ? `Nu am găsit rezultate pentru căutarea „${searchQuery}”.`
-                : "Nu există locații înregistrate în această categorie deocamdată."}
-            </p>
-            {(searchQuery || category !== "toate") && (
-              <button
-                type="button"
-                onClick={() => {
-                  setCategory("toate");
-                  setSearchQuery("");
-                }}
-                className="mt-5 rounded-full bg-[#0d2c5c] px-5 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white hover:bg-[#143565] transition-colors"
-              >
-                Resetează filtrele
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((p, idx) => {
-              const m = meta(p.category);
-              const Icon = m.icon;
-              const count = getPlaceItemsCount(p);
-
-              return (
-                <motion.article
-                  key={p.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: (idx % 3) * 0.1 }}
-                  onClick={() => setOpen(p)}
-                  className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(7,23,46,0.05)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#c69a3f]/50 hover:shadow-[0_20px_45px_rgba(7,23,46,0.12)]"
-                >
-                  {/* Container Imagine */}
-                  <div className="relative h-64 overflow-hidden bg-slate-100 sm:h-72">
-                    <img
-                      src={placeImage(p) || m.fallback}
-                      alt={p.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                    />
-
-                    {/* Gradient protector */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#07172e]/80 via-transparent to-black/25 opacity-80" />
-
-                    {/* Badge categorie stânga sus */}
-                    <div className="absolute left-4 top-4">
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-[#07172e]/80 px-3.5 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur-md shadow-sm">
-                        <Icon size={12} className="text-[#c69a3f]" />
-                        {m.label}
-                      </span>
-                    </div>
-
-                    {/* Badge custom dreapta sus */}
-                    {p.badge && (
-                      <div className="absolute right-4 top-4">
-                        <span className="inline-flex items-center rounded-full bg-gradient-to-r from-[#c69a3f] to-[#e8c878] px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#07172e] shadow-md">
-                          {p.badge}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Indicator disponibilitate meniu pe imagine */}
-                    <div className="absolute bottom-3.5 left-4 right-4 flex items-center justify-between text-white">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-medium backdrop-blur-md">
-                        <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-                        {count > 0
-                          ? `Meniu digital · ${count} preparate`
-                          : "Locație activă"}
-                      </span>
-                      <span className="text-[11px] font-medium text-white/80">
-                        Vila Casa Esy
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Conținut Card */}
-                  <div className="flex flex-1 flex-col p-6 sm:p-7">
-                    {/* Tag-uri tematice */}
-                    <div className="mb-3 flex flex-wrap gap-1.5">
-                      {m.tags.slice(0, 3).map((tag, tIdx) => (
-                        <span
-                          key={tIdx}
-                          className="rounded-md bg-slate-100 px-2 py-0.5 text-[10.5px] font-medium text-slate-600"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Titlu */}
-                    <h3 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold leading-snug text-[#07172e] transition-colors duration-300 group-hover:text-[#c69a3f]">
-                      {p.title}
-                    </h3>
-
-                    {/* Descriere */}
-                    <p className="mt-2.5 line-clamp-3 text-[13.5px] leading-relaxed text-slate-600">
-                      {placeDescription(p) ||
-                        "Experimentează servicii de înaltă clasă, ingrediente proaspete și o atmosferă distinsă la malul mării."}
-                    </p>
-
-                    {/* Footer card cu buton CTA rafinat */}
-                    <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#0d2c5c] group-hover:text-[#c69a3f] transition-colors">
-                        {count > 0 ? "Răsfoiește Meniul" : "Vezi Detalii"}
-                      </span>
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0d2c5c]/5 text-[#0d2c5c] transition-all duration-300 group-hover:bg-[#0d2c5c] group-hover:text-white">
-                        <ArrowUpRight
-                          size={16}
-                          className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                        />
-                      </span>
-                    </div>
-                  </div>
-                </motion.article>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* ── SECȚIUNE HOSPITALITY & CONCIERGE BANNER ── */}
-      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl bg-[#0d2c5c] p-8 sm:p-12 text-white shadow-xl">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[#c69a3f]/20 blur-[90px]"
-          />
-          <div className="relative z-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-            <div className="max-w-2xl">
-              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#c69a3f]">
-                Servicii de Concierge
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-28 text-[#c69a3f]">
+              <Loader2 size={36} className="mb-4 animate-spin" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#0d2c5c]">
+                Se încarcă locațiile Vila Casa Esy…
               </span>
-              <h2 className="mt-2 font-['Cormorant_Garamond',serif] text-2xl sm:text-3xl font-light leading-tight">
-                Dorești o rezervare specială sau un eveniment privat?
-              </h2>
-              <p className="mt-2 text-[14px] text-white/75 leading-relaxed">
-                Echipa noastră de ospitalitate vă stă la dispoziție pentru rezervări
-                la restaurant, mese de degustare sau pachete personalizate pe plajă.
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-12 md:p-16 text-center max-w-2xl mx-auto shadow-sm">
+              <MapPin
+                size={34}
+                strokeWidth={1.5}
+                className="mx-auto mb-5 text-[#94a3b8]"
+              />
+              <p className="font-['Cormorant_Garamond',serif] text-[30px] text-[#0d2c5c] mb-3">
+                Nicio locație găsită
+              </p>
+              <p className="text-[15px] text-[#64748b] font-light">
+                Încearcă un alt termen de căutare sau afișează toate categoriile.
               </p>
             </div>
-            <a
-              href="tel:+40700000000"
-              className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#e8c878] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#07172e] shadow-lg transition-transform hover:scale-105"
-            >
-              <Phone size={15} />
-              <span>Contactează Recepția</span>
-            </a>
-          </div>
+          ) : (
+            <div className="flex flex-col gap-14 md:gap-16">
+              {filtered.map((p, idx) => {
+                const m = meta(p.category);
+                const count = getPlaceItemsCount(p);
+                const flip = idx % 2 === 1;
+                const cardCornerStyle = flip
+                  ? "rounded-[36px] rounded-tr-[90px] rounded-bl-[90px]"
+                  : "rounded-[36px] rounded-tl-[90px] rounded-br-[90px]";
+                const imgCornerStyle = flip
+                  ? "rounded-[26px] rounded-tr-[72px] rounded-bl-[72px]"
+                  : "rounded-[26px] rounded-tl-[72px] rounded-br-[72px]";
+
+                return (
+                  <motion.article
+                    key={p.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    className={`relative overflow-hidden bg-white/95 backdrop-blur border border-[#e2e8f0] shadow-[0_15px_40px_-15px_rgba(13,44,92,0.08)] hover:shadow-[0_25px_60px_-15px_rgba(13,44,92,0.14)] transition-all duration-500 p-6 md:p-10 ${cardCornerStyle}`}
+                  >
+                    <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                      {/* Imagine în stilul RoomGallery */}
+                      <div
+                        className={`relative z-10 lg:col-span-7 ${
+                          flip ? "lg:order-2" : ""
+                        }`}
+                      >
+                        <div
+                          onClick={() => setOpen(p)}
+                          className={`group relative h-[300px] sm:h-[380px] w-full overflow-hidden bg-[#f1f5f9] cursor-pointer shadow-md ${imgCornerStyle}`}
+                        >
+                          <img
+                            src={placeImage(p) || m.fallback}
+                            alt={p.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c]/65 via-transparent to-transparent" />
+                          {p.badge && (
+                            <span className="absolute top-5 left-5 rounded-full bg-[#c69a3f] px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#0d2c5c] shadow">
+                              {p.badge}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Detalii în stilul Rooms.tsx */}
+                      <div
+                        className={`relative z-10 lg:col-span-5 flex flex-col justify-between h-full ${
+                          flip ? "lg:order-1" : ""
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="inline-flex items-center gap-2.5 font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f]">
+                              <span className="h-px w-6 bg-[#c69a3f]/60" />
+                              {m.label}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#0d2c5c] bg-[#f8fafc] border border-[#e2e8f0] px-3 py-1 rounded-full">
+                              <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                              </span>
+                              {count > 0 ? `${count} preparate` : "Activ"}
+                            </span>
+                          </div>
+
+                          <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,2.8vw,2.8rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-4">
+                            {p.title}
+                          </h3>
+
+                          <p className="font-sans text-[14.5px] leading-[1.75] font-normal text-[#475569] mb-6">
+                            {placeDescription(p) ||
+                              "Experimentează servicii de înaltă clasă, ingrediente proaspete și livrare direct în camera ta activă."}
+                          </p>
+
+                          {/* Stats Grid matching Rooms.tsx */}
+                          <div className="grid grid-cols-2 gap-3 mb-6">
+                            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+                              <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#0d2c5c]">
+                                <BedDouble size={16} strokeWidth={1.8} />
+                              </div>
+                              <div>
+                                <span className="block text-[10px] uppercase font-bold tracking-wider text-[#94a3b8]">
+                                  Room Service
+                                </span>
+                                <span className="text-[13px] font-semibold text-[#0d2c5c]">
+                                  Livrare în Cameră
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+                              <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#0d2c5c]">
+                                <Compass size={16} strokeWidth={1.8} />
+                              </div>
+                              <div>
+                                <span className="block text-[10px] uppercase font-bold tracking-wider text-[#94a3b8]">
+                                  Disponibilitate
+                                </span>
+                                <span className="text-[13px] font-semibold text-[#0d2c5c]">
+                                  Oaspeți Cazați
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Tags */}
+                          <div className="flex flex-wrap gap-2 mb-6">
+                            {m.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e8f0] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#0d2c5c]"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="pt-5 border-t border-[#f1f5f9] flex items-center justify-between gap-4">
+                          <div>
+                            <span className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#94a3b8]">
+                              Meniu Digital
+                            </span>
+                            <span className="font-['Cormorant_Garamond',serif] text-2xl font-semibold text-[#0d2c5c]">
+                              {count > 0 ? `${count} produse disponibile` : "Vezi detalii"}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setOpen(p)}
+                            className="inline-flex items-center gap-2.5 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-6 py-3.5 text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all shadow-md cursor-pointer"
+                          >
+                            <span>Deschide Meniul</span>
+                            <ArrowRight size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* ── MODAL / SLIDE-OVER PENTRU MENIU ȘI DETALII LOCAȚIE ── */}
-      {/* ATENȚIE: Nu se modifică logica internă a PlaceMenu conform instrucțiunii utilizatorului */}
+      {/* ── MODAL MENIU ÎN STILUL SITE-ULUI ── */}
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[600] flex justify-end bg-[#07203f]/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[600] flex justify-end bg-[#07203f]/65 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -597,38 +529,50 @@ export default function Places() {
               onClick={(e) => e.stopPropagation()}
               className="h-full w-full max-w-3xl overflow-y-auto bg-white shadow-2xl"
             >
-              {/* Header Drawer Identic cu Screenshot-ul */}
-              <div className="relative h-56 bg-[#0d2c5c] sm:h-64">
+              <div className="relative h-60 bg-[#0d2c5c] sm:h-68 overflow-hidden">
                 <img
                   src={placeImage(open) || meta(open.category).fallback}
                   alt={open.title}
-                  className="h-full w-full object-cover opacity-60"
+                  className="h-full w-full object-cover opacity-55"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c] to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c5c] via-[#0d2c5c]/40 to-transparent" />
                 <button
                   type="button"
                   onClick={() => setOpen(null)}
                   aria-label="Închide"
-                  className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0d2c5c] shadow-md transition-transform hover:scale-110"
+                  className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white backdrop-blur-md transition-colors hover:bg-white hover:text-[#0d2c5c] cursor-pointer"
                 >
                   <X size={18} />
                 </button>
-                <div className="absolute bottom-5 left-6 right-6">
-                  <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#c69a3f]">
+                <div className="absolute bottom-8 left-6 right-6 sm:left-8 sm:right-8">
+                  <span className="inline-flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.22em] text-[#e6b85c]">
+                    <span className="h-px w-6 bg-[#e6b85c]" />
                     {meta(open.category).label}
                   </span>
-                  <h2 className="font-['Cormorant_Garamond',serif] text-[34px] leading-tight text-white">
+                  <h2 className="mt-1 font-['Cormorant_Garamond',serif] text-[36px] sm:text-[42px] leading-tight text-white">
                     {open.title}
                   </h2>
                 </div>
+                <svg
+                  viewBox="0 0 400 24"
+                  preserveAspectRatio="none"
+                  className="absolute bottom-0 left-0 h-5 w-full text-white"
+                >
+                  <path
+                    d="M0 24 V12 Q50 0 100 12 T200 12 T300 12 T400 12 V24 Z"
+                    fill="currentColor"
+                  />
+                </svg>
               </div>
 
-              {/* Conținut Drawer (PlaceMenu integrat exact așa cum dorește utilizatorul) */}
               <div className="p-6 sm:p-8">
-                <p className="mb-8 text-[15px] leading-relaxed text-[#4f6280]">
+                <p className="mb-8 text-[15px] leading-relaxed text-[#475569]">
                   {placeDescription(open)}
                 </p>
-                <PlaceMenu categories={menuForPlace(menu, open)} />
+                <PlaceMenu
+                  categories={menuForPlace(menu, open)}
+                  onOrderRedirect={() => setOpen(null)}
+                />
               </div>
             </motion.aside>
           </motion.div>

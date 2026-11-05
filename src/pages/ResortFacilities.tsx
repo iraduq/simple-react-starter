@@ -34,17 +34,17 @@ export const RESORT_FACILITIES: ResortFacilityItem[] = [
     title: "Plajă privată",
     eyebrow: "Linia 1 la Marea Neagră · Nisip Fin",
     schedule: "Zilnic 07:00 – 21:00",
-    accessLabel: "2 șezlonguri + umbrelă incluse / cameră",
+    accessLabel: "Acces exclusiv pentru oaspeții cazați",
     summary:
-      "Plaja privată Vila Casa Esy este rezervată exclusiv oaspeților cazați și oferă șezlonguri din lemn masiv cu saltele premium, baldachine VIP pe malul mării și serviciu de comandă directă pe șezlong din meniul digital.",
+      "Plaja privată Vila Casa Esy este rezervată exclusiv oaspeților cazați și oferă o zonă liniștită cu nisip fin, vedere directă spre răsărit și acces rapid din grădina vilei.",
     highlights: [
-      "Comandă băuturi reci și platouri direct la șezlong (ex: Șezlong #14) prin QR sau din aplicație",
+      "Zonă privată rezervată exclusiv oaspeților cu sejur activ în Vila Casa Esy",
       "Prosoape de plajă din bumbac egiptean oferite gratuit zilnic",
-      "Zonă de baldachine VIP și Beach Bar cu muzică ambientală",
-      "Trecerea consumației direct pe contul camerei (Room Charge)",
+      "Atmosferă intimă și relaxantă pe malul Mării Negre",
+      "Acces rapid către terasa restaurantului și camere",
     ],
-    ctaLabel: "Deschide Meniul Plajă & Locații",
-    ctaLink: "/places",
+    ctaLabel: "Vezi Camerele Disponibile",
+    ctaLink: "/camere",
     image:
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
     icon: Umbrella,
@@ -58,7 +58,7 @@ export const RESORT_FACILITIES: ResortFacilityItem[] = [
     summary:
       "Piscina infinity cu margine de sticlă creează iluzia contopirii cu Marea Neagră. Apa este tratată prin electroliză salină blândă cu pielea și menținută la o temperatură constantă de 28°C pe tot parcursul sezonului.",
     highlights: [
-      "Zonă de hidromasaj cervical și șezlonguri scufundate în apă (Sun Deck)",
+      "Zonă de hidromasaj cervical și terasă de relaxare cu vedere spre mare",
       "Iluminat arhitectural subacvatic pentru seri relaxante pe terasă",
       "Serviciu Pool Bar cu cocktailuri artizanale și fresh-uri",
       "Secțiune dedicată cu adâncime redusă pentru familii cu copii",
@@ -94,12 +94,12 @@ export const RESORT_FACILITIES: ResortFacilityItem[] = [
     title: "Restaurant & Bar",
     eyebrow: "Gastronomie Mediteraneană & Room Service Live",
     schedule: "Mic Dejun 07:30–10:30 · À la Carte 12:00–23:30",
-    accessLabel: "Room Service & Livrare la Șezlong disponibile",
+    accessLabel: "Room Service în Cameră disponibil",
     summary:
       "Restaurantul nostru cu terasă pe malul mării servește pește sălbatic din Marea Neagră, fructe de mare proaspete, paste artizanale și deserturi fine, completate de o selecție de vinuri dobrogene și internaționale.",
     highlights: [
       "Mic dejun bufet & à la carte cu produse locale, cafea de specialitate și prosecco",
-      "Comandă online din Meniul Digital direct în cameră sau pe șezlong",
+      "Comandă online din Meniul Digital direct în camera ta activă",
       "Preparate gătite live și sincronizate în timp real cu bucătăria (KDS)",
       "Opțiuni vegetariene, fără gluten și meniuri dedicate pentru copii",
     ],
@@ -183,8 +183,8 @@ export default function ResortFacilities() {
             Facilități Premium & Servicii Exclusive
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-white/80 leading-relaxed">
-            De la plaja privată cu comenzi directe pe șezlong și piscina infinity încălzită, până la centrul Spa,
-            restaurantul mediteranean și accesul digital cu PIN Smart Lock.
+            De la plaja privată și piscina infinity încălzită, până la centrul Spa,
+            restaurantul mediteranean cu Room Service în cameră și accesul digital cu PIN Smart Lock.
           </p>
 
           {/* Filter Pills */}

@@ -34,7 +34,7 @@ export default function Privacy() {
             "Date de cont și contact: nume, prenume, adresă de e-mail, număr de telefon, parolă criptată ireversibil (bcrypt/Argon2).",
             "Date de rezervare și facturare: cod rezervare (#BK-...), perioada sejurului, unitatea alocată (ex: Camera 102), numărul de adulți/copii, valoarea tranzacției, codul promoțional utilizat și datele de pe factura fiscală PDF.",
             "Date obligatorii pentru evidența turiștilor (Self Check-In): cetățenie, data nașterii, domiciliu, seria și numărul actului de identitate (CI/Pașaport), colectate strict în baza obligației legale prevăzute de HG nr. 237/2001.",
-            "Date operaționale pe durata sejurului: jurnale de acces Smart Lock (momentul deblocării ușii cu PIN-ul temporar), comenzi Room Service / Șezlong (#ORD-...) și recenzii verificate.",
+            "Date operaționale pe durata sejurului: jurnale de acces Smart Lock (momentul deblocării ușii cu PIN-ul temporar), comenzi Room Service în cameră (#ORD-...) și recenzii verificate.",
             "Date tehnice și de securitate cibernetică: adresă IP, tip browser/dispozitiv, sesiuni active și jurnale de audit (Firewall & protecție anti-abuz).",
           ]}
         />
