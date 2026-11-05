@@ -185,7 +185,7 @@ export default function PlaceMenu({
   if (withItems.length === 0) {
     return (
       <div className="py-14 text-center">
-        <UtensilsCrossed className="mx-auto mb-3 text-[#c69a3f]" size={26} strokeWidth={1.4} />
+        <UtensilsCrossed className="mx-auto mb-3 text-[#94a3b8]" size={26} strokeWidth={1.4} />
         <p className="text-[15px] font-semibold text-[#0d2c5c]">Meniul nu este disponibil încă</p>
         <p className="mt-1 text-[13px] text-[#4f6280]">Revino curând pentru oferta acestei locații.</p>
       </div>
@@ -210,7 +210,7 @@ export default function PlaceMenu({
               }`}
             >
               {c.name}
-              <span className={`ml-2 ${on ? "text-[#e6b85c]" : "text-[#94a3b8]"}`}>
+              <span className={`ml-2 ${on ? "text-[#93c5fd]" : "text-[#94a3b8]"}`}>
                 {c.items?.length}
               </span>
             </button>
@@ -254,7 +254,7 @@ export default function PlaceMenu({
                     </h4>
                     <span
                       aria-hidden="true"
-                      className="flex-1 border-b border-dotted border-[#c69a3f]/50 mx-2 min-w-[20px]"
+                      className="flex-1 border-b border-dotted border-[#94a3b8]/50 mx-2 min-w-[20px]"
                     />
                     <span className="shrink-0 font-['Cormorant_Garamond',serif] text-[22px] sm:text-[24px] font-bold text-[#0d2c5c]">
                       {lei(it.price)}
@@ -267,7 +267,7 @@ export default function PlaceMenu({
                   )}
                   {it.ingredients && (
                     <p className="mt-1 font-['Cormorant_Garamond',serif] italic text-[15px] text-[#64748b]">
-                      <span className="font-semibold not-italic text-[11.5px] uppercase tracking-wider text-[#c69a3f]">
+                      <span className="font-semibold not-italic text-[11.5px] uppercase tracking-wider text-[#64748b]">
                         Ingrediente:
                       </span>{" "}
                       {it.ingredients}
@@ -299,12 +299,12 @@ export default function PlaceMenu({
                         <button
                           type="button"
                           onClick={() => addItem(it)}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[#0d2c5c] hover:bg-[#16447f] text-white px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer"
                         >
                           <Plus size={13} /> Adaugă în coș
                         </button>
                       ) : (
-                        <div className="inline-flex items-center gap-2.5 rounded-full bg-[#fdf8ec] px-3 py-1 border border-[#c69a3f]/60">
+                        <div className="inline-flex items-center gap-2.5 rounded-full bg-[#f1f5f9] px-3 py-1 border border-[#cbd5e1]">
                           <button
                             type="button"
                             onClick={() => decItem(it.id)}
@@ -623,7 +623,7 @@ export default function PlaceMenu({
                   type="button"
                   disabled={submitting || cartLines.length === 0 || !selectedRoomObj}
                   onClick={handlePlaceOrder}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-6 py-2.5 text-xs font-extrabold uppercase tracking-[0.16em] transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] hover:bg-[#16447f] text-white px-6 py-2.5 text-xs font-extrabold uppercase tracking-[0.16em] transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {submitting
                     ? "Se trimite comanda..."
