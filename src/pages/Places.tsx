@@ -181,7 +181,7 @@ export default function Places() {
       <section className="relative py-16 md:py-24 px-5 md:px-10 z-10 bg-transparent">
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Header + Filtre */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
             <div>
               <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
                 <span className="h-px w-10 bg-gradient-to-r from-[#c69a3f] to-transparent" />
