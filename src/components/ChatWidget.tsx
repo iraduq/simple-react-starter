@@ -368,11 +368,27 @@ function WelcomeBlock({
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
+  const [hiddenByModal, setHiddenByModal] = useState(
+    () =>
+      typeof document !== "undefined" &&
+      document.body.dataset.placeModalOpen === "true",
+  );
   const [messages, setMessages] = useState<Msg[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onPlaceModalToggle = (e: Event) => {
+      const isModalOpen = Boolean((e as CustomEvent).detail);
+      setHiddenByModal(isModalOpen);
+      if (isModalOpen) setOpen(false);
+    };
+    window.addEventListener("place-modal-toggle", onPlaceModalToggle);
+    return () =>
+      window.removeEventListener("place-modal-toggle", onPlaceModalToggle);
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -446,6 +462,8 @@ export default function ChatWidget() {
     e.preventDefault();
     send(input);
   };
+
+  if (hiddenByModal) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-[9000] flex flex-col items-end gap-3.5">

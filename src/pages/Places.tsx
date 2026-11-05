@@ -89,8 +89,20 @@ export default function Places() {
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
+    if (open) {
+      document.body.dataset.placeModalOpen = "true";
+    } else {
+      delete document.body.dataset.placeModalOpen;
+    }
+    window.dispatchEvent(
+      new CustomEvent("place-modal-toggle", { detail: Boolean(open) }),
+    );
     return () => {
       document.body.style.overflow = "";
+      delete document.body.dataset.placeModalOpen;
+      window.dispatchEvent(
+        new CustomEvent("place-modal-toggle", { detail: false }),
+      );
     };
   }, [open]);
 
