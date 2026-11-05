@@ -117,8 +117,6 @@ export default function Places() {
 
   return (
     <div className="relative bg-white text-[#1a1a1a] overflow-hidden min-h-screen">
-      <FloatingDecor />
-
       {/* ── HERO IDENTIC CU ROOMS.TSX & HOME.TSX ── */}
       <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-40 z-10">
         <div className="absolute inset-0 z-0">
