@@ -258,131 +258,92 @@ export default function Places() {
               </p>
             </div>
           ) : (
-            /* Secțiuni ample, deschise (FĂRĂ chenar de card!), exact ca AboutSection.tsx */
-            <div className="space-y-24 md:space-y-36">
+            /* Rânduri editoriale curate, aliniate — fără carduri, fără forme decupate */
+            <div className="divide-y divide-[#0d2c5c]/10">
               {filtered.map((p, idx) => {
                 const m = meta(p.category);
                 const count = getPlaceItemsCount(p);
                 const flip = idx % 2 === 1;
-                const organicRadius = flip
-                  ? "rounded-[90px_30px_90px_30px]"
-                  : "rounded-[30px_90px_30px_90px]";
+                const Icon = m.icon;
 
                 return (
                   <motion.div
                     key={p.id}
-                    initial={{ opacity: 0, y: 32 }}
+                    initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center"
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center py-14 first:pt-0 last:pb-0"
                   >
-                    {/* Coloana Imagine Organică Decupată (fără card în jur!) */}
+                    {/* Imagine curată, uniformă */}
                     <div
-                      className={`relative lg:col-span-6 ${
+                      className={`relative lg:col-span-5 ${
                         flip ? "lg:order-2" : ""
                       }`}
                     >
-                      {/* Siluetă decorativă decalată în spate (ca în AboutSection.tsx) */}
-                      <div
-                        className={`hidden sm:block absolute -bottom-5 ${
-                          flip ? "-left-5" : "-right-5"
-                        } w-[92%] h-[92%] bg-[#fdf8ec] border border-[#c69a3f]/30 ${organicRadius} -z-10`}
-                      />
-
-                      {/* Număr editorial plutitor */}
-                      <div
-                        className={`absolute -top-6 ${
-                          flip ? "right-6" : "left-6"
-                        } z-20 w-16 h-16 rounded-full bg-[#0d2c5c] text-[#e6b85c] border-4 border-white shadow-[0_12px_30px_rgba(13,44,92,0.25)] flex items-center justify-center font-['Cormorant_Garamond',serif] text-2xl italic`}
-                      >
-                        0{idx + 1}
-                      </div>
-
                       <div
                         onClick={() => setOpen(p)}
-                        className={`group relative h-[340px] sm:h-[440px] w-full overflow-hidden bg-[#0d2c5c] cursor-pointer shadow-[0_25px_60px_-20px_rgba(13,44,92,0.3)] ${organicRadius}`}
+                        className="group relative h-[260px] sm:h-[340px] w-full overflow-hidden rounded-2xl bg-[#0d2c5c] cursor-pointer shadow-[0_20px_50px_-24px_rgba(13,44,92,0.35)]"
                       >
                         <img
                           src={placeImage(p) || m.fallback}
                           alt={p.title}
                           loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                          className="h-full w-full object-cover transition-transform duration-[900ms] group-hover:scale-[1.04]"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#071833]/70 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#071833]/55 via-transparent to-transparent" />
 
                         {p.badge && (
-                          <span className="absolute bottom-6 left-7 rounded-full bg-white/90 backdrop-blur-md px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#0d2c5c]">
+                          <span className="absolute bottom-5 left-5 rounded-full bg-white/92 backdrop-blur-md px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#0d2c5c]">
                             {p.badge}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Coloana Text Editorial Deschis (fără card, fără cutii gri!) */}
+                    {/* Text editorial aliniat */}
                     <div
-                      className={`lg:col-span-6 flex flex-col items-start ${
+                      className={`lg:col-span-7 flex flex-col items-start ${
                         flip ? "lg:order-1" : ""
                       }`}
                     >
                       <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
-                        <span className="w-10 h-px bg-[#c69a3f]" />
+                        <Icon size={14} strokeWidth={2} />
                         {m.label}
                       </p>
 
-                      <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2.3rem,4vw,3.6rem)] font-normal leading-[1.06] tracking-[-0.01em] text-[#0d2c5c] mb-5">
+                      <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,3.4vw,3rem)] font-normal leading-[1.08] tracking-[-0.01em] text-[#0d2c5c] mb-4">
                         {p.title}
                       </h3>
 
-                      <p className="font-sans text-[#475569] leading-[1.85] text-[15.5px] font-light mb-6">
+                      <p className="font-sans text-[#475569] leading-[1.8] text-[15px] font-light mb-6 max-w-xl">
                         {placeDescription(p) ||
                           "Experimentează servicii de înaltă clasă, ingrediente proaspete și livrare direct în camera ta activă pe toată durata sejurului."}
                       </p>
 
-                      {/* Statistici aerisite între două linii fine (identic cu AboutSection.tsx linia 142) */}
-                      <div className="grid grid-cols-3 gap-6 w-full py-5 my-2 border-y border-[#0d2c5c]/12">
-                        <div>
-                          <span className="block font-['Cormorant_Garamond',serif] text-[1.75rem] sm:text-[2rem] font-semibold text-[#0d2c5c] leading-none mb-1">
-                            {count > 0 ? `${count}` : "Live"}
-                          </span>
-                          <span className="block text-[9.5px] text-[#c69a3f] uppercase tracking-[0.2em] font-bold">
-                            Preparate în Meniu
-                          </span>
-                        </div>
-
-                        <div>
-                          <span className="block font-['Cormorant_Garamond',serif] text-[1.75rem] sm:text-[2rem] font-semibold text-[#0d2c5c] leading-none mb-1">
-                            În Cameră
-                          </span>
-                          <span className="block text-[9.5px] text-[#c69a3f] uppercase tracking-[0.2em] font-bold">
-                            Room Service
-                          </span>
-                        </div>
-
-                        <div>
-                          <span className="block font-['Cormorant_Garamond',serif] text-[1.75rem] sm:text-[2rem] font-semibold text-[#0d2c5c] leading-none mb-1">
-                            100%
-                          </span>
-                          <span className="block text-[9.5px] text-[#c69a3f] uppercase tracking-[0.2em] font-bold">
-                            Oaspeți Cazați
-                          </span>
-                        </div>
+                      {/* Detalii discrete, pe o singură linie */}
+                      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 mb-7 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#0d2c5c]/70">
+                        <span className="flex items-center gap-2">
+                          <span className="h-1 w-1 rotate-45 bg-[#c69a3f]" />
+                          {count > 0 ? `${count} preparate în meniu` : "Meniu live"}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <span className="h-1 w-1 rotate-45 bg-[#c69a3f]" />
+                          Room service în cameră
+                        </span>
                       </div>
 
-                      {/* Buton Luxury identic cu Home.tsx / ExperienceCategories.tsx */}
-                      <div className="mt-7 flex flex-wrap items-center gap-6">
-                        <button
-                          type="button"
-                          onClick={() => setOpen(p)}
-                          className="group inline-flex items-center gap-4 bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] text-[11.5px] tracking-[0.2em] uppercase font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-[0_12px_30px_-10px_rgba(13,44,92,0.35)] cursor-pointer"
-                        >
-                          <span>Deschide Meniul & Comandă</span>
-                          <ArrowRight
-                            size={16}
-                            className="transition-transform duration-300 group-hover:translate-x-1"
-                          />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setOpen(p)}
+                        className="group inline-flex items-center gap-3 bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] text-[11.5px] tracking-[0.2em] uppercase font-bold py-3.5 px-7 rounded-full transition-all duration-300 shadow-[0_12px_30px_-12px_rgba(13,44,92,0.4)] cursor-pointer"
+                      >
+                        <span>Deschide Meniul & Comandă</span>
+                        <ArrowRight
+                          size={15}
+                          className="transition-transform duration-300 group-hover:translate-x-1"
+                        />
+                      </button>
                     </div>
                   </motion.div>
                 );
