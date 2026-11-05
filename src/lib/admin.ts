@@ -221,3 +221,47 @@ export const nights = (a?: string | null, b?: string | null) => {
 
 export const errMsg = (e: unknown) =>
   e instanceof Error ? e.message : "A apărut o eroare";
+
+
+import { getUsableAccessToken } from "./token";
+
+export async function fetchBlob(
+  path: string,
+  options?: { method?: string; body?: unknown },
+): Promise<Blob> {
+  const token = getUsableAccessToken();
+  const headers: Record<string, string> = { Accept: "*/*" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (options?.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
+  const res = await fetch(`${API_URL}${path}`, {
+    method: options?.method || "GET",
+    headers,
+    credentials: "include",
+    body: options?.body !== undefined ? JSON.stringify(options.body) : undefined,
+  });
+  if (!res.ok) {
+    let msg = "Descărcarea fișierului a eșuat.";
+    try {
+      const errJson = await res.json();
+      msg = errJson.detail || errJson.message || msg;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(msg);
+  }
+  return res.blob();
+}
+
+export async function downloadBookingInvoicePdf(bookingRef: string, displayCode?: string): Promise<void> {
+  const blob = await fetchBlob(`/bookings/${encodeURIComponent(bookingRef)}/invoice`);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `factura-${displayCode || bookingRef}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}

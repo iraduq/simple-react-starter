@@ -24,7 +24,7 @@ import {
   ExternalLink,
   Mailbox,
   Lock,
-  Copy,
+  Copy, FileText,
 } from "lucide-react";
 import {
   clearSession,
@@ -36,6 +36,7 @@ import {
 } from "../lib/auth";
 import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
+import { downloadBookingInvoicePdf } from "../lib/admin";
 
 type TabKey = "personal" | "security" | "reservations" | "danger";
 
@@ -1255,6 +1256,7 @@ function ReservationsTab() {
                         </span>
                         <span className="text-[18px] sm:text-[20px] font-bold text-[#0d2c5c] tracking-tight">
                           {r.total_price.toLocaleString("ro-RO")} RON
+                          <button type="button" onClick={() => void downloadBookingInvoicePdf(String(r.booking_code || r.id), r.booking_code || String(r.id)).catch((e: any) => toast(e?.message || "Factura nu a putut fi descărcată.", "error"))} className="mt-2 flex items-center gap-1.5 rounded-lg border border-[#e1e8f0] bg-[#f8fafd] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#c69a3f]/10 transition-all cursor-pointer"><FileText size={13} className="text-[#c69a3f]" /> Descarcă Factură PDF</button>
                         </span>
                       </div>
                     )}

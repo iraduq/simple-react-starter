@@ -7,7 +7,7 @@ import {
   Search,
   CheckCircle2,
   Copy,
-  MoreHorizontal,
+  MoreHorizontal, FileText,
 } from "lucide-react";
 import { Badge, statusTone, TableSkeleton, EmptyState, Modal, SectionHeader } from "./ui";
 import {
@@ -18,7 +18,7 @@ import {
   money,
   dateFmt,
   nights,
-  errMsg,
+  errMsg, downloadBookingInvoicePdf,
   type Room,
   type AdminUser,
 } from "../../lib/admin";
@@ -333,10 +333,10 @@ export default function BookingsTab() {
                         (u) => String(u.id) === String(b.user_id),
                       );
 
-                      const shortBookingId =
+                      const shortBookingId = b.booking_code || (
                         String(b.id).length > 8
                           ? String(b.id).substring(0, 8) + "..."
-                          : String(b.id);
+                          : String(b.id));
 
                       const rawEmail =
                         b.user_email || b.guest_email || userObj?.email || "";
@@ -518,6 +518,15 @@ export default function BookingsTab() {
                                       className="text-[#6b7c99]"
                                     />{" "}
                                     Editează
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setActiveMenu(null);
+                                      void downloadBookingInvoicePdf(String(b.booking_code || b.id), b.booking_code || String(b.id)).catch((err) => toast(errMsg(err), "error"));
+                                    }}
+                                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[12px] font-medium text-[#0d2c5c] hover:bg-[#f0f4f9] transition-colors"
+                                  >
+                                    <FileText size={14} className="text-[#c69a3f]" /> Factură PDF
                                   </button>
                                   {b.status !== "cancelled" && (
                                     <button

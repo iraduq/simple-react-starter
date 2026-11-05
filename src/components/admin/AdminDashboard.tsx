@@ -17,7 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch,
+  PackageSearch, Mail, QrCode, MessageSquare,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -35,6 +35,9 @@ import UnitsTab from "./UnitsTab";
 import SmartLockTab from "./SmartLockTab";
 import AnalyticsTab from "./AnalyticsTab";
 import LostFoundTab from "./LostFoundTab";
+import EmailStudioTab from "./EmailStudioTab";
+import QrStudioTab from "./QrStudioTab";
+import ConversationsTab from "./ConversationsTab";
 
 export type TabKey =
   | "bookings"
@@ -48,7 +51,10 @@ export type TabKey =
   | "analytics"
   | "users"
   | "audit"
-  | "lost_found";
+  | "lost_found"
+  | "email_studio"
+  | "qr_studio"
+  | "conversations";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
@@ -61,6 +67,9 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "places", label: "Locații", icon: MapPin },
   { key: "menu", label: "Meniu & Bar", icon: UtensilsCrossed },
   { key: "analytics", label: "Rapoarte & Performanță", icon: TrendingUp },
+  { key: "conversations", label: "Interogare DB & Chat", icon: MessageSquare },
+  { key: "email_studio", label: "Email Studio (Unlayer)", icon: Mail },
+  { key: "qr_studio", label: "Studio Coduri QR & Wi-Fi", icon: QrCode },
   { key: "users", label: "Utilizatori", icon: Users },
   { key: "audit", label: "Jurnal de securitate", icon: Shield },
 ];
@@ -324,6 +333,9 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "users" && <UsersTab />}
             {tab === "audit" && <AuditLogsTab />}
             {tab === "lost_found" && <LostFoundTab />}
+            {tab === "email_studio" && <EmailStudioTab />}
+            {tab === "qr_studio" && <QrStudioTab />}
+            {tab === "conversations" && <ConversationsTab />}
           </div>
         </main>
       </div>
