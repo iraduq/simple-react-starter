@@ -12,7 +12,7 @@ import {
   Lock,
   CalendarX,
   ArrowRight,
-  Check,
+  Sparkles,
 } from "lucide-react";
 import type { MenuCategory } from "../types/places";
 import { lei } from "../services/placesService";
@@ -184,18 +184,18 @@ export default function PlaceMenu({
 
   if (withItems.length === 0) {
     return (
-      <div className="py-12 text-center border-t border-[#0d2c5c]/10">
-        <UtensilsCrossed className="mx-auto mb-3 text-[#c69a3f]" size={24} strokeWidth={1.4} />
+      <div className="py-14 text-center">
+        <UtensilsCrossed className="mx-auto mb-3 text-[#c69a3f]" size={26} strokeWidth={1.4} />
         <p className="text-[15px] font-semibold text-[#0d2c5c]">Meniul nu este disponibil încă</p>
-        <p className="mt-1 text-[13px] text-[#64748b]">Revino curând pentru oferta acestei locații.</p>
+        <p className="mt-1 text-[13px] text-[#4f6280]">Revino curând pentru oferta acestei locații.</p>
       </div>
     );
   }
 
   return (
-    <div className="pb-16">
-      {/* Categorii cu linie fină subliniată (fără butoane tip card/pastilă) */}
-      <div className="flex gap-7 overflow-x-auto border-b border-[#0d2c5c]/12">
+    <div className="pb-24">
+      {/* Category Pills matching Rooms.tsx */}
+      <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1">
         {withItems.map((c) => {
           const on = c.id === current?.id;
           return (
@@ -203,122 +203,121 @@ export default function PlaceMenu({
               key={c.id}
               type="button"
               onClick={() => setActive(c.id)}
-              className={`shrink-0 pb-3.5 text-[12px] font-bold uppercase tracking-[0.18em] transition-colors relative cursor-pointer ${
-                on ? "text-[#0d2c5c]" : "text-[#64748b] hover:text-[#0d2c5c]"
+              className={`shrink-0 rounded-full border px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all cursor-pointer ${
+                on
+                  ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
+                  : "bg-white text-[#475569] border-[#e2e8f0] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
               }`}
             >
               {c.name}
-              <span className="ml-1.5 text-[10.5px] font-normal text-[#c69a3f]">
-                ({c.items?.length})
+              <span className={`ml-2 ${on ? "text-[#e6b85c]" : "text-[#94a3b8]"}`}>
+                {c.items?.length}
               </span>
-              {on && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#c69a3f]" />
-              )}
             </button>
           );
         })}
       </div>
 
       {current?.description && (
-        <p className="mt-4 font-['Cormorant_Garamond',serif] italic text-[18px] text-[#475569]">
-          {current.description}
-        </p>
+        <p className="mt-4 text-[14.5px] leading-relaxed text-[#475569]">{current.description}</p>
       )}
 
-      {/* Listă clasică de meniu Fine Dining (fără carduri, doar linii fine de separare și puncte către preț) */}
-      <ul className="mt-4 divide-y divide-[#0d2c5c]/10">
+      <ul className="mt-6 grid gap-5 sm:grid-cols-2">
         {current?.items?.map((it) => {
           const inCartQty = cart[String(it.id)]?.qty || 0;
           return (
             <li
               key={it.id}
-              className={`py-5 flex items-start gap-4 transition-opacity ${
-                it.is_available ? "" : "opacity-50"
+              className={`group flex gap-4 rounded-[24px] border border-[#e2e8f0] bg-white p-4 shadow-[0_6px_24px_-12px_rgba(13,44,92,0.08)] transition-all hover:border-[#c69a3f]/60 hover:shadow-[0_14px_34px_-12px_rgba(13,44,92,0.14)] ${
+                it.is_available ? "" : "opacity-60"
               }`}
             >
-              {it.image_url && (
-                <img
-                  src={it.image_url}
-                  alt={it.title}
-                  loading="lazy"
-                  className="h-14 w-14 shrink-0 rounded-full object-cover mt-0.5"
-                />
-              )}
-
-              <div className="min-w-0 flex-1">
-                {/* Rând Titlu + Linie punctată + Preț + Acțiune */}
-                <div className="flex items-baseline gap-2">
-                  <h4 className="font-['Cormorant_Garamond',serif] text-[21px] sm:text-[23px] font-semibold leading-snug text-[#0d2c5c]">
-                    {it.title}
-                  </h4>
-                  {it.volume_or_weight && (
-                    <span className="text-[11.5px] text-[#94a3b8] shrink-0">
-                      · {it.volume_or_weight}
-                    </span>
-                  )}
-
-                  <span
-                    aria-hidden="true"
-                    className="flex-1 border-b border-dotted border-[#0d2c5c]/25 mx-2 min-w-[24px]"
+              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-[#f8fafc] border border-[#f1f5f9]">
+                {it.image_url ? (
+                  <img
+                    src={it.image_url}
+                    alt={it.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+                ) : (
+                  <UtensilsCrossed className="absolute inset-0 m-auto text-[#94a3b8]" size={22} />
+                )}
+              </div>
 
-                  <span className="shrink-0 font-['Cormorant_Garamond',serif] text-[21px] sm:text-[23px] font-bold text-[#0d2c5c]">
-                    {lei(it.price)}
-                  </span>
+              <div className="min-w-0 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-['Cormorant_Garamond',serif] text-[19px] font-semibold leading-snug text-[#0d2c5c]">
+                      {it.title}
+                    </h4>
+                    <span className="shrink-0 text-[15px] font-bold text-[#0d2c5c]">
+                      {lei(it.price)}
+                    </span>
+                  </div>
+                  {it.description && (
+                    <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-[#64748b]">
+                      {it.description}
+                    </p>
+                  )}
+                  {it.ingredients && (
+                    <p className="mt-1 text-[11.5px] text-[#94a3b8]">
+                      <span className="font-semibold text-[#475569]">Ingrediente:</span> {it.ingredients}
+                    </p>
+                  )}
                 </div>
 
-                {/* Descriere + Ingrediente + Control Comandă pe același flux curat */}
-                <div className="mt-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="space-y-0.5 pr-4">
-                    {it.description && (
-                      <p className="text-[13.5px] leading-relaxed text-[#475569]">
-                        {it.description}
-                      </p>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#f1f5f9]">
+                  <div className="flex items-center gap-2">
+                    {it.volume_or_weight && (
+                      <span className="rounded-full bg-[#f8fafc] border border-[#e2e8f0] px-2.5 py-0.5 text-[10.5px] font-bold text-[#0d2c5c]">
+                        {it.volume_or_weight}
+                      </span>
                     )}
-                    {it.ingredients && (
-                      <p className="font-['Cormorant_Garamond',serif] italic text-[15px] text-[#64748b]">
-                        Ingrediente: {it.ingredients}
-                      </p>
+                    {it.is_available ? (
+                      <span className="flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-[0.1em] text-emerald-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" /> Disponibil
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-rose-800">
+                        Indisponibil
+                      </span>
                     )}
                   </div>
 
-                  <div className="shrink-0 flex items-center gap-3 self-end sm:self-center">
-                    {!it.is_available ? (
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-rose-700">
-                        Indisponibil
-                      </span>
-                    ) : inCartQty === 0 ? (
-                      <button
-                        type="button"
-                        onClick={() => addItem(it)}
-                        className="inline-flex items-center gap-1.5 border-b border-[#0d2c5c] pb-0.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] hover:text-[#c69a3f] hover:border-[#c69a3f] transition-colors cursor-pointer"
-                      >
-                        <Plus size={13} /> Comandă
-                      </button>
-                    ) : (
-                      <div className="inline-flex items-center gap-3 border-b-2 border-[#c69a3f] pb-0.5">
-                        <button
-                          type="button"
-                          onClick={() => decItem(it.id)}
-                          className="text-[#0d2c5c] hover:text-rose-700 cursor-pointer"
-                          aria-label="Scade cantitatea"
-                        >
-                          <Minus size={13} />
-                        </button>
-                        <span className="text-xs font-extrabold text-[#0d2c5c] min-w-[16px] text-center">
-                          {inCartQty}
-                        </span>
+                  {it.is_available && (
+                    <div>
+                      {inCartQty === 0 ? (
                         <button
                           type="button"
                           onClick={() => addItem(it)}
-                          className="text-[#0d2c5c] hover:text-emerald-700 cursor-pointer"
-                          aria-label="Crește cantitatea"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                         >
-                          <Plus size={13} />
+                          <Plus size={13} /> Adaugă în coș
                         </button>
-                      </div>
-                    )}
-                  </div>
+                      ) : (
+                        <div className="inline-flex items-center gap-2 rounded-full bg-[#fdf8ec] px-2.5 py-1 border border-[#c69a3f]/50">
+                          <button
+                            type="button"
+                            onClick={() => decItem(it.id)}
+                            className="p-0.5 text-[#0d2c5c] hover:text-rose-700 cursor-pointer"
+                          >
+                            <Minus size={13} />
+                          </button>
+                          <span className="text-xs font-extrabold text-[#0d2c5c] min-w-[16px] text-center">
+                            {inCartQty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => addItem(it)}
+                            className="p-0.5 text-[#0d2c5c] hover:text-emerald-700 cursor-pointer"
+                          >
+                            <Plus size={13} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </li>
@@ -326,28 +325,32 @@ export default function PlaceMenu({
         })}
       </ul>
 
-      {/* Bară flotantă minimalistă pentru coș */}
+      {/* Floating Cart Bar */}
       {totalCount > 0 &&
         createPortal(
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[800] w-[92%] max-w-lg">
-            <div className="bg-[#0d2c5c] text-white px-6 py-3.5 shadow-[0_20px_50px_rgba(7,23,46,0.35)] border-t-2 border-[#c69a3f] flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <ShoppingBag size={18} className="text-[#c69a3f]" />
-                <div className="text-xs sm:text-sm">
-                  <span className="font-bold text-[#e6b85c]">{totalCount} produse</span>
-                  <span className="mx-2 text-white/30">|</span>
-                  <span className="font-['Cormorant_Garamond',serif] text-xl font-bold">
-                    {lei(totalAmount)}
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[800] w-[92%] max-w-xl">
+            <div className="rounded-full bg-[#0d2c5c] text-white p-3 pl-5 shadow-[0_20px_50px_rgba(7,23,46,0.35)] border border-[#c69a3f]/40 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#c69a3f] text-[#0d2c5c]">
+                  <ShoppingBag size={18} />
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-white text-[#0d2c5c] text-[11px] font-extrabold flex items-center justify-center shadow">
+                    {totalCount}
                   </span>
+                </div>
+                <div>
+                  <div className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#e6b85c]">
+                    Coș Room Service în Cameră
+                  </div>
+                  <div className="text-base font-bold leading-tight">{lei(totalAmount)}</div>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
-                className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#e6b85c] hover:text-white transition cursor-pointer"
+                className="rounded-full bg-[#c69a3f] hover:bg-[#e6b85c] text-[#0d2c5c] px-5 py-2.5 text-xs font-extrabold uppercase tracking-[0.14em] transition cursor-pointer flex items-center gap-1.5"
               >
-                Vezi Coșul & Trimite
+                Vezi Coșul & Comandă
                 <ArrowRight size={14} />
               </button>
             </div>
@@ -355,175 +358,182 @@ export default function PlaceMenu({
           document.body,
         )}
 
-      {/* Modal Coș & Livrare în Cameră — FĂRĂ CARDURI, design editorial curat */}
+      {/* Luxury Cart & Room Selection Modal (Casa Esy Theme) */}
       {modalOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-[#07203f]/65 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-[#07203f]/65 backdrop-blur-md">
             <div className="fixed inset-0" onClick={() => setModalOpen(false)} aria-hidden="true" />
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative z-10 w-full max-w-xl max-h-[calc(100vh-3rem)] flex flex-col bg-white shadow-[0_30px_80px_rgba(7,32,63,0.35)] border-t-4 border-[#c69a3f]"
+              className="relative z-10 w-full max-w-2xl max-h-[calc(100vh-3rem)] flex flex-col rounded-[32px] bg-white shadow-[0_30px_80px_rgba(7,32,63,0.4)] overflow-hidden border border-[#e2e8f0]"
             >
-              {/* Antet simplu și elegant */}
-              <div className="flex items-start justify-between gap-4 px-6 sm:px-8 pt-6 pb-4 border-b border-[#0d2c5c]/10">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#c69a3f] block">
-                    Room Service · Vila Casa Esy
-                  </span>
-                  <h3 className="mt-1 font-['Cormorant_Garamond',serif] text-[28px] sm:text-[32px] font-normal leading-tight text-[#0d2c5c]">
-                    Nota ta de comandă
-                  </h3>
+              {/* Luxury Navy + Gold Wave Header */}
+              <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-[#0d2c5c] via-[#123a72] to-[#07203f] px-6 sm:px-8 pt-6 pb-10">
+                <div className="relative flex items-start justify-between gap-4">
+                  <div>
+                    <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#e6b85c]">
+                      <Sparkles size={12} /> Room Service · Vila Casa Esy
+                    </span>
+                    <h3 className="mt-1 font-['Cormorant_Garamond',serif] text-[28px] sm:text-[32px] font-semibold leading-tight text-white">
+                      Coșul Tău & Livrare în Cameră
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer"
+                    aria-label="Închide"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="p-1.5 text-[#64748b] hover:text-[#0d2c5c] transition-colors cursor-pointer"
-                  aria-label="Închide"
+                <svg
+                  viewBox="0 0 400 24"
+                  preserveAspectRatio="none"
+                  className="absolute bottom-0 left-0 h-6 w-full text-white"
                 >
-                  <X size={20} />
-                </button>
+                  <path
+                    d="M0 24 V12 Q50 0 100 12 T200 12 T300 12 T400 12 V24 Z"
+                    fill="currentColor"
+                  />
+                </svg>
               </div>
 
-              {/* Conținut aerisit fără cutii/carduri */}
-              <div className="overflow-y-auto px-6 sm:px-8 py-6 space-y-8 text-[#0d2c5c]">
-                {/* 1. Lista produselor din coș */}
+              {/* Scrollable Body */}
+              <div className="overflow-y-auto px-6 sm:px-8 pb-6 pt-3 space-y-6 text-[#0d2c5c]">
+                {/* 1. Cart Review Section */}
                 <div>
-                  <div className="flex items-center justify-between pb-2 border-b border-[#0d2c5c]/15">
-                    <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#64748b]">
-                      Preparate selectate ({totalCount})
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
+                      1. Produsele din Coșul Tău ({totalCount})
                     </span>
                     {cartLines.length > 0 && (
                       <button
                         type="button"
                         onClick={() => setCart({})}
-                        className="text-[11px] font-semibold text-rose-700 hover:underline cursor-pointer"
+                        className="text-xs font-semibold text-rose-700 hover:underline cursor-pointer"
                       >
-                        Golește lista
+                        Golește coșul
                       </button>
                     )}
                   </div>
 
                   {cartLines.length === 0 ? (
-                    <p className="py-6 text-sm text-[#64748b]">
-                      Nu ai niciun preparat în coș.
-                    </p>
+                    <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-6 text-center text-sm text-[#64748b]">
+                      Coșul tău este gol. Adaugă preparate din meniu.
+                    </div>
                   ) : (
-                    <>
-                      <div className="divide-y divide-[#0d2c5c]/10">
-                        {cartLines.map((line) => (
-                          <div
-                            key={line.id}
-                            className="py-3.5 flex items-center justify-between gap-3"
-                          >
-                            <div className="min-w-0 flex-1">
-                              <div className="font-['Cormorant_Garamond',serif] text-[19px] font-semibold text-[#0d2c5c] truncate">
-                                {line.title}
-                              </div>
-                              <div className="text-xs text-[#64748b]">
-                                {lei(line.price)} / porție
-                              </div>
+                    <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] divide-y divide-[#e2e8f0]">
+                      {cartLines.map((line) => (
+                        <div
+                          key={line.id}
+                          className="p-3.5 flex items-center justify-between gap-3"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="font-semibold text-sm text-[#0d2c5c] truncate">
+                              {line.title}
                             </div>
-
-                            <div className="flex items-center gap-4">
-                              <div className="inline-flex items-center gap-2.5 border-b border-[#0d2c5c]/30 pb-0.5">
-                                <button
-                                  type="button"
-                                  onClick={() => decItem(line.id)}
-                                  className="text-[#0d2c5c] hover:text-rose-600 cursor-pointer"
-                                >
-                                  <Minus size={12} />
-                                </button>
-                                <span className="text-xs font-bold text-[#0d2c5c] min-w-[14px] text-center">
-                                  {line.qty}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => addItem(line)}
-                                  className="text-[#0d2c5c] hover:text-emerald-600 cursor-pointer"
-                                >
-                                  <Plus size={12} />
-                                </button>
-                              </div>
-
-                              <span className="font-['Cormorant_Garamond',serif] text-[19px] font-bold text-[#0d2c5c] w-20 text-right">
-                                {lei(line.price * line.qty)}
-                              </span>
-
-                              <button
-                                type="button"
-                                onClick={() => removeItem(line.id)}
-                                className="text-[#94a3b8] hover:text-rose-600 cursor-pointer"
-                                title="Elimină"
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                            <div className="text-xs text-[#64748b]">
+                              {lei(line.price)} / buc.
                             </div>
                           </div>
-                        ))}
-                      </div>
 
-                      <div className="pt-4 border-t border-[#0d2c5c]/20 flex items-baseline justify-between">
-                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#64748b]">
-                          Total Comandă
+                          <div className="flex items-center gap-2">
+                            <div className="inline-flex items-center gap-2 rounded-full bg-white px-2.5 py-1 border border-[#cbd5e1]">
+                              <button
+                                type="button"
+                                onClick={() => decItem(line.id)}
+                                className="text-[#0d2c5c] hover:text-rose-600 cursor-pointer"
+                              >
+                                <Minus size={12} />
+                              </button>
+                              <span className="text-xs font-bold text-[#0d2c5c] min-w-[16px] text-center">
+                                {line.qty}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => addItem(line)}
+                                className="text-[#0d2c5c] hover:text-emerald-600 cursor-pointer"
+                              >
+                                <Plus size={12} />
+                              </button>
+                            </div>
+
+                            <span className="font-bold text-sm text-[#0d2c5c] w-20 text-right">
+                              {lei(line.price * line.qty)}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => removeItem(line.id)}
+                              className="p-1.5 text-[#94a3b8] hover:text-rose-600 cursor-pointer"
+                              title="Elimină produsul"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                      <div className="p-4 bg-white rounded-b-2xl flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#64748b]">
+                          Total de plată
                         </span>
-                        <span className="font-['Cormorant_Garamond',serif] text-3xl font-bold text-[#0d2c5c]">
+                        <span className="font-['Cormorant_Garamond',serif] text-2xl font-bold text-[#0d2c5c]">
                           {lei(totalAmount)}
                         </span>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
 
-                {/* 2. Camera activă și detalii livrare */}
+                {/* 2. Active Room Verification Section */}
                 <div>
-                  <div className="pb-2 border-b border-[#0d2c5c]/15 mb-4">
-                    <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#64748b]">
-                      Livrare în camera ta activă
-                    </span>
-                  </div>
+                  <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f] mb-3">
+                    2. Camera Ta Activă (Cazare Curentă)
+                  </span>
 
                   {!hasSession() ? (
-                    <div className="py-4 space-y-3">
-                      <div className="flex items-center gap-2 text-[#0d2c5c] font-semibold text-sm">
-                        <Lock size={16} className="text-[#c69a3f]" />
+                    <div className="rounded-2xl border border-[#c69a3f]/40 bg-[#fdf8ec] p-5 text-center space-y-3">
+                      <Lock className="mx-auto text-[#c69a3f]" size={24} />
+                      <div className="font-['Cormorant_Garamond',serif] text-2xl font-semibold text-[#0d2c5c]">
                         Autentificare necesară pentru Room Service
                       </div>
-                      <p className="text-xs text-[#475569] leading-relaxed">
-                        Comenzile în cameră sunt disponibile exclusiv oaspeților cazați în prezent la Vila Casa Esy.
+                      <p className="text-xs text-[#475569] max-w-md mx-auto leading-relaxed">
+                        Comenzile în cameră sunt disponibile exclusiv oaspeților cazați în prezent la Vila Casa Esy. Autentifică-te pentru a-ți selecta automat camera activă de astăzi.
                       </p>
                       <Link
                         to="/login"
                         onClick={() => setModalOpen(false)}
-                        className="inline-flex items-center gap-2 border-b border-[#0d2c5c] pb-0.5 text-xs font-bold uppercase tracking-widest text-[#0d2c5c] no-underline hover:text-[#c69a3f] hover:border-[#c69a3f]"
+                        className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] text-white px-6 py-2.5 text-xs font-bold uppercase tracking-widest no-underline hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition"
                       >
-                        Autentifică-te în cont <ArrowRight size={13} />
+                        Autentifică-te în cont
                       </Link>
                     </div>
                   ) : checkingRooms ? (
-                    <p className="py-4 text-xs text-[#64748b]">
-                      Se verifică rezervarea ta activă de astăzi...
-                    </p>
+                    <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-6 text-center text-xs text-[#64748b]">
+                      Se verifică camerele tale active pentru ziua de astăzi...
+                    </div>
                   ) : activeRooms.length === 0 ? (
-                    <div className="py-4 space-y-3">
-                      <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
-                        <CalendarX size={16} />
+                    <div className="rounded-2xl border border-amber-300 bg-amber-50/70 p-5 text-center space-y-3">
+                      <CalendarX className="mx-auto text-amber-700" size={24} />
+                      <div className="font-['Cormorant_Garamond',serif] text-2xl font-semibold text-[#0d2c5c]">
                         Nicio cameră cu sejur activ astăzi
                       </div>
-                      <p className="text-xs text-[#475569] leading-relaxed">
+                      <p className="text-xs text-[#475569] max-w-md mx-auto leading-relaxed">
                         {eligibilityMsg}
                       </p>
                       <Link
                         to="/rezervarile-mele"
                         onClick={() => setModalOpen(false)}
-                        className="inline-flex items-center gap-2 border-b border-[#0d2c5c] pb-0.5 text-xs font-bold uppercase tracking-wider text-[#0d2c5c] no-underline"
+                        className="inline-flex items-center gap-2 rounded-full border border-[#0d2c5c] text-[#0d2c5c] px-5 py-2 text-xs font-bold uppercase tracking-wider no-underline hover:bg-[#0d2c5c] hover:text-white transition"
                       >
-                        Vezi Rezervările Mele <ArrowRight size={13} />
+                        Vezi Rezervările Mele
                       </Link>
                     </div>
                   ) : (
-                    <div className="space-y-6">
-                      {/* Selecție cameră activă prin rânduri simple cu linie jos */}
-                      <div className="divide-y divide-[#0d2c5c]/10 border-b border-[#0d2c5c]/10">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-2.5">
                         {activeRooms.map((r) => {
                           const isSelected = r.booking_id === (selectedRoomObj?.booking_id ?? "");
                           return (
@@ -531,45 +541,42 @@ export default function PlaceMenu({
                               key={r.booking_id}
                               type="button"
                               onClick={() => setSelectedBookingId(r.booking_id)}
-                              className="w-full py-3 text-left flex items-center justify-between gap-3 cursor-pointer group"
+                              className={`w-full text-left p-4 rounded-2xl border transition flex items-center justify-between gap-3 cursor-pointer ${
+                                isSelected
+                                  ? "border-[#c69a3f] bg-[#fdf8ec] shadow-sm"
+                                  : "border-[#e2e8f0] bg-white hover:border-[#0d2c5c]"
+                              }`}
                             >
                               <div className="flex items-center gap-3">
-                                <BedDouble
-                                  size={18}
-                                  className={isSelected ? "text-[#c69a3f]" : "text-[#94a3b8]"}
-                                />
+                                <div className="w-10 h-10 rounded-xl bg-[#0d2c5c] text-[#e6b85c] flex items-center justify-center shrink-0">
+                                  <BedDouble size={18} />
+                                </div>
                                 <div>
-                                  <div className="font-semibold text-sm text-[#0d2c5c]">
+                                  <div className="font-bold text-sm text-[#0d2c5c]">
                                     {r.location_label}
                                   </div>
                                   <div className="text-xs text-[#64748b]">
-                                    Sejur activ astăzi · #{r.booking_code}
+                                    Sejur activ confirmat · Cod #{r.booking_code}
                                   </div>
                                 </div>
                               </div>
-                              <span
-                                className={`inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider ${
-                                  isSelected ? "text-[#0d2c5c]" : "text-[#94a3b8]"
-                                }`}
-                              >
-                                {isSelected && <Check size={14} className="text-[#c69a3f]" />}
-                                {isSelected ? "Selectată" : "Alege"}
+                              <span className="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-[10.5px] font-bold uppercase tracking-wider">
+                                Cazat Azi
                               </span>
                             </button>
                           );
                         })}
                       </div>
 
-                      {/* Câmpuri cu linie simplă jos (underline inputs, fără casete) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div>
-                          <label className="block text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#64748b] mb-1.5">
-                            Modalitate de Plată
+                          <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#64748b] mb-1.5">
+                            Metodă de Plată
                           </label>
                           <select
                             value={paymentMethod}
                             onChange={(e) => setPaymentMethod(e.target.value as any)}
-                            className="w-full border-0 border-b border-[#0d2c5c]/25 bg-transparent py-2 text-sm font-semibold text-[#0d2c5c] focus:border-[#c69a3f] outline-none"
+                            className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm font-semibold text-[#0d2c5c] focus:border-[#c69a3f] focus:bg-white outline-none"
                           >
                             <option value="room_charge">Trecut pe Contul Camerei</option>
                             <option value="card">Card la Livrare în Cameră (POS)</option>
@@ -578,14 +585,14 @@ export default function PlaceMenu({
                         </div>
 
                         <div>
-                          <label className="block text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#64748b] mb-1.5">
+                          <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#64748b] mb-1.5">
                             Mențiuni pt. Bucătărie (opțional)
                           </label>
                           <input
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Ex: fără gheață, tacâmuri pt. 2..."
-                            className="w-full border-0 border-b border-[#0d2c5c]/25 bg-transparent py-2 text-sm text-[#0d2c5c] placeholder:text-[#94a3b8] focus:border-[#c69a3f] outline-none"
+                            placeholder="Ex: fără zahăr, tacâmuri pt. 2 persoane..."
+                            className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm text-[#0d2c5c] focus:border-[#c69a3f] focus:bg-white outline-none"
                           />
                         </div>
                       </div>
@@ -594,25 +601,25 @@ export default function PlaceMenu({
                 </div>
               </div>
 
-              {/* Subsol acțiune */}
-              <div className="flex items-center justify-between gap-4 border-t border-[#0d2c5c]/10 px-6 sm:px-8 py-4 bg-white">
+              {/* Footer Action */}
+              <div className="flex items-center justify-between gap-3 border-t border-[#eef2f7] bg-[#f8fafd] px-6 sm:px-8 py-4">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="text-xs font-bold uppercase tracking-widest text-[#64748b] hover:text-[#0d2c5c] cursor-pointer"
+                  className="rounded-full border border-[#cbd5e1] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
                 >
-                  Înapoi la meniu
+                  Continuă Răsfoirea
                 </button>
 
                 <button
                   type="button"
                   disabled={submitting || cartLines.length === 0 || !selectedRoomObj}
                   onClick={handlePlaceOrder}
-                  className="inline-flex items-center gap-2 bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-6 py-2.5 text-xs font-extrabold uppercase tracking-[0.16em] transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {submitting
-                    ? "Se trimite..."
-                    : `Trimite Comanda (${lei(totalAmount)})`}
+                    ? "Se trimite comanda..."
+                    : `Trimite Comanda la Cameră (${lei(totalAmount)})`}
                   <ArrowRight size={14} />
                 </button>
               </div>

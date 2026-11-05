@@ -6,6 +6,7 @@ import {
   Clock,
   BedDouble,
   ArrowLeft,
+  Sparkles,
   Receipt,
   CreditCard,
   Banknote,
@@ -97,7 +98,7 @@ export default function OrderProgress() {
 
   return (
     <div className="min-h-screen bg-white text-[#0d2c5c]">
-      {/* Hero section */}
+      {/* Hero section matching Rooms.tsx / Home.tsx */}
       <section className="relative bg-[#0d2c5c] overflow-hidden pt-32 pb-24 text-white">
         <div className="absolute inset-0 bg-gradient-to-b from-[#071a36]/90 via-[#0d2c5c]/85 to-[#0d2c5c]" />
         <div className="relative z-10 max-w-4xl mx-auto px-5 text-center">
@@ -138,124 +139,109 @@ export default function OrderProgress() {
         </div>
       </section>
 
-      {/* Conținut deschis, fără carduri */}
-      <section className="max-w-3xl mx-auto px-5 py-14">
+      <section className="max-w-4xl mx-auto px-5 py-12">
         {loading ? (
-          <div className="py-16 text-center">
-            <div className="h-6 w-48 mx-auto bg-[#f1f5f9] animate-pulse mb-3" />
-            <div className="h-4 w-64 mx-auto bg-[#f8fafc] animate-pulse" />
+          <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-12 text-center shadow-sm">
+            <div className="h-8 w-48 mx-auto rounded-full bg-[#f1f5f9] animate-pulse mb-4" />
+            <div className="h-4 w-64 mx-auto rounded-full bg-[#f8fafc] animate-pulse" />
           </div>
         ) : error || !order ? (
-          <div className="py-16 text-center border-t border-b border-[#0d2c5c]/10">
+          <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-12 text-center shadow-sm">
             <h2 className="font-['Cormorant_Garamond',serif] text-3xl text-[#0d2c5c]">
               {error || "Comanda nu a fost găsită"}
             </h2>
             <Link
               to="/places"
-              className="mt-6 inline-block border-b-2 border-[#0d2c5c] pb-1 text-xs font-bold uppercase tracking-widest text-[#0d2c5c] no-underline hover:text-[#c69a3f] hover:border-[#c69a3f] transition"
+              className="mt-6 inline-block rounded-full bg-[#0d2c5c] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white no-underline hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition"
             >
               Înapoi la Meniu
             </Link>
           </div>
         ) : (
-          <div className="space-y-14">
-            {/* Antet Livrare în Cameră */}
-            <div className="flex flex-wrap items-baseline justify-between gap-4 pb-6 border-b border-[#0d2c5c]/15">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#c69a3f] block mb-1">
-                  Destinație Room Service
-                </span>
-                <div className="font-['Cormorant_Garamond',serif] text-3xl sm:text-4xl font-normal text-[#0d2c5c] flex items-center gap-2.5">
-                  <BedDouble size={24} className="text-[#c69a3f]" />
-                  {order.location_label}
+          <div className="space-y-8">
+            {/* Step-by-step Live Progress Card */}
+            <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-6 sm:p-10 shadow-[0_15px_40px_-15px_rgba(13,44,92,0.08)]">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#f1f5f9]">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#fdf8ec] border border-[#c69a3f]/35 flex items-center justify-center text-[#c69a3f]">
+                    <BedDouble size={22} />
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
+                      Livrare Room Service în Cameră
+                    </div>
+                    <div className="font-['Cormorant_Garamond',serif] text-2xl sm:text-3xl font-semibold text-[#0d2c5c]">
+                      {order.location_label}
+                    </div>
+                  </div>
                 </div>
+
+                {order.booking_code && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f8fafc] border border-[#e2e8f0] px-4 py-1.5 text-xs font-bold text-[#0d2c5c]">
+                    <Sparkles size={13} className="text-[#c69a3f]" />
+                    Sejur Activ #{order.booking_code.replace(/^#/, "")}
+                  </span>
+                )}
               </div>
 
-              {order.booking_code && (
-                <div className="text-right">
-                  <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#94a3b8] block">
-                    Rezervare Activă
-                  </span>
-                  <span className="font-['Cormorant_Garamond',serif] text-2xl font-semibold text-[#0d2c5c]">
-                    #{order.booking_code.replace(/^#/, "")}
-                  </span>
-                </div>
-              )}
-            </div>
+              {/* 4 Steps Timeline */}
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-4 gap-4 relative">
+                {STEPS.map((step, idx) => {
+                  const Icon = step.icon;
+                  const done = idx <= currentStepIdx;
+                  const isCurrent = idx === currentStepIdx;
 
-            {/* Linie de progres conectată (fără carduri!) */}
-            <div className="py-2">
-              <div className="relative">
-                {/* Linia orizontală de legătură pe desktop */}
-                <div className="hidden sm:block absolute top-5 left-[12%] right-[12%] h-[2px] bg-[#0d2c5c]/12" />
-                <div
-                  className="hidden sm:block absolute top-5 left-[12%] h-[2px] bg-[#c69a3f] transition-all duration-500"
-                  style={{
-                    width: `${(currentStepIdx / (STEPS.length - 1)) * 76}%`,
-                  }}
-                />
-
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 relative z-10">
-                  {STEPS.map((step, idx) => {
-                    const Icon = step.icon;
-                    const done = idx <= currentStepIdx;
-                    const isCurrent = idx === currentStepIdx;
-
-                    return (
-                      <div
-                        key={step.key}
-                        className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-3"
-                      >
+                  return (
+                    <div
+                      key={step.key}
+                      className={`rounded-2xl border p-4 transition-all ${
+                        isCurrent
+                          ? "border-[#c69a3f] bg-[#fdf8ec]/70 shadow-md ring-2 ring-[#c69a3f]/20"
+                          : done
+                            ? "border-emerald-200 bg-emerald-50/40"
+                            : "border-[#e2e8f0] bg-[#f8fafc] opacity-60"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                             isCurrent
-                              ? "bg-[#0d2c5c] text-[#e6b85c] ring-4 ring-[#c69a3f]/25"
+                              ? "bg-[#0d2c5c] text-[#e6b85c]"
                               : done
-                                ? "bg-[#c69a3f] text-[#0d2c5c]"
-                                : "bg-white text-[#94a3b8] border border-[#0d2c5c]/20"
+                                ? "bg-emerald-600 text-white"
+                                : "bg-white text-[#94a3b8] border border-[#e2e8f0]"
                           }`}
                         >
-                          <Icon size={17} />
+                          <Icon size={18} />
                         </div>
-                        <div>
-                          <div
-                            className={`text-xs font-bold uppercase tracking-[0.14em] ${
-                              done ? "text-[#0d2c5c]" : "text-[#94a3b8]"
-                            }`}
-                          >
-                            {step.title}
-                          </div>
-                          <div className="text-xs text-[#64748b] mt-0.5">
-                            {step.subtitle}
-                          </div>
-                        </div>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#94a3b8]">
+                          Pasul {idx + 1}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className="font-bold text-sm text-[#0d2c5c]">{step.title}</div>
+                      <div className="text-xs text-[#64748b] mt-0.5">{step.subtitle}</div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Nota de Comandă (fără carduri, cu linii punctate ca într-un meniu de restaurant) */}
-            <div className="pt-8 border-t border-[#0d2c5c]/15">
-              <h2 className="font-['Cormorant_Garamond',serif] text-2xl sm:text-3xl font-normal text-[#0d2c5c] mb-6">
-                Preparatele Comandate
+            {/* Order Items & Summary Card */}
+            <div className="rounded-[32px] border border-[#e2e8f0] bg-white p-6 sm:p-10 shadow-[0_15px_40px_-15px_rgba(13,44,92,0.08)]">
+              <h2 className="font-['Cormorant_Garamond',serif] text-2xl sm:text-3xl font-semibold text-[#0d2c5c] mb-5">
+                Detaliile Comenzii Tale
               </h2>
 
-              <div className="divide-y divide-[#0d2c5c]/10">
+              <div className="divide-y divide-[#f1f5f9]">
                 {order.items.map((item, i) => (
-                  <div key={i} className="py-3.5 flex items-baseline gap-3">
-                    <span className="text-xs font-bold uppercase tracking-widest text-[#c69a3f] shrink-0">
-                      {item.qty} ×
-                    </span>
-                    <span className="font-['Cormorant_Garamond',serif] text-[21px] font-semibold text-[#0d2c5c]">
-                      {item.title}
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      className="flex-1 border-b border-dotted border-[#0d2c5c]/25 mx-2"
-                    />
-                    <span className="font-['Cormorant_Garamond',serif] text-[21px] font-bold text-[#0d2c5c] shrink-0">
+                  <div key={i} className="py-3.5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0d2c5c] text-white text-xs font-bold">
+                        {item.qty}x
+                      </span>
+                      <span className="font-semibold text-[15px] text-[#0d2c5c]">{item.title}</span>
+                    </div>
+                    <span className="font-bold text-[15px] text-[#0d2c5c]">
                       {lei(item.price * item.qty)}
                     </span>
                   </div>
@@ -263,16 +249,16 @@ export default function OrderProgress() {
               </div>
 
               {order.notes && (
-                <p className="mt-5 font-['Cormorant_Garamond',serif] italic text-[18px] text-[#64748b]">
-                  Mențiuni pentru bucătărie: „{order.notes}”
-                </p>
+                <div className="mt-4 rounded-2xl bg-[#fdf8ec] border border-[#c69a3f]/30 p-3.5 text-xs text-[#8a6420]">
+                  <strong>Preferințe transmise bucătăriei:</strong> „{order.notes}”
+                </div>
               )}
 
-              <div className="mt-8 pt-6 border-t border-[#0d2c5c]/20 flex flex-wrap items-baseline justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#475569]">
+              <div className="mt-6 pt-5 border-t border-[#e2e8f0] flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#475569]">
                   {order.payment_method === "card" ? (
                     <>
-                      <CreditCard size={15} className="text-[#c69a3f]" /> Plată cu Cardul la livrare (POS)
+                      <CreditCard size={15} className="text-[#c69a3f]" /> Plată cu Cardul la livrare (POS Mobil)
                     </>
                   ) : order.payment_method === "cash" ? (
                     <>
@@ -285,11 +271,11 @@ export default function OrderProgress() {
                   )}
                 </div>
 
-                <div className="flex items-baseline gap-4">
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#64748b]">
-                    Total
+                <div className="text-right">
+                  <span className="text-xs uppercase tracking-wider text-[#94a3b8] block">
+                    Total Comandă
                   </span>
-                  <span className="font-['Cormorant_Garamond',serif] text-3xl sm:text-4xl font-bold text-[#0d2c5c]">
+                  <span className="font-['Cormorant_Garamond',serif] text-3xl font-bold text-[#0d2c5c]">
                     {lei(order.total_amount)}
                   </span>
                 </div>
