@@ -1,9 +1,21 @@
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
-import { ChevronLeft, Mail, Phone, ShieldCheck } from "lucide-react";
+import { useRef, type ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Mail,
+  Phone,
+  ShieldCheck,
+  FileText,
+  Cookie,
+  Scale,
+  Check,
+} from "lucide-react";
 
-const SEA_IMG =
-  "https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=1920";
+const LEGAL_NAV = [
+  { to: "/termeni-si-conditii", label: "Termeni și condiții", icon: Scale },
+  { to: "/confidentialitate", label: "Confidențialitate", icon: FileText },
+  { to: "/cookies", label: "Politica Cookie", icon: Cookie },
+  { to: "/gdpr", label: "Conformitate GDPR", icon: ShieldCheck },
+];
 
 export function LegalSection({
   title,
@@ -15,22 +27,22 @@ export function LegalSection({
   children: ReactNode;
 }) {
   return (
-    <section className="group relative mb-10 last:mb-0">
-      <div className="flex items-start gap-4 sm:gap-5">
+    <section className="py-10 first:pt-2 last:pb-2 border-b border-[#0d2c5c]/10 last:border-b-0">
+      <div className="flex items-start gap-4 sm:gap-6">
         {icon && (
-          <span className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ecdcb8]/70 bg-gradient-to-br from-[#fdf7ea] to-[#f4e8cf] text-[#b8862a] shadow-[0_8px_20px_-12px_rgba(198,154,63,0.85)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:shadow-[0_12px_28px_-14px_rgba(198,154,63,1)] sm:h-12 sm:w-12">
+          <span className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0d2c5c] text-[#e6b85c] shadow-[0_10px_25px_-10px_rgba(13,44,92,0.4)]">
             {icon}
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(1.25rem,3.2vw,1.65rem)] font-semibold leading-snug text-[#0d2c5c]">
+          <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(1.65rem,3vw,2.25rem)] font-normal leading-tight text-[#0d2c5c]">
             {title}
           </h2>
           <span className="mt-2.5 flex items-center gap-2">
-            <span className="h-px w-10 bg-gradient-to-r from-[#c69a3f] to-transparent" />
-            <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]/80" />
+            <span className="h-px w-12 bg-gradient-to-r from-[#c69a3f] to-transparent" />
+            <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]" />
           </span>
-          <div className="mt-4 space-y-3 text-[14.5px] leading-[1.85] text-[#3d4f6b] [&_strong]:font-semibold [&_strong]:text-[#0d2c5c]">
+          <div className="mt-4 space-y-3.5 text-[15px] leading-[1.85] text-[#334155] font-normal [&_strong]:font-semibold [&_strong]:text-[#0d2c5c]">
             {children}
           </div>
         </div>
@@ -41,13 +53,15 @@ export function LegalSection({
 
 export function LegalList({ items }: { items: string[] }) {
   return (
-    <ul className="m-0 mt-3 grid list-none gap-2 p-0">
+    <ul className="m-0 mt-4 space-y-3 list-none p-0">
       {items.map((it) => (
         <li
           key={it}
-          className="flex items-start gap-3 rounded-xl border border-[#eef2f7] bg-[#f8fafc] px-4 py-3 text-[14px] leading-[1.75] text-[#3d4f6b] transition-all duration-200 hover:border-[#ecdcb8]/60 hover:bg-[#fdf9f0]"
+          className="flex items-start gap-3 text-[14.5px] leading-[1.8] text-[#334155]"
         >
-          <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#c69a3f]" />
+          <span className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0d2c5c]/10 text-[#0d2c5c]">
+            <Check size={12} strokeWidth={2.5} />
+          </span>
           <span>{it}</span>
         </li>
       ))}
@@ -58,7 +72,6 @@ export function LegalList({ items }: { items: string[] }) {
 export default function LegalPage({
   title,
   subtitle,
-  icon,
   lastUpdated,
   children,
 }: {
@@ -68,117 +81,142 @@ export default function LegalPage({
   lastUpdated?: string;
   children: ReactNode;
 }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const { pathname } = useLocation();
+
   return (
-    <div className="bg-[#f6f8fb]">
-      {/* HERO — same coastal treatment as the homepage */}
-      <div className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${SEA_IMG})` }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_0%,rgba(13,44,92,0.72)_0%,rgba(9,24,52,0.94)_100%)]" />
-
-        <div className="relative mx-auto max-w-[1000px] px-5 pb-24 pt-14 text-center sm:px-8 sm:pb-32 sm:pt-20">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white/70 transition-colors hover:text-[#c69a3f]"
+    <div className="relative bg-white text-[#1a1a1a] min-h-screen overflow-hidden">
+      {/* ── HERO IDENTIC CU ROOMS.TSX & PLACES.TSX ── */}
+      <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-36 z-10">
+        <div className="absolute inset-0 z-0">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster="/hero-poster.jpg"
+            className="h-full w-full object-cover saturate-50 contrast-110 brightness-100"
           >
-            <ChevronLeft size={14} /> Înapoi acasă
-          </Link>
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-color" />
+          <div className="absolute inset-0 bg-[#0b2146]/40 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/95 via-[#0d2c5c]/45 to-[#0d2c5c]/95" />
+        </div>
 
-          <p className="mt-6 flex items-center justify-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.22em] text-[#c69a3f]">
-            {icon} Informații legale
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 md:px-10 text-center">
+          <p className="font-sans text-[10px] sm:text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 sm:mb-4 flex items-center justify-center gap-3">
+            <span className="w-6 sm:w-8 h-px bg-[#c69a3f]/60" />
+            Cadru Legal & Conformitate · Vila Casa Esy
+            <span className="w-6 sm:w-8 h-px bg-[#c69a3f]/60" />
           </p>
 
-          <h1 className="mt-3 font-['Cormorant_Garamond',serif] text-[clamp(2rem,7vw,3.5rem)] font-semibold leading-[1.05] text-white">
+          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.4rem,5vw,4.6rem)] font-normal text-white leading-[1.06] tracking-[-0.015em] mb-4 sm:mb-6 [text-shadow:0_4px_30px_rgba(0,0,0,0.35)]">
             {title}
           </h1>
 
-          <span className="mx-auto mt-5 flex items-center justify-center gap-2.5">
-            <span className="h-px w-10 bg-gradient-to-r from-transparent to-[#c69a3f]/70 sm:w-20" />
+          <span
+            className="my-3 hidden sm:flex items-center justify-center gap-3"
+            aria-hidden="true"
+          >
+            <span className="h-px w-14 bg-[#c69a3f]/50" />
             <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]" />
-            <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#c69a3f]/70 sm:w-20" />
+            <span className="h-px w-14 bg-[#c69a3f]/50" />
           </span>
 
           {subtitle && (
-            <p className="mx-auto mt-5 max-w-[620px] rounded-2xl border border-white/10 bg-white/[0.07] px-5 py-4 text-[14px] italic leading-relaxed text-white/85 backdrop-blur-md sm:text-[15px]">
+            <p className="max-w-[660px] mx-auto text-[14px] sm:text-[16.5px] text-white/90 leading-[1.65] sm:leading-[1.85] font-light">
               {subtitle}
             </p>
           )}
         </div>
 
-        {/* wave divider */}
-        <svg
-          viewBox="0 0 1440 80"
-          preserveAspectRatio="none"
-          className="relative block h-[46px] w-full sm:h-[70px]"
-          aria-hidden="true"
-        >
-          <path
-            d="M0 40c120 26 240 34 360 24s240-38 360-40 240 22 360 32 240 2 360-16v40H0z"
-            fill="#f6f8fb"
-          />
-        </svg>
-      </div>
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-[50px] md:h-[80px]"
+          >
+            <path
+              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.43,121.22,201.2,112.5,242.47,107.45,283.47,84.14,321.39,56.44Z"
+              className="fill-white"
+            />
+          </svg>
+        </div>
+      </section>
 
-      {/* CONTENT */}
-      <div className="mx-auto max-w-[900px] px-4 pb-16 sm:px-6 lg:pb-24">
-        <article className="relative -mt-10 overflow-hidden rounded-[24px] border border-[#e1e8f0] bg-white p-6 shadow-[0_30px_70px_-40px_rgba(13,44,92,0.45)] sm:p-10 lg:p-12">
-          <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#c69a3f]/0 via-[#c69a3f] to-[#c69a3f]/0" />
-
-          {lastUpdated && (
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-[#eef2f7] pb-6">
-              <div className="flex items-center gap-2.5">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ecdcb8] bg-gradient-to-r from-[#fdf9f0] to-[#f6ecd6] px-3.5 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#9a7318] shadow-[0_4px_12px_-8px_rgba(198,154,63,0.7)]">
-                  <ShieldCheck size={13} /> Document oficial
-                </span>
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.16em] text-[#8595aa]">
-                  Ultima actualizare: {lastUpdated}
-                </span>
-              </div>
-              <span className="hidden h-px flex-1 bg-gradient-to-r from-[#e1e8f0] to-transparent sm:block" />
+      {/* ── CONȚINUT PRINCIPAL ÎN TEMATICA SITE-ULUI ── */}
+      <section className="relative py-14 md:py-20 px-5 md:px-10 z-10 bg-white">
+        <div className="max-w-4xl mx-auto">
+          {/* Bară de comutare între cele 4 pagini legale + dată actualizare */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 mb-8 border-b border-[#0d2c5c]/12">
+            <div className="flex flex-wrap items-center gap-2.5">
+              {LEGAL_NAV.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.to;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-[11.5px] font-bold uppercase tracking-[0.15em] no-underline transition-all ${
+                      isActive
+                        ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
+                        : "bg-white border-[#e2e8f0] text-[#334155] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
+                    }`}
+                  >
+                    <Icon
+                      size={14}
+                      className={isActive ? "text-[#e6b85c]" : "text-[#0d2c5c]"}
+                    />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
-          )}
-          {children}
-        </article>
 
-        <div className="relative mt-8 overflow-hidden rounded-[24px] border border-[#0d2c5c]/20 bg-[#0d2c5c] p-7 text-center sm:p-9">
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.18]"
-            style={{ backgroundImage: `url(${SEA_IMG})` }}
-          />
-          <div className="relative">
-            <p className="text-[10.5px] font-bold uppercase tracking-[0.22em] text-[#c69a3f]">
-              Suport · Casa Esy
-            </p>
-            <h3 className="mt-2 font-['Cormorant_Garamond',serif] text-[clamp(1.4rem,4vw,1.9rem)] font-semibold text-white">
-              Ai întrebări despre acest document?
-            </h3>
-            <span className="mx-auto mt-4 flex items-center justify-center gap-2.5">
-              <span className="h-px w-10 bg-gradient-to-r from-transparent to-[#c69a3f]/70" />
-              <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]" />
-              <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#c69a3f]/70" />
-            </span>
-            <p className="mx-auto mt-4 max-w-[440px] text-[14px] leading-relaxed text-white/75">
-              Echipa noastră îți răspunde în cel mai scurt timp, în fiecare zi a săptămânii.
-            </p>
-            <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a
-                href="mailto:privacy@casaesy.ro"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d8ae55] to-[#b8862a] px-5 py-3 text-[11.5px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] shadow-[0_14px_30px_-16px_rgba(198,154,63,0.9)] transition-transform hover:-translate-y-0.5 sm:w-auto"
-              >
-                <Mail size={15} /> privacy@casaesy.ro
-              </a>
-              <a
-                href="tel:+40721234567"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/25 px-5 py-3 text-[11.5px] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:border-[#c69a3f] hover:text-[#c69a3f] sm:w-auto"
-              >
-                <Phone size={15} /> +40 721 234 567
-              </a>
+            {lastUpdated && (
+              <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#64748b] shrink-0">
+                <ShieldCheck size={15} className="text-[#0d2c5c]" />
+                <span>Actualizat: {lastUpdated}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Secțiunile documentului — deschise, fără cutii gri */}
+          <div className="divide-y divide-[#0d2c5c]/10">{children}</div>
+
+          {/* Banner de asistență DPO în stilul AboutSection.tsx */}
+          <div className="relative mt-16 overflow-hidden rounded-[30px_80px_30px_80px] bg-[#0d2c5c] px-7 py-10 sm:px-12 sm:py-12 text-center shadow-[0_25px_60px_-20px_rgba(13,44,92,0.35)]">
+            <div className="relative z-10">
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.22em] text-[#c69a3f]">
+                Asistență Juridică & DPO · Vila Casa Esy
+              </p>
+              <h3 className="mt-2 font-['Cormorant_Garamond',serif] text-[clamp(1.8rem,3.5vw,2.6rem)] font-normal text-white leading-tight">
+                Ai întrebări privind <em className="italic text-[#c69a3f]">drepturile tale legale</em>?
+              </h3>
+              <p className="mx-auto mt-3 max-w-[520px] text-[14.5px] leading-relaxed text-white/80 font-light">
+                Responsabilul nostru cu Protecția Datelor (DPO) și recepția Vilei Casa Esy îți stau la dispoziție pentru orice lămurire.
+              </p>
+              <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+                <a
+                  href="mailto:privacy@casaesy.ro"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-full bg-[#c69a3f] hover:bg-white text-[#0d2c5c] px-7 py-3.5 text-[11.5px] font-bold uppercase tracking-[0.18em] no-underline transition-colors"
+                >
+                  <Mail size={15} /> privacy@casaesy.ro
+                </a>
+                <a
+                  href="tel:+40721234567"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-full border border-white/25 hover:border-[#c69a3f] text-white hover:text-[#c69a3f] px-7 py-3.5 text-[11.5px] font-bold uppercase tracking-[0.18em] no-underline transition-colors"
+                >
+                  <Phone size={15} /> +40 721 234 567
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

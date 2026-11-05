@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   Umbrella,
@@ -8,10 +8,8 @@ import {
   Dumbbell,
   Car,
   Clock,
-  CheckCircle2,
+  Check,
   ArrowRight,
-  KeyRound,
-  ShieldCheck,
 } from "lucide-react";
 
 export interface ResortFacilityItem {
@@ -152,6 +150,7 @@ export const RESORT_FACILITIES: ResortFacilityItem[] = [
 ];
 
 export default function ResortFacilities() {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const activeSlug = searchParams.get("item") || "all";
   const [selectedSlug, setSelectedSlug] = useState<string>(activeSlug);
@@ -172,148 +171,200 @@ export default function ResortFacilities() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-[#f9fafc] text-[#0d2c5c]">
-      {/* Hero Header */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#071a33] via-[#0d2c5c] to-[#133b73] pt-36 pb-20 px-6 text-white">
-        <div className="mx-auto max-w-6xl relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#c69a3f]/40 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-[#e6b85c]">
-            <Sparkles size={13} /> Experiența Completă Vila Casa Esy · Mamaia
-          </span>
-          <h1 className="mt-4 font-['Cormorant_Garamond',serif] text-[clamp(2.4rem,5vw,4.2rem)] font-bold leading-tight">
-            Facilități Premium & Servicii Exclusive
+    <div className="min-h-screen bg-white text-[#0d2c5c]">
+      {/* Hero Header matching Rooms.tsx & Places.tsx */}
+      <section className="relative bg-[#0d2c5c] overflow-hidden pt-28 sm:pt-36 md:pt-48 pb-28 md:pb-36 z-10 text-white">
+        <div className="absolute inset-0 z-0">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster="/hero-poster.jpg"
+            className="h-full w-full object-cover saturate-50 contrast-110 brightness-100"
+          >
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-[#0d2c5c]/70 mix-blend-color" />
+          <div className="absolute inset-0 bg-[#0b2146]/40 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/95 via-[#0d2c5c]/45 to-[#0d2c5c]/95" />
+        </div>
+
+        <div className="mx-auto max-w-5xl relative z-10 px-4 sm:px-6 md:px-10 text-center">
+          <p className="font-sans text-[10px] sm:text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 sm:mb-4 flex items-center justify-center gap-3">
+            <span className="w-6 sm:w-8 h-px bg-[#c69a3f]/60" />
+            Experiența Completă · Vila Casa Esy
+            <span className="w-6 sm:w-8 h-px bg-[#c69a3f]/60" />
+          </p>
+          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.5rem,5.5vw,5rem)] font-normal leading-[1.06] tracking-[-0.015em] mb-4 sm:mb-6">
+            Facilități & <em className="italic text-[#c69a3f]">Servicii Exclusive</em>
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-white/80 leading-relaxed">
+          <span
+            className="my-3 hidden sm:flex items-center justify-center gap-3"
+            aria-hidden="true"
+          >
+            <span className="h-px w-14 bg-[#c69a3f]/50" />
+            <span className="h-1.5 w-1.5 rotate-45 bg-[#c69a3f]" />
+            <span className="h-px w-14 bg-[#c69a3f]/50" />
+          </span>
+          <p className="mx-auto max-w-2xl text-[14px] sm:text-[17px] text-white/90 leading-[1.6] sm:leading-[1.85] font-light">
             De la plaja privată și piscina infinity încălzită, până la centrul Spa,
             restaurantul mediteranean cu Room Service în cameră și accesul digital cu PIN Smart Lock.
           </p>
+        </div>
 
-          {/* Filter Pills */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setSearchParams({})}
-              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-                selectedSlug === "all"
-                  ? "bg-[#c69a3f] text-[#0d2c5c] shadow-lg"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-            >
-              Toate Facilitățile (6)
-            </button>
-            {RESORT_FACILITIES.map((f) => {
-              const Icon = f.icon;
-              const isSelected = selectedSlug === f.slug;
-              return (
-                <button
-                  key={f.slug}
-                  type="button"
-                  onClick={() => setSearchParams({ item: f.slug })}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition cursor-pointer ${
-                    isSelected
-                      ? "bg-[#c69a3f] text-[#0d2c5c] shadow-lg"
-                      : "bg-white/10 text-white hover:bg-white/20"
-                  }`}
-                >
-                  <Icon size={14} />
-                  {f.title}
-                </button>
-              );
-            })}
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-[50px] md:h-[80px]"
+          >
+            <path
+              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.43,121.22,201.2,112.5,242.47,107.45,283.47,84.14,321.39,56.44Z"
+              className="fill-white"
+            />
+          </svg>
         </div>
       </section>
 
-      {/* Facilities Cards */}
-      <section className="mx-auto max-w-6xl px-5 py-14 space-y-10">
-        {RESORT_FACILITIES.map((f, index) => {
-          const Icon = f.icon;
-          const highlighted = selectedSlug === f.slug;
-          const reversed = index % 2 === 1;
-          return (
-            <article
-              id={`facility-${f.slug}`}
-              key={f.slug}
-              className={`grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-white overflow-hidden border transition-all duration-300 ${
-                highlighted
-                  ? "border-[#c69a3f] ring-4 ring-[#c69a3f]/20 shadow-2xl"
-                  : "border-[#e1e8f0] shadow-[0_12px_36px_rgba(13,44,92,0.06)]"
-              }`}
-            >
-              <div
-                className={`relative lg:col-span-5 min-h-[280px] bg-[#0d2c5c] overflow-hidden ${
-                  reversed ? "lg:order-2" : ""
+      <section className="mx-auto max-w-7xl px-5 md:px-10 py-16 md:py-24">
+        {/* Filter Pills matching Rooms.tsx & Places.tsx */}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-20">
+          <button
+            type="button"
+            onClick={() => setSearchParams({})}
+            className={`px-5 py-2.5 rounded-full border text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all cursor-pointer ${
+              selectedSlug === "all"
+                ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
+                : "bg-white border-[#e2e8f0] text-[#475569] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
+            }`}
+          >
+            Toate Facilitățile
+          </button>
+          {RESORT_FACILITIES.map((f) => {
+            const Icon = f.icon;
+            const isSelected = selectedSlug === f.slug;
+            return (
+              <button
+                key={f.slug}
+                type="button"
+                onClick={() => setSearchParams({ item: f.slug })}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
+                    : "bg-white border-[#e2e8f0] text-[#475569] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
                 }`}
               >
-                <img
-                  src={f.image}
-                  alt={f.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071a33]/80 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2 text-white">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-md px-3 py-1 text-xs font-semibold">
-                    <Clock size={13} className="text-[#e6b85c]" />
-                    {f.schedule}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#c69a3f] text-[#0d2c5c] px-3 py-1 text-[11px] font-extrabold">
-                    {f.accessLabel}
-                  </span>
-                </div>
-              </div>
+                <Icon size={14} className={isSelected ? "text-[#e6b85c]" : "text-[#0d2c5c]"} />
+                {f.title}
+              </button>
+            );
+          })}
+        </div>
 
-              <div className={`lg:col-span-7 p-6 sm:p-9 flex flex-col justify-between ${reversed ? "lg:order-1" : ""}`}>
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#fdf8ec] border border-[#c69a3f]/30 text-[#c69a3f]">
-                      <Icon size={20} />
-                    </span>
-                    <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
-                      {f.eyebrow}
-                    </span>
+        {/* Open Showcase Sections without boxy cards */}
+        <div className="space-y-24 md:space-y-32">
+          {RESORT_FACILITIES.map((f, index) => {
+            const reversed = index % 2 === 1;
+            const organicRadius = reversed
+              ? "rounded-[90px_30px_90px_30px]"
+              : "rounded-[30px_90px_30px_90px]";
+
+            return (
+              <div
+                id={`facility-${f.slug}`}
+                key={f.slug}
+                className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center"
+              >
+                <div
+                  className={`relative lg:col-span-6 ${
+                    reversed ? "lg:order-2" : ""
+                  }`}
+                >
+                  <div
+                    className={`hidden sm:block absolute -bottom-5 ${
+                      reversed ? "-left-5" : "-right-5"
+                    } w-[92%] h-[92%] bg-[#fdf8ec] border border-[#c69a3f]/30 ${organicRadius} -z-10`}
+                  />
+
+                  <div
+                    className={`absolute -top-6 ${
+                      reversed ? "right-6" : "left-6"
+                    } z-20 w-16 h-16 rounded-full bg-[#0d2c5c] text-[#e6b85c] border-4 border-white shadow-[0_12px_30px_rgba(13,44,92,0.25)] flex items-center justify-center font-['Cormorant_Garamond',serif] text-2xl italic`}
+                  >
+                    0{index + 1}
                   </div>
 
-                  <h2 className="mt-3 font-['Cormorant_Garamond',serif] text-3xl sm:text-4xl font-bold text-[#0d2c5c]">
+                  <div
+                    className={`relative h-[340px] sm:h-[440px] w-full overflow-hidden bg-[#0d2c5c] shadow-[0_25px_60px_-20px_rgba(13,44,92,0.3)] ${organicRadius}`}
+                  >
+                    <img
+                      src={f.image}
+                      alt={f.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-[1200ms] hover:scale-105"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className={`lg:col-span-6 flex flex-col items-start ${
+                    reversed ? "lg:order-1" : ""
+                  }`}
+                >
+                  <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 flex items-center gap-3">
+                    <span className="w-10 h-px bg-[#c69a3f]" />
+                    {f.eyebrow}
+                  </p>
+
+                  <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.3rem,4vw,3.6rem)] font-normal leading-[1.06] text-[#0d2c5c] mb-4">
                     {f.title}
                   </h2>
 
-                  <p className="mt-3 text-[14.5px] leading-relaxed text-[#4f6280]">{f.summary}</p>
+                  <div className="flex flex-wrap items-center gap-y-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#0d2c5c] py-3.5 border-y border-[#0d2c5c]/12 w-full mb-5">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock size={14} className="text-[#c69a3f]" />
+                      {f.schedule}
+                    </span>
+                    <span className="mx-3 text-[#c69a3f]">·</span>
+                    <span>{f.accessLabel}</span>
+                  </div>
 
-                  <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <p className="text-[15.5px] leading-[1.85] text-[#334155] font-light mb-6">
+                    {f.summary}
+                  </p>
+
+                  <ul className="space-y-2.5 mb-8">
                     {f.highlights.map((h) => (
                       <li
                         key={h}
-                        className="flex items-start gap-2 rounded-xl bg-[#f8fafc] border border-[#eef2f7] p-3 text-xs font-medium text-[#243b5e]"
+                        className="flex items-start gap-3 text-[14.5px] text-[#1e293b]"
                       >
-                        <CheckCircle2 size={15} className="shrink-0 text-[#c69a3f] mt-0.5" />
+                        <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0d2c5c]/10 text-[#0d2c5c]">
+                          <Check size={12} strokeWidth={2.5} />
+                        </span>
                         <span>{h}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
-
-                <div className="mt-6 pt-5 border-t border-[#eef2f7] flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 text-xs text-[#6b7c99]">
-                    <span className="inline-flex items-center gap-1 font-semibold text-[#0d2c5c]">
-                      <KeyRound size={14} className="text-[#c69a3f]" /> Integrat cu PIN-ul Camerei
-                    </span>
-                    <span className="inline-flex items-center gap-1 font-semibold text-[#0d2c5c]">
-                      <ShieldCheck size={14} className="text-emerald-600" /> Standard 5 Stele
-                    </span>
-                  </div>
 
                   <Link
                     to={f.ctaLink}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition no-underline"
+                    className="group inline-flex items-center gap-4 bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] text-[11.5px] tracking-[0.2em] uppercase font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-[0_12px_30px_-10px_rgba(13,44,92,0.35)] no-underline"
                   >
-                    {f.ctaLabel}
-                    <ArrowRight size={14} />
+                    <span>{f.ctaLabel}</span>
+                    <ArrowRight
+                      size={16}
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    />
                   </Link>
                 </div>
               </div>
-            </article>
-          );
-        })}
+            );
+          })}
+        </div>
       </section>
     </div>
   );
