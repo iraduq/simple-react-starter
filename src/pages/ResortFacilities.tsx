@@ -8,10 +8,8 @@ import {
   Dumbbell,
   Car,
   Clock,
-  CheckCircle2,
+  Check,
   ArrowRight,
-  KeyRound,
-  ShieldCheck,
 } from "lucide-react";
 
 export interface ResortFacilityItem {
@@ -172,148 +170,155 @@ export default function ResortFacilities() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-[#f9fafc] text-[#0d2c5c]">
+    <div className="min-h-screen bg-white text-[#0d2c5c]">
       {/* Hero Header */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#071a33] via-[#0d2c5c] to-[#133b73] pt-36 pb-20 px-6 text-white">
-        <div className="mx-auto max-w-6xl relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#c69a3f]/40 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-[#e6b85c]">
-            <Sparkles size={13} /> Experiența Completă Vila Casa Esy · Mamaia
-          </span>
-          <h1 className="mt-4 font-['Cormorant_Garamond',serif] text-[clamp(2.4rem,5vw,4.2rem)] font-bold leading-tight">
-            Facilități Premium & Servicii Exclusive
+      <section className="relative overflow-hidden bg-[#0d2c5c] pt-36 pb-28 px-6 text-white">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#071a33]/90 via-[#0d2c5c]/80 to-[#0d2c5c]" />
+        <div className="mx-auto max-w-5xl relative z-10 text-center">
+          <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-3 flex items-center justify-center gap-3">
+            <span className="w-8 h-px bg-[#c69a3f]/60" />
+            Experiența Completă · Vila Casa Esy
+            <span className="w-8 h-px bg-[#c69a3f]/60" />
+          </p>
+          <h1 className="font-['Cormorant_Garamond',serif] text-[clamp(2.5rem,5vw,4.5rem)] font-normal leading-tight">
+            Facilități & <em className="italic text-[#c69a3f]">Servicii Exclusive</em>
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-white/80 leading-relaxed">
+          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-white/85 font-light leading-relaxed">
             De la plaja privată și piscina infinity încălzită, până la centrul Spa,
             restaurantul mediteranean cu Room Service în cameră și accesul digital cu PIN Smart Lock.
           </p>
+        </div>
 
-          {/* Filter Pills */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setSearchParams({})}
-              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-                selectedSlug === "all"
-                  ? "bg-[#c69a3f] text-[#0d2c5c] shadow-lg"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-            >
-              Toate Facilitățile (6)
-            </button>
-            {RESORT_FACILITIES.map((f) => {
-              const Icon = f.icon;
-              const isSelected = selectedSlug === f.slug;
-              return (
-                <button
-                  key={f.slug}
-                  type="button"
-                  onClick={() => setSearchParams({ item: f.slug })}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition cursor-pointer ${
-                    isSelected
-                      ? "bg-[#c69a3f] text-[#0d2c5c] shadow-lg"
-                      : "bg-white/10 text-white hover:bg-white/20"
-                  }`}
-                >
-                  <Icon size={14} />
-                  {f.title}
-                </button>
-              );
-            })}
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-[50px] md:h-[75px]"
+          >
+            <path
+              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.43,121.22,201.2,112.5,242.47,107.45,283.47,84.14,321.39,56.44Z"
+              className="fill-white"
+            />
+          </svg>
         </div>
       </section>
 
-      {/* Facilities Cards */}
-      <section className="mx-auto max-w-6xl px-5 py-14 space-y-10">
-        {RESORT_FACILITIES.map((f, index) => {
-          const Icon = f.icon;
-          const highlighted = selectedSlug === f.slug;
-          const reversed = index % 2 === 1;
-          return (
-            <article
-              id={`facility-${f.slug}`}
-              key={f.slug}
-              className={`grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-white overflow-hidden border transition-all duration-300 ${
-                highlighted
-                  ? "border-[#c69a3f] ring-4 ring-[#c69a3f]/20 shadow-2xl"
-                  : "border-[#e1e8f0] shadow-[0_12px_36px_rgba(13,44,92,0.06)]"
-              }`}
-            >
-              <div
-                className={`relative lg:col-span-5 min-h-[280px] bg-[#0d2c5c] overflow-hidden ${
-                  reversed ? "lg:order-2" : ""
+      {/* Navigare cu subliniere fină + Secțiuni editoriale deschise (fără carduri!) */}
+      <section className="mx-auto max-w-6xl px-5 md:px-10 py-14">
+        <div className="flex flex-wrap items-center gap-7 border-b border-[#0d2c5c]/15 pb-4 mb-8">
+          <button
+            type="button"
+            onClick={() => setSearchParams({})}
+            className={`relative pb-2 text-xs font-bold uppercase tracking-[0.18em] transition cursor-pointer ${
+              selectedSlug === "all"
+                ? "text-[#0d2c5c]"
+                : "text-[#64748b] hover:text-[#0d2c5c]"
+            }`}
+          >
+            Toate Facilitățile
+            {selectedSlug === "all" && (
+              <span className="absolute -bottom-[17px] left-0 right-0 h-[2px] bg-[#c69a3f]" />
+            )}
+          </button>
+          {RESORT_FACILITIES.map((f) => {
+            const isSelected = selectedSlug === f.slug;
+            return (
+              <button
+                key={f.slug}
+                type="button"
+                onClick={() => setSearchParams({ item: f.slug })}
+                className={`relative pb-2 text-xs font-bold uppercase tracking-[0.18em] transition cursor-pointer ${
+                  isSelected
+                    ? "text-[#0d2c5c]"
+                    : "text-[#64748b] hover:text-[#0d2c5c]"
                 }`}
               >
-                <img
-                  src={f.image}
-                  alt={f.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071a33]/80 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2 text-white">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-md px-3 py-1 text-xs font-semibold">
-                    <Clock size={13} className="text-[#e6b85c]" />
-                    {f.schedule}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#c69a3f] text-[#0d2c5c] px-3 py-1 text-[11px] font-extrabold">
-                    {f.accessLabel}
-                  </span>
-                </div>
-              </div>
+                {f.title}
+                {isSelected && (
+                  <span className="absolute -bottom-[17px] left-0 right-0 h-[2px] bg-[#c69a3f]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-              <div className={`lg:col-span-7 p-6 sm:p-9 flex flex-col justify-between ${reversed ? "lg:order-1" : ""}`}>
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#fdf8ec] border border-[#c69a3f]/30 text-[#c69a3f]">
-                      <Icon size={20} />
-                    </span>
-                    <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
-                      {f.eyebrow}
-                    </span>
-                  </div>
-
-                  <h2 className="mt-3 font-['Cormorant_Garamond',serif] text-3xl sm:text-4xl font-bold text-[#0d2c5c]">
-                    {f.title}
-                  </h2>
-
-                  <p className="mt-3 text-[14.5px] leading-relaxed text-[#4f6280]">{f.summary}</p>
-
-                  <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {f.highlights.map((h) => (
-                      <li
-                        key={h}
-                        className="flex items-start gap-2 rounded-xl bg-[#f8fafc] border border-[#eef2f7] p-3 text-xs font-medium text-[#243b5e]"
-                      >
-                        <CheckCircle2 size={15} className="shrink-0 text-[#c69a3f] mt-0.5" />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-6 pt-5 border-t border-[#eef2f7] flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 text-xs text-[#6b7c99]">
-                    <span className="inline-flex items-center gap-1 font-semibold text-[#0d2c5c]">
-                      <KeyRound size={14} className="text-[#c69a3f]" /> Integrat cu PIN-ul Camerei
-                    </span>
-                    <span className="inline-flex items-center gap-1 font-semibold text-[#0d2c5c]">
-                      <ShieldCheck size={14} className="text-emerald-600" /> Standard 5 Stele
-                    </span>
-                  </div>
-
-                  <Link
-                    to={f.ctaLink}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition no-underline"
+        <div className="divide-y divide-[#0d2c5c]/12">
+          {RESORT_FACILITIES.map((f, index) => {
+            const reversed = index % 2 === 1;
+            return (
+              <section
+                id={`facility-${f.slug}`}
+                key={f.slug}
+                className="py-16 md:py-24 first:pt-8 last:pb-6"
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+                  <div
+                    className={`lg:col-span-6 ${
+                      reversed ? "lg:order-2" : ""
+                    }`}
                   >
-                    {f.ctaLabel}
-                    <ArrowRight size={14} />
-                  </Link>
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#f1f5f9]">
+                      <img
+                        src={f.image}
+                        alt={f.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    className={`lg:col-span-6 ${
+                      reversed ? "lg:order-1" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#c69a3f] mb-3">
+                      <span className="h-px w-8 bg-[#c69a3f]" />
+                      <span>{f.eyebrow}</span>
+                    </div>
+
+                    <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.2rem,3.6vw,3.4rem)] font-normal leading-[1.08] text-[#0d2c5c] mb-4">
+                      {f.title}
+                    </h2>
+
+                    <div className="flex flex-wrap items-center gap-y-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#0d2c5c]/80 pb-5 border-b border-[#0d2c5c]/12 mb-5">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock size={14} className="text-[#c69a3f]" />
+                        {f.schedule}
+                      </span>
+                      <span className="mx-3 text-[#c69a3f]">·</span>
+                      <span>{f.accessLabel}</span>
+                    </div>
+
+                    <p className="text-[15.5px] leading-[1.85] text-[#475569] font-light mb-6">
+                      {f.summary}
+                    </p>
+
+                    <ul className="space-y-2.5 mb-8">
+                      {f.highlights.map((h) => (
+                        <li
+                          key={h}
+                          className="flex items-start gap-2.5 text-[14px] text-[#243b5e]"
+                        >
+                          <Check size={16} className="shrink-0 text-[#c69a3f] mt-1" />
+                          <span>{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Link
+                      to={f.ctaLink}
+                      className="inline-flex items-center gap-2 border-b-2 border-[#0d2c5c] pb-1 text-xs font-bold uppercase tracking-[0.2em] text-[#0d2c5c] hover:text-[#c69a3f] hover:border-[#c69a3f] transition no-underline"
+                    >
+                      {f.ctaLabel}
+                      <ArrowRight size={14} />
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </article>
-          );
-        })}
+              </section>
+            );
+          })}
+        </div>
       </section>
     </div>
   );
