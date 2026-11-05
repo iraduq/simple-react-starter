@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
-import { MapPin, Phone, Mail, Clock, ChevronUp, Star } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronUp, Star, Cookie, ShieldCheck } from "lucide-react";
+import { openCookieSettingsModal } from "./CookieConsentBanner";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const facilityLinks = [
+    { label: "Plajă privată", slug: "plaja-privata" },
+    { label: "Piscină infinity", slug: "piscina-infinity" },
+    { label: "Spa & Wellness", slug: "spa-wellness" },
+    { label: "Restaurant & Bar", slug: "restaurant-bar" },
+    { label: "Sală de fitness", slug: "sala-fitness" },
+    { label: "Parcare gratuită", slug: "parcare-gratuita" },
+  ];
 
   return (
     <footer className="bg-white text-[#0d2c5c] font-sans border-t border-[#0d2c5c]/10">
@@ -81,7 +91,8 @@ export default function Footer() {
               {[
                 { to: "/", label: "Acasă" },
                 { to: "/camere", label: "Camere" },
-                { to: "/places", label: "Locații" },
+                { to: "/facilitati", label: "Facilități & Spa" },
+                { to: "/places", label: "Locații & Meniu" },
                 { to: "/contact", label: "Contact" },
               ].map((item) => (
                 <li key={item.to}>
@@ -102,16 +113,14 @@ export default function Footer() {
               Facilități
             </h4>
             <ul className="list-none p-0 m-0 flex flex-col gap-3.5">
-              {[
-                "Plajă privată",
-                "Piscină infinity",
-                "Spa & Wellness",
-                "Restaurant & Bar",
-                "Sală de fitness",
-                "Parcare gratuită",
-              ].map((item) => (
-                <li key={item}>
-                  <span className="text-[14px] text-[#243b5e]">{item}</span>
+              {facilityLinks.map((item) => (
+                <li key={item.slug}>
+                  <Link
+                    to={`/facilitati?item=${item.slug}`}
+                    className="text-[14px] text-[#243b5e] no-underline hover:text-[#c69a3f] transition-colors"
+                  >
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -141,6 +150,27 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={openCookieSettingsModal}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0d2c5c] hover:text-[#c69a3f] transition-colors cursor-pointer"
+                >
+                  <Cookie size={14} className="text-[#c69a3f]" />
+                  Preferințe Cookie
+                </button>
+              </li>
+              <li>
+                <a
+                  href="https://anpc.ro/ce-este-sal/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[12px] text-[#5a6b85] no-underline hover:text-[#0d2c5c] transition-colors"
+                >
+                  <ShieldCheck size={13} className="text-[#c69a3f]" />
+                  ANPC — SAL / SOL
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -149,7 +179,7 @@ export default function Footer() {
         <div className="hidden lg:flex justify-end mt-6">
           <button
             onClick={scrollToTop}
-            className="flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] uppercase text-[#243b5e]/70 hover:text-[#c69a3f] transition-colors"
+            className="flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] uppercase text-[#243b5e]/70 hover:text-[#c69a3f] transition-colors cursor-pointer"
           >
             <span>Înapoi sus</span>
             <ChevronUp size={14} />
@@ -162,14 +192,14 @@ export default function Footer() {
         <div className="max-w-[1320px] mx-auto px-6 md:px-10 lg:px-14 py-6 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
           <p className="text-[12px] text-[#5a6b85] m-0 order-2 md:order-1">
             © {currentYear}{" "}
-            <span className="text-[#0d2c5c] font-semibold">Vila Casa Esy</span>{" "}
-            · Mamaia. Toate drepturile rezervate.
+            <span className="text-[#0d2c5c] font-semibold">SC Vila Casa Esy SRL</span>{" "}
+            (CUI RO 46192045 · J13/2481/2022) · Mamaia. Conform GDPR (UE) 2016/679.
           </p>
 
           {/* Payment methods */}
           <div className="flex items-center gap-4 order-1 md:order-2">
             <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-[#5a6b85] hidden sm:inline">
-              Plăți sigure
+              Plăți sigure PCI-DSS
             </span>
             <div className="flex items-center gap-2">
               {[
@@ -199,15 +229,6 @@ export default function Footer() {
               ))}
             </div>
           </div>
-
-          {/* Back to top — mobile/tablet only, in the bottom bar */}
-          <button
-            onClick={scrollToTop}
-            className="lg:hidden flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] uppercase text-[#243b5e]/70 hover:text-[#c69a3f] transition-colors order-3"
-          >
-            <ChevronUp size={14} />
-            <span>Sus</span>
-          </button>
         </div>
       </div>
     </footer>

@@ -36,6 +36,8 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Cookies from "./pages/Cookies";
 import Gdpr from "./pages/Gdpr";
+import ResortFacilities from "./pages/ResortFacilities";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 import Footer from "./components/Footer";
 import ChatWidget from "./components/ChatWidget";
 import BookingSuccess from "./pages/BookingSuccess";
@@ -58,6 +60,7 @@ const MainLayout = () => {
       </main>
       {!isAdmin && <Footer />}
       {!isAdmin && <ChatWidget />}
+      {!isAdmin && <CookieConsentBanner />}
     </>
   );
 };
@@ -92,6 +95,7 @@ function AppInner() {
         <Route path="/camere/:roomId" element={<RoomDetail />} />
         <Route path="/disponibilitate" element={<AvailabilityRedirect />} />
         <Route path="/places" element={<Places />} />
+        <Route path="/facilitati" element={<ResortFacilities />} />
         <Route path="/places/:placeId" element={<PlaceDetail />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/booking-success" element={<BookingSuccess />} />

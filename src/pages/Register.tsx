@@ -630,6 +630,29 @@ export default function Register() {
               )}
             </div>
 
+            <label className="flex items-start gap-2.5 text-xs text-[#4f6280] leading-relaxed cursor-pointer mb-2">
+              <input
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 shrink-0 accent-[#0d2c5c]"
+              />
+              <span>
+                Sunt de acord cu{" "}
+                <Link to="/termeni-si-conditii" className="font-bold text-[#0d2c5c] underline">
+                  Termenii și condițiile
+                </Link>{" "}
+                și am luat cunoștință de{" "}
+                <Link to="/confidentialitate" className="font-bold text-[#0d2c5c] underline">
+                  Politica de confidențialitate
+                </Link>{" "}
+                și{" "}
+                <Link to="/gdpr" className="font-bold text-[#0d2c5c] underline">
+                  Drepturile GDPR
+                </Link>
+                .
+              </span>
+            </label>
+
             <button
               type="submit"
               disabled={isLoading}
