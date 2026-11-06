@@ -232,9 +232,9 @@ export default function Profile() {
         className="hidden"
       />
 
-      <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 relative z-10">
         {/* HERO BANNER CU CLIPUL DE PE MAINPAGE & STRATURI CROMATICE BRAND */}
-        <div className="relative h-[210px] sm:h-[260px] lg:h-[290px] w-full rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-[0_16px_45px_rgba(13,44,92,0.14)] border border-[#e1e8f0]">
+        <div className="relative h-[220px] sm:h-[270px] lg:h-[310px] xl:h-[340px] w-full rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-[0_16px_45px_rgba(13,44,92,0.12)] border border-[#e1e8f0]">
           <video
             autoPlay
             muted
@@ -291,8 +291,8 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* TWO-COLUMN GRID: SIDEBAR & MAIN CONTENT (CARDURI ALBE PE FUNDAL ALB) */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[330px_1fr] xl:grid-cols-[350px_1fr] gap-6 sm:gap-8 items-start -mt-14 sm:-mt-16">
+        {/* TWO-COLUMN GRID: SIDEBAR & MAIN CONTENT (PE TOATĂ LĂȚIMEA PAGINII) */}
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[340px_1fr] xl:grid-cols-[380px_1fr] 2xl:grid-cols-[410px_1fr] gap-6 lg:gap-8 items-start -mt-14 sm:-mt-16">
           {/* LEFT SIDEBAR */}
           <div className="flex flex-col gap-6">
             {/* User Profile Card */}
@@ -1696,7 +1696,7 @@ function FloatingMaritimeBackgroundWhite() {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       {/* 1. SOFT CONTEMPORARY RADIAL MESH */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1500px] h-[550px] bg-[radial-gradient(ellipse_75%_50%_at_50%_-10%,rgba(198,154,63,0.05),transparent_70%)]" />
+      <div className="absolute top-0 left-0 w-full h-[600px] bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(0,168,150,0.06),transparent_70%)]" />
 
       {/* 2. SUBTLE ARCHITECTURAL WATERMARKS (STATIC, ELEGANT, ULTRA-LOW OPACITY) */}
       <div className="absolute -top-12 -right-16 w-[520px] h-[520px] opacity-[0.02] text-[#0d2c5c]">
