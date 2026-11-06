@@ -223,9 +223,9 @@ export default function Profile() {
           />
 
           {/* Top Left Tag */}
-          <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[12px] font-semibold z-10 shadow-md">
-            <MapPin size={13} className="text-[#c69a3f]" />
-            <span>Casa Esy • Mamaia Resort & Spa</span>
+          <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0d2c5c]/70 backdrop-blur-md border border-white/20 text-white text-[12px] font-medium z-10 shadow-lg">
+            <span className="text-[#c69a3f] text-[11px] tracking-widest font-serif font-semibold">★★★</span>
+            <span className="font-sans font-semibold tracking-wide">Casa Esy • Mamaia Resort & Spa</span>
           </div>
 
           {/* Top Right Action Pills */}
@@ -237,18 +237,18 @@ export default function Profile() {
                   toast("Link-ul profilului a fost copiat!", "success");
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white text-[12.5px] font-semibold transition-all shadow-md active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white text-[12.5px] font-semibold transition-all shadow-md active:scale-95"
             >
-              <Share2 size={13} />
-              <span className="hidden sm:inline">Distribuie</span>
+              <Share2 size={13} className="text-[#c69a3f]" />
+              <span className="hidden sm:inline">Distribuie Profil</span>
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
               title="Încarcă fotografie de profil"
-              className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white flex items-center justify-center transition-all shadow-md active:scale-95 disabled:opacity-50"
+              className="w-9 h-9 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all shadow-md active:scale-95 disabled:opacity-50"
             >
-              <Camera size={15} />
+              <Camera size={14} className="text-[#c69a3f]" />
             </button>
           </div>
         </div>
@@ -258,7 +258,7 @@ export default function Profile() {
           {/* LEFT SIDEBAR */}
           <div className="flex flex-col gap-6">
             {/* User Profile Card */}
-            <div className="bg-white rounded-[26px] p-6 sm:p-7 shadow-[0_12px_45px_rgba(13,44,92,0.08)] border border-[#e1e8f0]">
+            <div className="bg-white rounded-[26px] p-6 sm:p-7 shadow-[0_12px_45px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
               <div className="flex flex-col items-center text-center">
                 {/* Avatar with luxury navy & gold border */}
                 <div
@@ -266,8 +266,8 @@ export default function Profile() {
                   onClick={() => fileInputRef.current?.click()}
                   title="Apasă pentru a schimba fotografia de profil"
                 >
-                  <div className="w-[110px] h-[110px] sm:w-[124px] sm:h-[124px] rounded-full p-[3px] bg-gradient-to-tr from-[#0d2c5c] via-[#c69a3f] to-[#e6c373] shadow-md transition-transform duration-300 group-hover:scale-105">
-                    <div className="w-full h-full rounded-full bg-[#0d2c5c] overflow-hidden flex items-center justify-center font-['Cormorant_Garamond',serif] text-[40px] font-semibold text-white">
+                  <div className="w-[112px] h-[112px] sm:w-[126px] sm:h-[126px] rounded-full p-[3px] bg-gradient-to-tr from-[#0d2c5c] via-[#c69a3f] to-[#e6c373] shadow-lg transition-transform duration-300 group-hover:scale-105">
+                    <div className="w-full h-full rounded-full bg-[#0d2c5c] overflow-hidden flex items-center justify-center font-serif text-[42px] font-medium text-white">
                       {user.avatar_url ? (
                         <img
                           src={user.avatar_url}
@@ -279,20 +279,21 @@ export default function Profile() {
                       )}
                     </div>
                   </div>
-                  <span className="absolute bottom-0 right-1 w-7 h-7 rounded-full bg-[#0d2c5c] text-[#c69a3f] border-2 border-white flex items-center justify-center shadow-md">
-                    <Camera size={13} />
+                  <span className="absolute bottom-0 right-1 w-8 h-8 rounded-full bg-[#0d2c5c] text-[#c69a3f] border-2 border-white flex items-center justify-center shadow-md group-hover:bg-[#c69a3f] group-hover:text-[#0d2c5c] transition-colors">
+                    <Camera size={14} />
                   </span>
                 </div>
 
-                <h1 className="mt-4 font-['Cormorant_Garamond',serif] text-[28px] font-semibold text-[#0d2c5c] leading-tight">
+                <h1 className="mt-4 font-serif text-[30px] font-medium text-[#0d2c5c] leading-tight tracking-tight">
                   {fullName}
                 </h1>
-                <p className="text-[12px] font-bold text-[#c69a3f] tracking-wider uppercase mt-1">
-                  Oaspete Privilège • Casa Esy
+                <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mt-1.5 flex items-center justify-center gap-1.5">
+                  <span className="text-[10px]">★★★</span>
+                  <span>Oaspete Privilège • Casa Esy</span>
                 </p>
-                <p className="text-[11.5px] text-[#6b7c99] mt-1 flex items-center justify-center gap-1">
-                  <MapPin size={12} className="text-[#c69a3f]" />
-                  <span>Constanța & București, România</span>
+                <p className="text-[12px] text-[#6b7c99] mt-1.5 flex items-center justify-center gap-1.5">
+                  <MapPin size={13} className="text-[#c69a3f]" />
+                  <span>Mamaia, Constanța • România</span>
                 </p>
 
                 {/* Quick actions */}
@@ -306,7 +307,7 @@ export default function Profile() {
                   </button>
                   <Link
                     to="/camere"
-                    className="flex-1 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13.5px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(13,44,92,0.2)] transition-all"
+                    className="flex-1 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(13,44,92,0.18)] transition-all"
                   >
                     <Calendar size={15} className="text-[#c69a3f]" />
                     <span>Rezervă Sejur Nou</span>
@@ -316,7 +317,7 @@ export default function Profile() {
 
               {/* BENEFICII INCLUSE */}
               <div className="mt-6 pt-5 border-t border-[#e1e8f0]">
-                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99] mb-3">
+                <p className="font-sans text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#6b7c99] mb-3">
                   Beneficii Incluse:
                 </p>
                 <div className="flex flex-wrap gap-1.5">
@@ -329,7 +330,7 @@ export default function Profile() {
                   ].map((benefit) => (
                     <span
                       key={benefit}
-                      className="px-3 py-1.5 rounded-full bg-[#f8fafd] border border-[#e1e8f0] text-[11.5px] font-medium text-[#3d4f6b]"
+                      className="px-3 py-1.5 rounded-full bg-[#f8fafd] border border-[#e1e8f0] text-[11.5px] font-medium text-[#0d2c5c]"
                     >
                       {benefit}
                     </span>
@@ -357,26 +358,26 @@ export default function Profile() {
                   return (
                     <>
                       <div>
-                        <p className="text-[20px] font-bold text-[#0d2c5c]">
+                        <p className="font-serif text-[26px] sm:text-[28px] font-medium text-[#0d2c5c] leading-none">
                           {valid.length}
                         </p>
-                        <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                        <p className="font-sans text-[11px] text-[#6b7c99] mt-1 font-medium">
                           Sejururi
                         </p>
                       </div>
                       <div className="border-x border-[#e1e8f0]">
-                        <p className="text-[20px] font-bold text-[#c69a3f]">
+                        <p className="font-serif text-[26px] sm:text-[28px] font-medium text-[#c69a3f] leading-none">
                           {points.toLocaleString("ro-RO")}
                         </p>
-                        <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                        <p className="font-sans text-[11px] text-[#6b7c99] mt-1 font-medium">
                           Puncte Club
                         </p>
                       </div>
                       <div>
-                        <p className="text-[20px] font-bold text-[#0d2c5c]">
+                        <p className="font-serif text-[26px] sm:text-[28px] font-medium text-[#0d2c5c] leading-none">
                           {valid.length >= 2 ? "Gold" : "Silver"}
                         </p>
-                        <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                        <p className="font-sans text-[11px] text-[#6b7c99] mt-1 font-medium">
                           Statut VIP
                         </p>
                       </div>
@@ -421,9 +422,9 @@ export default function Profile() {
 
           {/* RIGHT MAIN CONTENT */}
           <div className="min-w-0 flex flex-col gap-6">
-            {/* HORIZONTAL TAB BAR (CARD ALB CURAT) */}
-            <div className="bg-white rounded-[20px] p-1.5 shadow-[0_10px_35px_rgba(13,44,92,0.06)] border border-[#e1e8f0] overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-1 min-w-max">
+            {/* TAB BAR: TOATE CELE 6 OPȚIUNI SUNT VIZIBILE DIRECT PE DESKTOP FĂRĂ SCROLL / TRAGERE */}
+            <div className="bg-white rounded-[22px] p-2 shadow-[0_8px_30px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
                 {TABS.map((t) => {
                   const Icon = t.icon;
                   const active = tab === t.key;
@@ -432,18 +433,29 @@ export default function Profile() {
                     <button
                       key={t.key}
                       onClick={() => setTab(t.key)}
-                      className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-[14px] text-[13px] font-semibold transition-all shrink-0 ${
+                      className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 py-3 rounded-[14px] text-[12px] xl:text-[13px] font-semibold transition-all duration-200 text-center select-none ${
                         active
                           ? isDanger
                             ? "bg-red-50 text-red-700 border border-red-200 shadow-sm font-bold"
-                            : "bg-[#0d2c5c] text-white shadow-sm font-bold"
+                            : "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.25)] font-bold"
                           : isDanger
-                            ? "text-red-600 hover:bg-red-50/60"
-                            : "text-[#3d4f6b] hover:text-[#0d2c5c] hover:bg-[#f8fafd]"
+                            ? "text-red-600/80 hover:bg-red-50/70 hover:text-red-700"
+                            : "text-[#4f6280] hover:text-[#0d2c5c] hover:bg-[#f4f7fb]"
                       }`}
                     >
-                      <Icon size={14} className={active ? (isDanger ? "text-red-600" : "text-[#c69a3f]") : ""} />
-                      <span>{t.label}</span>
+                      <Icon
+                        size={15}
+                        className={`shrink-0 ${
+                          active
+                            ? isDanger
+                              ? "text-red-600"
+                              : "text-[#c69a3f]"
+                            : isDanger
+                              ? "text-red-500"
+                              : "text-[#6b7c99]"
+                        }`}
+                      />
+                      <span className="truncate">{t.label}</span>
                     </button>
                   );
                 })}
@@ -537,9 +549,10 @@ function OverviewTab({
         {next ? (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-[11px] sm:text-[11.5px] font-bold tracking-[0.15em] uppercase text-[#0d2c5c]">
-                <span className="w-2 h-2 rounded-full bg-[#c69a3f]"></span>
-                <span>URMĂTORUL SEJUR CONFIRMAT</span>
+              <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f]">
+                <span className="w-5 h-px bg-gradient-to-r from-transparent to-[#c69a3f]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c69a3f]"></span>
+                <span className="text-[#0d2c5c]">URMĂTORUL SEJUR CONFIRMAT</span>
                 {next.booking_code && (
                   <span className="text-[#6b7c99] font-normal normal-case tracking-normal">
                     • Rezervare #{next.booking_code}
@@ -554,14 +567,14 @@ function OverviewTab({
 
             <div className="mt-5 flex flex-col md:flex-row md:items-center justify-between gap-5">
               <div>
-                <h2 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[32px] font-semibold text-[#0d2c5c] leading-tight">
+                <h2 className="font-serif text-[28px] sm:text-[34px] font-medium text-[#0d2c5c] leading-tight tracking-tight">
                   {next.room?.title || "Cameră Casa Esy"}
                 </h2>
                 <p className="mt-1 flex items-center gap-2 text-[13px] text-[#6b7c99]">
                   <Building size={14} className="text-[#c69a3f] shrink-0" />
                   <span>
-                    Mamaia • {Math.max(1, stayDays.length - 1)} nopți
-                    {next.unit_number ? ` • Unitatea ${next.unit_number}` : ""}
+                    Mamaia Resort • {Math.max(1, stayDays.length - 1)} nopți
+                    {next.unit_number ? ` • Suita ${next.unit_number}` : ""}
                   </span>
                 </p>
               </div>
@@ -575,16 +588,16 @@ function OverviewTab({
                       toast(e?.message || "Factura nu a putut fi descărcată.", "error")
                     );
                   }}
-                  className="px-4 h-11 rounded-[12px] border border-[#e1e8f0] hover:border-[#c69a3f] text-[#0d2c5c] text-[12.5px] font-semibold flex items-center gap-2 bg-white transition-colors shadow-sm"
+                  className="px-4 h-11 rounded-[14px] border border-[#e1e8f0] hover:border-[#c69a3f] text-[#0d2c5c] text-[12.5px] font-semibold flex items-center gap-2 bg-white transition-colors shadow-sm"
                 >
-                  <Download size={14} />
+                  <Download size={14} className="text-[#c69a3f]" />
                   <span>Descarcă Voucher</span>
                 </button>
                 <button
                   onClick={() => goToTab("reservations")}
-                  className="px-4 h-11 rounded-[12px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[12.5px] font-semibold flex items-center gap-2 transition-colors shadow-sm"
+                  className="px-4 h-11 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[12.5px] font-semibold flex items-center gap-2 transition-colors shadow-sm"
                 >
-                  <SlidersHorizontal size={14} />
+                  <SlidersHorizontal size={14} className="text-[#c69a3f]" />
                   <span>Detalii Sejur</span>
                 </button>
               </div>
@@ -594,14 +607,15 @@ function OverviewTab({
             {stayDays.length > 0 && (
               <div className="mt-6 pt-5 border-t border-[#e1e8f0]">
                 <div className="flex items-center justify-between mb-3.5">
-                  <p className="text-[10.5px] font-bold tracking-[0.16em] uppercase text-[#6b7c99]">
-                    Zilele Sejurului Dumneavoastră:
+                  <p className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#6b7c99] flex items-center gap-1.5">
+                    <span className="w-3 h-px bg-[#c69a3f]" />
+                    <span>Zilele Sejurului Dumneavoastră:</span>
                   </p>
                   <Link
                     to="/facilitati"
                     className="text-[12px] font-semibold text-[#c69a3f] hover:underline"
                   >
-                    Program Activități & Spa
+                    Program Activități & Spa →
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
@@ -611,24 +625,24 @@ function OverviewTab({
                     return (
                       <div
                         key={i}
-                        className={`rounded-[16px] p-3 text-center border transition-all ${
+                        className={`rounded-[18px] p-3.5 text-center border transition-all ${
                           isFirst
-                            ? "bg-[#c69a3f]/10 border-[#c69a3f] text-[#0d2c5c]"
+                            ? "bg-[#c69a3f]/10 border-[#c69a3f] text-[#0d2c5c] shadow-sm"
                             : "bg-[#f8fafd] border-[#e1e8f0] text-[#0d2c5c]"
                         }`}
                       >
-                        <p className="text-[10.5px] font-bold text-[#6b7c99]">
+                        <p className="font-sans text-[11px] font-bold text-[#6b7c99] tracking-wider uppercase">
                           {fmtDay(d)}
                         </p>
-                        <p className="text-[18px] font-bold mt-1 text-[#0d2c5c]">
+                        <p className="font-serif text-[22px] font-medium mt-1 text-[#0d2c5c]">
                           {fmtDate(d)}
                         </p>
                         <p
-                          className={`text-[10.5px] mt-1 font-medium ${
+                          className={`text-[11px] mt-1 font-semibold ${
                             isLast
-                              ? "text-red-600 font-semibold"
+                              ? "text-red-600"
                               : isFirst
-                                ? "text-[#c69a3f] font-semibold"
+                                ? "text-[#c69a3f]"
                                 : "text-[#6b7c99]"
                           }`}
                         >
@@ -644,20 +658,21 @@ function OverviewTab({
         ) : (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 py-2">
             <div>
-              <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.15em] uppercase text-[#c69a3f]">
-                <span className="w-2 h-2 rounded-full bg-[#c69a3f]"></span>
-                <span>Niciun Sejur Viitor Programat</span>
+              <div className="flex items-center gap-2 font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f]">
+                <span className="w-5 h-px bg-gradient-to-r from-transparent to-[#c69a3f]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c69a3f]"></span>
+                <span>Sejururi Casa Esy</span>
               </div>
-              <h2 className="font-['Cormorant_Garamond',serif] text-[28px] font-semibold text-[#0d2c5c] mt-2">
+              <h2 className="font-serif text-[28px] sm:text-[34px] font-medium text-[#0d2c5c] mt-2 tracking-tight">
                 Refugiul tău la Marea Neagră te așteaptă
               </h2>
-              <p className="text-[13px] text-[#6b7c99] mt-1 max-w-[560px]">
-                Descoperă camerele și suitele noastre de lux, beneficiază de ospitalitate caldă și priveliști superbe.
+              <p className="text-[13.5px] text-[#6b7c99] mt-1 max-w-[560px] leading-relaxed">
+                Descoperă camerele și suitele noastre de lux, beneficiază de ospitalitate caldă și priveliști superbe la malul mării.
               </p>
             </div>
             <Link
               to="/camere"
-              className="px-6 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13px] font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_8px_20px_rgba(13,44,92,0.18)] shrink-0"
+              className="px-6 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_8px_20px_rgba(13,44,92,0.18)] shrink-0"
             >
               <CalendarCheck size={16} className="text-[#c69a3f]" />
               <span>Explorează Camerele</span>
@@ -672,8 +687,9 @@ function OverviewTab({
         <div className="bg-white rounded-[24px] p-6 sm:p-7 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
-                Date Personale de Contact
+              <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] flex items-center gap-2">
+                <span className="w-4 h-px bg-[#c69a3f]" />
+                <span>Date Personale de Contact</span>
               </p>
               <button
                 onClick={() => goToTab("personal")}
@@ -685,27 +701,27 @@ function OverviewTab({
 
             <div className="space-y-3.5">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
+                <p className="font-sans text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99]">
                   Nume Complet
                 </p>
-                <p className="text-[14.5px] font-semibold text-[#0d2c5c] mt-0.5">
+                <p className="font-serif text-[18px] font-medium text-[#0d2c5c] mt-0.5">
                   {fullName}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
+                <p className="font-sans text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99]">
                   Email Oficial
                 </p>
-                <p className="text-[14px] text-[#0d2c5c] mt-0.5 flex items-center gap-1.5 truncate">
+                <p className="text-[14px] text-[#0d2c5c] mt-0.5 flex items-center gap-1.5 truncate font-medium">
                   <span>{user.email}</span>
                   <BadgeCheck size={14} className="text-[#c69a3f] shrink-0" />
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
+                <p className="font-sans text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99]">
                   Telefon
                 </p>
-                <p className="text-[14px] text-[#0d2c5c] mt-0.5">
+                <p className="text-[14px] text-[#0d2c5c] mt-0.5 font-medium">
                   {(user as any).phone || "Necompletat"}
                 </p>
               </div>
@@ -726,8 +742,9 @@ function OverviewTab({
         <div className="bg-white rounded-[24px] p-6 sm:p-7 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
-                Preferințe Salvate în Suită
+              <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] flex items-center gap-2">
+                <span className="w-4 h-px bg-[#c69a3f]" />
+                <span>Preferințe în Suită</span>
               </p>
               <button
                 onClick={() => goToTab("hospitality")}
@@ -752,7 +769,7 @@ function OverviewTab({
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-[12px] bg-[#f8fafd] border border-[#e1e8f0] text-[12.5px] font-medium text-[#3d4f6b]"
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-[14px] bg-[#f8fafd] border border-[#e1e8f0] text-[12.5px] font-medium text-[#0d2c5c]"
                   >
                     <Icon size={14} className="text-[#c69a3f]" />
                     <span>{p.label}</span>
@@ -763,7 +780,7 @@ function OverviewTab({
           </div>
 
           <div className="mt-5 pt-4 border-t border-[#e1e8f0] flex items-center justify-between">
-            <span className="text-[12.5px] font-medium text-[#3d4f6b]">
+            <span className="text-[12.5px] font-medium text-[#0d2c5c]">
               Notificări SMS / WhatsApp
             </span>
             <button
@@ -783,28 +800,28 @@ function OverviewTab({
       </div>
 
       {/* LOYALTY CARD (ROYAL NAVY THEME CU DETALII AURII) */}
-      <div className="rounded-[24px] bg-[#0d2c5c] p-6 sm:p-7 shadow-[0_15px_40px_rgba(13,44,92,0.18)] flex flex-col md:flex-row md:items-center justify-between gap-5 text-white">
+      <div className="rounded-[24px] bg-gradient-to-br from-[#0d2c5c] via-[#092147] to-[#071a36] p-6 sm:p-8 shadow-[0_15px_40px_rgba(13,44,92,0.18)] border border-[#c69a3f]/30 flex flex-col md:flex-row md:items-center justify-between gap-5 text-white">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-[16px] bg-[#c69a3f]/20 border border-[#c69a3f]/40 text-[#c69a3f] flex items-center justify-center shrink-0">
-            <Award size={24} />
+          <div className="w-13 h-13 rounded-[16px] bg-[#c69a3f]/20 border border-[#c69a3f]/40 text-[#c69a3f] flex items-center justify-center shrink-0">
+            <Award size={26} />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h3 className="font-['Cormorant_Garamond',serif] text-[24px] font-semibold text-white">
+              <h3 className="font-serif text-[26px] sm:text-[28px] font-medium text-white tracking-tight">
                 Nivel Gold Privilège
               </h3>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#c69a3f] text-[#0d2c5c] text-[10.5px] font-bold tracking-wider">
+              <span className="px-3 py-0.5 rounded-full bg-[#c69a3f] text-[#0d2c5c] text-[10.5px] font-bold tracking-wider uppercase font-sans">
                 CLUB EXCLUSIV
               </span>
             </div>
-            <p className="text-[12.5px] text-white/80 mt-1 max-w-[620px]">
+            <p className="text-[13px] text-white/80 mt-1 max-w-[620px] leading-relaxed">
               Fiecare noapte petrecută la Casa Esy vă aduce puncte bonus pentru upgrade garantat de cameră și experiențe VIP.
             </p>
           </div>
         </div>
         <Link
           to="/camere"
-          className="px-6 h-12 rounded-[12px] bg-[#c69a3f] hover:bg-[#b38732] text-[#0d2c5c] text-[12px] font-bold tracking-wider uppercase flex items-center justify-center shrink-0 transition-colors shadow-md"
+          className="px-6 h-12 rounded-[14px] bg-gradient-to-r from-[#c69a3f] to-[#b3862f] hover:brightness-105 text-[#071a36] text-[12px] font-bold tracking-wider uppercase flex items-center justify-center shrink-0 transition-all shadow-md font-sans"
         >
           Rezervă & Câștigă
         </Link>
@@ -892,14 +909,15 @@ function PersonalTab({
   return (
     <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] space-y-6">
       <div>
-        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
-          Date Personale
+        <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-2 flex items-center gap-2">
+          <span className="w-5 h-px bg-gradient-to-r from-transparent to-[#c69a3f]" />
+          <span>Date Personale</span>
         </p>
-        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
-          Profilul Tău
+        <h2 className="font-serif text-[28px] sm:text-[34px] font-medium tracking-tight text-[#0d2c5c]">
+          Profilul Tău la Casa Esy
         </h2>
-        <p className="text-[13px] text-[#6b7c99] mt-0.5">
-          Actualizează datele de contact și fotografia afișată pe contul tău.
+        <p className="text-[13.5px] text-[#6b7c99] mt-1 leading-relaxed">
+          Actualizează datele de contact și fotografia afișată pe contul tău de oaspete.
         </p>
       </div>
 
@@ -1052,13 +1070,14 @@ function HospitalityTab() {
   return (
     <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] space-y-6">
       <div>
-        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
-          Ospitalitate Personalizată
+        <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-2 flex items-center gap-2">
+          <span className="w-5 h-px bg-gradient-to-r from-transparent to-[#c69a3f]" />
+          <span>Ospitalitate Personalizată</span>
         </p>
-        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
+        <h2 className="font-serif text-[28px] sm:text-[34px] font-medium tracking-tight text-[#0d2c5c]">
           Preferințele Tale în Suită
         </h2>
-        <p className="text-[13px] text-[#6b7c99] mt-0.5">
+        <p className="text-[13.5px] text-[#6b7c99] mt-1 leading-relaxed">
           Selectează detaliile care asigură un sejur impecabil la fiecare vizită la Casa Esy.
         </p>
       </div>
@@ -1134,10 +1153,11 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
     <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
-            Sejururi & Documente
+          <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-2 flex items-center gap-2">
+            <span className="w-5 h-px bg-gradient-to-r from-transparent to-[#c69a3f]" />
+            <span>Sejururi & Documente</span>
           </p>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
+          <h2 className="font-serif text-[28px] sm:text-[34px] font-medium tracking-tight text-[#0d2c5c]">
             Rezervările Tale la Casa Esy
           </h2>
         </div>
@@ -1389,14 +1409,15 @@ function SecurityTab({
     <div className="space-y-6">
       {/* Schimbare Parolă */}
       <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
-        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
-          Securitate Cont
+        <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#c69a3f] mb-2 flex items-center gap-2">
+          <span className="w-5 h-px bg-gradient-to-r from-transparent to-[#c69a3f]" />
+          <span>Securitate Cont</span>
         </p>
-        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
+        <h2 className="font-serif text-[28px] sm:text-[34px] font-medium tracking-tight text-[#0d2c5c]">
           Schimbare Parolă
         </h2>
-        <p className="text-[13px] text-[#6b7c99] mt-0.5 mb-5">
-          Folosește o parolă puternică cu majuscule, litere mici, cifre și simboluri.
+        <p className="text-[13.5px] text-[#6b7c99] mt-1 mb-5 leading-relaxed">
+          Folosește o parolă puternică cu majuscule, litere mici, cifre și simboluri pentru protecția contului.
         </p>
 
         <form onSubmit={handlePasswordSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1557,14 +1578,15 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
   return (
     <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-red-200 space-y-6">
       <div>
-        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-red-600 mb-1">
-          Zonă Periculoasă
+        <p className="font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-red-600 mb-2 flex items-center gap-2">
+          <span className="w-5 h-px bg-red-400" />
+          <span>Zonă Periculoasă</span>
         </p>
-        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-red-700">
+        <h2 className="font-serif text-[28px] sm:text-[34px] font-medium tracking-tight text-red-700">
           Ștergere Cont Permanentă
         </h2>
-        <p className="text-[13px] text-[#6b7c99] mt-0.5">
-          Această acțiune este ireversibilă. Toate datele tale, rezervările și punctele de loialitate vor fi eliminate definitiv.
+        <p className="text-[13.5px] text-[#6b7c99] mt-1 leading-relaxed">
+          Această acțiune este ireversibilă. Toate datele tale, rezervările și punctele de loialitate vor fi eliminate definitiv din sistemul Casa Esy.
         </p>
       </div>
 
