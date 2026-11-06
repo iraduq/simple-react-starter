@@ -234,7 +234,7 @@ function ProfileCard({
           {[
             { to: "/camere", label: "Camere & Suite" },
             { to: "/places", label: "Gastronomie" },
-            { to: "/evenimente", label: "Evenimente" },
+            { to: "/facilitati", label: "Facilități" },
             { to: "/contact", label: "Contact" },
           ].map((l) => (
             <Link
