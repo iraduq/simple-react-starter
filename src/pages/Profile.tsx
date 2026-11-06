@@ -1629,100 +1629,36 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
   );
 }
 
-/* ─────────────────── OBIECTE MARITIME & ELEMENTE FLOTANTE PE FUNDAL ALB ─────────────────── */
+/* ─────────────────── MODERN LUXURY BACKGROUND (CLEAN & SUBTLE) ─────────────────── */
 function FloatingMaritimeBackgroundWhite() {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      {/* 1. COMPASS ROSE ROTATIV MARITIM DREAPTA-SUS (EXACT CA ÎN FEATURES PE FUNDAL ALB) */}
-      <div
-        className="absolute -top-10 -right-16 w-[560px] h-[560px] opacity-[0.045] text-[#0d2c5c]"
-        style={{ animation: "spin 180s linear infinite" }}
-      >
+      {/* 1. SOFT CONTEMPORARY RADIAL MESH */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1500px] h-[550px] bg-[radial-gradient(ellipse_75%_50%_at_50%_-10%,rgba(198,154,63,0.05),transparent_70%)]" />
+
+      {/* 2. SUBTLE ARCHITECTURAL WATERMARKS (STATIC, ELEGANT, ULTRA-LOW OPACITY) */}
+      <div className="absolute -top-12 -right-16 w-[520px] h-[520px] opacity-[0.02] text-[#0d2c5c]">
         <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="100" cy="100" r="80" stroke="currentColor" strokeWidth="2" strokeDasharray="4 6" />
-          <circle cx="100" cy="100" r="65" stroke="currentColor" strokeWidth="1" />
-          <circle cx="100" cy="100" r="50" stroke="currentColor" strokeWidth="2.5" />
+          <circle cx="100" cy="100" r="80" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 6" />
+          <circle cx="100" cy="100" r="62" stroke="currentColor" strokeWidth="1" />
+          <circle cx="100" cy="100" r="46" stroke="currentColor" strokeWidth="2" />
           <path
-            d="M100 10 L115 85 L190 100 L115 115 L100 190 L85 115 L10 100 L85 85 Z"
+            d="M100 12 L114 86 L188 100 L114 114 L100 188 L86 114 L12 100 L86 86 Z"
             fill="currentColor"
             fillOpacity="0.4"
           />
         </svg>
       </div>
 
-      {/* 2. STEA MARITIMĂ DECORATIVĂ STÂNGA-JOS (EXACT CA ÎN ABOUTSECTION PE FUNDAL ALB) */}
-      <div
-        className="absolute -bottom-28 -left-28 w-[580px] h-[580px] opacity-[0.04] text-[#c69a3f]"
-        style={{ animation: "spin 220s linear infinite reverse" }}
-      >
+      <div className="absolute -bottom-24 -left-24 w-[480px] h-[480px] opacity-[0.018] text-[#c69a3f]">
         <svg viewBox="0 0 100 100" fill="currentColor">
           <path d="M50 0 C55 20 80 45 100 50 C80 55 55 80 50 100 C45 80 20 55 0 50 C20 45 45 20 50 0 Z" />
-          <path
-            d="M50 15 C52 25 75 48 85 50 C75 52 52 75 50 85 C48 75 25 52 15 50 C25 48 48 25 50 15 Z"
-            opacity="0.5"
-          />
         </svg>
       </div>
 
-      {/* 3. AUREOLE AMBIENTALE DIFUZE FOARTE FINE (AURII & ALBASTRU MARIN) */}
-      <div className="absolute top-[22%] -left-16 w-[450px] h-[450px] rounded-full bg-[#c69a3f]/6 blur-[130px] animate-float-slow" />
-      <div className="absolute top-[52%] -right-20 w-[500px] h-[500px] rounded-full bg-[#0d2c5c]/5 blur-[140px] animate-float-reverse" />
-      <div className="absolute bottom-[10%] left-[25%] w-[420px] h-[420px] rounded-full bg-[#c69a3f]/5 blur-[120px] animate-float-slow" />
-
-      {/* 4. STELE AURII FLOTANTE & SPARKLES TRIDIMENSIONALE */}
-      {[
-        { top: "16%", left: "7%", delay: "0s", duration: "14s", size: 18 },
-        { top: "30%", right: "8%", delay: "2.5s", duration: "18s", size: 22 },
-        { top: "48%", left: "4%", delay: "4s", duration: "16s", size: 16 },
-        { top: "64%", right: "6%", delay: "1.2s", duration: "15s", size: 20 },
-        { top: "78%", left: "10%", delay: "3.5s", duration: "19s", size: 22 },
-        { top: "90%", right: "10%", delay: "5s", duration: "14s", size: 17 },
-      ].map((p, idx) => (
-        <div
-          key={idx}
-          className="absolute animate-float-slow opacity-60"
-          style={{
-            top: p.top,
-            left: (p as any).left,
-            right: (p as any).right,
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-          }}
-        >
-          <svg
-            width={p.size}
-            height={p.size}
-            viewBox="0 0 24 24"
-            fill="none"
-            className="text-[#c69a3f] animate-shimmer-particle drop-shadow-sm"
-          >
-            <path
-              d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"
-              fill="currentColor"
-            />
-          </svg>
-        </div>
-      ))}
-
-      {/* 5. PARTICULE LUMINOASE AURII CU SCLIPIRI PULSATORII */}
-      {[
-        { top: "20%", left: "22%", delay: "1s" },
-        { top: "36%", right: "26%", delay: "3s" },
-        { top: "54%", left: "16%", delay: "0.5s" },
-        { top: "70%", right: "18%", delay: "4s" },
-        { top: "84%", left: "28%", delay: "2s" },
-      ].map((d, i) => (
-        <div
-          key={`dot-${i}`}
-          className="absolute w-2 h-2 rounded-full bg-[#c69a3f]/40 animate-shimmer-particle"
-          style={{
-            top: d.top,
-            left: (d as any).left,
-            right: (d as any).right,
-            animationDelay: d.delay,
-          }}
-        />
-      ))}
+      {/* 3. SOFT AMBIENT LUXURY GLOWS (CLEAN & NON-INTRUSIVE) */}
+      <div className="absolute top-[28%] -left-20 w-[450px] h-[450px] rounded-full bg-[#c69a3f]/[0.025] blur-[140px]" />
+      <div className="absolute top-[60%] -right-20 w-[500px] h-[500px] rounded-full bg-[#0d2c5c]/[0.02] blur-[150px]" />
     </div>
   );
 }
