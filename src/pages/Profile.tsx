@@ -220,7 +220,7 @@ export default function Profile() {
     user.email.split("@")[0];
 
   return (
-    <div className="min-h-screen w-full bg-[#fbfcfd] text-[#0d2c5c] pt-20 lg:pt-24 pb-24 font-sans antialiased relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#fbfcfd] text-[#0d2c5c] font-sans antialiased relative overflow-hidden">
       {/* ── OBIECTE MARITIME & ELEMENTE FLOTANTE PE FUNDAL ALB ── */}
       <FloatingMaritimeBackgroundWhite />
 
@@ -232,67 +232,73 @@ export default function Profile() {
         className="hidden"
       />
 
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 relative z-10">
-        {/* HERO BANNER CU CLIPUL DE PE MAINPAGE & STRATURI CROMATICE BRAND */}
-        <div className="relative h-[220px] sm:h-[270px] lg:h-[310px] xl:h-[340px] w-full rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-[0_16px_45px_rgba(13,44,92,0.12)] border border-[#e1e8f0]">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className="h-full w-full object-cover saturate-60 contrast-110 brightness-95"
-          >
-            <source src="/hero-bg.mp4" type="video/mp4" />
-          </video>
-          {/* Straturi cromatice din mainpage */}
-          <div className="absolute inset-0 bg-[#0d2c5c]/60 mix-blend-color" />
-          <div className="absolute inset-0 bg-[#0b2146]/35 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/80 via-[#0d2c5c]/25 to-[#0d2c5c]/95" />
+      {/* ── 1. HERO BANNER FULL BLEED (EDGE-TO-EDGE PE TOATĂ LĂȚIMEA ECRANULUI) ── */}
+      <div className="relative w-full h-[270px] sm:h-[330px] lg:h-[380px] xl:h-[420px] overflow-hidden border-b border-[#e1e8f0] pt-16 sm:pt-20">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover saturate-60 contrast-110 brightness-95"
+        >
+          <source src="/hero-bg.mp4" type="video/mp4" />
+        </video>
+        {/* Straturi cromatice din mainpage */}
+        <div className="absolute inset-0 bg-[#0d2c5c]/60 mix-blend-color" />
+        <div className="absolute inset-0 bg-[#0b2146]/35 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/85 via-[#0d2c5c]/25 to-[#0d2c5c]/95" />
 
-          {/* Ornamente ambientale aurii pe hero */}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-16 -left-16 w-72 h-72 rounded-full bg-[#c69a3f]/25 blur-[75px]"
-          />
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-16 -right-16 w-80 h-80 rounded-full bg-[#c69a3f]/20 blur-[80px]"
-          />
+        {/* Ornamente ambientale aurii pe hero */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-16 -left-16 w-80 h-80 rounded-full bg-[#c69a3f]/25 blur-[85px]"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-16 -right-16 w-96 h-96 rounded-full bg-[#c69a3f]/20 blur-[90px]"
+        />
 
-          {/* Top Left Tag */}
-          <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0d2c5c]/70 backdrop-blur-md border border-white/20 text-white text-[12px] font-medium z-10 shadow-lg">
-            <span className="text-[#c69a3f] text-[11px] tracking-widest font-serif font-semibold">★★★</span>
-            <span className="font-sans font-semibold tracking-wide">Casa Esy • Mamaia Resort & Spa</span>
-          </div>
+        {/* Top Content inside full-width Hero */}
+        <div className="relative z-10 w-full h-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 flex flex-col justify-between pt-4 sm:pt-6 pb-24 sm:pb-28">
+          <div className="flex items-center justify-between">
+            {/* Top Left Tag */}
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0d2c5c]/70 backdrop-blur-md border border-white/20 text-white text-[12px] font-medium shadow-lg">
+              <span className="text-[#c69a3f] text-[11px] tracking-widest font-serif font-semibold">★★★</span>
+              <span className="font-sans font-semibold tracking-wide">Casa Esy • Mamaia Resort & Spa</span>
+            </div>
 
-          {/* Top Right Action Pills */}
-          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2.5 z-10">
-            <button
-              onClick={() => {
-                if (navigator.clipboard) {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast("Link-ul profilului a fost copiat!", "success");
-                }
-              }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white text-[12.5px] font-semibold transition-all shadow-md active:scale-95"
-            >
-              <Share2 size={13} className="text-[#c69a3f]" />
-              <span className="hidden sm:inline">Distribuie Profil</span>
-            </button>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploadingAvatar}
-              title="Încarcă fotografie de profil"
-              className="w-9 h-9 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all shadow-md active:scale-95 disabled:opacity-50"
-            >
-              <Camera size={14} className="text-[#c69a3f]" />
-            </button>
+            {/* Top Right Action Pills */}
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => {
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast("Link-ul profilului a fost copiat!", "success");
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white text-[12.5px] font-semibold transition-all shadow-md active:scale-95"
+              >
+                <Share2 size={13} className="text-[#c69a3f]" />
+                <span className="hidden sm:inline">Distribuie Profil</span>
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                title="Încarcă fotografie de profil"
+                className="w-9 h-9 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all shadow-md active:scale-95 disabled:opacity-50"
+              >
+                <Camera size={14} className="text-[#c69a3f]" />
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
+      {/* ── 2. CORPUL PRINCIPAL PE TOATĂ LĂȚIMEA PAGINII (FULL-WIDTH CONTAINER) ── */}
+      <div className="w-full px-3 sm:px-5 md:px-7 lg:px-9 xl:px-10 pb-20 relative z-20">
         {/* TWO-COLUMN GRID: SIDEBAR & MAIN CONTENT (PE TOATĂ LĂȚIMEA PAGINII) */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[340px_1fr] xl:grid-cols-[380px_1fr] 2xl:grid-cols-[410px_1fr] gap-6 lg:gap-8 items-start -mt-14 sm:-mt-16">
+        <div className="relative grid grid-cols-1 lg:grid-cols-[340px_1fr] xl:grid-cols-[380px_1fr] 2xl:grid-cols-[410px_1fr] gap-6 lg:gap-8 items-start -mt-20 sm:-mt-24 lg:-mt-28">
           {/* LEFT SIDEBAR */}
           <div className="flex flex-col gap-6">
             {/* User Profile Card */}
