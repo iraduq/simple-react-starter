@@ -105,54 +105,51 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen w-full max-w-full bg-[#f8fafd] pt-20 lg:pt-24 overflow-x-hidden">
-      {/* Hero band */}
-      <ProfileHero user={user} />
+      <div className="max-w-[1280px] mx-auto px-3 sm:px-6 lg:px-8 pb-20 sm:pb-24 w-full">
+        <ProfileHero />
 
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-10 -mt-16 sm:-mt-20 relative z-10 pb-20 sm:pb-24 w-full">
-        {/* Mobile Horizontal Scrollable Tab Bar */}
-        <div className="lg:hidden sticky top-16 z-30 -mx-4 px-4 mb-6 bg-[#f8fafd]/95 backdrop-blur-sm border-b border-[#e1e8f0] pt-2">
-          <div className="overflow-x-auto no-scrollbar scroll-smooth">
-            <div className="flex items-center gap-2 min-w-max pb-3">
-              {TABS.map((t) => {
-                const Icon = t.icon;
-                const active = tab === t.key;
-                const danger = t.key === "danger";
-                return (
-                  <button
-                    key={t.key}
-                    onClick={() => setTab(t.key)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold transition-all border shrink-0 ${
-                      active
-                        ? danger
-                          ? "bg-red-50 text-red-700 border-red-200 shadow-sm"
-                          : "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
-                        : danger
-                          ? "bg-white text-red-600 border-red-200"
-                          : "bg-white text-[#3d4f6b] border-[#e1e8f0]"
-                    }`}
-                  >
-                    <Icon size={14} />
-                    <span>{t.label}</span>
-                  </button>
-                );
-              })}
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 lg:gap-8 items-start -mt-20 sm:-mt-24 px-2 sm:px-4 lg:px-5">
+          <ProfileCard user={user} onLogout={handleLogout} />
+
+          <div className="min-w-0 flex flex-col gap-6">
+            {/* Tab bar */}
+            <div className="bg-white/95 backdrop-blur-md border border-[#e1e8f0] rounded-[18px] p-1.5 shadow-[0_10px_40px_rgba(13,44,92,0.10)] overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-1 min-w-max">
+                {TABS.map((t) => {
+                  const Icon = t.icon;
+                  const active = tab === t.key;
+                  const danger = t.key === "danger";
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setTab(t.key)}
+                      className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-[12px] text-[13.5px] font-semibold transition-colors shrink-0 ${
+                        active
+                          ? danger
+                            ? "bg-red-50 text-red-700"
+                            : "bg-[#eaf1fb] text-[#0d2c5c]"
+                          : danger
+                            ? "text-red-600 hover:bg-red-50/60"
+                            : "text-[#3d4f6b] hover:text-[#0d2c5c] hover:bg-[#f4f7fb]"
+                      }`}
+                    >
+                      <Icon size={15} strokeWidth={1.8} />
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 lg:gap-8 items-start w-full">
-          <div className="hidden lg:block">
-            <SideNav tab={tab} setTab={setTab} onLogout={handleLogout} />
+            <section className="min-w-0 bg-white border border-[#e1e8f0] rounded-[22px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
+              {tab === "personal" && (
+                <PersonalTab user={user} setUser={setUser} />
+              )}
+              {tab === "security" && <SecurityTab user={user} />}
+              {tab === "reservations" && <ReservationsTab />}
+              {tab === "danger" && <DangerTab onDeleted={handleLogout} />}
+            </section>
           </div>
-
-          <section className="min-w-0 bg-white border border-[#e1e8f0] rounded-[20px] sm:rounded-[22px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
-            {tab === "personal" && (
-              <PersonalTab user={user} setUser={setUser} />
-            )}
-            {tab === "security" && <SecurityTab user={user} />}
-            {tab === "reservations" && <ReservationsTab />}
-            {tab === "danger" && <DangerTab onDeleted={handleLogout} />}
-          </section>
         </div>
       </div>
     </div>
@@ -160,120 +157,95 @@ export default function Profile() {
 }
 
 /* ─────────────────── HERO ─────────────────── */
-function ProfileHero({ user }: { user: NonNullable<SessionUser> }) {
-  const fullName =
-    [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-    user.email.split("@")[0];
-  const initials = getInitials(fullName);
-
+function ProfileHero() {
   return (
     <div
-      className="relative h-[220px] sm:h-[260px] w-full bg-cover bg-center"
+      className="relative h-[220px] sm:h-[300px] lg:h-[340px] w-full rounded-[24px] sm:rounded-[32px] bg-cover bg-center overflow-hidden shadow-[0_20px_50px_rgba(13,44,92,0.18)]"
       style={{
         backgroundImage:
-          "linear-gradient(180deg, rgba(13,44,92,0.65) 0%, rgba(13,44,92,0.85) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=400&fit=crop)",
+          "linear-gradient(180deg, rgba(13,44,92,0.05) 0%, rgba(13,44,92,0.35) 100%), url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=700&fit=crop)",
       }}
     >
-      <div className="max-w-[1240px] mx-auto h-full px-4 sm:px-6 lg:px-10 flex items-end pb-20 sm:pb-24">
-        <div className="flex items-center gap-4 sm:gap-5 text-white min-w-0 w-full">
-          <div className="w-[76px] h-[76px] sm:w-[92px] sm:h-[92px] rounded-full bg-[#0d2c5c] border-[3px] border-[#c69a3f] shadow-[0_8px_24px_rgba(13,44,92,0.3)] flex items-center justify-center font-['Cormorant_Garamond',serif] text-[28px] sm:text-[34px] font-semibold text-white shrink-0">
-            {initials}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] sm:text-[10.5px] font-bold tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#c69a3f] mb-1">
-              Contul meu
-            </p>
-            <h1 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[36px] leading-tight font-medium truncate">
-              {fullName}
-            </h1>
-            <p className="text-[12px] sm:text-[13px] text-white/80 mt-0.5 truncate">
-              {user.email}
-            </p>
-          </div>
-        </div>
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[12px] font-semibold">
+        <MapPin size={13} /> Casa Esy · Mamaia
       </div>
     </div>
   );
 }
 
-/* ─────────────────── SIDE NAV ─────────────────── */
-function SideNav({
-  tab,
-  setTab,
+/* ─────────────────── PROFILE CARD ─────────────────── */
+function ProfileCard({
+  user,
   onLogout,
 }: {
-  tab: TabKey;
-  setTab: (t: TabKey) => void;
+  user: NonNullable<SessionUser>;
   onLogout: () => void;
 }) {
+  const fullName =
+    [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+    user.email.split("@")[0];
   return (
-    <aside className="bg-white border border-[#e1e8f0] rounded-[22px] p-3.5 h-fit shadow-[0_10px_40px_rgba(13,44,92,0.06)] sticky top-24">
-      <nav className="flex flex-col gap-1.5">
-        {TABS.map((t) => {
-          const Icon = t.icon;
-          const active = tab === t.key;
-          const danger = t.key === "danger";
-          return (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`group flex items-center gap-3 px-3.5 py-3 rounded-[14px] text-left transition-all duration-200 ${
-                active
-                  ? danger
-                    ? "bg-red-50 text-red-700 border border-red-200"
-                    : "bg-[#0d2c5c] text-white shadow-[0_4px_14px_rgba(13,44,92,0.2)]"
-                  : danger
-                    ? "text-red-600 hover:bg-red-50/60"
-                    : "text-[#3d4f6b] hover:bg-[#f8fafd] hover:text-[#0d2c5c]"
-              }`}
-            >
-              <span
-                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  active
-                    ? danger
-                      ? "bg-red-100 text-red-700"
-                      : "bg-[#c69a3f]/20 text-[#c69a3f]"
-                    : danger
-                      ? "bg-red-50 text-red-500"
-                      : "bg-[#f8fafd] text-[#0d2c5c]"
-                }`}
-              >
-                <Icon size={16} strokeWidth={1.75} />
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13.5px] font-semibold leading-tight">
-                  {t.label}
-                </p>
-                <p
-                  className={`text-[11px] mt-0.5 truncate ${
-                    active
-                      ? danger
-                        ? "text-red-500"
-                        : "text-[#c69a3f]"
-                      : "text-[#6b7c99]"
-                  }`}
-                >
-                  {t.hint}
-                </p>
-              </div>
-              <ChevronRight
-                size={14}
-                className={`opacity-40 transition-transform duration-200 group-hover:translate-x-0.5 shrink-0 ${
-                  active ? "opacity-80" : ""
-                }`}
-              />
-            </button>
-          );
-        })}
-      </nav>
+    <aside className="bg-white border border-[#e1e8f0] rounded-[24px] p-6 sm:p-7 shadow-[0_20px_50px_rgba(13,44,92,0.10)] lg:sticky lg:top-24">
+      <div className="flex flex-col items-center text-center">
+        <div className="relative">
+          <div className="w-[112px] h-[112px] sm:w-[128px] sm:h-[128px] rounded-[26px] p-[3px] bg-gradient-to-br from-[#0d2c5c] via-[#2563a8] to-[#7fb3e8] shadow-[0_12px_30px_rgba(13,44,92,0.25)]">
+            <div className="w-full h-full rounded-[23px] bg-[#0d2c5c] flex items-center justify-center font-['Cormorant_Garamond',serif] text-[40px] sm:text-[46px] font-semibold text-white">
+              {getInitials(fullName)}
+            </div>
+          </div>
+          <span className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md">
+            <span className="w-6 h-6 rounded-full bg-[#2563a8] text-white flex items-center justify-center">
+              <Check size={13} strokeWidth={3} />
+            </span>
+          </span>
+        </div>
+        <h1 className="mt-5 font-['Cormorant_Garamond',serif] text-[28px] font-semibold text-[#0d2c5c] leading-tight break-words max-w-full">
+          {fullName}
+        </h1>
+        <p className="text-[13.5px] text-[#3d4f6b] mt-1">Oaspete · Casa Esy</p>
+        <p className="text-[12px] text-[#6b7c99] mt-1 flex items-center gap-1.5 max-w-full">
+          <Mail size={12} className="shrink-0" />
+          <span className="truncate">{user.email}</span>
+        </p>
+      </div>
 
-      <div className="mt-4 pt-3.5 border-t border-[#e1e8f0]">
+      <div className="mt-6 flex items-center gap-3">
         <button
           onClick={onLogout}
-          className="flex items-center gap-2.5 w-full px-3.5 py-3 rounded-[14px] text-[13px] font-semibold text-[#3d4f6b] hover:bg-red-50 hover:text-red-700 transition-colors"
+          title="Deloghează-te"
+          aria-label="Deloghează-te"
+          className="w-12 h-12 shrink-0 rounded-[14px] bg-[#f4f7fb] border border-[#e1e8f0] text-[#3d4f6b] flex items-center justify-center hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors"
         >
-          <LogOut size={15} /> Deloghează-te
+          <LogOut size={17} />
         </button>
+        <Link
+          to="/camere"
+          className="flex-1 h-12 rounded-[14px] bg-gradient-to-r from-[#0d2c5c] to-[#2563a8] text-white text-[14px] font-semibold flex items-center justify-center gap-2 shadow-[0_10px_24px_rgba(37,99,168,0.3)] hover:shadow-[0_12px_28px_rgba(37,99,168,0.4)] transition-shadow"
+        >
+          <CalendarCheck size={16} /> Rezervă sejur nou
+        </Link>
+      </div>
+
+      <div className="mt-6 pt-5 border-t border-[#e1e8f0]">
+        <p className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#6b7c99] mb-3">
+          Acces rapid
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { to: "/camere", label: "Camere & Suite" },
+            { to: "/places", label: "Gastronomie" },
+            { to: "/facilitati", label: "Facilități" },
+            { to: "/contact", label: "Contact" },
+          ].map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className="px-3.5 py-1.5 rounded-full border border-[#e1e8f0] text-[12.5px] text-[#3d4f6b] hover:border-[#2563a8] hover:text-[#0d2c5c] transition-colors"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
       </div>
     </aside>
   );
