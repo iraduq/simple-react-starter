@@ -24,7 +24,7 @@ import {
   ExternalLink,
   Mailbox,
   Lock,
-  Copy, FileText,
+  Copy, FileText, Waves, Download, SlidersHorizontal, Award, MessageSquare, BadgeCheck, RefreshCcw, Share2,
 } from "lucide-react";
 import {
   clearSession,
@@ -38,7 +38,7 @@ import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
 import { downloadBookingInvoicePdf } from "../lib/admin";
 
-type TabKey = "personal" | "security" | "reservations" | "danger";
+type TabKey = "overview" | "personal" | "security" | "reservations" | "danger";
 
 const TABS: {
   key: TabKey;
@@ -46,16 +46,17 @@ const TABS: {
   hint: string;
   icon: typeof UserIcon;
 }[] = [
-  { key: "personal", label: "Profil", hint: "Date personale", icon: UserIcon },
+  { key: "overview", label: "Overview & Sejur", hint: "Sejurul următor", icon: Waves },
+  { key: "personal", label: "Date personale", hint: "Date personale", icon: UserIcon },
   {
     key: "security",
-    label: "Securitate",
+    label: "Securitate & Date",
     hint: "Parolă & sesiuni",
     icon: Shield,
   },
   {
     key: "reservations",
-    label: "Rezervări",
+    label: "Istoric & Facturare",
     hint: "Istoric & viitoare",
     icon: CalendarCheck,
   },
@@ -71,7 +72,11 @@ export default function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState<SessionUser>(getCachedUser());
   const [loading, setLoading] = useState(!user);
-  const [tab, setTab] = useState<TabKey>("personal");
+  const [tab, setTab] = useState<TabKey>("overview")
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  useEffect(() => {
+    apiFetch<Booking[]>("/bookings/my-bookings").then((d) => setBookings(Array.isArray(d) ? d : [])).catch(() => {});
+  }, []);;
 
   useEffect(() => {
     let active = true;
@@ -109,7 +114,7 @@ export default function Profile() {
         <ProfileHero />
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 lg:gap-8 items-start -mt-20 sm:-mt-24 px-2 sm:px-4 lg:px-5">
-          <ProfileCard user={user} onLogout={handleLogout} />
+          <div className="flex flex-col gap-6"><ProfileCard user={user} bookings={bookings} onLogout={handleLogout} /><ButlerCard /></div>
 
           <div className="min-w-0 flex flex-col gap-6">
             {/* Tab bar */}
@@ -138,17 +143,19 @@ export default function Profile() {
                     </button>
                   );
                 })}
+                <span className="hidden xl:block pl-3 pr-2 text-[11px] leading-tight text-[#6b7c99]">Actualizat<br />astăzi</span>
               </div>
             </div>
 
-            <section className="min-w-0 bg-white border border-[#e1e8f0] rounded-[22px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
+            {tab === "overview" && <OverviewTab user={user} bookings={bookings} goTo={setTab} />}
+            {tab !== "overview" && <section className="min-w-0 bg-white border border-[#e1e8f0] rounded-[22px] shadow-[0_10px_40px_rgba(13,44,92,0.06)] overflow-hidden">
               {tab === "personal" && (
                 <PersonalTab user={user} setUser={setUser} />
               )}
               {tab === "security" && <SecurityTab user={user} />}
               {tab === "reservations" && <ReservationsTab />}
               {tab === "danger" && <DangerTab onDeleted={handleLogout} />}
-            </section>
+            </section>}
           </div>
         </div>
       </div>
@@ -176,9 +183,11 @@ function ProfileHero() {
 /* ─────────────────── PROFILE CARD ─────────────────── */
 function ProfileCard({
   user,
+  bookings,
   onLogout,
 }: {
   user: NonNullable<SessionUser>;
+  bookings: Booking[];
   onLogout: () => void;
 }) {
   const fullName =
@@ -228,24 +237,30 @@ function ProfileCard({
 
       <div className="mt-6 pt-5 border-t border-[#e1e8f0]">
         <p className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#6b7c99] mb-3">
-          Acces rapid
+          Beneficii incluse:
         </p>
         <div className="flex flex-wrap gap-2">
-          {[
-            { to: "/camere", label: "Camere & Suite" },
-            { to: "/places", label: "Gastronomie" },
-            { to: "/facilitati", label: "Facilități" },
-            { to: "/contact", label: "Contact" },
-          ].map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="px-3.5 py-1.5 rounded-full border border-[#e1e8f0] text-[12.5px] text-[#3d4f6b] hover:border-[#2563a8] hover:text-[#0d2c5c] transition-colors"
-            >
-              {l.label}
-            </Link>
+          {["Check-in devreme 11:00", "Șezlong VIP plajă", "Room service", "Acces facilități", "Parcare privată"].map((l) => (
+            <span key={l} className="px-3 py-1.5 rounded-full border border-[#e1e8f0] text-[12px] text-[#3d4f6b]">{l}</span>
           ))}
         </div>
+      </div>
+      <div className="mt-6 pt-5 border-t border-[#e1e8f0] grid grid-cols-3 text-center">
+        {(() => {
+          const done = bookings.filter((b) => b.status !== "cancelled");
+          const nightsTotal = done.reduce((n, b) => n + Math.max(0, Math.round((+new Date(b.check_out) - +new Date(b.check_in)) / 864e5)), 0);
+          const items = [
+            { v: String(done.length), l: "Sejururi", accent: false },
+            { v: String(nightsTotal), l: "Nopți", accent: true },
+            { v: done.length >= 3 ? "Gold" : "Silver", l: "Statut", accent: false },
+          ];
+          return items.map((it, i) => (
+            <div key={it.l} className={i === 1 ? "border-x border-[#e1e8f0]" : ""}>
+              <p className={`text-[20px] font-bold ${it.accent ? "text-[#2563a8]" : "text-[#0d2c5c]"}`}>{it.v}</p>
+              <p className="text-[11px] text-[#6b7c99] mt-0.5">{it.l}</p>
+            </div>
+          ));
+        })()}
       </div>
     </aside>
   );
@@ -1422,4 +1437,202 @@ function getInitials(name: string) {
   const first = parts[0]?.[0] || "";
   const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
   return (first + last).toUpperCase() || "?";
+}
+
+/* ─────────────────── BUTLER CARD ─────────────────── */
+function ButlerCard() {
+  return (
+    <div className="bg-white border border-[#e1e8f0] rounded-[24px] p-6 shadow-[0_10px_40px_rgba(13,44,92,0.06)]">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">Concierge dedicat</p>
+        <span className="px-2.5 py-0.5 rounded-full bg-[#eaf1fb] text-[#2563a8] text-[11px] font-semibold">Activ</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="relative w-12 h-12 rounded-full bg-[#0d2c5c] text-white flex items-center justify-center font-semibold shrink-0">
+          CE
+          <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-[#0d2c5c]">Recepția Casa Esy</p>
+          <p className="text-[12px] text-[#6b7c99]">Concierge · Serviciu 24/7</p>
+        </div>
+        <Link to="/contact" aria-label="Contact" className="w-10 h-10 rounded-[12px] bg-[#f4f7fb] text-[#0d2c5c] flex items-center justify-center hover:bg-[#eaf1fb]">
+          <MessageSquare size={16} />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────── OVERVIEW TAB ─────────────────── */
+const PREFS = ["Pernă hipoalergenică", "Etaj superior", "Fără lactoză", "Temperatură cameră 21.5°C", "Vin spumant la sosire", "Pat matrimonial"];
+const DAY_ACT = ["Check-in VIP", "Plajă", "Restaurant", "Relaxare", "Spa", "Cină"];
+
+function OverviewTab({ user, bookings, goTo }: { user: NonNullable<SessionUser>; bookings: Booking[]; goTo: (t: TabKey) => void }) {
+  const [prefs, setPrefs] = useState<string[]>(() => JSON.parse(localStorage.getItem("esy_prefs") || '["Etaj superior","Temperatură cameră 21.5°C"]'));
+  const [sms, setSms] = useState(() => localStorage.getItem("esy_sms") !== "0");
+  const toast = useToast();
+  const togglePref = (p: string) => setPrefs((cur) => cur.includes(p) ? cur.filter((x) => x !== p) : [...cur, p]);
+  const save = () => {
+    localStorage.setItem("esy_prefs", JSON.stringify(prefs));
+    localStorage.setItem("esy_sms", sms ? "1" : "0");
+    (toast as any)?.success?.("Setările profilului au fost salvate") ?? (toast as any)?.show?.("Setările profilului au fost salvate");
+  };
+  const next = useMemo(() => bookings
+    .filter((b) => b.status !== "cancelled" && b.status !== "completed" && new Date(b.check_out) >= new Date())
+    .sort((a, b) => +new Date(a.check_in) - +new Date(b.check_in))[0], [bookings]);
+  const days = useMemo(() => {
+    if (!next) return [];
+    const out: Date[] = [];
+    const d = new Date(next.check_in); const end = new Date(next.check_out);
+    while (d <= end && out.length < 7) { out.push(new Date(d)); d.setDate(d.getDate() + 1); }
+    return out;
+  }, [next]);
+  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email.split("@")[0];
+  const nightsTotal = bookings.filter((b) => b.status !== "cancelled").reduce((n, b) => n + Math.max(0, Math.round((+new Date(b.check_out) - +new Date(b.check_in)) / 864e5)), 0);
+  const points = nightsTotal * 150; const goal = 3500;
+  const card = "bg-white border border-[#e1e8f0] rounded-[24px] shadow-[0_10px_40px_rgba(13,44,92,0.06)]";
+  const eyebrow = "text-[11px] font-bold tracking-[0.15em] uppercase text-[#6b7c99]";
+  const wd = (d: Date) => d.toLocaleDateString("ro-RO", { weekday: "short" }).replace(".", "").toUpperCase();
+  const dm = (d: Date) => d.toLocaleDateString("ro-RO", { day: "numeric", month: "short" }).replace(".", "");
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Next stay */}
+      <div className={`${card} p-6 sm:p-8`}>
+        {next ? (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="flex items-center gap-2 text-[11.5px] font-bold tracking-[0.12em] uppercase text-[#2563a8]">
+                <span className="w-2 h-2 rounded-full bg-[#2563a8]" /> Următorul sejur {next.status === "confirmed" ? "confirmat" : "în așteptare"}
+                {next.booking_code && <span className="font-normal normal-case tracking-normal text-[#6b7c99]">· Rezervare #{next.booking_code}</span>}
+              </p>
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eaf1fb] text-[#0d2c5c] text-[12px] font-medium">
+                <BadgeCheck size={13} /> {next.payment_status === "paid" ? "Achitat integral" : "Plată la sosire"}
+              </span>
+            </div>
+            <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="min-w-0">
+                <h2 className="text-[28px] sm:text-[32px] font-bold text-[#0d2c5c] leading-tight">{next.room?.title || "Cameră Casa Esy"}</h2>
+                <p className="mt-1.5 flex items-center gap-2 text-[13.5px] text-[#3d4f6b]">
+                  <Waves size={15} className="text-[#2563a8] shrink-0" />
+                  Mamaia · {Math.max(1, days.length - 1)} nopți{next.unit_number ? ` · Unitatea ${next.unit_number}` : ""}
+                </p>
+              </div>
+              <div className="flex gap-3 shrink-0">
+                <button onClick={() => downloadBookingInvoicePdf(next.id).catch(() => {})} className="px-5 h-12 rounded-[12px] border border-[#e1e8f0] text-[13px] font-medium text-[#0d2c5c] flex items-center gap-2 hover:border-[#2563a8]">
+                  <Download size={15} /> Descarcă voucher
+                </button>
+                <button onClick={() => goTo("reservations")} className="px-5 h-12 rounded-[12px] bg-[#0d2c5c] text-white text-[13px] font-semibold flex items-center gap-2 hover:bg-[#123a75]">
+                  <SlidersHorizontal size={15} /> Detalii rezervare
+                </button>
+              </div>
+            </div>
+            <div className="mt-7 pt-6 border-t border-[#e1e8f0]">
+              <div className="flex items-center justify-between mb-4">
+                <p className={eyebrow}>Zilele sejurului dumneavoastră</p>
+                <Link to="/facilitati" className="text-[12.5px] font-medium text-[#2563a8] hover:underline">Program activități</Link>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                {days.slice(0, 6).map((d, i, arr) => {
+                  const first = i === 0; const last = i === arr.length - 1 && arr.length > 1;
+                  return (
+                    <div key={i} className={`rounded-[16px] border p-3 text-center ${first ? "border-[#9cc0ea] bg-[#f2f7fd]" : "border-[#e1e8f0] bg-[#fbfcfe]"}`}>
+                      <p className="text-[11px] font-semibold text-[#6b7c99]">{wd(d)}</p>
+                      <p className="text-[19px] font-bold text-[#0d2c5c] mt-1">{dm(d)}</p>
+                      {last ? (
+                        <span className="inline-block mt-1.5 px-2 py-0.5 rounded-[8px] bg-red-50 text-red-600 text-[10.5px]">Check-out</span>
+                      ) : (
+                        <p className={`text-[10.5px] mt-1.5 ${first ? "text-[#0d2c5c] font-medium" : "text-[#6b7c99]"}`}>{DAY_ACT[i] || "Relaxare"}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div>
+              <p className="flex items-center gap-2 text-[11.5px] font-bold tracking-[0.12em] uppercase text-[#2563a8]"><span className="w-2 h-2 rounded-full bg-[#2563a8]" /> Niciun sejur programat</p>
+              <h2 className="mt-3 text-[26px] font-bold text-[#0d2c5c]">Marea vă așteaptă</h2>
+              <p className="text-[13.5px] text-[#3d4f6b] mt-1">Rezervați următoarea vacanță la Casa Esy, Mamaia.</p>
+            </div>
+            <Link to="/camere" className="px-6 h-12 rounded-[12px] bg-[#0d2c5c] text-white text-[13px] font-semibold flex items-center justify-center">Vezi camerele</Link>
+          </div>
+        )}
+      </div>
+
+      {/* Contact + prefs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`${card} p-6 flex flex-col`}>
+          <div className="flex items-center justify-between mb-5">
+            <p className={eyebrow}>Date personale de contact</p>
+            <button onClick={() => goTo("personal")} className="text-[13px] font-medium text-[#2563a8] hover:underline">Editează</button>
+          </div>
+          {[
+            ["Nume complet", fullName],
+            ["Email", user.email],
+            ["Telefon", (user as any).phone || "—"],
+          ].map(([l, v]) => (
+            <div key={l} className="mb-4">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[#6b7c99]">{l}</p>
+              <p className="text-[14.5px] text-[#0d2c5c] mt-1 break-all flex items-center gap-1.5">{v}{l === "Email" && <BadgeCheck size={13} className="text-[#2563a8]" />}</p>
+            </div>
+          ))}
+          <div className="mt-auto pt-4 border-t border-[#e1e8f0] flex justify-between text-[12.5px]">
+            <span className="text-[#6b7c99]">Limba de comunicare: <b className="text-[#0d2c5c] font-semibold">Română</b></span>
+            <span className="text-[#2563a8]">✓ Date verificate</span>
+          </div>
+        </div>
+        <div className={`${card} p-6 flex flex-col`}>
+          <div className="flex items-center justify-between mb-3">
+            <p className={eyebrow}>Preferințe salvate în cameră</p>
+            <span className="text-[13px] font-medium text-[#2563a8]">Configurează</span>
+          </div>
+          <p className="text-[13px] text-[#3d4f6b] mb-4">Setările favorite sunt aplicate automat la sosirea în orice cameră Casa Esy.</p>
+          <div className="flex flex-col items-start gap-2">
+            {PREFS.map((p) => {
+              const on = prefs.includes(p);
+              return (
+                <button key={p} onClick={() => togglePref(p)} className={`px-3.5 py-1.5 rounded-[10px] border text-[12.5px] transition-colors flex items-center gap-1.5 ${on ? "border-[#9cc0ea] bg-[#f2f7fd] text-[#0d2c5c]" : "border-[#e1e8f0] text-[#6b7c99] hover:border-[#9cc0ea]"}`}>
+                  {on && <Check size={12} />}{p}
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-auto pt-4 border-t border-[#e1e8f0] flex items-center justify-between mt-5">
+            <span className="text-[12.5px] text-[#3d4f6b]">Notificări SMS / WhatsApp</span>
+            <button onClick={() => setSms((v) => !v)} aria-pressed={sms} className={`w-11 h-6 rounded-full p-0.5 transition-colors ${sms ? "bg-[#2563a8]" : "bg-[#d5dde8]"}`}>
+              <span className={`block w-5 h-5 rounded-full bg-white shadow transition-transform ${sms ? "translate-x-5" : ""}`} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Loyalty */}
+      <div className="rounded-[24px] bg-[#0d2c5c] p-6 sm:p-7 flex flex-col md:flex-row md:items-center gap-5 shadow-[0_20px_50px_rgba(13,44,92,0.25)]">
+        <div className="w-12 h-12 rounded-[14px] bg-white/10 border border-white/15 text-[#9cc0ea] flex items-center justify-center shrink-0"><Award size={22} /></div>
+        <div className="flex-1 min-w-0">
+          <p className="flex flex-wrap items-center gap-2 text-white text-[19px] font-bold">
+            Nivel {points >= goal ? "Gold" : "Silver"} Casa Esy
+            <span className="px-2 py-0.5 rounded-md bg-[#2563a8] text-[10.5px] tracking-[0.1em] font-bold">{points.toLocaleString("ro-RO")} / {goal.toLocaleString("ro-RO")} PUNCTE</span>
+          </p>
+          <p className="text-[12.5px] text-white/75 mt-1">
+            {points >= goal ? "Ați atins nivelul maxim — beneficiile Gold sunt active." : <>Mai aveți nevoie de {(goal - points).toLocaleString("ro-RO")} puncte pentru <b className="text-white">nivelul Gold</b> (150 puncte / noapte).</>}
+          </p>
+        </div>
+        <Link to="/camere" className="px-6 h-11 rounded-[12px] bg-[#2563a8] text-white text-[12.5px] font-bold tracking-[0.1em] uppercase flex items-center justify-center hover:bg-[#2f72bd]">Rezervă & câștigă</Link>
+      </div>
+
+      {/* Save bar */}
+      <div className={`${card} px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3`}>
+        <p className="flex items-center gap-2 text-[12.5px] text-[#3d4f6b]"><RefreshCcw size={13} className="text-[#2563a8]" /> Modificările sunt sincronizate cu recepția.</p>
+        <div className="flex items-center gap-5">
+          <button onClick={() => goTo("danger")} className="text-[12.5px] text-[#6b7c99] hover:text-[#0d2c5c]">Date GDPR</button>
+          <button onClick={save} className="px-5 h-11 rounded-[12px] bg-[#0d2c5c] text-white text-[13px] font-semibold hover:bg-[#123a75]">Salvare setări profil</button>
+        </div>
+      </div>
+    </div>
+  );
 }
