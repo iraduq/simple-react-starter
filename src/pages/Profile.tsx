@@ -8,6 +8,7 @@ import {
   TriangleAlert,
   Mail,
   Phone,
+  Save,
   LogOut,
   Check,
   Trash2,
@@ -25,7 +26,6 @@ import {
   Share2,
   Camera,
   Calendar,
-  Sparkles,
   BedDouble,
   Building,
   Utensils,
@@ -33,8 +33,10 @@ import {
   Wine,
   Bell,
   X,
-  FileDown,
-  CheckCircle2,
+  FileText,
+  Copy,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import {
   clearSession,
@@ -48,7 +50,7 @@ import { apiFetch } from "../lib/api";
 import { useToast } from "../components/Toast";
 import { downloadBookingInvoicePdf } from "../lib/admin";
 
-type TabKey = "overview" | "hospitality" | "security" | "history";
+type TabKey = "overview" | "personal" | "hospitality" | "reservations" | "security" | "danger";
 
 type Booking = {
   id: string;
@@ -65,14 +67,31 @@ type Booking = {
   self_checkin_completed_at?: string | null;
 };
 
+type SessionItem = {
+  id: string;
+  browser_family?: string;
+  browser_version?: string;
+  os_family?: string;
+  os_version?: string;
+  device_type?: string;
+  country_code?: string;
+  city?: string;
+  ip_address?: string;
+  created_at?: string;
+  is_current?: boolean;
+};
+
 const TABS: {
   key: TabKey;
   label: string;
+  icon: typeof UserIcon;
 }[] = [
-  { key: "overview", label: "Overview & Sejur" },
-  { key: "hospitality", label: "Preferințe Ospitalitate" },
-  { key: "security", label: "Securitate & Date" },
-  { key: "history", label: "Istoric & Facturare" },
+  { key: "overview", label: "Overview & Sejur", icon: CalendarCheck },
+  { key: "personal", label: "Date Personale", icon: UserIcon },
+  { key: "hospitality", label: "Preferințe Suită", icon: Sparkles },
+  { key: "reservations", label: "Istoric & Facturi", icon: FileText },
+  { key: "security", label: "Securitate & Sesiuni", icon: Shield },
+  { key: "danger", label: "Zonă Periculoasă", icon: TriangleAlert },
 ];
 
 export default function Profile() {
@@ -81,7 +100,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(!user);
   const [tab, setTab] = useState<TabKey>("overview");
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [isEditContactOpen, setIsEditContactOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const { toast } = useToast();
@@ -89,7 +107,7 @@ export default function Profile() {
   useEffect(() => {
     apiFetch<Booking[]>("/bookings/my-bookings")
       .then((d) => setBookings(Array.isArray(d) ? d : []))
-      .catch(() => {});
+      .catch(() => setBookings([]));
   }, []);
 
   useEffect(() => {
@@ -136,7 +154,7 @@ export default function Profile() {
       setUser((prev) => (prev ? { ...prev, avatar_url: res.avatar_url } : prev));
       await fetchSession(true);
       notifySessionChange();
-      toast("Fotografia de profil a fost actualizată!", "success");
+      toast("Fotografia de profil a fost actualizată cu succes!", "success");
     } catch (err: any) {
       toast(err?.message || "Eroare la încărcarea fotografiei.", "error");
     } finally {
@@ -162,17 +180,18 @@ export default function Profile() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center text-[#64748b] text-[12px] font-bold tracking-[0.2em] uppercase pt-32">
+      <div className="min-h-[70vh] flex items-center justify-center text-[#6b7c99] text-[11px] font-bold tracking-[0.2em] uppercase pt-32">
         Se încarcă profilul…
       </div>
     );
   }
 
   const fullName =
-    [user.first_name, user.last_name].filter(Boolean).join(" ") || "Radu Ivan";
+    [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+    user.email.split("@")[0];
 
   return (
-    <div className="min-h-screen w-full bg-[#f1f5f9] pt-16 lg:pt-20 pb-20 font-sans text-[#0f172a] antialiased">
+    <div className="min-h-screen w-full bg-[#f8fafd] pt-20 lg:pt-24 pb-20 font-sans text-[#0d2c5c] antialiased">
       <input
         ref={fileInputRef}
         type="file"
@@ -181,57 +200,61 @@ export default function Profile() {
         className="hidden"
       />
 
-      <div className="max-w-[1360px] mx-auto px-3 sm:px-6 lg:px-8">
-        {/* HERO BANNER */}
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* HERO BANNER (NO OVERLAPPING BOTTOM TEXT) */}
         <div
-          className="relative h-[250px] sm:h-[320px] lg:h-[360px] w-full rounded-[24px] sm:rounded-[32px] bg-cover bg-center overflow-hidden shadow-lg border border-slate-200/60"
+          className="relative h-[190px] sm:h-[230px] lg:h-[260px] w-full rounded-[24px] sm:rounded-[30px] bg-cover bg-center overflow-hidden shadow-[0_12px_40px_rgba(13,44,92,0.12)] border border-[#e1e8f0]"
           style={{
             backgroundImage:
-              "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.65) 100%), url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80)",
+              "linear-gradient(180deg, rgba(13,44,92,0.45) 0%, rgba(13,44,92,0.75) 100%), url(https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=2000&q=80)",
           }}
         >
+          {/* Top Left Tag */}
+          <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[12px] font-semibold">
+            <MapPin size={13} className="text-[#c69a3f]" />
+            <span>Casa Esy • Mamaia Resort</span>
+          </div>
+
           {/* Top Right Action Pills */}
-          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2.5 z-10">
+          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2">
             <button
               onClick={() => {
                 if (navigator.clipboard) {
                   navigator.clipboard.writeText(window.location.href);
-                  toast("Link-ul profilului a fost copiat în clipboard!", "success");
+                  toast("Link-ul profilului a fost copiat!", "success");
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white text-[12px] sm:text-[13px] font-semibold transition-all shadow-sm active:scale-95"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white text-[12px] font-semibold transition-all active:scale-95"
             >
-              <Share2 size={14} />
-              <span>Distribuie Profil</span>
+              <Share2 size={13} />
+              <span className="hidden sm:inline">Distribuie</span>
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
-              title="Schimbă poza de profil / fundal"
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white flex items-center justify-center transition-all shadow-sm active:scale-95 disabled:opacity-50"
+              title="Încarcă fotografie de profil"
+              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white flex items-center justify-center transition-all active:scale-95 disabled:opacity-50"
             >
-              <Camera size={16} />
+              <Camera size={14} />
             </button>
-          </div>
-
-          {/* Bottom Right Resort Tag */}
-          <div className="absolute bottom-5 sm:bottom-7 right-6 sm:right-8 hidden md:flex items-center gap-2 text-white/95 text-[12.5px] font-medium drop-shadow-md">
-            <span className="w-2 h-2 rounded-full bg-[#00c9a7] animate-pulse"></span>
-            <span>Casa Esy Mamaia • Vedere Directă la Marea Neagră</span>
           </div>
         </div>
 
-        {/* TWO-COLUMN GRID (OVERLAPPING HERO) */}
-        <div className="relative z-20 grid grid-cols-1 lg:grid-cols-[330px_1fr] xl:grid-cols-[350px_1fr] gap-6 sm:gap-8 items-start -mt-20 sm:-mt-24 px-2 sm:px-4">
+        {/* TWO-COLUMN GRID: SIDEBAR & MAIN CONTENT */}
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[330px_1fr] xl:grid-cols-[350px_1fr] gap-6 sm:gap-8 items-start -mt-14 sm:-mt-16">
           {/* LEFT SIDEBAR */}
           <div className="flex flex-col gap-6">
-            {/* User Main Card */}
-            <div className="bg-white rounded-[26px] sm:rounded-[30px] p-6 sm:p-7 shadow-[0_15px_40px_rgba(15,23,42,0.08)] border border-slate-200/70">
+            {/* User Profile Card */}
+            <div className="bg-white rounded-[24px] p-6 sm:p-7 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
               <div className="flex flex-col items-center text-center">
-                {/* Avatar Frame with Gradient Rim */}
-                <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                  <div className="w-[110px] h-[110px] sm:w-[124px] sm:h-[124px] rounded-[26px] p-[3px] bg-gradient-to-tr from-[#00a896] via-[#2dd4bf] to-[#0ea5e9] shadow-md transition-transform duration-300 group-hover:scale-105">
-                    <div className="w-full h-full rounded-[23px] bg-slate-900 overflow-hidden flex items-center justify-center">
+                {/* Avatar with luxury navy & gold border */}
+                <div
+                  className="relative group cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Apasă pentru a schimba fotografia de profil"
+                >
+                  <div className="w-[108px] h-[108px] sm:w-[120px] sm:h-[120px] rounded-full p-[3px] bg-gradient-to-tr from-[#0d2c5c] via-[#c69a3f] to-[#e6c373] shadow-md transition-transform duration-300 group-hover:scale-105">
+                    <div className="w-full h-full rounded-full bg-[#0d2c5c] overflow-hidden flex items-center justify-center font-['Cormorant_Garamond',serif] text-[38px] font-semibold text-white">
                       {user.avatar_url ? (
                         <img
                           src={user.avatar_url}
@@ -239,72 +262,61 @@ export default function Profile() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <img
-                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80"
-                          alt={fullName}
-                          className="w-full h-full object-cover"
-                        />
+                        getInitials(fullName)
                       )}
                     </div>
                   </div>
-                  {/* Verified / Active Teal Dot Badge */}
-                  <span className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#00a896] text-white border-2 border-white flex items-center justify-center shadow-md">
-                    <Check size={14} strokeWidth={3} />
+                  <span className="absolute bottom-0 right-1 w-7 h-7 rounded-full bg-[#0d2c5c] text-[#c69a3f] border-2 border-white flex items-center justify-center shadow-md">
+                    <Camera size={13} />
                   </span>
-                  {/* Camera overlay on hover */}
-                  <div className="absolute inset-0 rounded-[26px] bg-black/40 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Camera size={20} />
-                    <span className="text-[10px] font-bold mt-1">Schimbă</span>
-                  </div>
                 </div>
 
-                {/* Name & Title */}
-                <h1 className="mt-4 text-[22px] sm:text-[24px] font-bold text-[#0f172a] tracking-tight">
+                <h1 className="mt-4 font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c] leading-tight">
                   {fullName}
                 </h1>
-                <p className="text-[12.5px] font-medium text-[#64748b] mt-0.5">
-                  Oaspete Privilège • Casa Esy Gold
+                <p className="text-[12.5px] font-medium text-[#6b7c99] mt-0.5">
+                  Oaspete Privilège • Casa Esy
                 </p>
-                <p className="text-[11.5px] text-[#94a3b8] mt-1 flex items-center justify-center gap-1 font-medium">
-                  <MapPin size={12} className="text-[#00a896]" />
+                <p className="text-[11.5px] text-[#6b7c99] mt-1 flex items-center justify-center gap-1">
+                  <MapPin size={12} className="text-[#c69a3f]" />
                   <span>Constanța & București, România</span>
                 </p>
 
-                {/* Action Row */}
+                {/* Quick actions */}
                 <div className="w-full mt-5 flex items-center gap-2.5">
                   <button
-                    onClick={() => setTab("hospitality")}
-                    title="Concierge & Cameră Smart"
-                    className="w-12 h-12 rounded-2xl bg-[#fff1f2] hover:bg-[#ffe4e6] text-[#f43f5e] flex items-center justify-center transition-colors shrink-0 shadow-sm"
+                    onClick={() => setTab("personal")}
+                    title="Editează datele personale"
+                    className="w-12 h-12 rounded-[14px] bg-[#f8fafd] hover:bg-[#eef3f9] border border-[#e1e8f0] text-[#0d2c5c] flex items-center justify-center transition-colors shrink-0"
                   >
-                    <Bell size={18} />
+                    <SlidersHorizontal size={17} />
                   </button>
                   <Link
                     to="/camere"
-                    className="flex-1 h-12 rounded-2xl bg-[#00a896] hover:bg-[#009688] text-white text-[13.5px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(0,168,150,0.3)] transition-all active:scale-[0.98]"
+                    className="flex-1 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13.5px] font-semibold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(13,44,92,0.2)] transition-all"
                   >
-                    <Calendar size={16} />
+                    <Calendar size={15} className="text-[#c69a3f]" />
                     <span>Rezervă Sejur Nou</span>
                   </Link>
                 </div>
               </div>
 
               {/* BENEFICII INCLUSE */}
-              <div className="mt-6 pt-5 border-t border-slate-100">
-                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#94a3b8] mb-3">
+              <div className="mt-6 pt-5 border-t border-[#e1e8f0]">
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99] mb-3">
                   Beneficii Incluse:
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {[
                     "Check-in Devreme 11:00",
-                    "Șezlong VIP Zona A",
-                    "Butler Dedicat",
-                    "Acces Spa Imperial",
-                    "Valet Parking 24/7",
+                    "Șezlong VIP Zonă Plajă",
+                    "Butler & Room Service",
+                    "Acces Spa & Piscină",
+                    "Parcare Gratuită",
                   ].map((benefit) => (
                     <span
                       key={benefit}
-                      className="px-3 py-1.5 rounded-full bg-[#f8fafc] border border-slate-200/80 text-[11.5px] font-medium text-[#334155]"
+                      className="px-3 py-1.5 rounded-full bg-[#f8fafd] border border-[#e1e8f0] text-[11.5px] font-medium text-[#3d4f6b]"
                     >
                       {benefit}
                     </span>
@@ -312,54 +324,81 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* STATS ROW (3 Sejururi | 2.450 Puncte | Gold VIP) */}
-              <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-3 text-center">
-                <div>
-                  <p className="text-[19px] font-bold text-[#0f172a]">3</p>
-                  <p className="text-[11px] text-[#94a3b8] font-medium mt-0.5">Sejururi</p>
-                </div>
-                <div className="border-x border-slate-100">
-                  <p className="text-[19px] font-bold text-[#00a896]">2.450</p>
-                  <p className="text-[11px] text-[#94a3b8] font-medium mt-0.5">Puncte Club</p>
-                </div>
-                <div>
-                  <p className="text-[19px] font-bold text-[#0f172a]">Gold</p>
-                  <p className="text-[11px] text-[#94a3b8] font-medium mt-0.5">Statut VIP</p>
-                </div>
+              {/* STATISTICI DIN REZERVARI REALE */}
+              <div className="mt-6 pt-5 border-t border-[#e1e8f0] grid grid-cols-3 text-center">
+                {(() => {
+                  const valid = bookings.filter((b) => b.status !== "cancelled");
+                  const nightsTotal = valid.reduce(
+                    (n, b) =>
+                      n +
+                      Math.max(
+                        0,
+                        Math.round(
+                          (+new Date(b.check_out) - +new Date(b.check_in)) /
+                            864e5
+                        )
+                      ),
+                    0
+                  );
+                  const points = nightsTotal * 150;
+                  return (
+                    <>
+                      <div>
+                        <p className="text-[19px] font-bold text-[#0d2c5c]">
+                          {valid.length}
+                        </p>
+                        <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                          Sejururi
+                        </p>
+                      </div>
+                      <div className="border-x border-[#e1e8f0]">
+                        <p className="text-[19px] font-bold text-[#c69a3f]">
+                          {points.toLocaleString("ro-RO")}
+                        </p>
+                        <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                          Puncte Club
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[19px] font-bold text-[#0d2c5c]">
+                          {valid.length >= 2 ? "Gold" : "Silver"}
+                        </p>
+                        <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                          Statut VIP
+                        </p>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
-            {/* Designated Personal Butler Card */}
-            <div className="bg-white rounded-[24px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)] border border-slate-200/70">
+            {/* Butler & Concierge Card */}
+            <div className="bg-white rounded-[24px] p-5 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
               <div className="flex items-center justify-between mb-3.5">
-                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#94a3b8]">
-                  Butler Personal Desemnat
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
+                  Concierge & Butler Dedicat
                 </p>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#ecfdf5] text-[#059669] text-[10.5px] font-bold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#059669]"></span> Activ
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10.5px] font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Activ
                 </span>
               </div>
               <div className="flex items-center gap-3.5">
-                <div className="relative shrink-0">
-                  <img
-                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80"
-                    alt="Mihai Alexandrescu"
-                    className="w-11 h-11 rounded-full object-cover border border-slate-200"
-                  />
-                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#10b981] border-2 border-white"></span>
+                <div className="w-11 h-11 rounded-full bg-[#0d2c5c] text-[#c69a3f] flex items-center justify-center font-serif text-[17px] font-bold shrink-0 border border-[#c69a3f]/40">
+                  CE
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13.5px] font-bold text-[#0f172a] truncate">
-                    Mihai Alexandrescu
+                  <p className="text-[13.5px] font-bold text-[#0d2c5c] truncate">
+                    Recepția Casa Esy
                   </p>
-                  <p className="text-[11.5px] text-[#64748b] truncate">
-                    Head Butler • Serviciu 24/7
+                  <p className="text-[11.5px] text-[#6b7c99] truncate">
+                    Serviciu Oaspeți • Asistență 24/7
                   </p>
                 </div>
                 <Link
                   to="/contact"
-                  title="Trimite mesaj butler-ului"
-                  className="w-9 h-9 rounded-xl bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#334155] flex items-center justify-center transition-colors shrink-0"
+                  title="Contactează recepția"
+                  className="w-9 h-9 rounded-[12px] bg-[#f8fafd] hover:bg-[#eef3f9] border border-[#e1e8f0] text-[#0d2c5c] flex items-center justify-center transition-colors shrink-0"
                 >
                   <MessageSquare size={16} />
                 </Link>
@@ -369,82 +408,82 @@ export default function Profile() {
 
           {/* RIGHT MAIN CONTENT */}
           <div className="min-w-0 flex flex-col gap-6">
-            {/* SEGMENTED TAB BAR */}
-            <div className="bg-white rounded-[20px] p-1.5 shadow-[0_8px_25px_rgba(15,23,42,0.05)] border border-slate-200/80 flex items-center justify-between overflow-x-auto no-scrollbar">
+            {/* HORIZONTAL TAB BAR (CLEAN, NO OVERLAPPING) */}
+            <div className="bg-white rounded-[20px] p-1.5 shadow-[0_10px_35px_rgba(13,44,92,0.06)] border border-[#e1e8f0] overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-1 min-w-max">
                 {TABS.map((t) => {
+                  const Icon = t.icon;
                   const active = tab === t.key;
+                  const isDanger = t.key === "danger";
                   return (
                     <button
                       key={t.key}
                       onClick={() => setTab(t.key)}
-                      className={`px-4 sm:px-5 py-2.5 rounded-[14px] text-[13px] font-semibold transition-all shrink-0 ${
+                      className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-[14px] text-[13px] font-semibold transition-all shrink-0 ${
                         active
-                          ? "bg-[#ecfdf5] text-[#00a896] border border-[#a7f3d0] shadow-sm font-bold"
-                          : "text-[#64748b] hover:text-[#0f172a] hover:bg-[#f8fafc]"
+                          ? isDanger
+                            ? "bg-red-50 text-red-700 border border-red-200 shadow-sm"
+                            : "bg-[#0d2c5c] text-white shadow-sm"
+                          : isDanger
+                            ? "text-red-600 hover:bg-red-50/60"
+                            : "text-[#3d4f6b] hover:text-[#0d2c5c] hover:bg-[#f8fafd]"
                       }`}
                     >
-                      {t.label}
+                      <Icon size={14} className={active ? (isDanger ? "text-red-600" : "text-[#c69a3f]") : ""} />
+                      <span>{t.label}</span>
                     </button>
                   );
                 })}
               </div>
-              <span className="hidden xl:block pr-4 text-[11px] font-medium text-[#94a3b8] text-right leading-tight shrink-0">
-                Actualizat<br />astăzi
-              </span>
             </div>
 
-            {/* TAB CONTENTS */}
+            {/* TAB PANELS */}
             {tab === "overview" && (
-              <OverviewContent
+              <OverviewTab
                 user={user}
                 bookings={bookings}
-                onOpenEditContact={() => setIsEditContactOpen(true)}
-                onConfigurePrefs={() => setTab("hospitality")}
+                goToTab={setTab}
               />
             )}
 
-            {tab === "hospitality" && (
-              <HospitalityTab onSave={() => toast("Preferințele au fost actualizate!", "success")} />
+            {tab === "personal" && (
+              <PersonalTab
+                user={user}
+                setUser={setUser}
+                onAvatarClick={() => fileInputRef.current?.click()}
+                onRemoveAvatar={handleRemoveAvatar}
+                uploadingAvatar={uploadingAvatar}
+              />
             )}
+
+            {tab === "hospitality" && <HospitalityTab />}
+
+            {tab === "reservations" && <ReservationsTab bookings={bookings} />}
 
             {tab === "security" && <SecurityTab user={user} onLogout={handleLogout} />}
 
-            {tab === "history" && <HistoryTab bookings={bookings} />}
+            {tab === "danger" && <DangerTab onDeleted={handleLogout} />}
           </div>
         </div>
       </div>
-
-      {/* EDIT CONTACT MODAL */}
-      {isEditContactOpen && (
-        <EditContactModal
-          user={user}
-          setUser={setUser}
-          onClose={() => setIsEditContactOpen(false)}
-          onAvatarClick={() => fileInputRef.current?.click()}
-          onRemoveAvatar={handleRemoveAvatar}
-        />
-      )}
     </div>
   );
 }
 
-/* ─────────────────── OVERVIEW CONTENT ─────────────────── */
-function OverviewContent({
+/* ─────────────────── OVERVIEW TAB ─────────────────── */
+function OverviewTab({
   user,
   bookings,
-  onOpenEditContact,
-  onConfigurePrefs,
+  goToTab,
 }: {
   user: NonNullable<SessionUser>;
   bookings: Booking[];
-  onOpenEditContact: () => void;
-  onConfigurePrefs: () => void;
+  goToTab: (t: TabKey) => void;
 }) {
   const { toast } = useToast();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  // Pick next stay or fallback to luxury mock for full aesthetic matching screenshot
+  // Găsim sejurul următor din backend
   const next = useMemo(() => {
     return (
       bookings
@@ -452,131 +491,182 @@ function OverviewContent({
           (b) =>
             b.status !== "cancelled" &&
             b.status !== "completed" &&
-            new Date(b.check_out) >= new Date(),
+            new Date(b.check_out) >= new Date()
         )
         .sort((a, b) => +new Date(a.check_in) - +new Date(b.check_in))[0] || null
     );
   }, [bookings]);
 
-  const fullName =
-    [user.first_name, user.last_name].filter(Boolean).join(" ") || "Radu Ivan";
+  // Calculăm zilele reale DOAR dacă există rezervare
+  const stayDays = useMemo(() => {
+    if (!next) return [];
+    const out: Date[] = [];
+    const cur = new Date(next.check_in);
+    const end = new Date(next.check_out);
+    while (cur <= end && out.length < 7) {
+      out.push(new Date(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }, [next]);
 
-  const stayTitle = next?.room?.title || "Penthouse Horizon";
-  const bookingCode = next?.booking_code || "CE-88219";
+  const fullName =
+    [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+    user.email.split("@")[0];
+
+  const fmtDay = (d: Date) =>
+    d.toLocaleDateString("ro-RO", { weekday: "short" }).replace(".", "").toUpperCase();
+  const fmtDate = (d: Date) =>
+    d.toLocaleDateString("ro-RO", { day: "numeric", month: "short" }).replace(".", "");
 
   return (
     <div className="flex flex-col gap-6">
-      {/* CARD 1: CONFIRMED UPCOMING STAY */}
-      <div className="bg-white rounded-[26px] p-6 sm:p-8 shadow-[0_12px_35px_rgba(15,23,42,0.06)] border border-slate-200/70">
-        {/* Header row */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-[11px] sm:text-[11.5px] font-bold tracking-[0.14em] uppercase text-[#00a896]">
-            <span className="w-2 h-2 rounded-full bg-[#00a896]"></span>
-            <span>URMĂTORUL SEJUR CONFIRMAT</span>
-            <span className="text-[#94a3b8] font-medium">· Rezervare #{bookingCode}</span>
-          </div>
-          <span className="px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] text-[11.5px] font-semibold flex items-center gap-1.5 border border-[#a7f3d0]">
-            <CheckCircle2 size={13} />
-            <span>Achitat integral</span>
-          </span>
-        </div>
+      {/* CARD 1: SEJUR URMĂTOR (DINAMIC SAU EMPTY STATE) */}
+      <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
+        {next ? (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-[11px] sm:text-[11.5px] font-bold tracking-[0.15em] uppercase text-[#0d2c5c]">
+                <span className="w-2 h-2 rounded-full bg-[#c69a3f]"></span>
+                <span>URMĂTORUL SEJUR CONFIRMAT</span>
+                {next.booking_code && (
+                  <span className="text-[#6b7c99] font-normal normal-case tracking-normal">
+                    • Rezervare #{next.booking_code}
+                  </span>
+                )}
+              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11.5px] font-semibold flex items-center gap-1.5">
+                <Check size={13} strokeWidth={2.5} />
+                <span>{next.payment_status === "paid" ? "Achitat integral" : "Plată la sosire"}</span>
+              </span>
+            </div>
 
-        {/* Title & Action Buttons */}
-        <div className="mt-5 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div>
-            <h2 className="text-[26px] sm:text-[30px] font-bold text-[#0f172a] tracking-tight leading-tight">
-              {stayTitle}
-            </h2>
-            <p className="mt-1 flex items-center gap-2 text-[13px] sm:text-[13.5px] text-[#64748b]">
-              <Building size={14} className="text-[#00a896] shrink-0" />
-              <span>Vedere Frontală la Marea Neagră • Suită 2 Adulți • Etaj 9</span>
-            </p>
-          </div>
-          <div className="flex items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => {
-                if (next) {
-                  downloadBookingInvoicePdf(next.id).catch(() => {});
-                } else {
-                  toast("Voucherul de cazare a fost descărcat.", "success");
-                }
-              }}
-              className="px-4 sm:px-5 h-11 rounded-xl border border-slate-200 hover:border-[#00a896] text-[#0f172a] text-[12.5px] font-semibold flex items-center gap-2 bg-white transition-colors shadow-sm"
-            >
-              <FileDown size={15} />
-              <span>Descarcă Voucher</span>
-            </button>
-            <button
-              onClick={onConfigurePrefs}
-              className="px-4 sm:px-5 h-11 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] text-white text-[12.5px] font-semibold flex items-center gap-2 transition-colors shadow-sm"
-            >
-              <SlidersHorizontal size={14} />
-              <span>Personalizează Sosirea</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Days of stay timeline row */}
-        <div className="mt-7 pt-6 border-t border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[10.5px] font-bold tracking-[0.14em] uppercase text-[#94a3b8]">
-              Zilele Sejurului Dumneavoastră (Iulie 2025):
-            </p>
-            <Link
-              to="/facilitati"
-              className="text-[12px] font-semibold text-[#00a896] hover:underline"
-            >
-              Program Activități & Spa
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-            {[
-              { day: "VIN", date: "18 Iul", act: "Check-in VIP", active: true },
-              { day: "SÂM", date: "19 Iul", act: "Cabana Plajă" },
-              { day: "DUM", date: "20 Iul", act: "Yacht Sunset" },
-              { day: "LUN", date: "21 Iul", act: "Cina Ponton" },
-              { day: "MAR", date: "22 Iul", act: "Spa Ritual" },
-              { day: "MIE", date: "23 Iul", act: "Check-out 14:00", checkout: true },
-            ].map((it, idx) => (
-              <div
-                key={idx}
-                className={`rounded-[18px] p-3 text-center border transition-all ${
-                  it.active
-                    ? "bg-[#ecfdf5] border-[#00a896] text-[#00a896] shadow-sm"
-                    : "bg-[#f8fafc] border-slate-200/80 text-[#0f172a]"
-                }`}
-              >
-                <p className={`text-[11px] font-bold ${it.active ? "text-[#00a896]" : "text-[#94a3b8]"}`}>
-                  {it.day}
-                </p>
-                <p className="text-[18px] font-bold mt-1 text-[#0f172a]">
-                  {it.date}
-                </p>
-                <p
-                  className={`text-[10.5px] mt-1 font-medium ${
-                    it.checkout ? "text-[#ef4444]" : it.active ? "text-[#00a896] font-semibold" : "text-[#64748b]"
-                  }`}
-                >
-                  {it.act}
+            <div className="mt-5 flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div>
+                <h2 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[32px] font-semibold text-[#0d2c5c] leading-tight">
+                  {next.room?.title || "Cameră Casa Esy"}
+                </h2>
+                <p className="mt-1 flex items-center gap-2 text-[13px] text-[#6b7c99]">
+                  <Building size={14} className="text-[#c69a3f] shrink-0" />
+                  <span>
+                    Mamaia • {Math.max(1, stayDays.length - 1)} nopți
+                    {next.unit_number ? ` • Unitatea ${next.unit_number}` : ""}
+                  </span>
                 </p>
               </div>
-            ))}
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  onClick={() => {
+                    downloadBookingInvoicePdf(
+                      String(next.booking_code || next.id),
+                      next.booking_code || String(next.id)
+                    ).catch((e: any) =>
+                      toast(e?.message || "Factura nu a putut fi descărcată.", "error")
+                    );
+                  }}
+                  className="px-4 h-11 rounded-[12px] border border-[#e1e8f0] hover:border-[#c69a3f] text-[#0d2c5c] text-[12.5px] font-semibold flex items-center gap-2 bg-white transition-colors shadow-sm"
+                >
+                  <Download size={14} />
+                  <span>Descarcă Voucher</span>
+                </button>
+                <button
+                  onClick={() => goToTab("reservations")}
+                  className="px-4 h-11 rounded-[12px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[12.5px] font-semibold flex items-center gap-2 transition-colors shadow-sm"
+                >
+                  <SlidersHorizontal size={14} />
+                  <span>Detalii Sejur</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Zilele sejurului */}
+            {stayDays.length > 0 && (
+              <div className="mt-6 pt-5 border-t border-[#e1e8f0]">
+                <div className="flex items-center justify-between mb-3.5">
+                  <p className="text-[10.5px] font-bold tracking-[0.16em] uppercase text-[#6b7c99]">
+                    Zilele Sejurului Dumneavoastră:
+                  </p>
+                  <Link
+                    to="/facilitati"
+                    className="text-[12px] font-semibold text-[#c69a3f] hover:underline"
+                  >
+                    Program Activități & Spa
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                  {stayDays.map((d, i, arr) => {
+                    const isFirst = i === 0;
+                    const isLast = i === arr.length - 1 && arr.length > 1;
+                    return (
+                      <div
+                        key={i}
+                        className={`rounded-[16px] p-3 text-center border transition-all ${
+                          isFirst
+                            ? "bg-[#c69a3f]/10 border-[#c69a3f] text-[#0d2c5c]"
+                            : "bg-[#f8fafd] border-[#e1e8f0] text-[#0d2c5c]"
+                        }`}
+                      >
+                        <p className="text-[10.5px] font-bold text-[#6b7c99]">
+                          {fmtDay(d)}
+                        </p>
+                        <p className="text-[18px] font-bold mt-1 text-[#0d2c5c]">
+                          {fmtDate(d)}
+                        </p>
+                        <p
+                          className={`text-[10.5px] mt-1 font-medium ${
+                            isLast
+                              ? "text-red-600 font-semibold"
+                              : isFirst
+                                ? "text-[#c69a3f] font-semibold"
+                                : "text-[#6b7c99]"
+                          }`}
+                        >
+                          {isFirst ? "Check-in" : isLast ? "Check-out" : "Sejur"}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 py-2">
+            <div>
+              <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.15em] uppercase text-[#c69a3f]">
+                <span className="w-2 h-2 rounded-full bg-[#c69a3f]"></span>
+                <span>Niciun Sejur Viitor Programat</span>
+              </div>
+              <h2 className="font-['Cormorant_Garamond',serif] text-[28px] font-semibold text-[#0d2c5c] mt-2">
+                Refugiul tău la Marea Neagră te așteaptă
+              </h2>
+              <p className="text-[13px] text-[#6b7c99] mt-1 max-w-[560px]">
+                Descoperă camerele și suitele noastre de lux, beneficiază de ospitalitate caldă și priveliști superbe.
+              </p>
+            </div>
+            <Link
+              to="/camere"
+              className="px-6 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13px] font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_8px_20px_rgba(13,44,92,0.18)] shrink-0"
+            >
+              <CalendarCheck size={16} className="text-[#c69a3f]" />
+              <span>Explorează Camerele</span>
+            </Link>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* TWO COLUMN CARDS: CONTACT INFO & SUITE PREFERENCES */}
+      {/* GRID 2 COLOANE: CONTACT & PREFERINTE */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Contact Info Card */}
-        <div className="bg-white rounded-[26px] p-6 sm:p-7 shadow-[0_10px_30px_rgba(15,23,42,0.06)] border border-slate-200/70 flex flex-col justify-between">
+        {/* Date Personale Contact */}
+        <div className="bg-white rounded-[24px] p-6 sm:p-7 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#94a3b8]">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
                 Date Personale de Contact
               </p>
               <button
-                onClick={onOpenEditContact}
-                className="text-[12.5px] font-semibold text-[#00a896] hover:underline"
+                onClick={() => goToTab("personal")}
+                className="text-[12.5px] font-semibold text-[#c69a3f] hover:underline"
               >
                 Editează
               </button>
@@ -584,84 +674,76 @@ function OverviewContent({
 
             <div className="space-y-3.5">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
                   Nume Complet
                 </p>
-                <p className="text-[14px] font-bold text-[#0f172a] mt-0.5">
+                <p className="text-[14.5px] font-semibold text-[#0d2c5c] mt-0.5">
                   {fullName}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
                   Email Oficial
                 </p>
-                <p className="text-[14px] font-semibold text-[#0f172a] mt-0.5 flex items-center gap-1.5">
+                <p className="text-[14px] text-[#0d2c5c] mt-0.5 flex items-center gap-1.5 truncate">
                   <span>{user.email}</span>
-                  <BadgeCheck size={14} className="text-[#00a896]" />
+                  <BadgeCheck size={14} className="text-[#c69a3f] shrink-0" />
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
-                  Telefon WhatsApp
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99]">
+                  Telefon
                 </p>
-                <p className="text-[14px] font-semibold text-[#0f172a] mt-0.5">
-                  {(user as any).phone || "+40 740 123 456"}
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
-                  Data Nașterii
-                </p>
-                <p className="text-[13.5px] font-medium text-[#0f172a] mt-0.5">
-                  14 August 1989 <span className="text-[#00a896] font-semibold">(Cadou Aniversar Activat)</span>
+                <p className="text-[14px] text-[#0d2c5c] mt-0.5">
+                  {(user as any).phone || "Necompletat"}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[12px]">
-            <span className="text-[#64748b]">
-              Limba de comunicare: <b className="text-[#0f172a]">Română</b>
+          <div className="mt-6 pt-4 border-t border-[#e1e8f0] flex items-center justify-between text-[12px]">
+            <span className="text-[#6b7c99]">
+              Limba: <b className="text-[#0d2c5c]">Română</b>
             </span>
-            <span className="text-[#00a896] font-semibold flex items-center gap-1">
-              ✓ Date verificate
+            <span className="text-[#c69a3f] font-semibold flex items-center gap-1">
+              ✓ Cont Verificat
             </span>
           </div>
         </div>
 
-        {/* Suite Preferences Card */}
-        <div className="bg-white rounded-[26px] p-6 sm:p-7 shadow-[0_10px_30px_rgba(15,23,42,0.06)] border border-slate-200/70 flex flex-col justify-between">
+        {/* Preferințe Salvate în Suită */}
+        <div className="bg-white rounded-[24px] p-6 sm:p-7 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#94a3b8]">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#6b7c99]">
                 Preferințe Salvate în Suită
               </p>
               <button
-                onClick={onConfigurePrefs}
-                className="text-[12.5px] font-semibold text-[#00a896] hover:underline"
+                onClick={() => goToTab("hospitality")}
+                className="text-[12.5px] font-semibold text-[#c69a3f] hover:underline"
               >
                 Configurează
               </button>
             </div>
-            <p className="text-[12.5px] text-[#64748b] mb-4">
-              Setările dumneavoastră favorite sunt aplicate automat la sosirea în orice suită sau vilă Casa Esy.
+            <p className="text-[12.5px] text-[#6b7c99] mb-4">
+              Setările favorite sunt aplicate automat la sosirea în orice cameră sau suită Casa Esy.
             </p>
 
             <div className="flex flex-col gap-2">
               {[
                 { icon: BedDouble, label: "Puf de gâscă albă" },
                 { icon: Building, label: "Etaj Superior Panoramic" },
-                { icon: Utensils, label: "Fără Lactoză / Fresh Seafood" },
-                { icon: Thermometer, label: "Temperatură Suită: 21.5°C" },
-                { icon: Wine, label: "Șampanie Moët la sosire" },
+                { icon: Utensils, label: "Meniu Fresh Seafood" },
+                { icon: Thermometer, label: "Temperatură Cameră: 21.5°C" },
+                { icon: Wine, label: "Vin spumant la sosire" },
               ].map((p, i) => {
                 const Icon = p.icon;
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[#f8fafc] border border-slate-200/60 text-[12.5px] font-medium text-[#334155]"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-[12px] bg-[#f8fafd] border border-[#e1e8f0] text-[12.5px] font-medium text-[#3d4f6b]"
                   >
-                    <Icon size={14} className="text-[#00a896]" />
+                    <Icon size={14} className="text-[#c69a3f]" />
                     <span>{p.label}</span>
                   </div>
                 );
@@ -669,18 +751,18 @@ function OverviewContent({
             </div>
           </div>
 
-          <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-[12.5px] font-medium text-[#334155]">
+          <div className="mt-5 pt-4 border-t border-[#e1e8f0] flex items-center justify-between">
+            <span className="text-[12.5px] font-medium text-[#3d4f6b]">
               Notificări SMS / WhatsApp
             </span>
             <button
               onClick={() => setNotificationsEnabled(!notificationsEnabled)}
               className={`w-11 h-6 rounded-full p-0.5 transition-colors ${
-                notificationsEnabled ? "bg-[#00a896]" : "bg-slate-300"
+                notificationsEnabled ? "bg-[#0d2c5c]" : "bg-slate-300"
               }`}
             >
               <span
-                className={`block w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+                className={`block w-5 h-5 rounded-full bg-white shadow transition-transform ${
                   notificationsEnabled ? "translate-x-5" : ""
                 }`}
               />
@@ -689,39 +771,39 @@ function OverviewContent({
         </div>
       </div>
 
-      {/* LOYALTY CARD (Dark Navy + Vibrant Teal Accent) */}
-      <div className="rounded-[26px] bg-[#0c1a2e] p-6 sm:p-7 shadow-[0_15px_40px_rgba(12,26,46,0.25)] flex flex-col md:flex-row md:items-center justify-between gap-5 text-white">
+      {/* LOYALTY CARD (NAVY & GOLD THEME) */}
+      <div className="rounded-[24px] bg-[#0d2c5c] p-6 sm:p-7 shadow-[0_15px_40px_rgba(13,44,92,0.18)] flex flex-col md:flex-row md:items-center justify-between gap-5 text-white">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#00a896]/20 border border-[#00a896]/40 text-[#00a896] flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-[16px] bg-[#c69a3f]/20 border border-[#c69a3f]/40 text-[#c69a3f] flex items-center justify-center shrink-0">
             <Award size={24} />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h3 className="text-[18px] sm:text-[20px] font-bold">
+              <h3 className="font-['Cormorant_Garamond',serif] text-[22px] font-semibold text-white">
                 Nivel Gold Privilège
               </h3>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#00a896] text-white text-[11px] font-bold tracking-wider">
-                2.450 / 3.500 PUNCTE
+              <span className="px-2.5 py-0.5 rounded-full bg-[#c69a3f] text-[#0d2c5c] text-[10.5px] font-bold tracking-wider">
+                CLUB EXCLUSIV
               </span>
             </div>
-            <p className="text-[12.5px] text-slate-300/85 mt-1 max-w-[620px]">
-              Mai aveți nevoie de doar 1.050 puncte pentru a trece la <b>Platinum Diamant</b> (Upgrade garantat de cameră și transfer cu elicopterul de la aeroport).
+            <p className="text-[12.5px] text-white/80 mt-1 max-w-[620px]">
+              Fiecare noapte petrecută la Casa Esy vă aduce puncte bonus pentru upgrade garantat de cameră și experiențe VIP.
             </p>
           </div>
         </div>
         <Link
-          to="/facilitati"
-          className="px-6 h-12 rounded-xl bg-[#00a896] hover:bg-[#009688] text-white text-[12px] font-bold tracking-wider uppercase flex items-center justify-center shrink-0 transition-colors shadow-[0_8px_20px_rgba(0,168,150,0.3)]"
+          to="/camere"
+          className="px-6 h-12 rounded-[12px] bg-[#c69a3f] hover:bg-[#b38732] text-[#0d2c5c] text-[12px] font-bold tracking-wider uppercase flex items-center justify-center shrink-0 transition-colors shadow-md"
         >
-          Catalog Recompense
+          Rezervă & Câștigă
         </Link>
       </div>
 
       {/* BOTTOM ACTION BAR */}
-      <div className="bg-white rounded-[22px] px-6 py-4 shadow-[0_8px_25px_rgba(15,23,42,0.05)] border border-slate-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-[12.5px] text-[#64748b]">
-          <RefreshCcw size={13} className="text-[#00a896]" />
-          <span>Modificările sunt sincronizate instant cu echipa de concierge.</span>
+      <div className="bg-white rounded-[20px] px-6 py-4 shadow-[0_10px_35px_rgba(13,44,92,0.06)] border border-[#e1e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-[12.5px] text-[#6b7c99]">
+          <RefreshCcw size={13} className="text-[#c69a3f]" />
+          <span>Modificările sunt sincronizate instant cu sistemul hotelului.</span>
         </p>
         <div className="flex items-center gap-4">
           <button
@@ -735,13 +817,13 @@ function OverviewContent({
               downloadAnchor.remove();
               toast("Datele GDPR au fost exportate cu succes.", "success");
             }}
-            className="text-[12.5px] font-semibold text-[#64748b] hover:text-[#0f172a] transition-colors"
+            className="text-[12.5px] font-semibold text-[#6b7c99] hover:text-[#0d2c5c] transition-colors"
           >
             Exportă date GDPR
           </button>
           <button
             onClick={() => toast("Setările profilului au fost salvate cu succes!", "success")}
-            className="px-5 h-11 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] text-white text-[13px] font-semibold transition-colors shadow-sm"
+            className="px-5 h-11 rounded-[12px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13px] font-semibold transition-colors shadow-sm"
           >
             Salvare Setări Profil
           </button>
@@ -751,333 +833,19 @@ function OverviewContent({
   );
 }
 
-/* ─────────────────── HOSPITALITY TAB ─────────────────── */
-function HospitalityTab({ onSave }: { onSave: () => void }) {
-  const [prefs, setPrefs] = useState([
-    "Puf de gâscă albă",
-    "Etaj Superior Panoramic",
-    "Fără Lactoză / Fresh Seafood",
-    "Temperatură Suită: 21.5°C",
-    "Șampanie Moët la sosire",
-    "Check-in silențios fără formalități la recepție",
-  ]);
-
-  const toggle = (p: string) => {
-    setPrefs((cur) => (cur.includes(p) ? cur.filter((x) => x !== p) : [...cur, p]));
-  };
-
-  return (
-    <div className="bg-white rounded-[26px] p-6 sm:p-8 shadow-[0_10px_35px_rgba(15,23,42,0.06)] border border-slate-200/70 space-y-6">
-      <div>
-        <h2 className="text-[22px] font-bold text-[#0f172a]">
-          Preferințe de Ospitalitate & Personalizare Sejur
-        </h2>
-        <p className="text-[13px] text-[#64748b] mt-1">
-          Alegeți detaliile care fac sejurul dumneavoastră la Casa Esy desăvârșit.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          "Puf de gâscă albă",
-          "Pernă cu spumă de memorie",
-          "Etaj Superior Panoramic",
-          "Vedere frontală la răsărit",
-          "Fără Lactoză / Fresh Seafood",
-          "Meniu vegetarian / vegan",
-          "Temperatură Suită: 21.5°C",
-          "Temperatură Suită: 23.0°C",
-          "Șampanie Moët la sosire",
-          "Platou fructe exotice proaspete",
-          "Check-in silențios fără formalități la recepție",
-          "Ziare internaționale & reviste luxury în cameră",
-        ].map((item) => {
-          const isSelected = prefs.includes(item);
-          return (
-            <button
-              key={item}
-              onClick={() => toggle(item)}
-              className={`p-4 rounded-2xl border text-left flex items-center justify-between transition-all ${
-                isSelected
-                  ? "bg-[#ecfdf5] border-[#00a896] text-[#00a896] shadow-sm font-semibold"
-                  : "bg-[#f8fafc] border-slate-200/80 text-[#334155] hover:border-slate-300"
-              }`}
-            >
-              <span className="text-[13px]">{item}</span>
-              <span
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[11px] ${
-                  isSelected ? "bg-[#00a896]" : "border border-slate-300"
-                }`}
-              >
-                {isSelected && <Check size={12} strokeWidth={3} />}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="pt-4 flex justify-end">
-        <button
-          onClick={onSave}
-          className="px-6 h-12 rounded-xl bg-[#00a896] hover:bg-[#009688] text-white font-semibold text-[13px] transition-colors shadow-sm"
-        >
-          Salvează Preferințele
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────── SECURITY TAB ─────────────────── */
-type SessionItem = {
-  id: string;
-  browser_family?: string;
-  browser_version?: string;
-  os_family?: string;
-  os_version?: string;
-  device_type?: string;
-  ip_address?: string;
-  is_current?: boolean;
-};
-
-function SecurityTab({
-  user,
-  onLogout,
-}: {
-  user: NonNullable<SessionUser>;
-  onLogout: () => void;
-}) {
-  const { toast } = useToast();
-  const [sessions, setSessions] = useState<SessionItem[]>([]);
-  const [loadingSessions, setLoadingSessions] = useState(false);
-  const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
-  const [changingPwd, setChangingPwd] = useState(false);
-
-  useEffect(() => {
-    setLoadingSessions(true);
-    apiFetch<SessionItem[]>("/users/me/sessions")
-      .then((d) => setSessions(Array.isArray(d) ? d : []))
-      .catch(() => setSessions([]))
-      .finally(() => setLoadingSessions(false));
-  }, []);
-
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pwd.next !== pwd.confirm) {
-      toast("Parolele noi nu coincid.", "error");
-      return;
-    }
-    setChangingPwd(true);
-    try {
-      await apiFetch("/users/me", {
-        method: "PATCH",
-        body: JSON.stringify({ current_password: pwd.current, new_password: pwd.next }),
-      });
-      toast("Parola a fost schimbată cu succes!", "success");
-      setPwd({ current: "", next: "", confirm: "" });
-    } catch (err: any) {
-      toast(err?.message || "Nu am putut actualiza parola.", "error");
-    } finally {
-      setChangingPwd(false);
-    }
-  };
-
-  const handleRevokeSession = async (id: string) => {
-    try {
-      await apiFetch(`/users/me/sessions/${id}`, { method: "DELETE" });
-      setSessions((prev) => prev.filter((s) => s.id !== id));
-      toast("Sesiunea a fost închisă.", "success");
-    } catch {
-      toast("Nu am putut deconecta dispozitivul.", "error");
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Password Change Card */}
-      <div className="bg-white rounded-[26px] p-6 sm:p-8 shadow-[0_10px_35px_rgba(15,23,42,0.06)] border border-slate-200/70">
-        <h2 className="text-[20px] font-bold text-[#0f172a] mb-1">
-          Schimbare Parolă
-        </h2>
-        <p className="text-[13px] text-[#64748b] mb-6">
-          Asigurați-vă că folosiți o parolă sigură cu minim 8 caractere.
-        </p>
-        <form onSubmit={handlePasswordSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1.5">
-              Parola Curentă
-            </label>
-            <input
-              type="password"
-              value={pwd.current}
-              onChange={(e) => setPwd({ ...pwd, current: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#00a896] outline-none text-[13.5px]"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1.5">
-              Parola Nouă
-            </label>
-            <input
-              type="password"
-              value={pwd.next}
-              onChange={(e) => setPwd({ ...pwd, next: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#00a896] outline-none text-[13.5px]"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1.5">
-              Confirmă Parola
-            </label>
-            <input
-              type="password"
-              value={pwd.confirm}
-              onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#00a896] outline-none text-[13.5px]"
-              required
-            />
-          </div>
-          <div className="md:col-span-3 flex justify-end mt-2">
-            <button
-              type="submit"
-              disabled={changingPwd}
-              className="px-5 h-11 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] text-white text-[13px] font-semibold transition-colors disabled:opacity-50"
-            >
-              {changingPwd ? "Se actualizează…" : "Actualizează Parola"}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Active Sessions */}
-      <div className="bg-white rounded-[26px] p-6 sm:p-8 shadow-[0_10px_35px_rgba(15,23,42,0.06)] border border-slate-200/70">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-[20px] font-bold text-[#0f172a]">
-              Sesiuni & Dispozitive Conectate
-            </h2>
-            <p className="text-[12.5px] text-[#64748b] mt-0.5">
-              Dispozitivele autentificate în prezent în contul dumneavoastră.
-            </p>
-          </div>
-          <button
-            onClick={onLogout}
-            className="px-4 py-2 rounded-xl border border-red-200 text-red-600 bg-red-50/70 hover:bg-red-100 text-[12px] font-semibold transition-colors flex items-center gap-1.5"
-          >
-            <LogOut size={13} /> Deconectează-mă
-          </button>
-        </div>
-
-        {loadingSessions ? (
-          <p className="text-[13px] text-[#94a3b8]">Se încarcă sesiunile…</p>
-        ) : sessions.length === 0 ? (
-          <div className="p-4 rounded-xl bg-[#f8fafc] text-[13px] text-[#64748b]">
-            Sesiunea curentă este activă pe acest dispozitiv.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {sessions.map((s) => (
-              <div
-                key={s.id}
-                className="p-4 rounded-xl border border-slate-200 bg-[#f8fafc] flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#0f172a]">
-                    <Monitor size={18} />
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-bold text-[#0f172a]">
-                      {s.browser_family || "Browser"} • {s.os_family || "Dispozitiv"}
-                    </p>
-                    <p className="text-[11.5px] text-[#94a3b8]">
-                      IP: {s.ip_address || "—"} {s.is_current && "• (Acest dispozitiv)"}
-                    </p>
-                  </div>
-                </div>
-                {!s.is_current && (
-                  <button
-                    onClick={() => handleRevokeSession(s.id)}
-                    className="text-[11.5px] text-red-600 hover:underline font-semibold"
-                  >
-                    Închide
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────── HISTORY TAB ─────────────────── */
-function HistoryTab({ bookings }: { bookings: Booking[] }) {
-  return (
-    <div className="bg-white rounded-[26px] p-6 sm:p-8 shadow-[0_10px_35px_rgba(15,23,42,0.06)] border border-slate-200/70 space-y-5">
-      <div>
-        <h2 className="text-[20px] font-bold text-[#0f172a]">
-          Istoric Sejururi & Facturare
-        </h2>
-        <p className="text-[12.5px] text-[#64748b] mt-0.5">
-          Toate rezervările și documentele fiscale emise la Casa Esy.
-        </p>
-      </div>
-
-      {bookings.length === 0 ? (
-        <div className="p-8 text-center text-[#94a3b8] rounded-2xl bg-[#f8fafc] border border-dashed border-slate-200">
-          Nu aveți rezervări înregistrate încă.
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {bookings.map((b) => (
-            <div
-              key={b.id}
-              className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-[#f8fafc] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-bold text-[#0f172a]">
-                    {b.room?.title || "Cameră Casa Esy"}
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-[#334155] text-[10.5px] font-bold uppercase">
-                    {b.status}
-                  </span>
-                </div>
-                <p className="text-[12px] text-[#64748b] mt-1">
-                  {new Date(b.check_in).toLocaleDateString("ro-RO")} — {new Date(b.check_out).toLocaleDateString("ro-RO")}
-                  {b.booking_code && ` • #${b.booking_code}`}
-                </p>
-              </div>
-              <button
-                onClick={() => downloadBookingInvoicePdf(b.id).catch(() => {})}
-                className="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:border-[#00a896] text-[12px] font-semibold text-[#0f172a] flex items-center gap-2 self-start sm:self-auto shadow-sm transition-colors"
-              >
-                <Download size={14} /> Factură & Voucher
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─────────────────── EDIT CONTACT MODAL ─────────────────── */
-function EditContactModal({
+/* ─────────────────── PERSONAL TAB ─────────────────── */
+function PersonalTab({
   user,
   setUser,
-  onClose,
   onAvatarClick,
   onRemoveAvatar,
+  uploadingAvatar,
 }: {
   user: NonNullable<SessionUser>;
   setUser: (u: SessionUser) => void;
-  onClose: () => void;
   onAvatarClick: () => void;
   onRemoveAvatar: () => void;
+  uploadingAvatar: boolean;
 }) {
   const { toast } = useToast();
   const [form, setForm] = useState({
@@ -1098,8 +866,7 @@ function EditContactModal({
       setUser({ ...user, ...form });
       await fetchSession(true);
       notifySessionChange();
-      toast("Datele personale au fost actualizate!", "success");
-      onClose();
+      toast("Datele profilului au fost salvate!", "success");
     } catch (err: any) {
       toast(err?.message || "Eroare la salvarea datelor.", "error");
     } finally {
@@ -1107,117 +874,754 @@ function EditContactModal({
     }
   };
 
+  const fullName =
+    [form.first_name, form.last_name].filter(Boolean).join(" ") ||
+    user.email.split("@")[0];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-[28px] max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-[#94a3b8] hover:text-[#0f172a] w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 transition-colors"
-        >
-          <X size={16} />
-        </button>
-
-        <h2 className="text-[20px] font-bold text-[#0f172a] mb-1">
-          Editează Datele de Contact
-        </h2>
-        <p className="text-[12.5px] text-[#64748b] mb-5">
-          Modificările vor apărea imediat pe toate rezervările și profilul tău.
+    <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] space-y-6">
+      <div>
+        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
+          Date Personale
         </p>
+        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
+          Profilul Tău
+        </h2>
+        <p className="text-[13px] text-[#6b7c99] mt-0.5">
+          Actualizează datele de contact și fotografia afișată pe contul tău.
+        </p>
+      </div>
 
-        {/* Avatar edit section */}
-        <div className="flex items-center gap-4 mb-6 p-3.5 rounded-2xl bg-[#f8fafc] border border-slate-200/70">
-          <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-900 shrink-0">
+      {/* Profil Avatar uploader */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-4 rounded-[18px] bg-[#f8fafd] border border-[#e1e8f0]">
+        <div className="relative w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-[#0d2c5c] to-[#c69a3f] shrink-0">
+          <div className="w-full h-full rounded-full bg-[#0d2c5c] overflow-hidden flex items-center justify-center font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-white">
             {user.avatar_url ? (
-              <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              <img src={user.avatar_url} alt={fullName} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-white font-bold text-[18px]">
-                {user.first_name?.[0] || "R"}
-              </div>
+              getInitials(fullName)
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[12.5px] font-bold text-[#0f172a]">Fotografie Profil</p>
-            <p className="text-[11px] text-[#64748b]">JPG, PNG sau WebP (max 5 MB)</p>
-          </div>
-          <div className="flex items-center gap-2">
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-bold text-[#0d2c5c]">
+            Fotografie de Profil
+          </p>
+          <p className="text-[12px] text-[#6b7c99] mt-0.5">
+            Formate acceptate: JPG, PNG sau WebP (maxim 5 MB).
+          </p>
+          <div className="flex items-center gap-2 mt-3">
             <button
               type="button"
               onClick={onAvatarClick}
-              className="px-3 py-1.5 rounded-lg bg-[#00a896] hover:bg-[#009688] text-white text-[11.5px] font-bold transition-colors"
+              disabled={uploadingAvatar}
+              className="px-4 py-2 rounded-[10px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[12px] font-semibold transition-colors disabled:opacity-50"
             >
-              Schimbă
+              {uploadingAvatar ? "Se încarcă…" : user.avatar_url ? "Schimbă Fotografia" : "Încarcă Fotografie"}
             </button>
             {user.avatar_url && (
               <button
                 type="button"
                 onClick={onRemoveAvatar}
-                className="px-2.5 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-[11.5px] font-semibold transition-colors"
+                disabled={uploadingAvatar}
+                className="px-3 py-2 rounded-[10px] border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-[12px] font-semibold transition-colors disabled:opacity-50"
               >
                 Șterge
               </button>
             )}
           </div>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
-                Prenume
-              </label>
-              <input
-                type="text"
-                value={form.first_name}
-                onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#00a896] outline-none text-[13.5px]"
-                required
-              />
-            </div>
-            <div>
-              <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
-                Nume
-              </label>
-              <input
-                type="text"
-                value={form.last_name}
-                onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#00a896] outline-none text-[13.5px]"
-                required
-              />
-            </div>
-          </div>
-
+      {/* Formular date */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#94a3b8] block mb-1">
-              Telefon WhatsApp
+            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-1.5">
+              Prenume
+            </label>
+            <input
+              type="text"
+              value={form.first_name}
+              onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+              className="w-full px-4 py-3 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] outline-none text-[13.5px] text-[#0d2c5c] bg-white transition-all"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-1.5">
+              Nume de Familie
+            </label>
+            <input
+              type="text"
+              value={form.last_name}
+              onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+              className="w-full px-4 py-3 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] outline-none text-[13.5px] text-[#0d2c5c] bg-white transition-all"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-1.5">
+              Adresă Email (Conectată)
+            </label>
+            <input
+              type="email"
+              value={user.email}
+              disabled
+              className="w-full px-4 py-3 rounded-[12px] border border-[#e1e8f0] bg-[#f8fafd] text-[#6b7c99] text-[13.5px] cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-1.5">
+              Număr de Telefon
             </label>
             <input
               type="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#00a896] outline-none text-[13.5px]"
+              className="w-full px-4 py-3 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] outline-none text-[13.5px] text-[#0d2c5c] bg-white transition-all"
               placeholder="+40 7XX XXX XXX"
             />
           </div>
+        </div>
 
-          <div className="flex justify-end gap-2.5 pt-3">
+        <div className="pt-3 flex justify-end">
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-6 h-12 rounded-[12px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13px] font-semibold transition-all shadow-sm disabled:opacity-50"
+          >
+            {saving ? "Se salvează…" : "Salvează Modificările"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* ─────────────────── HOSPITALITY TAB ─────────────────── */
+function HospitalityTab() {
+  const { toast } = useToast();
+  const [prefs, setPrefs] = useState(() =>
+    JSON.parse(
+      localStorage.getItem("esy_hospitality_prefs") ||
+        '["Puf de gâscă albă","Etaj Superior Panoramic","Temperatură Cameră: 21.5°C"]'
+    )
+  );
+
+  const toggle = (item: string) => {
+    setPrefs((cur: string[]) =>
+      cur.includes(item) ? cur.filter((x) => x !== item) : [...cur, item]
+    );
+  };
+
+  const handleSave = () => {
+    localStorage.setItem("esy_hospitality_prefs", JSON.stringify(prefs));
+    toast("Preferințele de ospitalitate au fost salvate!", "success");
+  };
+
+  const options = [
+    "Puf de gâscă albă",
+    "Pernă hipoalergenică cu memorie",
+    "Etaj Superior Panoramic",
+    "Vedere frontală spre răsărit",
+    "Fără Lactoză / Fresh Seafood",
+    "Meniu vegetarian / vegan",
+    "Temperatură Cameră: 21.5°C",
+    "Temperatură Cameră: 23.0°C",
+    "Vin spumant la sosire",
+    "Platou fructe proaspete",
+    "Check-in silențios fără formalități",
+    "Arome esențiale lavandă & eucalipt",
+  ];
+
+  return (
+    <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] space-y-6">
+      <div>
+        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
+          Ospitalitate Personalizată
+        </p>
+        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
+          Preferințele Tale în Suită
+        </h2>
+        <p className="text-[13px] text-[#6b7c99] mt-0.5">
+          Selectează detaliile care asigură un sejur impecabil la fiecare vizită la Casa Esy.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {options.map((item) => {
+          const isSelected = prefs.includes(item);
+          return (
             <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-[#64748b] hover:bg-slate-50 text-[12.5px] font-semibold"
+              key={item}
+              onClick={() => toggle(item)}
+              className={`p-4 rounded-[16px] border text-left flex items-center justify-between transition-all ${
+                isSelected
+                  ? "bg-[#c69a3f]/10 border-[#c69a3f] text-[#0d2c5c] font-semibold shadow-sm"
+                  : "bg-[#f8fafd] border-[#e1e8f0] text-[#3d4f6b] hover:border-[#c69a3f]/50"
+              }`}
             >
-              Anulează
+              <span className="text-[13px]">{item}</span>
+              <span
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10.5px] ${
+                  isSelected ? "bg-[#c69a3f]" : "border border-slate-300"
+                }`}
+              >
+                {isSelected && <Check size={12} strokeWidth={3} />}
+              </span>
             </button>
+          );
+        })}
+      </div>
+
+      <div className="pt-2 flex justify-end">
+        <button
+          onClick={handleSave}
+          className="px-6 h-12 rounded-[12px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13px] font-semibold transition-all shadow-sm"
+        >
+          Salvează Preferințele
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────── RESERVATIONS TAB ─────────────────── */
+function ReservationsTab({ bookings }: { bookings: Booking[] }) {
+  const { toast } = useToast();
+  const [scope, setScope] = useState<"upcoming" | "past">("upcoming");
+  const [copiedPin, setCopiedPin] = useState<string | null>(null);
+
+  const now = Date.now();
+  const items = useMemo(() => {
+    return bookings
+      .filter((b) => {
+        const isPast =
+          new Date(b.check_out).getTime() < now ||
+          b.status === "completed" ||
+          b.status === "cancelled";
+        return scope === "past" ? isPast : !isPast;
+      })
+      .sort((a, b) => new Date(a.check_in).getTime() - new Date(b.check_in).getTime());
+  }, [bookings, scope, now]);
+
+  const fmtDate = (d: string) =>
+    new Date(d).toLocaleDateString("ro-RO", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  const calcNights = (a: string, b: string) =>
+    Math.max(1, Math.round((new Date(b).getTime() - new Date(a).getTime()) / 864e5));
+
+  return (
+    <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0] space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
+            Sejururi & Documente
+          </p>
+          <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
+            Rezervările Tale la Casa Esy
+          </h2>
+        </div>
+
+        {/* Toggle Scope */}
+        <div className="flex p-1 bg-[#f8fafd] border border-[#e1e8f0] rounded-full self-start sm:self-auto">
+          {[
+            { k: "upcoming" as const, label: "Active & Viitoare" },
+            { k: "past" as const, label: "Istoric Sejururi" },
+          ].map((t) => (
+            <button
+              key={t.k}
+              onClick={() => setScope(t.k)}
+              className={`px-4 py-1.5 text-[12px] font-semibold rounded-full transition-all ${
+                scope === t.k
+                  ? "bg-[#0d2c5c] text-white shadow-sm"
+                  : "text-[#6b7c99] hover:text-[#0d2c5c]"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="text-center py-12 px-4 border border-dashed border-[#e1e8f0] rounded-[20px] bg-[#f8fafd]">
+          <CalendarCheck size={32} className="mx-auto text-[#c69a3f] mb-3 opacity-60" />
+          <p className="font-['Cormorant_Garamond',serif] text-[20px] font-semibold text-[#0d2c5c]">
+            Nicio rezervare în această categorie
+          </p>
+          <p className="text-[12.5px] text-[#6b7c99] mt-1 max-w-[340px] mx-auto">
+            Când vei efectua o rezervare la Casa Esy, detaliile sejurului vor apărea automat aici.
+          </p>
+          <Link
+            to="/camere"
+            className="mt-4 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-[12px] bg-[#0d2c5c] text-white text-[12px] font-semibold"
+          >
+            Vezi Camerele Disponibile
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((r) => {
+            const isPaid = r.payment_status === "paid";
+            return (
+              <article
+                key={r.id}
+                className="p-5 sm:p-6 rounded-[20px] border border-[#e1e8f0] bg-white hover:border-[#c69a3f]/50 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-5"
+              >
+                <div className="space-y-2 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {r.booking_code && (
+                      <span className="text-[11px] font-bold tracking-wider text-[#c69a3f] bg-[#c69a3f]/10 px-2.5 py-1 rounded-md">
+                        #{r.booking_code}
+                      </span>
+                    )}
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                        r.status === "confirmed"
+                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                          : r.status === "pending"
+                            ? "bg-amber-50 text-amber-800 border border-amber-200"
+                            : "bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {r.status === "confirmed"
+                        ? "Confirmat"
+                        : r.status === "pending"
+                          ? "În așteptare"
+                          : r.status}
+                    </span>
+                    {isPaid && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                        Achitat
+                      </span>
+                    )}
+                    {r.unit_number && (
+                      <span className="text-[11px] font-medium text-[#6b7c99] bg-[#f8fafd] border border-[#e1e8f0] px-2.5 py-1 rounded-md">
+                        Cameră {r.unit_number}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-[18px] font-bold text-[#0d2c5c]">
+                    {r.room?.title || "Cameră Casa Esy"}
+                  </h3>
+
+                  <div className="flex items-center gap-2 text-[12.5px] text-[#6b7c99] flex-wrap">
+                    <CalendarCheck size={14} className="text-[#c69a3f]" />
+                    <span>
+                      {fmtDate(r.check_in)} → {fmtDate(r.check_out)}
+                    </span>
+                    <span>•</span>
+                    <span>{calcNights(r.check_in, r.check_out)} nopți</span>
+                  </div>
+
+                  {/* SMART LOCK PIN & CHECK-IN */}
+                  {r.access_pin ? (
+                    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[14px] bg-[#0d2c5c] p-3 text-white">
+                      <div className="flex items-center gap-1.5">
+                        <KeyRound size={15} className="text-[#c69a3f]" />
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#c69a3f]">
+                          PIN Smart Lock:
+                        </span>
+                        <span className="font-mono text-[14px] font-black tracking-widest text-white px-2 py-0.5 rounded bg-white/10">
+                          {r.access_pin}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(r.access_pin!);
+                          setCopiedPin(r.access_pin!);
+                          toast(`PIN copiat: ${r.access_pin}`, "success");
+                          setTimeout(() => setCopiedPin(null), 2500);
+                        }}
+                        className="inline-flex items-center gap-1 rounded-lg bg-white/10 px-2.5 py-1 text-[11px] font-semibold hover:bg-white/20 transition-colors"
+                      >
+                        {copiedPin === r.access_pin ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                        {copiedPin === r.access_pin ? "Copiat" : "Copiază"}
+                      </button>
+                      {r.booking_code && (
+                        <Link
+                          to={`/checkin/${r.booking_code}`}
+                          className="ml-auto text-[11px] font-bold text-[#c69a3f] hover:underline"
+                        >
+                          Pass Digital & Tastatură →
+                        </Link>
+                      )}
+                    </div>
+                  ) : r.booking_code && r.status === "confirmed" ? (
+                    <div className="mt-2">
+                      <Link
+                        to={`/checkin/${r.booking_code}`}
+                        className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#0d2c5c] px-3.5 py-2 text-[11.5px] font-bold text-white hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition-all"
+                      >
+                        <KeyRound size={13} />
+                        Self Check-in Online & Cheie Digitală
+                      </Link>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex md:flex-col items-center md:items-end justify-between pt-3 md:pt-0 border-t md:border-t-0 border-[#e1e8f0] shrink-0">
+                  {r.total_price != null && (
+                    <div className="text-left md:text-right">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7c99] block md:hidden">
+                        Total
+                      </span>
+                      <span className="text-[18px] sm:text-[20px] font-bold text-[#0d2c5c]">
+                        {r.total_price.toLocaleString("ro-RO")} RON
+                      </span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void downloadBookingInvoicePdf(
+                        String(r.booking_code || r.id),
+                        r.booking_code || String(r.id)
+                      ).catch((e: any) =>
+                        toast(e?.message || "Factura nu a putut fi descărcată.", "error")
+                      )
+                    }
+                    className="mt-2 flex items-center gap-1.5 rounded-[10px] border border-[#e1e8f0] bg-[#f8fafd] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] hover:border-[#c69a3f] transition-all"
+                  >
+                    <Download size={13} className="text-[#c69a3f]" />
+                    <span>Factură & Voucher</span>
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────── SECURITY TAB ─────────────────── */
+function SecurityTab({
+  user,
+  onLogout,
+}: {
+  user: NonNullable<SessionUser>;
+  onLogout: () => void;
+}) {
+  const { toast } = useToast();
+  const [sessions, setSessions] = useState<SessionItem[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
+  const [savingPwd, setSavingPwd] = useState(false);
+
+  const loadSessions = () => {
+    setLoadingSessions(true);
+    apiFetch<SessionItem[]>("/users/me/sessions")
+      .then((d) => setSessions(Array.isArray(d) ? d : []))
+      .catch(() => setSessions([]))
+      .finally(() => setLoadingSessions(false));
+  };
+
+  useEffect(() => {
+    loadSessions();
+  }, []);
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwd.next !== pwd.confirm) {
+      toast("Parolele noi nu coincid.", "error");
+      return;
+    }
+    setSavingPwd(true);
+    try {
+      await apiFetch("/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({ current_password: pwd.current, new_password: pwd.next }),
+      });
+      toast("Parola a fost actualizată cu succes!", "success");
+      setPwd({ current: "", next: "", confirm: "" });
+    } catch (err: any) {
+      toast(err?.message || "Eroare la schimbarea parolei.", "error");
+    } finally {
+      setSavingPwd(false);
+    }
+  };
+
+  const handleRevokeSession = async (id: string) => {
+    try {
+      await apiFetch(`/users/me/sessions/${id}`, { method: "DELETE" });
+      setSessions((cur) => cur.filter((s) => s.id !== id));
+      toast("Sesiunea a fost revocată.", "success");
+    } catch {
+      toast("Eroare la revocarea sesiunii.", "error");
+    }
+  };
+
+  const handleRevokeAllOther = async () => {
+    try {
+      await apiFetch("/users/me/sessions", { method: "DELETE" });
+      setSessions((cur) => cur.filter((s) => s.is_current));
+      toast("Toate celelalte dispozitive au fost deconectate.", "success");
+    } catch {
+      toast("Eroare la revocarea sesiunilor.", "error");
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Schimbare Parolă */}
+      <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
+        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
+          Securitate Cont
+        </p>
+        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-[#0d2c5c]">
+          Schimbare Parolă
+        </h2>
+        <p className="text-[13px] text-[#6b7c99] mt-0.5 mb-5">
+          Folosește o parolă puternică cu majuscule, litere mici, cifre și simboluri.
+        </p>
+
+        <form onSubmit={handlePasswordSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-1.5">
+              Parola Curentă
+            </label>
+            <input
+              type="password"
+              value={pwd.current}
+              onChange={(e) => setPwd({ ...pwd, current: e.target.value })}
+              className="w-full px-4 py-3 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] outline-none text-[13.5px] text-[#0d2c5c]"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-1.5">
+              Parola Nouă
+            </label>
+            <input
+              type="password"
+              value={pwd.next}
+              onChange={(e) => setPwd({ ...pwd, next: e.target.value })}
+              className="w-full px-4 py-3 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] outline-none text-[13.5px] text-[#0d2c5c]"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-1.5">
+              Confirmă Parola
+            </label>
+            <input
+              type="password"
+              value={pwd.confirm}
+              onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })}
+              className="w-full px-4 py-3 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] outline-none text-[13.5px] text-[#0d2c5c]"
+              required
+            />
+          </div>
+          <div className="md:col-span-3 flex justify-end mt-2">
             <button
               type="submit"
-              disabled={saving}
-              className="px-5 py-2.5 rounded-xl bg-[#00a896] hover:bg-[#009688] text-white text-[12.5px] font-bold transition-colors disabled:opacity-50"
+              disabled={savingPwd}
+              className="px-6 h-12 rounded-[12px] bg-[#0d2c5c] hover:bg-[#123a75] text-white text-[13px] font-semibold transition-all disabled:opacity-50"
             >
-              {saving ? "Se salvează…" : "Salvează"}
+              {savingPwd ? "Se actualizează…" : "Actualizează Parola"}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Sesiuni Active */}
+      <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
+              Dispozitive Conectate
+            </p>
+            <h2 className="font-['Cormorant_Garamond',serif] text-[24px] font-semibold text-[#0d2c5c]">
+              Sesiuni Active
+            </h2>
+            <p className="text-[12.5px] text-[#6b7c99] mt-0.5">
+              Gestionează dispozitivele conectate la contul tău Casa Esy.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={loadSessions}
+              className="px-3.5 py-2 rounded-[10px] border border-[#e1e8f0] text-[12px] font-semibold text-[#0d2c5c] hover:bg-[#f8fafd]"
+            >
+              Reîmprospătează
+            </button>
+            {sessions.some((s) => !s.is_current) && (
+              <button
+                onClick={handleRevokeAllOther}
+                className="px-3.5 py-2 rounded-[10px] border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-[12px] font-semibold transition-colors"
+              >
+                Revocă Celelalte
+              </button>
+            )}
+          </div>
+        </div>
+
+        {loadingSessions ? (
+          <p className="text-[13px] text-[#6b7c99]">Se încarcă dispozitivele…</p>
+        ) : sessions.length === 0 ? (
+          <p className="text-[13px] text-[#6b7c99]">Nicio sesiune activă raportată.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {sessions.map((s) => (
+              <div
+                key={s.id}
+                className={`p-4 rounded-[16px] border flex items-center justify-between ${
+                  s.is_current
+                    ? "bg-[#c69a3f]/10 border-[#c69a3f]/40"
+                    : "bg-[#f8fafd] border-[#e1e8f0]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white border border-[#e1e8f0] flex items-center justify-center text-[#0d2c5c]">
+                    <Monitor size={17} />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold text-[#0d2c5c]">
+                      {s.browser_family || "Browser"} • {s.os_family || "Dispozitiv"}
+                    </p>
+                    <p className="text-[11.5px] text-[#6b7c99]">
+                      IP: {s.ip_address || "—"} {s.is_current && "• (Acest dispozitiv)"}
+                    </p>
+                  </div>
+                </div>
+                {!s.is_current && (
+                  <button
+                    onClick={() => handleRevokeSession(s.id)}
+                    className="text-[11.5px] text-red-600 hover:underline font-semibold"
+                  >
+                    Deconectează
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
+}
+
+/* ─────────────────── DANGER TAB ─────────────────── */
+function DangerTab({ onDeleted }: { onDeleted: () => void }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [word, setWord] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const canDelete = word === "ȘTERGE";
+
+  const doDelete = async () => {
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(`${API_URL}/users/me`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        onDeleted();
+      } else {
+        setErr("Nu am putut șterge contul. Încearcă din nou.");
+      }
+    } catch {
+      setErr("Problemă de conexiune cu serverul.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-red-200 space-y-6">
+      <div>
+        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-red-600 mb-1">
+          Zonă Periculoasă
+        </p>
+        <h2 className="font-['Cormorant_Garamond',serif] text-[26px] font-semibold text-red-700">
+          Ștergere Cont Permanentă
+        </h2>
+        <p className="text-[13px] text-[#6b7c99] mt-0.5">
+          Această acțiune este ireversibilă. Toate datele tale, rezervările și punctele de loialitate vor fi eliminate definitiv.
+        </p>
+      </div>
+
+      <div className="p-5 rounded-[18px] border border-red-200 bg-red-50/50">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div>
+            <h4 className="text-[15px] font-bold text-red-900">
+              Elimină definitiv contul tău Casa Esy
+            </h4>
+            <p className="text-[12.5px] text-red-700/80 mt-1 max-w-[500px]">
+              Vei fi delogat imediat de pe toate dispozitivele și nu vei mai putea recupera contul sau istoricul de sejururi.
+            </p>
+          </div>
+          {!confirmOpen && (
+            <button
+              onClick={() => setConfirmOpen(true)}
+              className="px-5 py-2.5 rounded-[12px] bg-red-600 hover:bg-red-700 text-white text-[12.5px] font-semibold transition-colors shrink-0 shadow-sm"
+            >
+              Șterge Contul
+            </button>
+          )}
+        </div>
+
+        {confirmOpen && (
+          <div className="mt-5 pt-5 border-t border-red-200 space-y-4">
+            <p className="text-[12.5px] font-semibold text-red-900">
+              Pentru a confirma ștergerea definitivă, tastează cuvântul{" "}
+              <b className="font-mono text-red-700 font-black">ȘTERGE</b> mai jos:
+            </p>
+            <input
+              type="text"
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+              placeholder="ȘTERGE"
+              className="w-full sm:w-[260px] px-4 py-2.5 rounded-[12px] border border-red-300 bg-white text-red-900 font-mono text-[14px] outline-none"
+            />
+            {err && <p className="text-[12px] font-semibold text-red-600">{err}</p>}
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                onClick={() => {
+                  setConfirmOpen(false);
+                  setWord("");
+                  setErr("");
+                }}
+                className="px-4 py-2 rounded-[10px] border border-[#e1e8f0] bg-white text-[12.5px] font-semibold text-[#0d2c5c]"
+              >
+                Renunță
+              </button>
+              <button
+                disabled={!canDelete || busy}
+                onClick={doDelete}
+                className="px-5 py-2 rounded-[10px] bg-red-600 hover:bg-red-700 text-white text-[12.5px] font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <Trash2 size={13} />
+                <span>{busy ? "Se șterge…" : "Confirmă Ștergerea Definitivă"}</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────── HELPER FUNCTIONS ─────────────────── */
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] || "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase() || "?";
 }
