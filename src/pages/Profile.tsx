@@ -191,7 +191,8 @@ export default function Profile() {
     user.email.split("@")[0];
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fafd] pt-20 lg:pt-24 pb-20 font-sans text-[#0d2c5c] antialiased">
+    <div className="min-h-screen w-full bg-[#f8fafd] pt-20 lg:pt-24 pb-20 font-sans text-[#0d2c5c] antialiased relative overflow-hidden">
+      <FloatingBackground />
       <input
         ref={fileInputRef}
         type="file"
@@ -200,23 +201,42 @@ export default function Profile() {
         className="hidden"
       />
 
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* HERO BANNER (NO OVERLAPPING BOTTOM TEXT) */}
-        <div
-          className="relative h-[190px] sm:h-[230px] lg:h-[260px] w-full rounded-[24px] sm:rounded-[30px] bg-cover bg-center overflow-hidden shadow-[0_12px_40px_rgba(13,44,92,0.12)] border border-[#e1e8f0]"
-          style={{
-            backgroundImage:
-              "linear-gradient(180deg, rgba(13,44,92,0.45) 0%, rgba(13,44,92,0.75) 100%), url(https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=2000&q=80)",
-          }}
-        >
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* HERO BANNER CU CLIPUL / IMAGINEA DE PE MAINPAGE */}
+        <div className="relative h-[210px] sm:h-[250px] lg:h-[280px] w-full rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-[0_16px_45px_rgba(13,44,92,0.16)] border border-[#e1e8f0]/80">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="h-full w-full object-cover saturate-60 contrast-110 brightness-95"
+          >
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
+          {/* Straturi cromatice identice cu mainpage pentru integrare perfectă */}
+          <div className="absolute inset-0 bg-[#0d2c5c]/60 mix-blend-color" />
+          <div className="absolute inset-0 bg-[#0b2146]/35 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d2c5c]/80 via-[#0d2c5c]/25 to-[#0d2c5c]/90" />
+
+          {/* Ornamente ambientale aurii pe hero */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-16 -left-16 w-64 h-64 rounded-full bg-[#c69a3f]/25 blur-[70px]"
+          />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-16 -right-16 w-72 h-72 rounded-full bg-[#c69a3f]/20 blur-[75px]"
+          />
+
           {/* Top Left Tag */}
-          <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[12px] font-semibold">
+          <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[12px] font-semibold z-10">
             <MapPin size={13} className="text-[#c69a3f]" />
             <span>Casa Esy • Mamaia Resort</span>
           </div>
 
           {/* Top Right Action Pills */}
-          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2">
+          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2 z-10">
             <button
               onClick={() => {
                 if (navigator.clipboard) {
@@ -1624,4 +1644,73 @@ function getInitials(name: string) {
   const first = parts[0]?.[0] || "";
   const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
   return (first + last).toUpperCase() || "?";
+}
+
+/* ─────────────────── FLOATING BACKGROUND PARTICLES ─────────────────── */
+function FloatingBackground() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+      {/* Glow Orbs */}
+      <div className="absolute top-[12%] -left-20 w-[480px] h-[480px] rounded-full bg-[#c69a3f]/10 blur-[130px] animate-float-slow" />
+      <div className="absolute top-[42%] -right-24 w-[520px] h-[520px] rounded-full bg-[#0d2c5c]/10 blur-[140px] animate-float-reverse" />
+      <div className="absolute bottom-[10%] left-[25%] w-[440px] h-[440px] rounded-full bg-[#c69a3f]/8 blur-[120px] animate-float-slow" />
+
+      {/* Floating Sparkles (Geometric 4-point stars) */}
+      {[
+        { top: "14%", left: "10%", delay: "0s", duration: "13s", size: 16 },
+        { top: "25%", right: "12%", delay: "2s", duration: "16s", size: 20 },
+        { top: "42%", left: "6%", delay: "4s", duration: "15s", size: 14 },
+        { top: "56%", right: "8%", delay: "1s", duration: "14s", size: 18 },
+        { top: "70%", left: "12%", delay: "3s", duration: "17s", size: 22 },
+        { top: "84%", right: "14%", delay: "5s", duration: "13s", size: 15 },
+        { top: "92%", left: "40%", delay: "2.5s", duration: "18s", size: 16 },
+      ].map((p, idx) => (
+        <div
+          key={idx}
+          className="absolute animate-float-slow opacity-60"
+          style={{
+            top: p.top,
+            left: (p as any).left,
+            right: (p as any).right,
+            animationDelay: p.delay,
+            animationDuration: p.duration,
+          }}
+        >
+          <svg
+            width={p.size}
+            height={p.size}
+            viewBox="0 0 24 24"
+            fill="none"
+            className="text-[#c69a3f] animate-shimmer-particle"
+          >
+            <path
+              d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      ))}
+
+      {/* Floating Shimmer Dots */}
+      {[
+        { top: "18%", left: "28%", delay: "1s" },
+        { top: "32%", right: "30%", delay: "3s" },
+        { top: "46%", left: "22%", delay: "0.5s" },
+        { top: "64%", right: "24%", delay: "4s" },
+        { top: "78%", left: "34%", delay: "2s" },
+        { top: "88%", right: "36%", delay: "1.5s" },
+      ].map((d, i) => (
+        <div
+          key={`dot-${i}`}
+          className="absolute w-2 h-2 rounded-full bg-[#c69a3f]/35 animate-shimmer-particle"
+          style={{
+            top: d.top,
+            left: (d as any).left,
+            right: (d as any).right,
+            animationDelay: d.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
 }

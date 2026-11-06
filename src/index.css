@@ -86,3 +86,51 @@ body {
 /* tab-urile cu fundal propriu devin transparente peste motivele flotante */
 .admin-shell main .min-h-screen { min-height: 0 !important; padding: 0 !important; }
 .admin-shell main .bg-white:not([class*="rounded"]):not([class*="border"]) { background-color: transparent !important; }
+
+/* ═════════ Floating Animations & Ambient Particles ═════════ */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  33% {
+    transform: translate(18px, -24px) rotate(8deg);
+  }
+  66% {
+    transform: translate(-14px, 16px) rotate(-6deg);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  33% {
+    transform: translate(-20px, 20px) rotate(-10deg);
+  }
+  66% {
+    transform: translate(16px, -18px) rotate(7deg);
+  }
+}
+
+@keyframes shimmerParticle {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(0.7) translateY(0);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.3) translateY(-18px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 12s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 15s ease-in-out infinite;
+}
+
+.animate-shimmer-particle {
+  animation: shimmerParticle 6s ease-in-out infinite;
+}
