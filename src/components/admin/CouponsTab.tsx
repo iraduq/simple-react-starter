@@ -175,7 +175,7 @@ export default function CouponsTab() {
   };
 
   return (
-    <div>
+    <div className="font-['Plus_Jakarta_Sans',sans-serif]">
       <SectionHeader
         eyebrow="Marketing & Campanii Email Studio"
         title="Cupoane Promoționale & Reduceri Directe"
@@ -189,51 +189,55 @@ export default function CouponsTab() {
       />
 
       {/* Simulator & Email Studio Bridge Card */}
-      <div className="rounded-2xl bg-gradient-to-r from-[#0c192c] to-[#173252] text-white p-5 mb-6 shadow-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
-        <div className="space-y-1.5 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[color:var(--color-accent-light)]">
-            <Sparkles className="w-3.5 h-3.5" /> Integrat cu Email Studio & Checkout Camere
+      <div className="rounded-2xl bg-gradient-to-br from-[#fdfbf7] via-white to-[#f5f8fc] border border-[#e1e8f0] p-6 mb-6 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        <div className="space-y-2 max-w-xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdf8ec] border border-[#c69a3f]/30 text-[#8a6420] text-[11px] font-['Plus_Jakarta_Sans',sans-serif] font-bold uppercase tracking-wider shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#c69a3f]" />
+            Integrat cu Email Studio & Checkout Camere
           </div>
-          <h3 className="font-['Outfit',sans-serif] font-bold text-lg">
+          <h3 className="font-['Outfit',sans-serif] font-bold text-xl text-[#0d2c5c] leading-tight">
             Testează în timp real cum se aplică reducerea pentru oaspete
           </h3>
-          <p className="text-xs text-white/75 leading-relaxed">
+          <p className="text-[13px] text-[#4f6280] leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
             Orice cupon activ poate fi introdus de client în pagina camerei înainte de confirmarea rezervării. Reducerea se scade automat din prețul total și contorul de utilizări crește.
           </p>
         </div>
 
-        <div className="w-full lg:w-auto bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex flex-wrap items-end gap-3">
+        <div className="w-full lg:w-auto bg-[#f8fafc] border border-[#e1e8f0] rounded-xl p-4 flex flex-wrap items-end gap-3 shadow-xs">
           <div>
-            <label className="block text-[11px] text-white/80 mb-1">Cod Cupon</label>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-[#4f6280] mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
+              Cod Cupon
+            </label>
             <input
               value={simCode}
               onChange={(e) => setSimCode(e.target.value.toUpperCase())}
-              className="px-3 py-1.5 rounded-lg bg-white text-slate-900 font-mono font-bold text-xs w-32"
+              className="px-3 py-2 rounded-lg bg-white border border-[#cbd5e1] text-[#0d2c5c] font-['Outfit',sans-serif] font-bold text-sm w-36 focus:outline-none focus:border-[#0d2c5c] shadow-xs"
               placeholder="VARA2026"
             />
           </div>
           <div>
-            <label className="block text-[11px] text-white/80 mb-1">Valoare Sejur (RON)</label>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-[#4f6280] mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
+              Valoare Sejur (RON)
+            </label>
             <input
               type="number"
               value={simSubtotal}
               onChange={(e) => setSimSubtotal(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-white text-slate-900 font-semibold text-xs w-28"
+              className="px-3 py-2 rounded-lg bg-white border border-[#cbd5e1] text-[#0d2c5c] font-['Outfit',sans-serif] font-bold text-sm w-32 focus:outline-none focus:border-[#0d2c5c] shadow-xs"
             />
           </div>
           <button
             onClick={handleSimulate}
-            className="px-3.5 py-1.5 rounded-lg bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-light)] text-[#0c192c] font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+            className="h-[38px] px-4 rounded-lg bg-[#0d2c5c] hover:bg-[#07203f] text-white font-['Plus_Jakarta_Sans',sans-serif] font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs active:scale-[0.98]"
           >
-            <Calculator className="w-3.5 h-3.5" />
+            <Calculator className="w-4 h-4 text-[#c69a3f]" />
             Simulează
           </button>
           {simResult && (
-            <div className="text-xs bg-emerald-500/20 border border-emerald-400/40 rounded-lg px-3 py-1.5">
-              Discount: <strong>-{money(simResult.discount_amount)}</strong> → Total final:{" "}
-              <strong className="text-[color:var(--color-accent-light)]">
-                {money(simResult.final_total)}
-              </strong>
+            <div className="w-full text-xs font-['Plus_Jakarta_Sans',sans-serif] bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-lg px-3 py-2 flex items-center gap-2">
+              <span>Discount: <strong className="text-emerald-700">-{money(simResult.discount_amount)}</strong></span>
+              <span>→</span>
+              <span>Total final: <strong className="text-[#0d2c5c] font-bold font-['Outfit',sans-serif] text-sm">{money(simResult.final_total)}</strong></span>
             </div>
           )}
         </div>
@@ -243,7 +247,7 @@ export default function CouponsTab() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-56 rounded-2xl bg-white/60 border border-[color:var(--color-border)] animate-pulse" />
+            <div key={i} className="h-56 rounded-2xl bg-white/60 border border-[#e1e8f0] animate-pulse" />
           ))}
         </div>
       ) : (
@@ -255,14 +259,14 @@ export default function CouponsTab() {
                 key={c.id}
                 className={`rounded-2xl bg-white border transition-all p-5 flex flex-col justify-between shadow-xs ${
                   c.is_active
-                    ? "border-[color:var(--color-border)] hover:shadow-md"
-                    : "border-slate-200 opacity-65"
+                    ? "border-[#e1e8f0] hover:shadow-md hover:border-[#c69a3f]/40"
+                    : "border-slate-200 opacity-60"
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-[color:var(--color-primary)] text-[color:var(--color-accent-light)] font-mono font-bold text-sm tracking-wider">
-                      <TicketPercent className="w-4 h-4" />
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0d2c5c] text-[#f6d892] font-['Outfit',sans-serif] font-bold text-sm tracking-wider border border-[#c69a3f]/30 shadow-xs">
+                      <TicketPercent className="w-4 h-4 text-[#c69a3f]" />
                       {c.code}
                     </div>
                     <Badge tone={c.is_active ? "green" : "muted"}>
@@ -270,32 +274,32 @@ export default function CouponsTab() {
                     </Badge>
                   </div>
 
-                  <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)] mb-1">
+                  <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[#0d2c5c] mb-1">
                     {c.discount_type === "percent"
                       ? `${c.discount_value}% REDUCERE`
                       : `-${c.discount_value} RON DISCOUNT`}
                   </div>
-                  <p className="text-xs text-[color:var(--color-muted-foreground)] mb-4 leading-relaxed">
+                  <p className="text-[13px] text-[#4f6280] mb-4 leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
                     {c.description}
                   </p>
 
-                  <div className="space-y-2 text-xs bg-slate-50 rounded-xl p-3 border border-[color:var(--color-border)]/70 mb-4">
+                  <div className="space-y-2 text-xs bg-[#f8fafc] rounded-xl p-3.5 border border-[#e1e8f0] mb-4 font-['Plus_Jakarta_Sans',sans-serif]">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Prag minim rezervare:</span>
-                      <span className="font-semibold text-slate-800">
+                      <span className="text-[#64748b]">Prag minim rezervare:</span>
+                      <span className="font-semibold text-[#0d2c5c]">
                         {c.min_booking_amount > 0 ? money(c.min_booking_amount) : "Fără prag minim"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Utilizări oaspeți:</span>
-                      <span className="font-semibold text-slate-800">
+                      <span className="text-[#64748b]">Utilizări oaspeți:</span>
+                      <span className="font-semibold text-[#0d2c5c]">
                         {c.used_count} {c.max_uses ? `/ ${c.max_uses} maxime` : "(nelimitat)"}
                       </span>
                     </div>
                     {c.max_uses && (
-                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-[#e2e8f0] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[color:var(--color-primary)] rounded-full"
+                          className="h-full bg-[#0d2c5c] rounded-full"
                           style={{ width: `${usagePct}%` }}
                         />
                       </div>
@@ -303,10 +307,10 @@ export default function CouponsTab() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-3 border-t border-[color:var(--color-border)]">
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#e1e8f0]">
                   <button
                     onClick={() => handleCopy(c.code)}
-                    className="flex-1 py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-950 font-semibold text-xs inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
+                    className="flex-1 py-2 px-3 rounded-xl bg-[#fdf8ec] hover:bg-[#faeed6] border border-[#c69a3f]/30 text-[#8a6420] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-xs inline-flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs"
                   >
                     {copiedCode === c.code ? (
                       <>
@@ -314,7 +318,7 @@ export default function CouponsTab() {
                       </>
                     ) : (
                       <>
-                        <Copy className="w-3.5 h-3.5" /> Copiază pt. Email Studio
+                        <Copy className="w-3.5 h-3.5 text-[#c69a3f]" /> Copiază pt. Email Studio
                       </>
                     )}
                   </button>
@@ -322,7 +326,7 @@ export default function CouponsTab() {
                   <button
                     onClick={() => handleToggleActive(c)}
                     title={c.is_active ? "Dezactivează cuponul" : "Activează cuponul"}
-                    className="p-2 rounded-xl border border-[color:var(--color-border)] text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                    className="p-2 rounded-xl border border-[#e1e8f0] text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-xs"
                   >
                     <Power className="w-4 h-4" />
                   </button>
@@ -330,7 +334,7 @@ export default function CouponsTab() {
                   <button
                     onClick={() => handleDelete(c)}
                     title="Șterge cuponul"
-                    className="p-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                    className="p-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-xs"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
