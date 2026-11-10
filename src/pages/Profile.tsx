@@ -42,6 +42,7 @@ import {
 import { apiFetch } from "../lib/api";
 import { useToast } from "../components/Toast";
 import { downloadBookingInvoicePdf } from "../lib/admin";
+import RoomFolioCard from "../components/upsell/RoomFolioCard";
 
 type TabKey = "overview" | "personal" | "hospitality" | "reservations" | "security" | "danger";
 
@@ -725,6 +726,16 @@ function OverviewTab({
           </div>
         )}
       </div>
+
+      {/* NOTA CAMEREI & SOLD RĂMAS (ROOM FOLIO & UPSELLING MIC DEJUN) */}
+      {next && (
+        <RoomFolioCard
+          bookingId={String(next.id)}
+          bookingCode={next.booking_code || String(next.id)}
+          nightsCount={Math.max(1, stayDays.length - 1)}
+          adultsCount={2}
+        />
+      )}
 
       {/* GRID 2 COLOANE: CONTACT & PREFERINTE */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

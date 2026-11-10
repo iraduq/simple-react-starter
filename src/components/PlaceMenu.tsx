@@ -398,7 +398,8 @@ export default function PlaceMenu({
                     onChange={(e) => setPaymentMethod(e.target.value as any)}
                     className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm font-semibold text-[#0d2c5c] focus:border-[#c69a3f] focus:bg-white outline-none"
                   >
-                    <option value="room_charge">Trecut pe Contul Camerei</option>
+                    <option value="room_charge">Trecut pe Contul Camerei (Room Folio)</option>
+                    <option value="pay_at_table">Plată direct la Masă (Card / Cash la ospătar)</option>
                     <option value="card">Card la Livrare în Cameră (POS)</option>
                     <option value="cash">Numerar la Livrare în Cameră</option>
                   </select>
