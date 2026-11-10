@@ -17,7 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -42,6 +42,7 @@ import OrdersKdsTab from "./OrdersKdsTab";
 import TapeChartTab from "./TapeChartTab";
 import CouponsTab from "./CouponsTab";
 import ReviewsTab from "./ReviewsTab";
+import BroadcastTab from "./BroadcastTab";
 
 export type TabKey =
   | "bookings"
@@ -62,10 +63,12 @@ export type TabKey =
   | "tape_chart"
   | "orders_kds"
   | "coupons"
-  | "reviews";
+  | "reviews"
+  | "broadcast";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
+  { key: "broadcast", label: "Broadcast & Alerte", icon: Radio },
   { key: "tape_chart", label: "Diagramă Ocupare (PMS)", icon: CalendarRange },
   { key: "orders_kds", label: "Comenzi Room Service", icon: ChefHat },
   { key: "coupons", label: "Cupoane & Reduceri", icon: TicketPercent },
@@ -352,10 +355,11 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "orders_kds" && <OrdersKdsTab />}
             {tab === "coupons" && <CouponsTab />}
             {tab === "reviews" && <ReviewsTab />}
+            {tab === "broadcast" && <BroadcastTab />}
           </div>
         </main>
       </div>
-    </div>
+    </div>
   );
 }
 

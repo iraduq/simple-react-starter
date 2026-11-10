@@ -334,6 +334,10 @@ export function AdminLiveSyncProvider({ children }: { children: ReactNode }) {
   );
 }
 
+export function useAdminLiveSyncContext() {
+  return useContext(AdminLiveSyncContext);
+}
+
 /**
  * Hook universal de sincronizare live pentru orice componentă / tab din Admin:
  * 1. Ascultă mutațiile emise de alte taburi prin BroadcastChannel nativ (0ms).

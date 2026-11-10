@@ -45,6 +45,7 @@ import BookingSuccess from "./pages/BookingSuccess";
 import CheckIn from "./pages/CheckIn";
 import Housekeeping from "./pages/Housekeeping";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
+import BroadcastAlertBanner from "./components/notifications/BroadcastAlertBanner";
 
 function AvailabilityRedirect() {
   return <Navigate to={`/camere${window.location.search}`} replace />;
@@ -62,6 +63,7 @@ const MainLayout = () => {
       {!isAdmin && <Footer />}
       {!isAdmin && <ChatWidget />}
       {!isAdmin && <CookieConsentBanner />}
+      {!isAdmin && <BroadcastAlertBanner />}
     </>
   );
 };
