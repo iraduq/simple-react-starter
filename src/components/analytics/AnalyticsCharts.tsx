@@ -48,7 +48,7 @@ export default function AnalyticsCharts({
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h3 className="text-[20px] text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+            <h3 className="text-[20px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
               Top Camere Solicitate
             </h3>
             <p className="text-[12px] text-[#6b7c99]">Distribuția rezervărilor pe tipuri de camere</p>
@@ -93,7 +93,7 @@ export default function AnalyticsCharts({
         <div>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h3 className="text-[20px] text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+              <h3 className="text-[20px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
                 Evoluție Lunară ({cur} vs {prev})
               </h3>
               <p className="text-[12px] text-[#6b7c99]">Comparația vânzărilor și a volumului de oaspeți</p>

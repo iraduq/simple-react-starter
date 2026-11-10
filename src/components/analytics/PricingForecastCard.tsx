@@ -41,7 +41,7 @@ export default function PricingForecastCard({
     <Card className="p-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#eef2f7] pb-4">
         <div>
-          <h3 className="flex items-center gap-2 text-[22px] text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+          <h3 className="flex items-center gap-2 text-[22px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
             <CalendarRange size={22} className="text-[#c69a3f]" /> Prognoză Rezervări & Strategie Tarifară
           </h3>
           <p className="text-[12px] text-[#6b7c99]">

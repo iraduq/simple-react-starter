@@ -26,7 +26,7 @@ function ReportCard({
               <Icon size={18} />
             </span>
             <div>
-              <h3 className="text-[20px] font-semibold text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+              <h3 className="text-[20px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
                 {title}
               </h3>
               <p className="text-[12px] text-[#6b7c99]">{subtitle}</p>

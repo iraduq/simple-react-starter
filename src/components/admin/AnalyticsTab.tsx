@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "../Toast";
 import { httpErrorMessage } from "../../services/apiClient";
+import { apiFetch } from "../../lib/api";
 import {
   getBusinessCompare,
-  getConversionFunnel,
   getMonthlyReport,
 } from "../../services/analyticsService";
 import type {
   BusinessComparison,
-  FunnelAttribution,
   MonthlyBusinessReport,
 } from "../../types/analytics";
 import { SectionHeader } from "./ui";
@@ -16,19 +15,19 @@ import AnalyticsPeriodPicker from "../analytics/AnalyticsPeriodPicker";
 import KpiSummaryGrid from "../analytics/KpiSummaryGrid";
 import AiBriefCards from "../analytics/AiBriefCards";
 import AnalyticsCharts from "../analytics/AnalyticsCharts";
-import ConversionFunnelCard from "../analytics/ConversionFunnelCard";
+import MonthlyBookingLedger, { type LedgerBooking } from "../analytics/MonthlyBookingLedger";
 import PricingForecastCard from "../analytics/PricingForecastCard";
-import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
+import { useAdminLiveSync } from "../../context/AdminLiveSyncContext";
 
-type Tab = "overview" | "funnel" | "forecast";
+type Tab = "overview" | "ledger" | "forecast";
 const TABS: { key: Tab; label: string }[] = [
-  { key: "overview", label: "Prezentare Generală" },
-  { key: "funnel", label: "Pâlnie Rezervări & Asistență" },
+  { key: "overview", label: "Tablou General & KPI-uri Hoteliere" },
+  { key: "ledger", label: "Registru & Detaliu Sejururi Lunare" },
   { key: "forecast", label: "Prognoză Sezonieră & Tarife" },
 ];
 
 export default function AnalyticsTab() {
-  const { isSyncing, connectionStatus } = useAdminLiveSync({
+  useAdminLiveSync({
     topic: "analytics",
     onSync: () => void load(true),
   });
@@ -40,21 +39,21 @@ export default function AnalyticsTab() {
   const [loading, setLoading] = useState(true);
   const [report, setReport] = useState<MonthlyBusinessReport | null>(null);
   const [compare, setCompare] = useState<BusinessComparison | null>(null);
-  const [funnel, setFunnel] = useState<FunnelAttribution | null>(null);
+  const [bookings, setBookings] = useState<LedgerBooking[]>([]);
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
-    const [r, c, f] = await Promise.allSettled([
+    const [r, c, b] = await Promise.allSettled([
       getMonthlyReport(year, month),
       getBusinessCompare(year, month),
-      getConversionFunnel(year, month),
+      apiFetch<LedgerBooking[]>("/bookings"),
     ]);
 
     setReport(r.status === "fulfilled" ? r.value : null);
     setCompare(c.status === "fulfilled" ? c.value : null);
-    setFunnel(f.status === "fulfilled" ? f.value : null);
+    setBookings(b.status === "fulfilled" && Array.isArray(b.value) ? b.value : []);
 
-    const failed = [r, c, f].find((x) => x.status === "rejected") as
+    const failed = [r, c, b].find((x) => x.status === "rejected") as
       | PromiseRejectedResult
       | undefined;
     if (failed) {
@@ -71,10 +70,11 @@ export default function AnalyticsTab() {
   }, [load]);
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       <SectionHeader
-        eyebrow="Gestiune & Performanță"
+        eyebrow="Gestiune & Performanță Financiară"
         title="Rapoarte & Indicatori de Performanță"
+        description="Indicatori financiari cheie (ADR, RevPAR, grad de ocupare), sinteze executive de performanță și registrul contabil detaliat al sejururilor."
         action={
           <AnalyticsPeriodPicker
             year={year}
@@ -111,6 +111,8 @@ export default function AnalyticsTab() {
             report={report}
             compare={compare}
             loading={loading}
+            year={year}
+            month={month}
           />
           <AiBriefCards
             brief={report?.ai_strategic_brief}
@@ -124,8 +126,13 @@ export default function AnalyticsTab() {
           />
         </div>
       )}
-      {tab === "funnel" && (
-        <ConversionFunnelCard data={funnel} loading={loading} />
+      {tab === "ledger" && (
+        <MonthlyBookingLedger
+          year={year}
+          month={month}
+          bookings={bookings}
+          loading={loading}
+        />
       )}
       {tab === "forecast" && (
         <PricingForecastCard
