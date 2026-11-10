@@ -273,30 +273,6 @@ export default function Profile() {
               <span className="text-[#c69a3f] text-[11px] tracking-widest font-serif font-semibold">★★★</span>
               <span className="font-sans font-semibold tracking-wide">Casa Esy • Mamaia Resort & Spa</span>
             </div>
-
-            {/* Top Right Action Pills */}
-            <div className="flex items-center gap-2.5">
-              <button
-                onClick={() => {
-                  if (navigator.clipboard) {
-                    navigator.clipboard.writeText(window.location.href);
-                    toast("Link-ul profilului a fost copiat!", "success");
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white text-[12.5px] font-semibold transition-all shadow-md active:scale-95"
-              >
-                <Share2 size={13} className="text-[#c69a3f]" />
-                <span className="hidden sm:inline">Distribuie Profil</span>
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingAvatar}
-                title="Încarcă fotografie de profil"
-                className="w-9 h-9 rounded-full bg-[#0d2c5c]/60 hover:bg-[#0d2c5c]/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all shadow-md active:scale-95 disabled:opacity-50"
-              >
-                <Camera size={14} className="text-[#c69a3f]" />
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -311,12 +287,8 @@ export default function Profile() {
             <div className="bg-white rounded-[26px] p-6 sm:p-7 shadow-[0_12px_45px_rgba(13,44,92,0.06)] border border-[#e1e8f0]">
               <div className="flex flex-col items-center text-center">
                 {/* Avatar with vibrant coastal teal & gold border */}
-                <div
-                  className="relative group cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Apasă pentru a schimba fotografia de profil"
-                >
-                  <div className="w-[114px] h-[114px] sm:w-[128px] sm:h-[128px] rounded-full p-[3px] bg-gradient-to-tr from-[#00a896] via-[#0284c7] to-[#f59e0b] shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <div className="relative">
+                  <div className="w-[114px] h-[114px] sm:w-[128px] sm:h-[128px] rounded-full p-[3px] bg-gradient-to-tr from-[#00a896] via-[#0284c7] to-[#f59e0b] shadow-lg">
                     <div className="w-full h-full rounded-full bg-[#0d2c5c] overflow-hidden flex items-center justify-center font-['Outfit',sans-serif] text-[40px] font-bold text-white">
                       {user.avatar_url ? (
                         <img
@@ -329,9 +301,6 @@ export default function Profile() {
                       )}
                     </div>
                   </div>
-                  <span className="absolute bottom-0 right-1 w-8 h-8 rounded-full bg-[#00a896] text-white border-2 border-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <Camera size={14} />
-                  </span>
                 </div>
 
                 <h1 className="mt-4 font-['Outfit',sans-serif] text-[28px] sm:text-[32px] font-bold text-[#0d2c5c] leading-tight tracking-tight">
@@ -631,18 +600,18 @@ function OverviewTab({
               <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                 <button
                   onClick={() => setFeedbackModalOpen(true)}
-                  className="px-4 h-11 rounded-[14px] border border-teal-300 hover:border-teal-400 text-teal-800 hover:bg-teal-50 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
+                  className="px-4 h-11 rounded-[14px] border border-[#00a896]/30 hover:border-[#00a896] text-[#0d2c5c] hover:bg-[#00a896]/10 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
                   title="Oferă o evaluare pentru sejurul dumneavoastră"
                 >
-                  <Star size={14} className="fill-amber-400 text-amber-500" />
+                  <Star size={14} className="fill-[#c69a3f] text-[#c69a3f]" />
                   <span>Evaluează Sejurul</span>
                 </button>
                 <button
                   onClick={() => setMaintenanceModalOpen(true)}
-                  className="px-4 h-11 rounded-[14px] border border-amber-300 hover:border-amber-400 text-amber-800 hover:bg-amber-50 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
+                  className="px-4 h-11 rounded-[14px] border border-[#c69a3f]/40 hover:border-[#c69a3f] text-[#0d2c5c] hover:bg-[#c69a3f]/10 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
                   title="Raportează o defecțiune tehnică în cameră"
                 >
-                  <Wrench size={14} className="text-amber-600" />
+                  <Wrench size={14} className="text-[#c69a3f]" />
                   <span>Raportează Problemă</span>
                 </button>
                 <button
@@ -654,7 +623,7 @@ function OverviewTab({
                       toast(e?.message || "Factura nu a putut fi descărcată.", "error")
                     );
                   }}
-                  className="px-4 h-11 rounded-[14px] border border-[#bae6fd] hover:border-[#0284c7] text-[#0284c7] hover:bg-[#f0f9ff] text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
+                  className="px-4 h-11 rounded-[14px] border border-[#0284c7]/30 hover:border-[#0284c7] text-[#0d2c5c] hover:bg-[#0284c7]/10 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
                 >
                   <Download size={14} className="text-[#0284c7]" />
                   <span>Descarcă Voucher</span>
@@ -879,35 +848,6 @@ function OverviewTab({
             </button>
           </div>
         </div>
-      </div>
-
-      {/* LOYALTY CARD (ROYAL NAVY THEME CU DETALII AURII & TEAL) */}
-      <div className="rounded-[24px] bg-gradient-to-r from-[#071d3d] via-[#0d2c5c] to-[#0a2349] p-6 sm:p-8 shadow-[0_15px_40px_rgba(13,44,92,0.18)] border border-[#00a896]/30 flex flex-col md:flex-row md:items-center justify-between gap-5 text-white relative overflow-hidden">
-        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-[#00a896]/20 blur-[60px] pointer-events-none" />
-        <div className="flex items-center gap-4 relative z-10">
-          <div className="w-13 h-13 rounded-[16px] bg-[#00a896]/20 border border-[#00a896]/40 text-[#00a896] flex items-center justify-center shrink-0">
-            <Award size={26} />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h3 className="font-['Outfit',sans-serif] text-[26px] sm:text-[28px] font-bold text-white tracking-tight">
-                Nivel Gold Privilège
-              </h3>
-              <span className="px-3 py-1 rounded-full bg-[#00a896] text-white text-[11px] font-bold tracking-wider uppercase font-['Plus_Jakarta_Sans',sans-serif] shadow-xs">
-                2.450 / 3.500 Puncte
-              </span>
-            </div>
-            <p className="text-[13px] text-white/80 mt-1 max-w-[620px] leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
-              Mai aveți nevoie de doar 1.050 puncte pentru a trece la Platinum Diamant (Upgrade garantat de cameră și experiențe VIP).
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/camere"
-          className="px-6 h-12 rounded-[14px] bg-gradient-to-r from-[#00a896] to-[#0ea5e9] hover:brightness-110 text-white text-[12px] font-bold tracking-wider uppercase flex items-center justify-center shrink-0 transition-all shadow-[0_6px_20px_rgba(0,168,150,0.35)] font-['Plus_Jakarta_Sans',sans-serif] relative z-10"
-        >
-          Catalog Recompense
-        </Link>
       </div>
 
       {/* BOTTOM ACTION BAR */}

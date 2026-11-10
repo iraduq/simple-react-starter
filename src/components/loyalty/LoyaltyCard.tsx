@@ -43,26 +43,26 @@ interface LoyaltyTx {
 
 const TIER_THEMES = {
   Bronze: {
-    bg: "from-[#2c1d11] via-[#4a2e1b] to-[#1a120b]",
-    badgeBg: "bg-amber-900/40 border-amber-600/50 text-amber-200",
-    goldAccent: "text-[#d49a6a]",
+    bg: "from-[#071d3d] via-[#0d2c5c] to-[#0a2754]",
+    badgeBg: "bg-amber-500/15 border-amber-400/40 text-[#fde047]",
+    goldAccent: "text-[#c69a3f]",
     icon: Award,
   },
   Silver: {
-    bg: "from-[#1e293b] via-[#334155] to-[#0f172a]",
-    badgeBg: "bg-slate-200/20 border-slate-300/40 text-slate-100",
+    bg: "from-[#071d3d] via-[#0d2c5c] to-[#0f3469]",
+    badgeBg: "bg-white/15 border-white/30 text-white",
     goldAccent: "text-slate-200",
     icon: ShieldCheck,
   },
   Gold: {
-    bg: "from-[#0d2c5c] via-[#1a3a6b] to-[#c69a3f]/70",
-    badgeBg: "bg-amber-400/20 border-amber-400/50 text-[#fde047]",
+    bg: "from-[#071d3d] via-[#0d2c5c] to-[#143b73]",
+    badgeBg: "bg-[#c69a3f]/25 border-[#e6b85c]/60 text-[#fde047]",
     goldAccent: "text-[#e6b85c]",
     icon: Crown,
   },
   Platinum: {
-    bg: "from-[#091b36] via-[#004e54] to-[#00a896]/60",
-    badgeBg: "bg-teal-400/20 border-teal-300/50 text-teal-200",
+    bg: "from-[#051731] via-[#092b52] to-[#00a896]/60",
+    badgeBg: "bg-teal-400/25 border-teal-300/50 text-teal-200",
     goldAccent: "text-teal-300",
     icon: Sparkles,
   },
@@ -202,7 +202,7 @@ export default function LoyaltyCard() {
 
           <div className="h-2.5 w-full bg-black/30 rounded-full overflow-hidden p-0.5 border border-white/10">
             <div
-              className="h-full bg-gradient-to-r from-[#c69a3f] to-amber-300 rounded-full transition-all duration-700 shadow-sm"
+              className="h-full bg-gradient-to-r from-[#00a896] via-[#c69a3f] to-amber-300 rounded-full transition-all duration-700 shadow-sm"
               style={{ width: `${account?.tier_progress_percent || 25}%` }}
             />
           </div>
@@ -233,7 +233,7 @@ export default function LoyaltyCard() {
           <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
             <button
               onClick={() => setRewardsModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#c69a3f] to-amber-500 hover:brightness-110 text-slate-900 font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#c69a3f] to-[#e6b85c] hover:brightness-105 text-[#071d3d] font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
             >
               <Gift size={14} />
               <span>Catalog Recompense ({rewards.length})</span>
