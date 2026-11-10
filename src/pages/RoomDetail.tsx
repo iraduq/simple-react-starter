@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   CalendarDays,
@@ -211,18 +211,66 @@ export default function RoomDetail() {
     void loadQuote();
   }, [loadQuote]);
 
-  const currentBasePrice = room
-    ? plan === "non_refundable"
-      ? Math.round(room.base_price * 0.9)
-      : plan === "breakfast"
-      ? room.base_price + 35
-      : room.base_price
-    : 0;
+  // Verifică dacă backend-ul a aplicat deja planul tarifar în calcul
+  const backendHandledPlan =
+    quote?.nightly_breakdown?.[0]?.debug_info?.rate_plan_code === plan;
 
-  const adj = (n: number) => n * factor;
-  const subtotal = quote ? adj(quote.subtotal) : null;
-  const taxes = quote ? adj(quote.taxes) : null;
-  const total = quote ? adj(quote.total_price) : null;
+  // Funcție de ajustare pe fiecare noapte dacă backend-ul nu a procesat planul
+  const adjustNightPrice = useCallback(
+    (baseNightPrice: number) => {
+      if (backendHandledPlan) return baseNightPrice;
+      if (plan === "non_refundable") {
+        return Math.round(baseNightPrice * 0.9 * 100) / 100;
+      }
+      if (plan === "breakfast") {
+        return Math.round((baseNightPrice + 35) * 100) / 100;
+      }
+      return baseNightPrice;
+    },
+    [backendHandledPlan, plan],
+  );
+
+  // Subtotal calculat dinamic cu pricing engine + planul tarifar activ
+  const subtotal = useMemo(() => {
+    if (!quote) return null;
+    if (backendHandledPlan) return quote.subtotal;
+    const computed = quote.nightly_breakdown.reduce(
+      (sum, n) => sum + adjustNightPrice(n.price_per_night),
+      0,
+    );
+    return Math.round(computed * 100) / 100;
+  }, [quote, backendHandledPlan, adjustNightPrice]);
+
+  const taxes = useMemo(() => {
+    if (subtotal == null) return null;
+    return Math.round(subtotal * 0.19 * 100) / 100;
+  }, [subtotal]);
+
+  const total = useMemo(() => {
+    if (subtotal == null || taxes == null) return null;
+    return Math.round((subtotal + taxes) * 100) / 100;
+  }, [subtotal, taxes]);
+
+  const avgNight = useMemo(() => {
+    if (subtotal != null && quote && quote.nights > 0) {
+      return Math.round((subtotal / quote.nights) * 100) / 100;
+    }
+    return null;
+  }, [subtotal, quote]);
+
+  // Prețul de bază pe noapte: dacă datele sunt alese, folosește media din motorul de prețuri; dacă nu, base_price-ul camerei
+  const baseRatePerNight = useMemo(() => {
+    if (quote && quote.nights > 0) {
+      return quote.subtotal / quote.nights;
+    }
+    return room?.base_price ?? 150;
+  }, [quote, room?.base_price]);
+
+  const currentBasePrice = useMemo(() => {
+    if (plan === "non_refundable") return Math.round(baseRatePerNight * 0.9);
+    if (plan === "breakfast") return Math.round(baseRatePerNight + 35);
+    return Math.round(baseRatePerNight);
+  }, [plan, baseRatePerNight]);
   const couponDiscount =
     appliedCoupon && total != null
       ? appliedCoupon.discount_type === "percent"
@@ -259,8 +307,6 @@ export default function RoomDetail() {
       setValidatingCoupon(false);
     }
   };
-  const avgNight =
-    quote && quote.nights > 0 ? adj(quote.subtotal) / quote.nights : null;
   const baseTotal = room && nights > 0 ? room.base_price * nights : null;
   const isDeal =
     subtotal != null && baseTotal != null && subtotal < baseTotal - 0.5;
@@ -468,17 +514,32 @@ export default function RoomDetail() {
                 selectat.
               </p>
               <ul className="mt-4 divide-y divide-[#eef2f8]">
-                {quote.nightly_breakdown.map((n) => (
-                  <li
-                    key={n.date}
-                    className="flex items-center justify-between py-2.5 text-[13.5px]"
-                  >
-                    <span className="text-[#3d4f6b]">{dayLabel(n.date)}</span>
-                    <span className="font-semibold text-[#0d2c5c]">
-                      {ron(adj(n.price_per_night))}
-                    </span>
-                  </li>
-                ))}
+                {quote.nightly_breakdown.map((n) => {
+                  const nightPrice = adjustNightPrice(n.price_per_night);
+                  return (
+                    <li
+                      key={n.date}
+                      className="flex items-center justify-between py-2.5 text-[13.5px]"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#3d4f6b]">{dayLabel(n.date)}</span>
+                        {plan === "breakfast" && (
+                          <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                            +mic dejun
+                          </span>
+                        )}
+                        {plan === "non_refundable" && (
+                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                            -10%
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-semibold text-[#0d2c5c]">
+                        {ron(nightPrice)}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           )}
@@ -567,7 +628,7 @@ export default function RoomDetail() {
                   badge: null,
                   badgeColor: "",
                   hint: "Anulare gratuită · plata la sosire",
-                  priceVal: room ? ron(room.base_price) : "150 RON",
+                  priceVal: ron(Math.round(baseRatePerNight)),
                 },
                 {
                   code: "non_refundable" as const,
@@ -575,7 +636,7 @@ export default function RoomDetail() {
                   badge: "-10%",
                   badgeColor: "bg-emerald-50 text-emerald-800 border-emerald-200",
                   hint: "Cel mai bun preț · fără anulare",
-                  priceVal: room ? ron(Math.round(room.base_price * 0.9)) : "135 RON",
+                  priceVal: ron(Math.round(baseRatePerNight * 0.9)),
                 },
                 {
                   code: "breakfast" as const,
@@ -583,7 +644,7 @@ export default function RoomDetail() {
                   badge: "+35 RON",
                   badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
                   hint: "Bufet suedez inclus zilnic",
-                  priceVal: room ? ron(room.base_price + 35) : "185 RON",
+                  priceVal: ron(Math.round(baseRatePerNight + 35)),
                 },
               ].map((p) => {
                 const isSelected = plan === p.code;
@@ -742,18 +803,39 @@ export default function RoomDetail() {
                     {quote.nights} {quote.nights === 1 ? "noapte" : "nopți"} ·
                     cazare
                   </span>
-                  <span>{ron(subtotal)}</span>
+                  <span>{ron(quote.subtotal)}</span>
                 </div>
                 <div className="flex justify-between items-center text-[#3d4f6b]">
-                  <span>Plan tarifar</span>
-                  <span className="text-xs font-semibold text-[#0d2c5c]">
-                    {plan === "flexible" && "Flexibil (standard)"}
-                    {plan === "non_refundable" && "Nerambursabil (-10% inclus)"}
-                    {plan === "breakfast" && `Mic dejun inclus (+${ron(35 * quote.nights)})`}
+                  <span className="flex items-center gap-1.5">
+                    <span>Plan tarifar</span>
+                    <span className="text-[10.5px] font-bold text-[#0d2c5c] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#e2e8f0]">
+                      {plan === "flexible" && "Flexibil"}
+                      {plan === "non_refundable" && "Nerambursabil"}
+                      {plan === "breakfast" && "Mic dejun"}
+                    </span>
+                  </span>
+                  <span
+                    className={`text-xs font-bold ${
+                      plan === "non_refundable"
+                        ? "text-emerald-700"
+                        : plan === "breakfast"
+                        ? "text-amber-800"
+                        : "text-[#3d4f6b]"
+                    }`}
+                  >
+                    {plan === "flexible" && "Inclus"}
+                    {plan === "non_refundable" && `-${ron(quote.subtotal * 0.1)} (-10%)`}
+                    {plan === "breakfast" && `+${ron(35 * quote.nights)} (+35/noapte)`}
                   </span>
                 </div>
+                {plan !== "flexible" && (
+                  <div className="flex justify-between items-center text-[#3d4f6b] text-[12px] font-medium pt-0.5 border-t border-[#f1f5f9]">
+                    <span>Subtotal ajustat</span>
+                    <span className="font-semibold text-[#0d2c5c]">{ron(subtotal)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-[#3d4f6b]">
-                  <span>Taxe</span>
+                  <span>Taxe (TVA 19%)</span>
                   <span>{ron(taxes)}</span>
                 </div>
                 <div className="flex justify-between pt-2 text-[16px] font-bold text-[#0d2c5c]">

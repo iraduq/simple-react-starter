@@ -32,6 +32,7 @@ export type PricingBreakdown = {
   nights: number;
   price_per_night: number;
   subtotal: number;
+  debug_info?: Record<string, unknown>;
 };
 
 export type BookingPriceCalculation = {
