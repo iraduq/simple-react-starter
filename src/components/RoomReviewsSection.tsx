@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Quote,
+  Sparkles,
 } from "lucide-react";
 import { apiFetch, getCachedUser } from "../lib/auth";
 import { useToast } from "./Toast";
@@ -207,21 +208,13 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
         </div>
       ) : (
         <div className="py-5">
-          {/* Textul recenziei */}
-          <blockquote className="text-[14.5px] sm:text-[15.5px] text-[#1e293b] leading-relaxed italic min-h-[56px]">
+          {/* Textul recenziei oaspetelui */}
+          <blockquote className="text-[14.5px] sm:text-[15.5px] text-[#1e293b] leading-relaxed italic min-h-[52px]">
             „{currentReview.comment}”
           </blockquote>
 
-          {/* Răspuns oficial Casa Esy (dacă există) */}
-          {currentReview.admin_reply && (
-            <div className="mt-3.5 rounded-xl bg-[#f8fafd] border-l-2 border-l-[#c69a3f] p-3 text-[12.5px]">
-              <span className="font-bold text-[#0d2c5c]">Răspunsul gazdei Casa Esy: </span>
-              <span className="text-[#52637a] italic">{currentReview.admin_reply}</span>
-            </div>
-          )}
-
           {/* Profil oaspete și evaluare */}
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#f1f5f9]">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#f1f5f9]">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-[#0d2c5c] text-white font-bold text-[12px] flex items-center justify-center shadow-xs">
                 {currentReview.guest_name ? currentReview.guest_name.charAt(0).toUpperCase() : "O"}
@@ -250,6 +243,20 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
               ))}
             </div>
           </div>
+
+          {/* Răspuns oficial Casa Esy (plasat elegant sub recenzie ca fir de conversație) */}
+          {currentReview.admin_reply && (
+            <div className="mt-4 ml-2 sm:ml-4 pl-3.5 sm:pl-4 border-l-2 border-[#c69a3f]/60 py-1 space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#0d2c5c]">
+                <Sparkles size={12} className="text-[#c69a3f]" />
+                <span>Răspuns din partea conducerii Casa Esy</span>
+                <span className="text-[10px] text-[#8a99ad] font-normal">· Gazdă oficială</span>
+              </div>
+              <p className="text-[13px] leading-relaxed text-[#475569]">
+                {currentReview.admin_reply}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
