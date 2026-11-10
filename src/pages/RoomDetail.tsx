@@ -444,6 +444,10 @@ export default function RoomDetail() {
             </ul>
           )}
 
+          <div id="recenzii">
+            <RoomReviewsSection roomId={String(roomId)} />
+          </div>
+
           {quote && quote.nightly_breakdown.length > 0 && (
             <section className="mt-9 rounded-2xl border border-[#e1e8f0] bg-white p-5">
               <h2
@@ -718,11 +722,6 @@ export default function RoomDetail() {
           </p>
           <div className="hidden" />
         </aside>
-      </div>
-
-      {/* Secțiune dedicată recenzii oaspeți */}
-      <div id="recenzii" className="mt-16 pt-12 border-t border-[#e2e8f0]">
-        <RoomReviewsSection roomId={String(roomId)} />
       </div>
     </div>
   );
