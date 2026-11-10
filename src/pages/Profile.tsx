@@ -31,6 +31,7 @@ import {
   Copy,
   Sparkles,
   Wrench,
+  Star,
 } from "lucide-react";
 import {
   clearSession,
@@ -45,6 +46,7 @@ import { useToast } from "../components/Toast";
 import { downloadBookingInvoicePdf } from "../lib/admin";
 import RoomFolioCard from "../components/upsell/RoomFolioCard";
 import MaintenanceReportModal from "../components/maintenance/MaintenanceReportModal";
+import GuestFeedbackModal from "../components/reviews/GuestFeedbackModal";
 
 type TabKey = "overview" | "personal" | "hospitality" | "reservations" | "security" | "danger";
 
@@ -553,6 +555,7 @@ function OverviewTab({
   const { toast } = useToast();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [maintenanceModalOpen, setMaintenanceModalOpen] = useState(false);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
   const next = useMemo(() => {
     return (
@@ -625,6 +628,14 @@ function OverviewTab({
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <button
+                  onClick={() => setFeedbackModalOpen(true)}
+                  className="px-4 h-11 rounded-[14px] border border-teal-300 hover:border-teal-400 text-teal-800 hover:bg-teal-50 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
+                  title="Oferă o evaluare pentru sejurul dumneavoastră"
+                >
+                  <Star size={14} className="fill-amber-400 text-amber-500" />
+                  <span>Evaluează Sejurul</span>
+                </button>
                 <button
                   onClick={() => setMaintenanceModalOpen(true)}
                   className="px-4 h-11 rounded-[14px] border border-amber-300 hover:border-amber-400 text-amber-800 hover:bg-amber-50 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
@@ -929,6 +940,16 @@ function OverviewTab({
       <MaintenanceReportModal
         isOpen={maintenanceModalOpen}
         onClose={() => setMaintenanceModalOpen(false)}
+        bookingCode={next?.booking_code}
+        unitNumber={next?.unit_number}
+        defaultGuestName={fullName}
+      />
+
+      <GuestFeedbackModal
+        isOpen={feedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        roomId={next?.room && (next.room as any).id ? String((next.room as any).id) : undefined}
+        roomTitle={next?.room?.title}
         bookingCode={next?.booking_code}
         unitNumber={next?.unit_number}
         defaultGuestName={fullName}
