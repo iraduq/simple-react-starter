@@ -564,28 +564,26 @@ export default function RoomDetail() {
                 {
                   code: "flexible" as const,
                   label: "Flexibil",
-                  hint: "Anulare gratuită, plata la sosire",
-                  priceText: room ? `${ron(room.base_price)} / noapte` : "Preț standard",
-                  badge: "Standard",
-                  badgeClass: "bg-slate-100 text-slate-700 border-slate-200",
+                  badge: null,
+                  badgeColor: "",
+                  hint: "Anulare gratuită · plata la sosire",
+                  priceVal: room ? ron(room.base_price) : "150 RON",
                 },
                 {
                   code: "non_refundable" as const,
                   label: "Nerambursabil",
-                  hint: "Cel mai bun preț garantat, fără opțiune de anulare",
-                  priceText: room ? `${ron(Math.round(room.base_price * 0.9))} / noapte` : "-10%",
-                  badge: "-10% reducere",
-                  badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200 font-bold",
-                  extraHint: room ? `Economisești ${ron(Math.round(room.base_price * 0.1))} / noapte` : undefined,
+                  badge: "-10%",
+                  badgeColor: "bg-emerald-50 text-emerald-800 border-emerald-200",
+                  hint: "Cel mai bun preț · fără anulare",
+                  priceVal: room ? ron(Math.round(room.base_price * 0.9)) : "135 RON",
                 },
                 {
                   code: "breakfast" as const,
                   label: "Mic dejun inclus",
-                  hint: "Mic dejun bufet suedez inclus pentru toți oaspeții",
-                  priceText: room ? `${ron(room.base_price + 35)} / noapte` : "+35 RON",
-                  badge: "+35 RON / noapte",
-                  badgeClass: "bg-amber-50 text-amber-900 border-amber-200 font-bold",
-                  extraHint: "Bufet cald și rece inclus zilnic",
+                  badge: "+35 RON",
+                  badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
+                  hint: "Bufet suedez inclus zilnic",
+                  priceVal: room ? ron(room.base_price + 35) : "185 RON",
                 },
               ].map((p) => {
                 const isSelected = plan === p.code;
@@ -594,32 +592,61 @@ export default function RoomDetail() {
                     key={p.code}
                     type="button"
                     onClick={() => setPlan(p.code)}
-                    className={`rounded-2xl border p-3 text-left transition-all cursor-pointer ${
+                    className={`group w-full rounded-2xl border px-3.5 py-2.5 text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
                       isSelected
-                        ? "border-[#c69a3f] bg-[#fffcf5] ring-2 ring-[#c69a3f]/20 shadow-xs"
+                        ? "border-[#c69a3f] bg-[#fffcf5] ring-1.5 ring-[#c69a3f]/30 shadow-xs"
                         : "border-[#e2e8f0] bg-white hover:border-[#cbd5e1] hover:bg-[#fafbfc]"
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[13px] font-bold ${isSelected ? "text-[#0d2c5c]" : "text-[#1e293b]"}`}>
-                          {p.label}
-                        </span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${p.badgeClass}`}>
-                          {p.badge}
-                        </span>
+                    {/* Stânga: Radio dot + Titlu + Subtitlu scurt pe o singură linie */}
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                          isSelected
+                            ? "border-[#c69a3f] bg-[#c69a3f]"
+                            : "border-slate-300 bg-white group-hover:border-slate-400"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                        )}
                       </div>
-                      <span className={`text-[13px] font-extrabold ${isSelected ? "text-[#0d2c5c]" : "text-[#475569]"}`}>
-                        {p.priceText}
-                      </span>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`text-[13px] font-bold whitespace-nowrap truncate ${
+                              isSelected ? "text-[#0d2c5c]" : "text-[#1e293b]"
+                            }`}
+                          >
+                            {p.label}
+                          </span>
+                          {p.badge && (
+                            <span
+                              className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded-md border whitespace-nowrap shrink-0 ${p.badgeColor}`}
+                            >
+                              {p.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-[#8595aa] whitespace-nowrap truncate mt-0.5">
+                          {p.hint}
+                        </p>
+                      </div>
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-[11px] text-[#8595aa]">
-                      <span>{p.hint}</span>
-                      {p.extraHint && (
-                        <span className="text-[10.5px] font-semibold text-emerald-700">
-                          {p.extraHint}
-                        </span>
-                      )}
+
+                    {/* Dreapta: Preț compact și curat pe o linie */}
+                    <div className="text-right shrink-0">
+                      <div
+                        className={`text-[13.5px] font-black whitespace-nowrap ${
+                          isSelected ? "text-[#0d2c5c]" : "text-[#334155]"
+                        }`}
+                      >
+                        {p.priceVal}
+                      </div>
+                      <div className="text-[10px] text-[#8595aa] whitespace-nowrap">
+                        / noapte
+                      </div>
                     </div>
                   </button>
                 );
