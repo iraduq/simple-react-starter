@@ -17,7 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio, Globe, Wrench,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio, Globe, Wrench, Crown,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -45,6 +45,7 @@ import ReviewsTab from "./ReviewsTab";
 import BroadcastTab from "./BroadcastTab";
 import ChannelManagerTab from "./ChannelManagerTab";
 import MaintenanceTab from "./MaintenanceTab";
+import LoyaltyTab from "./LoyaltyTab";
 
 export type TabKey =
   | "bookings"
@@ -68,7 +69,8 @@ export type TabKey =
   | "reviews"
   | "broadcast"
   | "channel_manager"
-  | "maintenance";
+  | "maintenance"
+  | "loyalty";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
@@ -76,6 +78,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "channel_manager", label: "Channel Manager (OTA)", icon: Globe },
   { key: "broadcast", label: "Broadcast & Alerte", icon: Radio },
   { key: "maintenance", label: "Mentenanță & Tichete", icon: Wrench },
+  { key: "loyalty", label: "Program VIP & Puncte", icon: Crown },
   { key: "orders_kds", label: "Comenzi Room Service", icon: ChefHat },
   { key: "coupons", label: "Cupoane & Reduceri", icon: TicketPercent },
   { key: "reviews", label: "Recenzii Verificate #BK", icon: Star },
@@ -363,6 +366,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "reviews" && <ReviewsTab />}
             {tab === "broadcast" && <BroadcastTab />}
             {tab === "maintenance" && <MaintenanceTab />}
+            {tab === "loyalty" && <LoyaltyTab />}
             {tab === "channel_manager" && (
               <ChannelManagerTab onNavigateToTapeChart={() => setTab("tape_chart")} />
             )}

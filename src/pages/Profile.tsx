@@ -47,6 +47,7 @@ import { downloadBookingInvoicePdf } from "../lib/admin";
 import RoomFolioCard from "../components/upsell/RoomFolioCard";
 import MaintenanceReportModal from "../components/maintenance/MaintenanceReportModal";
 import GuestFeedbackModal from "../components/reviews/GuestFeedbackModal";
+import LoyaltyCard from "../components/loyalty/LoyaltyCard";
 
 type TabKey = "overview" | "personal" | "hospitality" | "reservations" | "security" | "danger";
 
@@ -748,6 +749,9 @@ function OverviewTab({
           </div>
         )}
       </div>
+
+      {/* PROGRAM VIP & LOYALTY PRIVILEGE CLUB */}
+      <LoyaltyCard />
 
       {/* NOTA CAMEREI & SOLD RĂMAS (ROOM FOLIO & UPSELLING MIC DEJUN) */}
       {next && (
