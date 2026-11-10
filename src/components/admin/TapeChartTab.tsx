@@ -558,8 +558,23 @@ export default function TapeChartTab() {
                           title={`${guest} (${booking.booking_code || `#${booking.id}`}) • ${dateFmt(booking.check_in)} → ${dateFmt(booking.check_out)}`}
                           className={`z-10 rounded-lg border px-2 flex items-center justify-between gap-1.5 text-[11px] font-semibold shadow-xs transition cursor-pointer overflow-hidden ${barStyle}`}
                         >
-                          <span className="truncate">
-                            {guest}
+                          <span className="truncate flex items-center gap-1.5">
+                            {(booking as any).channel === "booking.com" && (
+                              <span className="px-1 py-0.2 rounded bg-[#003580] text-white text-[9px] font-bold shrink-0">
+                                B.
+                              </span>
+                            )}
+                            {(booking as any).channel === "airbnb" && (
+                              <span className="px-1 py-0.2 rounded bg-[#FF385C] text-white text-[9px] font-bold shrink-0">
+                                A.
+                              </span>
+                            )}
+                            {(booking as any).channel === "expedia" && (
+                              <span className="px-1 py-0.2 rounded bg-[#ffc600] text-[#002244] text-[9px] font-bold shrink-0">
+                                E.
+                              </span>
+                            )}
+                            <span className="truncate">{guest}</span>
                           </span>
                           {booking.booking_code && spanCols >= 2 && (
                             <span className="text-[10px] font-mono opacity-85 shrink-0 bg-black/15 px-1 rounded">
@@ -699,6 +714,28 @@ export default function TapeChartTab() {
                 <div className="font-mono font-bold text-sm text-amber-800 flex items-center gap-1 mt-0.5">
                   <KeyRound className="w-3.5 h-3.5 text-amber-600" />
                   {selectedBooking.booking.access_pin || "Se generează la Self Check-In"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-slate-500">Canal Distribuție</div>
+                <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5 mt-0.5">
+                  {(selectedBooking.booking as any).channel === "booking.com" ? (
+                    <span className="px-2 py-0.5 rounded-full bg-[#003580] text-white text-[11px] font-bold">
+                      Booking.com {(selectedBooking.booking as any).external_reference ? `(${(selectedBooking.booking as any).external_reference})` : ""}
+                    </span>
+                  ) : (selectedBooking.booking as any).channel === "airbnb" ? (
+                    <span className="px-2 py-0.5 rounded-full bg-[#FF385C] text-white text-[11px] font-bold">
+                      Airbnb {(selectedBooking.booking as any).external_reference ? `(${(selectedBooking.booking as any).external_reference})` : ""}
+                    </span>
+                  ) : (selectedBooking.booking as any).channel === "expedia" ? (
+                    <span className="px-2 py-0.5 rounded-full bg-[#ffc600] text-[#002244] text-[11px] font-bold">
+                      Expedia {(selectedBooking.booking as any).external_reference ? `(${(selectedBooking.booking as any).external_reference})` : ""}
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-[11px] font-bold">
+                      Rezervare Directă Casa Esy
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

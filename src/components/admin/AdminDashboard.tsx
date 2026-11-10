@@ -17,7 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio, Globe,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -43,6 +43,7 @@ import TapeChartTab from "./TapeChartTab";
 import CouponsTab from "./CouponsTab";
 import ReviewsTab from "./ReviewsTab";
 import BroadcastTab from "./BroadcastTab";
+import ChannelManagerTab from "./ChannelManagerTab";
 
 export type TabKey =
   | "bookings"
@@ -64,12 +65,14 @@ export type TabKey =
   | "orders_kds"
   | "coupons"
   | "reviews"
-  | "broadcast";
+  | "broadcast"
+  | "channel_manager";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
-  { key: "broadcast", label: "Broadcast & Alerte", icon: Radio },
   { key: "tape_chart", label: "Diagramă Ocupare (PMS)", icon: CalendarRange },
+  { key: "channel_manager", label: "Channel Manager (OTA)", icon: Globe },
+  { key: "broadcast", label: "Broadcast & Alerte", icon: Radio },
   { key: "orders_kds", label: "Comenzi Room Service", icon: ChefHat },
   { key: "coupons", label: "Cupoane & Reduceri", icon: TicketPercent },
   { key: "reviews", label: "Recenzii Verificate #BK", icon: Star },
@@ -356,6 +359,9 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "coupons" && <CouponsTab />}
             {tab === "reviews" && <ReviewsTab />}
             {tab === "broadcast" && <BroadcastTab />}
+            {tab === "channel_manager" && (
+              <ChannelManagerTab onNavigateToTapeChart={() => setTab("tape_chart")} />
+            )}
           </div>
         </main>
       </div>
