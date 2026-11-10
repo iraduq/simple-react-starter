@@ -47,10 +47,13 @@ interface EscalationItem {
 
 const QUICK_DB_QUESTIONS = [
   "Care a fost rezervarea de azi care a adus cei mai mulți bani?",
-  "Care este rezervarea cu cea mai mare valoare din baza de date?",
   "Ce camere sunt libere în acest moment?",
-  "Cine sosește azi la check-in?",
-  "Care sunt încasările totale și câte rezervări active avem?",
+  "Cine sosește azi la check-in și în ce camere?",
+  "Care sunt încasările lunare și câți bani am făcut azi?",
+  "Ce comenzi de room service avem în bucătărie sau livrare?",
+  "Avem vreo problemă sau tichet de mentenanță nerezolvat?",
+  "Care este rezervarea cu cea mai mare valoare din hotel?",
+  "Ce recenzii recente au lăsat oaspeții noștri?",
 ];
 
 export default function ConversationsTab() {
