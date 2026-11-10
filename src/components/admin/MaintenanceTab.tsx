@@ -361,7 +361,7 @@ export default function MaintenanceTab() {
           {[
             { key: "all", label: "Toate" },
             { key: "open", label: "Deschise" },
-            { key: "in_progress", label: "În Lucru" },
+            { key: "in_progress", label: "În lucru" },
             { key: "resolved", label: "Rezolvate" },
           ].map((f) => (
             <button
@@ -467,10 +467,10 @@ export default function MaintenanceTab() {
                       <td className="py-3.5 px-3">
                         <span className="text-[12px] font-bold text-[#0d2c5c] block">
                           {t.department === "mentenanta"
-                            ? "Mentenanță Tehnică"
+                            ? "Mentenanță tehnică"
                             : t.department === "housekeeping"
-                              ? "Housekeeping"
-                              : "IT & Rețea"}
+                              ? "Curățenie și menaj"
+                              : "IT și rețea"}
                         </span>
                         <span className="text-[11.5px] text-[#64748b]">
                           {t.assigned_to || (
@@ -574,7 +574,7 @@ export default function MaintenanceTab() {
                 </div>
                 <div>
                   <h4 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-                    Tichet Nou de Mentenanță
+                    Tichet nou de mentenanță
                   </h4>
                   <p className="text-[11.5px] text-[#64748b] font-['Plus_Jakarta_Sans',sans-serif]">
                     Înregistrare incident tehnic direct din panoul de administrare
@@ -594,60 +594,60 @@ export default function MaintenanceTab() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Cameră / Locație Resort *
+                    Cameră sau zonă resort *
                   </label>
                   <input
                     type="text"
                     required
                     value={newUnitNumber}
                     onChange={(e) => setNewUnitNumber(e.target.value)}
-                    placeholder="Ex: Camera 204 sau Piscină"
+                    placeholder="Ex: Camera 204 sau zona piscinei"
                     className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Categorie Defecțiune *
+                    Categorie defecțiune *
                   </label>
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
                   >
-                    <option value="ac">❄️ Climatizare / Aer Condiționat</option>
-                    <option value="plumbing">🚰 Instalații Sanitare & Apă</option>
-                    <option value="electrical">💡 Electricitate & Iluminat</option>
-                    <option value="tv_wifi">📶 Smart TV, Rețea & Wi-Fi</option>
-                    <option value="housekeeping">✨ Housekeeping / Consumabile</option>
-                    <option value="other">🔧 Alte Solicitări Tehnice</option>
+                    <option value="ac">❄️ Climatizare și aer condiționat</option>
+                    <option value="plumbing">🚰 Instalații sanitare și apă</option>
+                    <option value="electrical">💡 Electricitate și iluminat</option>
+                    <option value="tv_wifi">📶 Smart TV, rețea și Wi-Fi</option>
+                    <option value="housekeeping">✨ Curățenie și consumabile</option>
+                    <option value="other">🔧 Alte solicitări tehnice</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Titlu Incident / Defecțiune *
+                  Titlu incident sau defecțiune *
                 </label>
                 <input
                   type="text"
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Ex: Presiune slabă apă caldă la cabina de duș"
+                  placeholder="Ex: Presiune scăzută la apa caldă în cabina de duș"
                   className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Descriere Detaliată a Problemei *
+                  Descriere detaliată a problemei *
                 </label>
                 <textarea
                   required
                   rows={3}
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Descrieți simptomele defecțiunii, instrucțiuni de acces sau orice detalii relevante pentru echipă..."
+                  placeholder="Descrie simptomele defecțiunii, detalii de acces sau alte instrucțiuni utile pentru tehnician..."
                   className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
                 />
               </div>
@@ -655,33 +655,33 @@ export default function MaintenanceTab() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Prioritate Incident
+                    Prioritate incident
                   </label>
                   <select
                     value={newPriority}
                     onChange={(e) => setNewPriority(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
                   >
-                    <option value="urgent">🚨 Urgentă (SLA 30 min)</option>
-                    <option value="high">⚠️ Ridicată (SLA 60 min)</option>
-                    <option value="normal">⏱️ Normală (SLA 120 min)</option>
-                    <option value="low">☕ Scăzută (SLA 240 min)</option>
+                    <option value="urgent">🚨 Urgentă (intervenție în 30 min)</option>
+                    <option value="high">⚠️ Ridicată (intervenție în 60 min)</option>
+                    <option value="normal">⏱️ Normală (rezolvare în 2 ore)</option>
+                    <option value="low">☕ Scăzută (pe parcursul zilei)</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Atribuire Tehnician
+                    Atribuire tehnician
                   </label>
                   <select
                     value={newAssignedTo}
                     onChange={(e) => setNewAssignedTo(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
                   >
-                    <option value="Echipa Tehnică de Gardă">Echipa Tehnică de Gardă</option>
-                    <option value="Ion Popescu (Instalații)">Ion Popescu (Instalații)</option>
-                    <option value="Adrian Nistor (Electrician)">Adrian Nistor (Electrician)</option>
-                    <option value="Vlad Enache (IT & Rețea)">Vlad Enache (IT & Rețea)</option>
-                    <option value="Housekeeping Șef Tură">Housekeeping Șef Tură</option>
+                    <option value="Echipa Tehnică de Gardă">Echipa tehnică de gardă</option>
+                    <option value="Ion Popescu (Instalații)">Ion Popescu (instalații sanitare)</option>
+                    <option value="Adrian Nistor (Electrician)">Adrian Nistor (electrician)</option>
+                    <option value="Vlad Enache (IT & Rețea)">Vlad Enache (rețea și IT)</option>
+                    <option value="Housekeeping Șef Tură">Șef tură curățenie</option>
                   </select>
                 </div>
               </div>
@@ -689,19 +689,19 @@ export default function MaintenanceTab() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Raportor / Oaspete
+                    Persoană raportoare sau oaspete
                   </label>
                   <input
                     type="text"
                     value={newGuestName}
                     onChange={(e) => setNewGuestName(e.target.value)}
-                    placeholder="Nume oaspete sau Recepție"
+                    placeholder="Ex: Nume oaspete sau recepție"
                     className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Telefon Contact (opțional)
+                    Telefon de contact (opțional)
                   </label>
                   <input
                     type="tel"
@@ -727,7 +727,7 @@ export default function MaintenanceTab() {
                   className="px-5 py-2.5 rounded-[12px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-bold flex items-center gap-2 shadow-sm transition active:scale-[0.99] disabled:opacity-50"
                 >
                   <Plus size={15} className="text-[#c69a3f]" />
-                  <span>{creatingTicket ? "Se înregistrează..." : "Înregistrează Tichetul"}</span>
+                  <span>{creatingTicket ? "Se înregistrează..." : "Înregistrează tichetul"}</span>
                 </button>
               </div>
             </form>
@@ -741,7 +741,7 @@ export default function MaintenanceTab() {
           <div className="bg-white rounded-[24px] max-w-md w-full p-6 border border-[#e1e8f0] shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-                Finalizează Tichet de Mentenanță
+                Finalizează tichetul de mentenanță
               </h4>
               <button
                 onClick={() => setResolvingId(null)}
@@ -754,7 +754,7 @@ export default function MaintenanceTab() {
             <form onSubmit={handleResolveSubmit} className="space-y-4">
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Notă Tehnică Remediere:
+                  Notă tehnică de remediere:
                 </label>
                 <textarea
                   required
@@ -780,7 +780,7 @@ export default function MaintenanceTab() {
                   className="px-5 py-2 rounded-[10px] bg-emerald-600 hover:bg-emerald-700 text-white text-[12.5px] font-bold flex items-center gap-1.5 shadow-sm"
                 >
                   <Check size={14} />
-                  <span>{submittingNote ? "Se salvează..." : "Marchează Rezolvat"}</span>
+                  <span>{submittingNote ? "Se salvează..." : "Marchează ca rezolvat"}</span>
                 </button>
               </div>
             </form>
