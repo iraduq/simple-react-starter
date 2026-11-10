@@ -329,21 +329,21 @@ export default function EmailStudioTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Design & Comunicare Automată"
-        title="Email Studio & Visual Builder (Unlayer)"
+        eyebrow="Design și comunicare automată"
+        title="Email studio și editor vizual (Unlayer)"
         action={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="ghost" onClick={handleReset} disabled={saving}>
-              <RotateCcw size={14} /> Resetează Default
+              <RotateCcw size={14} /> Resetează șablonul
             </Button>
             <Button variant="ghost" onClick={() => setTestModalOpen(true)}>
-              <Send size={14} /> Trimite Email Test
+              <Send size={14} /> Trimite email de test
             </Button>
             <Button variant="gold" onClick={() => setCampaignModalOpen(true)}>
-              <Megaphone size={14} /> Trimite Campanie Oaspeți
+              <Megaphone size={14} /> Trimite campanie către oaspeți
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              <Save size={14} /> {saving ? "Se salvează..." : "Salvează Șablonul"}
+              <Save size={14} /> {saving ? "Se salvează..." : "Salvează șablonul"}
             </Button>
           </div>
         }

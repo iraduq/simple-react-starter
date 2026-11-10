@@ -21,9 +21,9 @@ import { useAdminLiveSync } from "../../context/AdminLiveSyncContext";
 
 type Tab = "overview" | "ledger" | "forecast";
 const TABS: { key: Tab; label: string }[] = [
-  { key: "overview", label: "Tablou General & KPI-uri Hoteliere" },
-  { key: "ledger", label: "Registru & Detaliu Sejururi Lunare" },
-  { key: "forecast", label: "Prognoză Sezonieră & Tarife" },
+  { key: "overview", label: "Tablou general și indicatori hotelieri" },
+  { key: "ledger", label: "Registru și detaliu sejururi lunare" },
+  { key: "forecast", label: "Prognoză sezonieră și tarife" },
 ];
 
 export default function AnalyticsTab() {
@@ -72,8 +72,8 @@ export default function AnalyticsTab() {
   return (
     <div className="w-full space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       <SectionHeader
-        eyebrow="Gestiune & Performanță Financiară"
-        title="Rapoarte & Indicatori de Performanță"
+        eyebrow="Gestiune și performanță financiară"
+        title="Rapoarte și indicatori de performanță"
         description="Indicatori financiari cheie (ADR, RevPAR, grad de ocupare), sinteze executive de performanță și registrul contabil detaliat al sejururilor."
         action={
           <AnalyticsPeriodPicker

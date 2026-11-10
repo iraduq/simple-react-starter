@@ -216,8 +216,8 @@ export default function AuditLogsTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Securitate, Firewall & Audit"
-        title="Panou Firewall, Mentenanță & Jurnal de Securitate"
+        eyebrow="Securitate, firewall și audit"
+        title="Panou de firewall, mentenanță și securitate"
         action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}
       />
 
@@ -237,7 +237,7 @@ export default function AuditLogsTab() {
                 </span>
                 <div>
                   <h3 className="text-[18px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
-                    Mod Mentenanță Platformă
+                    Mod de mentenanță al platformei
                   </h3>
                   <p className="text-[12px] text-[#6b7c99]">
                     IP-ul tău curent: <code className="font-bold text-[#0d2c5c]">{currentClientIp || "—"}</code>
@@ -245,12 +245,12 @@ export default function AuditLogsTab() {
                 </div>
               </div>
               <Badge tone={maintenance ? "red" : "green"}>
-                {maintenance ? "Mentenanță Activă" : "Sistem Online"}
+                {maintenance ? "Mentenanță activă" : "Sistem online"}
               </Badge>
             </div>
 
             <p className="text-[13px] text-[#4f6280] leading-relaxed mt-2">
-              Când Modul Mentenanță este activat, vizitatorii publici primesc răspunsul <code>503 Service Unavailable</code>, în timp ce panoul tău de administrare rămâne accesibil.
+              Când modul de mentenanță este activat, vizitatorii publici primesc răspunsul <code>503 Service Unavailable</code>, în timp ce panoul tău de administrare rămâne accesibil.
             </p>
           </div>
 
@@ -262,7 +262,7 @@ export default function AuditLogsTab() {
               className="w-full justify-center"
             >
               <Power size={15} />
-              {maintenance ? "Dezactivează Mentenanța (Repornește Accesul Public)" : "Activează Modul Mentenanță"}
+              {maintenance ? "Dezactivează mentenanța (repornește accesul public)" : "Activează modul de mentenanță"}
             </Button>
           </div>
         </Card>
@@ -272,7 +272,7 @@ export default function AuditLogsTab() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 className="text-[18px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
-                Firewall & Lista Neagră IP-uri ({blockedIps.length})
+                Firewall și lista neagră de IP-uri ({blockedIps.length})
               </h3>
               <p className="text-[12px] text-[#6b7c99]">
                 Blochează instantaneu adrese IP sau clase de rețea suspecte (ex: <code>203.0.113.45</code>)

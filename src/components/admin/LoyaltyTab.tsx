@@ -115,8 +115,8 @@ export default function LoyaltyTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Fidelizare & Relații Clienți VIP"
-        title="Casa Esy Privilege Club — Management Puncte & Statut VIP"
+        eyebrow="Fidelizare și oaspeți VIP"
+        title="Clubul de privilegii Casa Esy și statutul VIP"
         description="Gestionează membrii clubului de fidelitate, nivelurile de loialitate (Bronze, Silver, Gold, Platinum) și alocă puncte bonus."
       />
 

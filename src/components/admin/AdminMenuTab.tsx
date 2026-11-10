@@ -278,8 +278,8 @@ export default function AdminMenuTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Gastronomie & Baruri"
-        title="Meniu Digital"
+        eyebrow="Gastronomie și bar"
+        title="Meniu digital"
         action={
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={openNewCat}>

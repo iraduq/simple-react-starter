@@ -754,7 +754,7 @@ export default function UnitsTab() {
     <div className="w-full min-h-screen bg-white text-[#0d2c5c] p-4 sm:p-8 space-y-8">
       <div className="max-w-7xl mx-auto space-y-8 pb-10 bg-white">
         <SectionHeader
-          eyebrow="Status & Ocupare"
+          eyebrow="Stare și ocupare"
           title="Unități fizice"
           description="Alege o cameră, vezi statusul fiecărei unități și zilele în care e ocupată — cu oaspetele aferent."
           action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}

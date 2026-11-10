@@ -249,10 +249,10 @@ export default function BroadcastTab() {
         <div>
           <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
             <Radio size={14} className="text-[#c69a3f] animate-pulse" />
-            <span>Marketing Oaspeți & Alerte Live</span>
+            <span>Marketing și alerte în timp real</span>
           </div>
           <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold text-[#0d2c5c] leading-tight">
-            Centru de Notificări Push & Broadcast
+            Centru de notificări push și mesaje live
           </h2>
           <p className="text-[13.5px] text-[#64748b] mt-0.5 max-w-2xl font-['Plus_Jakarta_Sans',sans-serif]">
             Trimite oferte speciale, invitații la evenimente sau anunțuri importante. Notificările apar instant pe ecranele oaspeților prin conexiune WebSocket în timp real.
@@ -267,7 +267,7 @@ export default function BroadcastTab() {
           <button
             onClick={loadBroadcasts}
             disabled={loading}
-            className="w-10 h-10 rounded-full border border-[#e1e8f0] hover:border-[#c69a3f] flex items-center justify-center text-[#0d2c5c] hover:bg-[#f8fafc] transition"
+            className="w-10 h-10 rounded-full border border-[#e1e8f0] hover:border-[#c69a3f] flex items-center justify-center text-[#0d2c5c] hover:bg-[#f8fafc] transition cursor-pointer"
             title="Reîmprospătează"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
@@ -278,7 +278,7 @@ export default function BroadcastTab() {
       {/* ── PRESETURI RAPIDE ── */}
       <div>
         <p className="text-[11px] font-bold tracking-[0.16em] uppercase text-[#64748b] mb-3 font-['Plus_Jakarta_Sans',sans-serif]">
-          Șabloane Rapide de Marketing (Apasă pentru pre-completare):
+          Șabloane rapide de marketing (apasă pentru pre-completare):
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {PRESET_TEMPLATES.map((p) => {
@@ -314,7 +314,7 @@ export default function BroadcastTab() {
           <div className="flex items-center gap-2 mb-5">
             <Send size={16} className="text-[#c69a3f]" />
             <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-              Compune Notificare Broadcast
+              Compune notificare nouă
             </h3>
           </div>
 
@@ -434,7 +434,7 @@ export default function BroadcastTab() {
               className="w-full mt-2 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99] disabled:opacity-50"
             >
               <Send size={15} className="text-[#c69a3f]" />
-              <span>{submitting ? "Se transmite..." : "Transmite Acum Live către Oaspeți"}</span>
+              <span>{submitting ? "Se transmite..." : "Transmite acum către oaspeți"}</span>
             </button>
           </form>
         </div>
@@ -445,7 +445,7 @@ export default function BroadcastTab() {
             <div className="flex items-center gap-2">
               <Eye size={16} className="text-[#c69a3f]" />
               <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-                Previzualizare Alertă Oaspete
+                Previzualizare alertă oaspete
               </h3>
             </div>
             <span className="text-[11px] font-bold text-[#0d2c5c] bg-amber-50 border border-[#c69a3f]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">

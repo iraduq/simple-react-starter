@@ -425,8 +425,8 @@ export default function LostFoundTab() {
     <div className="w-full space-y-6">
       {/* ── HEADER ── */}
       <SectionHeader
-        eyebrow="Housekeeping & Recepție"
-        title="Registru Lost & Found"
+        eyebrow="Curățenie și recepție"
+        title="Obiecte pierdute și găsite"
         description="Evidența obiectelor uitate de oaspeți în camere: tichete rapide de la cameriste, predare la recepție și expediere prin curier cu AWB."
         action={
           <div className="flex items-center gap-3">

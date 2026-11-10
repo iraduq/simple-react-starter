@@ -346,8 +346,8 @@ export default function SmartLockTab() {
   return (
     <div className="space-y-8">
       <SectionHeader
-        eyebrow="Hardware IoT & Securitate Acces"
-        title="Smart Lock, Clanțe Inteligente & Acces Camere"
+        eyebrow="Securitate și control acces"
+        title="Sistem smart lock și acces în camere"
         action={
           <LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />
         }

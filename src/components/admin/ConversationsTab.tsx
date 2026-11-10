@@ -162,15 +162,15 @@ export default function ConversationsTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Interogare Live DB & Dialog Oaspeți"
-        title="Asistent Bază de Date & Inspector Conversații"
+        eyebrow="Interogare directă și dialog cu oaspeții"
+        title="Asistent pentru baza de date și conversații"
         action={
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => void loadOverview()}>
               <RefreshCw size={14} /> Reîmprospătează
             </Button>
             <Button variant="gold" onClick={handleExportCsv} disabled={exporting}>
-              <Download size={14} /> {exporting ? "Se exportă..." : "Exportă Conversații CSV"}
+              <Download size={14} /> {exporting ? "Se exportă..." : "Exportă conversații CSV"}
             </Button>
           </div>
         }
@@ -188,7 +188,7 @@ export default function ConversationsTab() {
           }`}
         >
           <Database size={15} className="text-[#c69a3f]" />
-          Întreabă Baza de Date (Live SQL)
+          Întreabă baza de date
         </button>
 
         <button
@@ -201,7 +201,7 @@ export default function ConversationsTab() {
           }`}
         >
           <MessageSquare size={15} />
-          Conversații Oaspeți ({sessions.length})
+          Conversații cu oaspeții ({sessions.length})
         </button>
 
         <button
@@ -214,7 +214,7 @@ export default function ConversationsTab() {
           }`}
         >
           <AlertTriangle size={15} className="text-amber-600" />
-          Alerte & Escaladări ({escalations.length})
+          Alerte și escaladări ({escalations.length})
         </button>
       </div>
 
@@ -228,13 +228,13 @@ export default function ConversationsTab() {
                   className="text-[22px] font-bold text-[#0d2c5c] flex items-center gap-2 font-['Outfit',sans-serif]"
                 >
                   <Sparkles size={20} className="text-[#c69a3f]" />
-                  Interogare Directă în Baza de Date (Web & Telegram)
+                  Interogare directă în baza de date (web și Telegram)
                 </h3>
                 <p className="text-[13px] text-[#6b7c99] mt-1">
                   Scrie orice întrebare despre rezervări, încasări, camere, oaspeți sau produse — sistemul interoghează tabelele SQL în timp real și îți răspunde exact. Aceeași logică funcționează acum și pe botul tău de Telegram!
                 </p>
               </div>
-              <Badge tone="gold">Live DB</Badge>
+              <Badge tone="gold">Bază de date live</Badge>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -253,13 +253,13 @@ export default function ConversationsTab() {
                 className="shrink-0"
               >
                 <Send size={14} />
-                {askingDb ? "Se interoghează DB..." : " Caută în Baza de Date"}
+                {askingDb ? "Se interoghează DB..." : " Caută în baza de date"}
               </Button>
             </div>
 
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#4f6280] mb-2">
-                Întrebări frecvente (Click pentru rulare instantanee):
+                Întrebări frecvente (apasă pentru rulare directă):
               </div>
               <div className="flex flex-wrap gap-2">
                 {QUICK_DB_QUESTIONS.map((q) => (

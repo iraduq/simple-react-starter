@@ -108,8 +108,8 @@ export default function QrStudioTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Instrumente Recepție & Camere"
-        title="Studio Coduri QR & Carduri Wi-Fi"
+        eyebrow="Instrumente pentru recepție și camere"
+        title="Studio de coduri QR și carduri Wi-Fi"
         action={
           qrImageUrl ? (
             <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export default function QrStudioTab() {
                 <Download size={14} /> Descarcă PNG
               </Button>
               <Button variant="gold" onClick={printCard}>
-                <Printer size={14} /> Printează Cardul
+                <Printer size={14} /> Printează cardul
               </Button>
             </div>
           ) : null

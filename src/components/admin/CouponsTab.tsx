@@ -177,13 +177,13 @@ export default function CouponsTab() {
   return (
     <div className="font-['Plus_Jakarta_Sans',sans-serif]">
       <SectionHeader
-        eyebrow="Marketing & Campanii Email Studio"
-        title="Cupoane Promoționale & Reduceri Directe"
+        eyebrow="Marketing și campanii promoționale"
+        title="Cupoane promoționale și reduceri directe"
         description="Creează coduri promoționale pe care le trimiți prin Email Studio (Unlayer) și pe care oaspeții le aplică direct la pasul de rezervare a camerei."
         actions={
           <PrimaryButton onClick={() => setShowCreate(true)}>
             <Plus className="w-4 h-4" />
-            Creează Cupon Promoțional
+            Creează cupon promoțional
           </PrimaryButton>
         }
       />
@@ -193,7 +193,7 @@ export default function CouponsTab() {
         <div className="space-y-2 max-w-xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdf8ec] border border-[#c69a3f]/30 text-[#8a6420] text-[11px] font-['Plus_Jakarta_Sans',sans-serif] font-bold uppercase tracking-wider shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#c69a3f]" />
-            Integrat cu Email Studio & Checkout Camere
+            Integrat cu Email Studio și pagina de checkout
           </div>
           <h3 className="font-['Outfit',sans-serif] font-bold text-xl text-[#0d2c5c] leading-tight">
             Testează în timp real cum se aplică reducerea pentru oaspete

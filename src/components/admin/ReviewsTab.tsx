@@ -201,8 +201,8 @@ export default function ReviewsTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Reputație & AI Sentiment Engine"
-        title="Centru Feedback Post-Checkout & Analiză Inteligentă"
+        eyebrow="Reputație și recenzii oaspeți"
+        title="Feedback de la oaspeți și evaluare sejururi"
         description="Monitorizează scorurile multi-criteriale, analiza sentimentului în timp real cu AI, cele mai apreciate facilități și reclamațiile recurente."
       />
 

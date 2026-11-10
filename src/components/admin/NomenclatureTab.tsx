@@ -223,7 +223,7 @@ export default function NomenclatureTab() {
 
   return (
     <div className="w-full space-y-4">
-      <SectionHeader eyebrow="Configurări" title="Nomenclator & Facilități" />
+      <SectionHeader eyebrow="Configurări" title="Nomenclator și facilități" />
       <div className="mb-5 flex w-full gap-1 overflow-x-auto rounded-xl border border-[#e1e8f0] bg-white p-1 sm:w-auto sm:inline-flex">
         {SECTIONS.map((s) => (
           <button

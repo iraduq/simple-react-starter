@@ -67,7 +67,7 @@ const COLUMNS: {
 }[] = [
   {
     key: "new",
-    title: "Comenzi Noi",
+    title: "Comenzi noi",
     subtitle: "Așteaptă preluarea",
     badgeBg: "bg-[#fdf8ec] text-[#8a6420] border-[#c69a3f]/30",
     borderAccent: "border-t-4 border-t-[#c69a3f]",
@@ -75,15 +75,15 @@ const COLUMNS: {
   },
   {
     key: "preparing",
-    title: "În Preparare",
-    subtitle: "Bucătărie Room Service",
+    title: "În preparare",
+    subtitle: "Bucătărie room service",
     badgeBg: "bg-[#f0f4fa] text-[#0d2c5c] border-[#0d2c5c]/20",
     borderAccent: "border-t-4 border-t-[#0d2c5c]",
     icon: ChefHat,
   },
   {
     key: "delivering",
-    title: "În Livrare",
+    title: "În livrare",
     subtitle: "În drum spre cameră",
     badgeBg: "bg-[#0d2c5c]/10 text-[#0d2c5c] border-[#0d2c5c]/25",
     borderAccent: "border-t-4 border-t-[#0d2c5c]",
@@ -91,7 +91,7 @@ const COLUMNS: {
   },
   {
     key: "delivered",
-    title: "Livrate în Cameră",
+    title: "Livrate în cameră",
     subtitle: "Predate oaspeților",
     badgeBg: "bg-emerald-50 text-emerald-800 border-emerald-300",
     borderAccent: "border-t-4 border-t-emerald-600",
@@ -263,13 +263,13 @@ export default function OrdersKdsTab() {
   return (
     <div>
       <SectionHeader
-        eyebrow="Kitchen Display System (KDS) · Room Service"
-        title="Comenzi Room Service în Cameră"
+        eyebrow="Sistem bucătărie (KDS) și room service"
+        title="Comenzi de room service în cameră"
         description="Panou sincronizat în timp real prin WebSockets cu comenzile plasate de oaspeții cazați în prezent. Orice schimbare de etapă se vede live pe pagina de progres a oaspetelui."
         actions={
           <PrimaryButton onClick={() => setShowModal(true)}>
             <Plus className="w-4 h-4" />
-            Comandă Telefonică la Cameră
+            Comandă telefonică la cameră
           </PrimaryButton>
         }
       />
@@ -437,8 +437,8 @@ export default function OrdersKdsTab() {
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
-        title="Adaugă Comandă Room Service la Cameră"
-        subtitle="Selectează una dintre camerele disponibile din hotel și trimite comanda direct în KDS."
+        title="Adaugă o comandă de room service"
+        subtitle="Selectează una dintre camerele disponibile din hotel și trimite comanda direct în bucătărie."
         footer={
           <>
             <GhostButton onClick={() => setShowModal(false)}>Anulează</GhostButton>

@@ -283,8 +283,8 @@ export default function TapeChartTab() {
   return (
     <div>
       <SectionHeader
-        eyebrow="Hotel Property Management System (PMS)"
-        title="Diagramă Orizontală de Ocupare (Tape Chart)"
+        eyebrow="Sistem de gestiune hotelieră (PMS)"
+        title="Diagramă de ocupare a camerelor (tape chart)"
         description="Vizualizare completă pe unități fizice (Camera 101, 102...) și zilele lunii. Apasă pe orice bară de rezervare pentru detalii, PIN Smart Lock sau descărcarea facturii PDF."
         actions={
           <div className="flex items-center gap-2">

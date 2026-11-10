@@ -249,10 +249,10 @@ export default function MaintenanceTab() {
         <div>
           <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
             <Wrench size={14} className="text-[#c69a3f]" />
-            <span>Operațiuni Hoteliere & SLA Mentenanță</span>
+            <span>Operațiuni hoteliere și intervenții tehnice</span>
           </div>
           <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold text-[#0d2c5c] leading-tight">
-            Mentenanță & Incident Management
+            Mentenanță și tichete de service
           </h2>
           <p className="text-[13.5px] text-[#64748b] mt-0.5 max-w-2xl font-['Plus_Jakarta_Sans',sans-serif]">
             Urmărirea în timp real a defecțiunilor semnalate de turiști, atribuirea către echipe tehnice și contorizarea timpului de remediere conform SLA.
@@ -263,15 +263,15 @@ export default function MaintenanceTab() {
           <button
             type="button"
             onClick={() => setCreateModalOpen(true)}
-            className="px-4 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99]"
+            className="px-4 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99] cursor-pointer"
           >
             <Plus size={16} className="text-[#c69a3f]" />
-            <span>Tichet Nou Mentenanță</span>
+            <span>Tichet nou de mentenanță</span>
           </button>
           <button
             onClick={loadData}
             disabled={loading}
-            className="w-10 h-10 rounded-full border border-[#0d2c5c]/15 hover:border-[#0d2c5c] flex items-center justify-center text-[#0d2c5c] hover:bg-[#0d2c5c]/5 transition"
+            className="w-10 h-10 rounded-full border border-[#0d2c5c]/15 hover:border-[#0d2c5c] flex items-center justify-center text-[#0d2c5c] hover:bg-[#0d2c5c]/5 transition cursor-pointer"
             title="Reîmprospătează tichetele"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
@@ -397,7 +397,7 @@ export default function MaintenanceTab() {
       <div className="bg-white rounded-[24px] border border-[#e1e8f0] p-6 shadow-[0_10px_35px_rgba(13,44,92,0.06)]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-            Listă Tichete Incident ({filteredTickets.length})
+            Listă tichete de incident ({filteredTickets.length})
           </h3>
         </div>
 
@@ -412,12 +412,12 @@ export default function MaintenanceTab() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#e1e8f0] text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                  <th className="py-3 px-3">Tichet & Dată</th>
-                  <th className="py-3 px-3">Cameră & Oaspete</th>
+                  <th className="py-3 px-3">Tichet și dată</th>
+                  <th className="py-3 px-3">Cameră și oaspete</th>
                   <th className="py-3 px-3">Defecțiune</th>
-                  <th className="py-3 px-3">Departament / Tehnician</th>
-                  <th className="py-3 px-3">Prioritate & SLA</th>
-                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3">Departament / tehnician</th>
+                  <th className="py-3 px-3">Prioritate și SLA</th>
+                  <th className="py-3 px-3">Stare</th>
                   <th className="py-3 px-3 text-right">Acțiuni</th>
                 </tr>
               </thead>

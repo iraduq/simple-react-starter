@@ -199,12 +199,12 @@ export default function ChannelManagerTab({
       {/* ── HEADER ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#0d2c5c]/10">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#0284c7] mb-1">
-            <Globe size={14} className="text-[#00a896] animate-pulse" />
-            <span>Distribuție Canale Externe & Sincronizare OTA</span>
+          <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
+            <Globe size={14} className="text-[#c69a3f] animate-pulse" />
+            <span>Distribuție canale externe și sincronizare OTA</span>
           </div>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[34px] font-semibold text-[#0d2c5c] leading-tight">
-            Simulator de Channel Manager (Booking.com & Airbnb)
+          <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold text-[#0d2c5c] leading-tight">
+            Sincronizare channel manager (Booking.com și Airbnb)
           </h2>
           <p className="text-[13.5px] text-[#64748b] mt-0.5 max-w-2xl font-['Plus_Jakarta_Sans',sans-serif]">
             Sincronizare bidirecțională de tarife și disponibilitate. Simulează primirea unei rezervări externe în timp real pentru a vedea blocarea automată a camerei în PMS.
@@ -215,10 +215,10 @@ export default function ChannelManagerTab({
           <button
             onClick={handleSyncNow}
             disabled={syncingAll}
-            className="px-5 py-2.5 rounded-[14px] bg-gradient-to-r from-[#00a896] to-[#0284c7] hover:brightness-105 text-white text-[12.5px] font-bold flex items-center gap-2 shadow-[0_8px_20px_rgba(0,168,150,0.25)] transition active:scale-95 disabled:opacity-50"
+            className="px-5 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[12.5px] font-bold flex items-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw size={14} className={syncingAll ? "animate-spin" : ""} />
-            <span>{syncingAll ? "Se sincronizează..." : "Sincronizează Canalele Live"}</span>
+            <span>{syncingAll ? "Se sincronizează..." : "Sincronizează canalele acum"}</span>
           </button>
         </div>
       </div>
