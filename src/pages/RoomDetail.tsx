@@ -97,21 +97,28 @@ export default function RoomDetail() {
           });
         } else if (payload.event === "room_released") {
           setLiveHeldInfo(null);
-        } else if (payload.event === "rooms_updated" || payload.event === "pricing_updated") {
-          apiFetch<RoomDetailType>(`/rooms/${roomId}`).then(setRoom).catch(() => {});
-        } else if (payload.event === "room_booked" || payload.event === "payment_confirmed") {
+        } else if (
+          payload.event === "rooms_updated" ||
+          payload.event === "pricing_updated"
+        ) {
+          apiFetch<RoomDetailType>(`/rooms/${roomId}`)
+            .then(setRoom)
+            .catch(() => {});
+        } else if (
+          payload.event === "room_booked" ||
+          payload.event === "payment_confirmed"
+        ) {
           setLiveHeldInfo(null);
           if (payload.check_in && payload.check_out) {
             const bookedDays = nightsBetween(
               payload.check_in.slice(0, 10),
-              payload.check_out.slice(0, 10)
+              payload.check_out.slice(0, 10),
             );
             setBlocked((prev) => {
               const next = new Set(prev);
               bookedDays.forEach((d) => next.add(d));
               return next;
             });
-
           }
         }
       }
@@ -127,7 +134,7 @@ export default function RoomDetail() {
     checkIn &&
     checkOut &&
     liveHeldInfo.checkIn < checkOut &&
-    liveHeldInfo.checkOut > checkIn
+    liveHeldInfo.checkOut > checkIn,
   );
 
   useEffect(() => {
@@ -196,16 +203,7 @@ export default function RoomDetail() {
     } finally {
       setQuoting(false);
     }
-  }, [
-    roomId,
-    checkIn,
-    checkOut,
-    nights,
-    hasConflict,
-    plan,
-    adults,
-    children,
-  ]);
+  }, [roomId, checkIn, checkOut, nights, hasConflict, plan, adults, children]);
 
   useEffect(() => {
     void loadQuote();
@@ -499,50 +497,6 @@ export default function RoomDetail() {
           <div id="recenzii">
             <RoomReviewsSection roomId={String(roomId)} />
           </div>
-
-          {quote && quote.nightly_breakdown.length > 0 && (
-            <section className="mt-9 rounded-2xl border border-[#e1e8f0] bg-white p-5">
-              <h2
-                className="flex items-center gap-2 text-[15px] text-[#0d2c5c]"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                <CalendarDays size={16} className="text-[#c69a3f]" /> Preț
-                dinamic pe nopți
-              </h2>
-              <p className="mt-1 text-[12px] text-[#8595aa]">
-                Tarifele includ sezonalitatea, nopțile orfane și planul tarifar
-                selectat.
-              </p>
-              <ul className="mt-4 divide-y divide-[#eef2f8]">
-                {quote.nightly_breakdown.map((n) => {
-                  const nightPrice = adjustNightPrice(n.price_per_night);
-                  return (
-                    <li
-                      key={n.date}
-                      className="flex items-center justify-between py-2.5 text-[13.5px]"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-[#3d4f6b]">{dayLabel(n.date)}</span>
-                        {plan === "breakfast" && (
-                          <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
-                            +mic dejun
-                          </span>
-                        )}
-                        {plan === "non_refundable" && (
-                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                            -10%
-                          </span>
-                        )}
-                      </div>
-                      <span className="font-semibold text-[#0d2c5c]">
-                        {ron(nightPrice)}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          )}
         </div>
 
         <aside className="h-fit rounded-2xl border border-[#e1e8f0] bg-white p-5 lg:sticky lg:top-24">
@@ -627,15 +581,16 @@ export default function RoomDetail() {
                   label: "Flexibil",
                   badge: null,
                   badgeColor: "",
-                  hint: "Anulare gratuită · plata la sosire",
+                  hint: "Anulare gratuită până la 30 zile înainte",
                   priceVal: ron(Math.round(baseRatePerNight)),
                 },
                 {
                   code: "non_refundable" as const,
                   label: "Nerambursabil",
                   badge: "-10%",
-                  badgeColor: "bg-emerald-50 text-emerald-800 border-emerald-200",
-                  hint: "Cel mai bun preț · fără anulare",
+                  badgeColor:
+                    "bg-emerald-50 text-emerald-800 border-emerald-200",
+                  hint: "Fără anulare sau rambursare",
                   priceVal: ron(Math.round(baseRatePerNight * 0.9)),
                 },
                 {
@@ -643,7 +598,7 @@ export default function RoomDetail() {
                   label: "Mic dejun inclus",
                   badge: "+35 RON",
                   badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
-                  hint: "Bufet suedez inclus zilnic",
+                  hint: "Bufet suedez inclus · anulare 30 zile",
                   priceVal: ron(Math.round(baseRatePerNight + 35)),
                 },
               ].map((p) => {
@@ -732,7 +687,9 @@ export default function RoomDetail() {
             <div className="flex gap-2">
               <input
                 value={couponCodeInput}
-                onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                onChange={(e) =>
+                  setCouponCodeInput(e.target.value.toUpperCase())
+                }
                 placeholder="Ex: VARA2026 sau ESYVIP"
                 className={`${inputCls} font-mono uppercase`}
               />
@@ -787,7 +744,9 @@ export default function RoomDetail() {
               >
                 <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500 animate-pulse" />
                 <span>
-                  Această cameră este reținută temporar de un alt oaspete pentru finalizarea plății. Vă rugăm să așteptați câteva minute sau să alegeți altă perioadă.
+                  Această cameră este reținută temporar de un alt oaspete pentru
+                  finalizarea plății. Vă rugăm să așteptați câteva minute sau să
+                  alegeți altă perioadă.
                 </span>
               </div>
             )}
@@ -819,19 +778,23 @@ export default function RoomDetail() {
                       plan === "non_refundable"
                         ? "text-emerald-700"
                         : plan === "breakfast"
-                        ? "text-amber-800"
-                        : "text-[#3d4f6b]"
+                          ? "text-amber-800"
+                          : "text-[#3d4f6b]"
                     }`}
                   >
                     {plan === "flexible" && "Inclus"}
-                    {plan === "non_refundable" && `-${ron(quote.subtotal * 0.1)} (-10%)`}
-                    {plan === "breakfast" && `+${ron(35 * quote.nights)} (+35/noapte)`}
+                    {plan === "non_refundable" &&
+                      `-${ron(quote.subtotal * 0.1)} (-10%)`}
+                    {plan === "breakfast" &&
+                      `+${ron(35 * quote.nights)} (+35/noapte)`}
                   </span>
                 </div>
                 {plan !== "flexible" && (
                   <div className="flex justify-between items-center text-[#3d4f6b] text-[12px] font-medium pt-0.5 border-t border-[#f1f5f9]">
                     <span>Subtotal ajustat</span>
-                    <span className="font-semibold text-[#0d2c5c]">{ron(subtotal)}</span>
+                    <span className="font-semibold text-[#0d2c5c]">
+                      {ron(subtotal)}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between text-[#3d4f6b]">

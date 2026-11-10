@@ -287,12 +287,18 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 </div>
                 <div className="w-32 shrink-0 flex items-center justify-between text-[11.5px] font-semibold text-[#0d2c5c]">
                   <span className="flex items-center gap-1">
-                    <span className={isSelected ? "font-bold text-[#c69a3f]" : ""}>
+                    <span
+                      className={isSelected ? "font-bold text-[#c69a3f]" : ""}
+                    >
                       {stars}.0
                     </span>
                     <Star
                       size={11}
-                      className={isSelected ? "fill-[#c69a3f] text-[#c69a3f]" : "fill-slate-300 text-slate-300"}
+                      className={
+                        isSelected
+                          ? "fill-[#c69a3f] text-[#c69a3f]"
+                          : "fill-slate-300 text-slate-300"
+                      }
                     />
                   </span>
                   <span
@@ -320,7 +326,11 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
               {starFilter}.0 <Star size={11} className="fill-[#c69a3f]" />
             </span>
             <span className="text-[#64748b]">
-              ({totalFilteredReviews} {totalFilteredReviews === 1 ? "recenzie găsită" : "recenzii găsite"})
+              ({totalFilteredReviews}{" "}
+              {totalFilteredReviews === 1
+                ? "recenzie găsită"
+                : "recenzii găsite"}
+              )
             </span>
           </div>
           <button
@@ -340,7 +350,10 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
       {loading ? (
         <div className="space-y-4 pt-4">
           {[1, 2].map((n) => (
-            <div key={n} className="h-28 rounded-2xl bg-[#f8fafc] animate-pulse" />
+            <div
+              key={n}
+              className="h-28 rounded-2xl bg-[#f8fafc] animate-pulse"
+            />
           ))}
         </div>
       ) : totalFilteredReviews === 0 ? (
@@ -369,7 +382,9 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0d2c5c] to-[#1e4b8a] text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                      {r.guest_name ? r.guest_name.charAt(0).toUpperCase() : "O"}
+                      {r.guest_name
+                        ? r.guest_name.charAt(0).toUpperCase()
+                        : "O"}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
@@ -449,7 +464,18 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
       {totalPages > 1 && (
         <div className="mt-6 pt-4 border-t border-[#f1f5f9] flex flex-wrap items-center justify-between gap-3">
           <div className="text-[11.5px] font-medium text-[#64748b]">
-            Afișăm recenziile <span className="font-bold text-[#0d2c5c]">{(currentPage - 1) * PAGE_SIZE + 1}</span>–<span className="font-bold text-[#0d2c5c]">{Math.min(currentPage * PAGE_SIZE, totalFilteredReviews)}</span> din <span className="font-bold text-[#0d2c5c]">{totalFilteredReviews}</span>
+            Afișăm recenziile{" "}
+            <span className="font-bold text-[#0d2c5c]">
+              {(currentPage - 1) * PAGE_SIZE + 1}
+            </span>
+            –
+            <span className="font-bold text-[#0d2c5c]">
+              {Math.min(currentPage * PAGE_SIZE, totalFilteredReviews)}
+            </span>{" "}
+            din{" "}
+            <span className="font-bold text-[#0d2c5c]">
+              {totalFilteredReviews}
+            </span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -592,9 +618,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 onClick={handleSubmitReview}
                 className="w-full rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] py-2.5 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
               >
-                {submitting
-                  ? "Se publică..."
-                  : "Publică recenzia verificată"}
+                {submitting ? "Se publică..." : "Publică recenzia verificată"}
               </button>
             </div>
           </div>

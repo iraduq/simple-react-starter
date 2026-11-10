@@ -47,11 +47,24 @@ export default function MyBookings() {
   }, [load]);
 
   const cancel = async (b: Booking) => {
-    if (!window.confirm("Sigur vrei să anulezi această rezervare?")) return;
+    const isPaid = b.payment_status === "paid";
+    const promptMsg = isPaid
+      ? `Sigur dorești să anulezi rezervarea #${b.booking_code || b.id}? Deoarece ești în termenul de 30 de zile înainte de check-in, vei primi automat restituirea integrală de ${ron(b.total_price)} pe cardul tău prin Stripe.`
+      : "Sigur dorești să anulezi această rezervare?";
+
+    if (!window.confirm(promptMsg)) return;
+
     setBusy(String(b.id));
     try {
       await cancelBooking(b.id);
-      toast("Rezervare anulată.", "success");
+      if (isPaid) {
+        toast(
+          `Rezervarea a fost anulată! Restituirea de ${ron(b.total_price)} a fost procesată prin Stripe.`,
+          "success",
+        );
+      } else {
+        toast("Rezervarea a fost anulată.", "success");
+      }
       await load();
     } catch (e) {
       toast(httpErrorMessage(e, "Anularea a eșuat."), "error");
@@ -101,17 +114,30 @@ export default function MyBookings() {
       ) : (
         <ul className="mt-8 space-y-3">
           {items.map((b) => {
-            const isPaid = (b as any).payment_status === "paid";
-            const canCancel =
-              b.status !== "cancelled" && b.status !== "completed" && !isPaid;
+            const plan = b.rate_plan_code || b.plan_code || "flexible";
+            const isNonRefundable = plan === "non_refundable";
+            const isPaid = b.payment_status === "paid";
+            const isRefunded = b.payment_status === "refunded";
+            const isCancelled = b.status === "cancelled";
+            const isCompleted = b.status === "completed";
+
+            // Calcul zile până la check-in
+            const checkInDate = b.check_in ? new Date(b.check_in) : null;
+            const today = new Date();
+            const daysUntil = checkInDate
+              ? Math.ceil((checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+              : 0;
+
+            const isEligibleForFreeCancel = !isNonRefundable && daysUntil >= 30;
+            const canCancel = !isCancelled && !isCompleted && (!isPaid || isEligibleForFreeCancel);
 
             return (
               <li
                 key={String(b.id)}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#e1e8f0] bg-white p-5"
+                className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#e1e8f0] bg-white p-5 shadow-2xs"
               >
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="text-[15px] font-semibold text-[#0d2c5c]">
                       {b.room_name || `Cameră #${b.room_id}`}
                     </p>
@@ -121,20 +147,48 @@ export default function MyBookings() {
                         "bg-[#f4f7fb] text-[#3d4f6b] border-[#e1e8f0]"
                       }`}
                     >
-                      {b.status}
+                      {b.status === "cancelled" ? "Anulată" : b.status === "confirmed" ? "Confirmată" : b.status}
                     </span>
-                    {isPaid && (
+                    {isPaid && !isRefunded && (
                       <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-                        Achitat
+                        Achitat (Stripe)
                       </span>
                     )}
+                    {isRefunded && (
+                      <span className="rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-[11px] font-semibold text-purple-700">
+                        Rambursat Stripe
+                      </span>
+                    )}
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10.5px] font-medium text-slate-700">
+                      Plan: {ratePlanLabel(plan)}
+                    </span>
                   </div>
+
                   <p className="mt-1 text-[13px] text-[#6b7c99]">
                     {b.check_in ? dayLabel(b.check_in) : "—"} →{" "}
-                    {b.check_out ? dayLabel(b.check_out) : "—"} ·{" "}
-                    {ratePlanLabel(b.plan_code)}
+                    {b.check_out ? dayLabel(b.check_out) : "—"}
                   </p>
-                  {b.booking_code && (
+
+                  {/* Informații despre politica de anulare / restituire */}
+                  {!isCancelled && !isCompleted && (
+                    <div className="mt-1 text-[11.5px]">
+                      {isNonRefundable ? (
+                        <span className="text-slate-500 font-medium">
+                          • Plan Nerambursabil (anularea sau restituirea nu sunt disponibile)
+                        </span>
+                      ) : isPaid && isEligibleForFreeCancel ? (
+                        <span className="text-emerald-700 font-medium">
+                          • Anulare gratuită disponibilă (până la 30 de zile înainte · {daysUntil} zile rămase) · Rambursare 100% Stripe
+                        </span>
+                      ) : isPaid && !isEligibleForFreeCancel ? (
+                        <span className="text-amber-700 font-medium">
+                          • Termenul de anulare gratuită (30 de zile înainte) a expirat ({daysUntil} zile rămase până la check-in)
+                        </span>
+                      ) : null}
+                    </div>
+                  )}
+
+                  {b.booking_code && !isCancelled && (
                     <div className="mt-2.5">
                       <Link
                         to={`/checkin/${b.booking_code}`}
@@ -145,28 +199,32 @@ export default function MyBookings() {
                       </Link>
                     </div>
                   )}
-                  <p className="hidden">
-                  </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-[15px] font-bold tabular-nums text-[#0d2c5c]">
+
+                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                  <span className="text-[16px] font-bold tabular-nums text-[#0d2c5c]">
                     {ron(b.total_price)}
                   </span>
 
-                  {canCancel && (
+                  {canCancel ? (
                     <button
                       onClick={() => void cancel(b)}
                       disabled={busy === String(b.id)}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 px-3.5 py-2 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3.5 py-2 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-50 hover:border-red-300 disabled:opacity-60 cursor-pointer shadow-2xs"
+                      title={isPaid ? "Anulează cu rambursare 100% prin Stripe" : "Anulează rezervarea"}
                     >
                       {busy === String(b.id) ? (
                         <Loader2 size={14} className="animate-spin" />
                       ) : (
                         <XCircle size={14} />
                       )}
-                      Anulează
+                      <span>{isPaid ? "Anulează (Rambursare 100%)" : "Anulează"}</span>
                     </button>
-                  )}
+                  ) : !isCancelled && !isCompleted && isNonRefundable ? (
+                    <span className="text-[11px] font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                      Nerambursabil
+                    </span>
+                  ) : null}
                 </div>
               </li>
             );
