@@ -390,8 +390,7 @@ export default function PricingTab() {
                     <ChevronLeft size={16} />
                   </button>
                   <h3
-                    className="text-[16px] font-semibold capitalize text-[#0d2c5c]"
-                    style={{ fontFamily: "var(--font-display)" }}
+                    className="text-[16px] font-bold capitalize text-[#0d2c5c] font-['Outfit',sans-serif]"
                   >
                     {monthName}
                   </h3>

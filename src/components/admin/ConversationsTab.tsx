@@ -222,8 +222,7 @@ export default function ConversationsTab() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3
-                  className="text-[22px] font-semibold text-[#0d2c5c] flex items-center gap-2"
-                  style={{ fontFamily: "var(--font-display)" }}
+                  className="text-[22px] font-bold text-[#0d2c5c] flex items-center gap-2 font-['Outfit',sans-serif]"
                 >
                   <Sparkles size={20} className="text-[#c69a3f]" />
                   Interogare Directă în Baza de Date (Web & Telegram)

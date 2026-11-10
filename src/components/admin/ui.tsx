@@ -218,8 +218,7 @@ export function Modal({
                 Vila Casa Esy · Admin
               </span>
               <h3
-                className="mt-1 text-[26px] font-semibold leading-tight !text-white"
-                style={{ fontFamily: "var(--font-display)" }}
+                className="mt-1 text-[22px] sm:text-[24px] font-bold leading-tight !text-white font-['Outfit',sans-serif] tracking-tight"
               >
                 {title}
               </h3>

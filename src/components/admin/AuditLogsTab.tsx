@@ -236,7 +236,7 @@ export default function AuditLogsTab() {
                   {maintenance ? <ShieldAlert size={22} /> : <ShieldCheck size={22} />}
                 </span>
                 <div>
-                  <h3 className="text-[18px] font-bold text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+                  <h3 className="text-[18px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
                     Mod Mentenanță Platformă
                   </h3>
                   <p className="text-[12px] text-[#6b7c99]">
@@ -271,7 +271,7 @@ export default function AuditLogsTab() {
         <Card className="p-6 lg:col-span-7 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 className="text-[18px] font-bold text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+              <h3 className="text-[18px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
                 Firewall & Lista Neagră IP-uri ({blockedIps.length})
               </h3>
               <p className="text-[12px] text-[#6b7c99]">

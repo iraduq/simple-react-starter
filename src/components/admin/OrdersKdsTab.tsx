@@ -69,32 +69,32 @@ const COLUMNS: {
     key: "new",
     title: "Comenzi Noi",
     subtitle: "Așteaptă preluarea",
-    badgeBg: "bg-amber-500/15 text-amber-800 border-amber-400/40",
-    borderAccent: "border-t-4 border-t-amber-500",
+    badgeBg: "bg-[#fdf8ec] text-[#8a6420] border-[#c69a3f]/30",
+    borderAccent: "border-t-4 border-t-[#c69a3f]",
     icon: Sparkles,
   },
   {
     key: "preparing",
     title: "În Preparare",
     subtitle: "Bucătărie Room Service",
-    badgeBg: "bg-sky-500/15 text-sky-800 border-sky-400/40",
-    borderAccent: "border-t-4 border-t-sky-500",
+    badgeBg: "bg-[#f0f4fa] text-[#0d2c5c] border-[#0d2c5c]/20",
+    borderAccent: "border-t-4 border-t-[#0d2c5c]",
     icon: ChefHat,
   },
   {
     key: "delivering",
     title: "În Livrare",
     subtitle: "În drum spre cameră",
-    badgeBg: "bg-indigo-500/15 text-indigo-800 border-indigo-400/40",
-    borderAccent: "border-t-4 border-t-indigo-500",
+    badgeBg: "bg-[#0d2c5c]/10 text-[#0d2c5c] border-[#0d2c5c]/25",
+    borderAccent: "border-t-4 border-t-[#0d2c5c]",
     icon: Bike,
   },
   {
     key: "delivered",
     title: "Livrate în Cameră",
     subtitle: "Predate oaspeților",
-    badgeBg: "bg-emerald-500/15 text-emerald-800 border-emerald-400/40",
-    borderAccent: "border-t-4 border-t-emerald-500",
+    badgeBg: "bg-emerald-50 text-emerald-800 border-emerald-300",
+    borderAccent: "border-t-4 border-t-emerald-600",
     icon: CheckCircle2,
   },
 ];
@@ -303,65 +303,65 @@ export default function OrdersKdsTab() {
                 key={col.key}
                 className={`rounded-2xl bg-white/80 backdrop-blur-md border border-[color:var(--color-border)] shadow-sm ${col.borderAccent} p-4 flex flex-col gap-3 min-h-[460px]`}
               >
-                <div className="flex items-center justify-between pb-2 border-b border-[color:var(--color-border)]">
+                <div className="flex items-center justify-between pb-2 border-b border-[#e1e8f0]">
                   <div className="flex items-center gap-2">
-                    <ColIcon className="w-4 h-4 text-[color:var(--color-primary)]" />
+                    <ColIcon className="w-4 h-4 text-[#0d2c5c]" />
                     <div>
-                      <h3 className="font-bold text-sm text-[color:var(--color-foreground)]">
+                      <h3 className="font-['Outfit',sans-serif] font-bold text-sm text-[#0d2c5c]">
                         {col.title}
                       </h3>
-                      <p className="text-[11px] text-[color:var(--color-muted-foreground)]">
+                      <p className="text-[11px] text-[#6b7c99] font-['Plus_Jakarta_Sans',sans-serif]">
                         {col.subtitle}
                       </p>
                     </div>
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${col.badgeBg}`}>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border font-['Outfit',sans-serif] ${col.badgeBg}`}>
                     {colOrders.length}
                   </span>
                 </div>
 
                 {colOrders.length === 0 ? (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center py-12 text-[color:var(--color-muted-foreground)] text-xs">
+                  <div className="flex-1 flex flex-col items-center justify-center text-center py-12 text-[#6b7c99] font-['Plus_Jakarta_Sans',sans-serif] text-xs">
                     Nicio comandă în această etapă.
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 font-['Plus_Jakarta_Sans',sans-serif]">
                     {colOrders.map((order) => (
                       <div
                         key={order.id}
-                        className="rounded-xl bg-white border border-[color:var(--color-border)] p-3.5 shadow-sm hover:shadow-md transition-all"
+                        className="rounded-xl bg-white border border-[#e1e8f0] p-3.5 shadow-sm hover:shadow-md transition-all"
                       >
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="font-mono text-xs font-bold text-[color:var(--color-primary)] bg-slate-100 px-2 py-0.5 rounded">
+                          <span className="font-['Outfit',sans-serif] text-xs font-bold text-[#0d2c5c] bg-[#0d2c5c]/10 px-2 py-0.5 rounded border border-[#0d2c5c]/15">
                             {order.order_code}
                           </span>
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#eef2f7] text-[#0d2c5c]">
-                            <BedDouble className="w-3.5 h-3.5" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#f0f4fa] text-[#0d2c5c] border border-[#0d2c5c]/15">
+                            <BedDouble className="w-3.5 h-3.5 text-[#c69a3f]" />
                             Room Service
                           </span>
                         </div>
 
-                        <div className="font-['Outfit',sans-serif] font-bold text-base text-[color:var(--color-foreground)] mb-1">
+                        <div className="font-['Outfit',sans-serif] font-bold text-[17px] text-[#0d2c5c] mb-1">
                           {order.location_label}
                         </div>
 
                         {order.booking_code && (
                           <div className="mb-3">
-                            <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-900 font-mono text-[10.5px] font-semibold">
+                            <span className="px-2 py-0.5 rounded bg-[#fdf8ec] text-[#8a6420] border border-[#c69a3f]/30 font-['Plus_Jakarta_Sans',sans-serif] text-[10.5px] font-bold">
                               Sejur #{order.booking_code.replace(/^#/, "")}
                             </span>
                           </div>
                         )}
 
                         {/* Items list */}
-                        <div className="bg-[color:var(--color-muted)]/60 rounded-lg p-2.5 space-y-1.5 mb-3 border border-[color:var(--color-border)]/60">
+                        <div className="bg-[#f8fafc] rounded-lg p-2.5 space-y-1.5 mb-3 border border-[#e1e8f0]">
                           {order.items.map((item, idx) => (
                             <div key={idx} className="flex items-start justify-between text-xs gap-2">
-                              <span className="font-medium text-slate-800">
-                                <strong className="text-[color:var(--color-primary)]">{item.qty}x</strong>{" "}
+                              <span className="font-medium text-[#1e293b]">
+                                <strong className="text-[#0d2c5c] font-bold">{item.qty}x</strong>{" "}
                                 {item.title}
                               </span>
-                              <span className="text-slate-600 font-mono shrink-0">
+                              <span className="text-[#64748b] font-semibold shrink-0">
                                 {(item.price * item.qty).toFixed(0)} RON
                               </span>
                             </div>
@@ -369,14 +369,14 @@ export default function OrdersKdsTab() {
                         </div>
 
                         {order.notes && (
-                          <div className="text-[11px] bg-amber-50 border border-amber-200/80 text-amber-900 rounded-lg px-2.5 py-1.5 mb-3 italic">
+                          <div className="text-[11.5px] bg-[#fdf8ec] border border-[#c69a3f]/30 text-[#8a6420] rounded-lg px-2.5 py-1.5 mb-3 font-medium not-italic">
                             „{order.notes}”
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between pt-2 border-t border-[color:var(--color-border)] mb-3">
+                        <div className="flex items-center justify-between pt-2 border-t border-[#e1e8f0] mb-3">
                           {renderPaymentBadge(order.payment_method)}
-                          <span className="font-bold text-sm text-[color:var(--color-primary)]">
+                          <span className="font-['Outfit',sans-serif] font-bold text-base text-[#0d2c5c]">
                             {order.total_amount.toFixed(0)} RON
                           </span>
                         </div>
@@ -387,7 +387,7 @@ export default function OrdersKdsTab() {
                             <button
                               disabled={busyId === order.id}
                               onClick={() => handleStatusChange(order.id, "preparing")}
-                              className="flex-1 py-1.5 px-3 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold transition cursor-pointer"
+                              className="flex-1 py-1.5 px-3 rounded-lg bg-[#0d2c5c] hover:bg-[#07203f] text-white text-xs font-bold transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                             >
                               Preia în Bucătărie →
                             </button>
@@ -396,7 +396,7 @@ export default function OrdersKdsTab() {
                             <button
                               disabled={busyId === order.id}
                               onClick={() => handleStatusChange(order.id, "delivering")}
-                              className="flex-1 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition cursor-pointer"
+                              className="flex-1 py-1.5 px-3 rounded-lg bg-[#0d2c5c] hover:bg-[#07203f] border border-[#c69a3f]/40 text-[#f6d892] text-xs font-bold transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                             >
                               Trimite spre Cameră →
                             </button>
@@ -405,7 +405,7 @@ export default function OrdersKdsTab() {
                             <button
                               disabled={busyId === order.id}
                               onClick={() => handleStatusChange(order.id, "delivered")}
-                              className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer"
+                              className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                             >
                               ✓ Marchează Livrată
                             </button>

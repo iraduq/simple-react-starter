@@ -181,7 +181,7 @@ export default function QrStudioTab() {
           {kind === "wifi" ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-[#eef2f7] pb-3">
-                <h3 className="text-[18px] font-semibold text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+                <h3 className="text-[18px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
                   Detalii Rețea Wi-Fi Hotel
                 </h3>
                 <Badge tone="gold">Standard IEEE 802.11</Badge>
@@ -223,7 +223,7 @@ export default function QrStudioTab() {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-[#eef2f7] pb-3">
-                <h3 className="text-[18px] font-semibold text-[#0d2c5c]" style={{ fontFamily: "var(--font-display)" }}>
+                <h3 className="text-[18px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]">
                   Destinație Cod QR
                 </h3>
                 <Badge tone="navy">URL / Text</Badge>
@@ -347,8 +347,7 @@ export default function QrStudioTab() {
               &#9733; Vila Casa Esy &#9733;
             </div>
             <h3
-              className="mt-2 text-[22px] font-bold text-[#0d2c5c]"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="mt-2 text-[22px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]"
             >
               {cardTitle || "Vila Casa Esy"}
             </h3>

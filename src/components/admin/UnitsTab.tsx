@@ -815,8 +815,7 @@ export default function UnitsTab() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#0d2c5c]/5 px-5 py-4">
                 <div>
                   <p
-                    className="text-[17px] font-semibold text-[#0d2c5c]"
-                    style={{ fontFamily: "var(--font-display)" }}
+                    className="text-[17px] font-bold text-[#0d2c5c] font-['Outfit',sans-serif]"
                   >
                     {selectedRoom ? roomLabel(selectedRoom) : "—"}
                   </p>
