@@ -179,7 +179,7 @@ export default function ChannelManagerTab({
           border: "border-[#FF385C]/30 hover:border-[#FF385C]",
           iconBg: "bg-[#FF385C]",
           accentColor: "#FF385C",
-          tag: "Vacanțe & Apartamente",
+          tag: "Vacanțe și apartamente",
         };
       case "expedia":
       default:
@@ -189,7 +189,7 @@ export default function ChannelManagerTab({
           border: "border-[#ffc600]/40 hover:border-[#ffc600]",
           iconBg: "bg-[#002244]",
           accentColor: "#002244",
-          tag: "Corporate & SUA",
+          tag: "Segment internațional",
         };
     }
   };
@@ -274,7 +274,7 @@ export default function ChannelManagerTab({
 
               <div className="mt-5 pt-4 border-t border-[#e1e8f0] flex items-center justify-between">
                 <span className="text-[11px] text-[#64748b] truncate max-w-[170px]">
-                  Feed iCal Live
+                  Sincronizare iCal live
                 </span>
                 <button
                   type="button"
@@ -282,7 +282,7 @@ export default function ChannelManagerTab({
                   className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#0284c7] hover:underline"
                 >
                   <Copy size={12} />
-                  <span>Copiază Link iCal</span>
+                  <span>Copiază link iCal</span>
                 </button>
               </div>
             </div>
@@ -290,21 +290,21 @@ export default function ChannelManagerTab({
         })}
       </div>
 
-      {/* ── THE WOW FEATURE: SIMULATOR REZERVARE LIVE DE PE BOOKING / AIRBNB ── */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-gradient-to-tr from-[#071d3d] via-[#0d2c5c] to-[#0b2853] text-white shadow-2xl border border-[#00a896]/30 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#00a896]/15 blur-[80px] pointer-events-none" />
+      {/* ── SIMULATOR SINCRONIZARE REZERVARE EXTERNĂ ── */}
+      <div className="p-6 sm:p-8 rounded-[28px] bg-gradient-to-tr from-[#071d3d] via-[#0d2c5c] to-[#0b2853] text-white shadow-2xl border border-[#c69a3f]/30 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#c69a3f]/10 blur-[80px] pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="max-w-xl">
             <div className="flex items-center gap-2 text-[10.5px] font-bold tracking-[0.25em] uppercase text-[#c69a3f] mb-2">
               <Zap size={14} className="text-[#c69a3f] animate-pulse" />
-              <span>Funcție Live Demo · Efect WOW pentru Prezentare</span>
+              <span>Simulare sincronizare rezervare externă</span>
             </div>
-            <h3 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[34px] font-normal leading-tight">
-              Simulează o Rezervare Nouă de pe <em className="italic text-[#c69a3f]">Canalele OTA</em>
+            <h3 className="font-['Outfit',sans-serif] text-[24px] sm:text-[30px] font-bold text-white leading-tight">
+              Simulare rezervare de pe canalele OTA
             </h3>
-            <p className="mt-2 text-[13.5px] text-white/80 leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
-              Apasă butonul de mai jos pentru a declanșa o simulare de webhook. Sistemul va genera instant o rezervare externă, va atribui o cameră fizică, va calcula prețul cu markup și va actualiza în timp real <strong>Diagrama de Ocupare (Tape Chart)</strong>.
+            <p className="mt-2 text-[13.5px] text-slate-200 leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
+              Apasă butonul de mai jos pentru a trimite o rezervare de test către sistem. Aplicația va aloca automat o cameră liberă, va calcula adaosul specific canalului și va actualiza în timp real diagrama de ocupare a camerelor.
             </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -332,15 +332,15 @@ export default function ChannelManagerTab({
           {/* Formular configurare & Buton acțiune */}
           <div className="w-full lg:max-w-md bg-white/10 backdrop-blur-md p-5 rounded-[22px] border border-white/15 space-y-3.5">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-white/70 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                Cameră Țintă:
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-200 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
+                Cameră țintă:
               </label>
               <select
                 value={selectedRoomId}
                 onChange={(e) => setSelectedRoomId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[12px] bg-slate-900/80 border border-white/20 text-white text-[13px] outline-none"
+                className="w-full px-3.5 py-2.5 rounded-[12px] bg-slate-900/90 border border-white/20 text-white text-[13px] outline-none"
               >
-                <option value="">Alege automat prima cameră disponibilă</option>
+                <option value="">Alocare automată (prima cameră liberă)</option>
                 {parity.map((r) => (
                   <option key={r.room_id} value={r.room_id}>
                     {r.room_title} ({r.direct_price} RON/noapte)
@@ -350,13 +350,13 @@ export default function ChannelManagerTab({
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-white/70 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                Oaspete Străin Simulat:
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-200 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
+                Oaspete de test:
               </label>
               <select
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[12px] bg-slate-900/80 border border-white/20 text-white text-[13px] outline-none"
+                className="w-full px-3.5 py-2.5 rounded-[12px] bg-slate-900/90 border border-white/20 text-white text-[13px] outline-none"
               >
                 <option value="Hans Müller (Germania)">🇩🇪 Hans Müller (Germania)</option>
                 <option value="Sophie Laurent (Franța)">🇫🇷 Sophie Laurent (Franța)</option>
@@ -376,7 +376,7 @@ export default function ChannelManagerTab({
               <span>
                 {simulating
                   ? "Se generează rezervarea..."
-                  : `Injectează Rezervare Live de pe ${selectedChannel.toUpperCase()}`}
+                  : `Trimite rezervare de test (${selectedChannel})`}
               </span>
             </button>
           </div>
@@ -391,7 +391,7 @@ export default function ChannelManagerTab({
               </div>
               <div>
                 <p className="font-bold text-[14px] text-white">
-                  Rezervare Confirmată: #{lastSimulated.booking_code} (Ref. {lastSimulated.external_reference})
+                  Rezervare confirmată: #{lastSimulated.booking_code} (Ref. {lastSimulated.external_reference})
                 </p>
                 <p className="text-[12px] text-white/70">
                   {lastSimulated.guest_name} · {lastSimulated.room_title} (Camera {lastSimulated.unit_number}) · {lastSimulated.nights} nopți · {lastSimulated.total_price} RON
@@ -405,7 +405,7 @@ export default function ChannelManagerTab({
                 onClick={onNavigateToTapeChart}
                 className="px-4 py-2 rounded-[12px] bg-white text-[#0d2c5c] text-[12px] font-bold hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5 shadow-sm"
               >
-                <span>Deschide Tape Chart (Diagramă PMS)</span>
+                <span>Deschide diagrama de ocupare a camerelor</span>
                 <ArrowRight size={13} />
               </button>
             )}
@@ -419,15 +419,15 @@ export default function ChannelManagerTab({
           <div>
             <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
               <DollarSign size={14} />
-              <span>Analiză Paritate & Avantaj Rezervare Directă</span>
+              <span>Analiză de paritate și avantaj rezervare directă</span>
             </div>
             <h3 className="font-['Outfit',sans-serif] text-[20px] font-bold text-[#0d2c5c]">
-              Matrice de Paritate Tarifară (Direct vs. OTA)
+              Matrice de paritate tarifară (Direct vs. OTA)
             </h3>
           </div>
           <span className="px-3 py-1 rounded-full bg-sky-50 text-sky-800 border border-sky-200 text-[11.5px] font-bold flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-[#0284c7]" />
-            <span>Best Rate Guarantee pe site-ul oficial</span>
+            <span>Garanția celui mai bun tarif pe site-ul oficial</span>
           </span>
         </div>
 
@@ -435,12 +435,12 @@ export default function ChannelManagerTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#e1e8f0] text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                <th className="py-3 px-3">Cameră / Suită</th>
-                <th className="py-3 px-3 text-[#0d2c5c]">Tarif Direct (Casa Esy)</th>
+                <th className="py-3 px-3">Cameră / suită</th>
+                <th className="py-3 px-3 text-[#0d2c5c]">Tarif direct (Casa Esy)</th>
                 <th className="py-3 px-3 text-[#003580]">Booking.com (+15%)</th>
                 <th className="py-3 px-3 text-[#FF385C]">Airbnb (+18%)</th>
                 <th className="py-3 px-3 text-[#002244]">Expedia (+18%)</th>
-                <th className="py-3 px-3 text-right text-emerald-700">Economie Rezervare Directă</th>
+                <th className="py-3 px-3 text-right text-emerald-700">Economie rezervare directă</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e1e8f0] text-[13px]">
@@ -481,7 +481,7 @@ export default function ChannelManagerTab({
       {/* ── JURNAL ACTIVITATE SINCRONIZARE LIVE ── */}
       <div className="p-6 rounded-[24px] bg-white border border-[#e1e8f0] shadow-[0_10px_35px_rgba(13,44,92,0.06)]">
         <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c] mb-4">
-          Jurnal Sincronizări & Activitate Channel Manager ({logs.length})
+          Jurnal de sincronizare și activitate channel manager ({logs.length})
         </h3>
         <div className="space-y-2.5 max-h-72 overflow-y-auto">
           {logs.map((log) => (

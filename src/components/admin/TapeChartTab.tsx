@@ -419,12 +419,12 @@ export default function TapeChartTab() {
       {/* Horizontal Tape Chart Table */}
       <div className="rounded-2xl bg-white border border-[#e1e8f0] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <div className="min-w-[1150px]">
+          <div className="min-w-[1600px]">
             {/* Header Row: Days of the Month */}
             <div
               className="grid border-b border-[#e1e8f0] bg-slate-50/90 text-[12px]"
               style={{
-                gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(34px, 1fr))`,
+                gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(48px, 1fr))`,
               }}
             >
               <div
@@ -496,7 +496,7 @@ export default function TapeChartTab() {
                     key={row.unitId}
                     className="relative grid border-b border-[#e1e8f0] hover:bg-amber-50/10 transition-colors"
                     style={{
-                      gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(34px, 1fr))`,
+                      gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(48px, 1fr))`,
                       minHeight: "56px",
                       height: "56px",
                     }}
@@ -573,12 +573,14 @@ export default function TapeChartTab() {
                             zIndex: 15,
                           }}
                           title={`${guest} (${booking.booking_code || `#${booking.id}`}) • ${dateFmt(booking.check_in)} → ${dateFmt(booking.check_out)}`}
-                          className={`self-center my-auto h-9 mx-0.5 rounded-lg border px-2 flex items-center justify-between gap-1 text-[11px] font-semibold transition cursor-pointer overflow-hidden ${barStyle}`}
+                          className={`self-center my-auto h-9 mx-0.5 rounded-lg border ${
+                            spanCols === 1 ? "px-1 justify-center" : "px-2 justify-between gap-1"
+                          } flex items-center text-[11px] font-semibold transition cursor-pointer overflow-hidden ${barStyle}`}
                         >
                           <span className="truncate flex items-center gap-1 min-w-0">
                             {spanCols === 1 ? (
-                              <span className="truncate font-bold text-[10.5px]">
-                                {booking.booking_code ? `#${booking.booking_code.replace("BK-", "")}` : guest.split(" ")[0]}
+                              <span className="truncate font-mono font-bold text-[10.5px] tracking-tight">
+                                {booking.booking_code ? booking.booking_code.replace("BK-", "#") : guest.split(" ")[0]}
                               </span>
                             ) : (
                               <>
@@ -618,7 +620,7 @@ export default function TapeChartTab() {
             <div
               className="grid bg-slate-50 border-t border-[#e1e8f0]"
               style={{
-                gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(34px, 1fr))`,
+                gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(48px, 1fr))`,
               }}
             >
               <div className="p-2.5 text-[11px] font-bold text-slate-600 border-r border-[#e1e8f0] sticky left-0 bg-slate-50 z-10">
