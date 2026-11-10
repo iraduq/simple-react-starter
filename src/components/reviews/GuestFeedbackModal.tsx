@@ -31,10 +31,10 @@ interface GuestFeedbackModalProps {
 
 const CRITERIA = [
   { key: "cleanliness", label: "Curățenie", icon: SparkleIcon, desc: "Igienă cameră, lenjerie, prosoape, baie" },
-  { key: "staff", label: "Personal & Ospitalitate", icon: HeartHandshake, desc: "Amabilitate, promptitudine recepție" },
-  { key: "restaurant", label: "Restaurant & Servire", icon: UtensilsCrossed, desc: "Calitate mâncare, ambianță, băuturi" },
-  { key: "breakfast", label: "Micul Dejun", icon: Coffee, desc: "Diversitate bufet, prospețime produse" },
-  { key: "comfort", label: "Confortul Camerei", icon: BedDouble, desc: "Saltea, liniște, climatizare, dotări" },
+  { key: "staff", label: "Personal și ospitalitate", icon: HeartHandshake, desc: "Amabilitate, promptitudine recepție" },
+  { key: "restaurant", label: "Restaurant și servire", icon: UtensilsCrossed, desc: "Calitate mâncare, ambianță, băuturi" },
+  { key: "breakfast", label: "Micul dejun", icon: Coffee, desc: "Diversitate bufet, prospețime produse" },
+  { key: "comfort", label: "Confortul camerei", icon: BedDouble, desc: "Saltea, liniște, climatizare, dotări" },
 ] as const;
 
 export default function GuestFeedbackModal({
@@ -190,15 +190,15 @@ export default function GuestFeedbackModal({
           </button>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#e6b85c]">
             <Sparkles size={14} />
-            <span>Casa Esy Guest Experience</span>
+            <span>Casa Esy · Experiența oaspeților</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-['Outfit'] mt-1 text-white">
-            Evaluare Sejur & Satisfacție
+            Evaluare sejur și satisfacție
           </h2>
           <p className="text-xs text-white/80 mt-0.5">
             {roomTitle ? `${roomTitle} • ` : ""}
             {unitNumber ? `Suita ${unitNumber} • ` : ""}
-            Cod Rezervare: #{bookingCode || "BK-OASPETE"}
+            Cod rezervare: #{bookingCode || "BK-OASPETE"}
           </p>
         </div>
 
@@ -219,7 +219,7 @@ export default function GuestFeedbackModal({
               {/* Overall Score Badge */}
               <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-teal-50 border border-amber-200/60">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">Scor General Ponderat</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">Scor general</p>
                   <p className="text-xs text-slate-500">Calculat automat din cele 5 criterii de mai jos</p>
                 </div>
                 <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl shadow-xs border border-amber-300">
@@ -232,7 +232,7 @@ export default function GuestFeedbackModal({
               {/* 5 Criterii de Evaluare */}
               <div className="space-y-3">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Criterii de Evaluare Sejur
+                  Criterii de evaluare sejur
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {CRITERIA.map((crit) => {
@@ -286,7 +286,7 @@ export default function GuestFeedbackModal({
               {/* Guest Name */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Nume & Prenume
+                  Nume și prenume
                 </label>
                 <input
                   type="text"
@@ -302,7 +302,7 @@ export default function GuestFeedbackModal({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Comentarii & Impresii Sejur
+                    Comentarii și impresii despre sejur
                   </label>
                   <span className="text-[11px] text-slate-400">Minim 8 caractere</span>
                 </div>
@@ -324,7 +324,7 @@ export default function GuestFeedbackModal({
                       </span>
                       <div>
                         <span className="text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c]">
-                          AI Sentiment Engine:{" "}
+                          Analiză sentiment:{" "}
                         </span>
                         {aiPreview.sentiment === "positive" && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
@@ -379,7 +379,7 @@ export default function GuestFeedbackModal({
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#0d2c5c] to-[#00a896] hover:brightness-110 text-white text-sm font-bold flex items-center gap-2 shadow-md transition-all disabled:opacity-50 cursor-pointer"
                 >
                   <Send size={15} />
-                  <span>{submitting ? "Se trimite..." : "Trimite Recenzia Verificată"}</span>
+                  <span>{submitting ? "Se trimite..." : "Trimite recenzia"}</span>
                 </button>
               </div>
             </form>

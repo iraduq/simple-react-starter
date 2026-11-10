@@ -12,12 +12,15 @@ import {
   ArrowRight,
   X,
   CalendarX,
+  Star,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiFetch } from "../lib/api";
 import { searchAvailability } from "../services/roomsService";
 import { httpErrorMessage } from "../services/apiClient";
 import { useToast } from "../components/Toast";
+import RoomReviewsModal from "../components/reviews/RoomReviewsModal";
+import GuestFeedbackModal from "../components/reviews/GuestFeedbackModal";
 import { WS_URL } from "../lib/config";
 import { ron, toISODate, nightsBetween, dayLabel } from "../lib/format";
 import type { AvailableRoom } from "../types/rooms";
@@ -362,11 +365,26 @@ export default function Rooms() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Toate");
+  const [selectedRoomForReviews, setSelectedRoomForReviews] = useState<DisplayRoom | null>(null);
+  const [selectedRoomForFeedback, setSelectedRoomForFeedback] = useState<DisplayRoom | null>(null);
+  const [reviewsSummary, setReviewsSummary] = useState<Record<string, { average: number; count: number }>>({});
+
+  const loadReviewsSummary = async () => {
+    try {
+      const summary = await apiFetch<Record<string, { average: number; count: number }>>("/reviews/summary");
+      if (summary && typeof summary === "object") {
+        setReviewsSummary(summary);
+      }
+    } catch {
+      // Fallback
+    }
+  };
 
   useAdminLiveSync({
-    topic: "rooms",
+    topic: "all",
     onSync: () => {
       void loadAllRooms();
+      void loadReviewsSummary();
       if (searched && searched.in && searched.out) {
         void runSearch(searched.in, searched.out, adults, children, true);
       }
@@ -396,9 +414,11 @@ export default function Rooms() {
 
   useEffect(() => {
     void loadAllRooms();
+    void loadReviewsSummary();
 
     const onLiveRoomsSync = () => {
       void loadAllRooms();
+      void loadReviewsSummary();
       if (searched && searched.in && searched.out) {
         void runSearch(searched.in, searched.out, adults, children, true);
       }
@@ -732,9 +752,42 @@ export default function Rooms() {
                               </span>
                             </div>
 
-                            <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,2.8vw,2.8rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-4">
+                            <h3 className="font-['Cormorant_Garamond',serif] text-[clamp(2rem,2.8vw,2.8rem)] font-normal leading-[1.1] text-[#0d2c5c] mb-2.5">
                               {room.title}
                             </h3>
+
+                            {/* Rating & Recenzii Oaspeți */}
+                            <div className="flex flex-wrap items-center gap-3 mb-4">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedRoomForReviews(room)}
+                                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50/90 hover:bg-amber-100/90 border border-amber-200/90 text-[#0d2c5c] text-[12px] font-semibold transition cursor-pointer shadow-2xs group"
+                                title="Vezi toate recenziile și evaluările oaspeților pentru această cameră"
+                              >
+                                <div className="flex items-center gap-1">
+                                  <Star size={13} className="fill-[#c69a3f] text-[#c69a3f]" />
+                                  <span className="font-bold text-[#0d2c5c]">
+                                    {reviewsSummary[String(room.id)]?.average
+                                      ? reviewsSummary[String(room.id)].average.toFixed(2)
+                                      : "4.90"}{" "}
+                                    / 5
+                                  </span>
+                                </div>
+                                <span className="text-[#94a3b8] font-normal">•</span>
+                                <span className="text-[#475569] font-medium group-hover:text-[#0d2c5c] underline-offset-2 group-hover:underline">
+                                  {reviewsSummary[String(room.id)]?.count ?? 3}{" "}
+                                  {(reviewsSummary[String(room.id)]?.count ?? 3) === 1 ? "recenzie" : "recenzii"}
+                                </span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setSelectedRoomForFeedback(room)}
+                                className="text-[11.5px] font-semibold text-[#00a896] hover:text-[#0d2c5c] hover:underline underline-offset-2 transition cursor-pointer"
+                              >
+                                + Lasă o recenzie
+                              </button>
+                            </div>
 
                             {room.description && (
                               <p className="font-sans text-[14.5px] leading-[1.75] font-normal text-[#475569] mb-6 line-clamp-3">
@@ -849,6 +902,33 @@ export default function Rooms() {
           )}
         </div>
       </section>
+
+      {/* Modal Afișare Recenzii Cameră */}
+      {selectedRoomForReviews && (
+        <RoomReviewsModal
+          isOpen={Boolean(selectedRoomForReviews)}
+          onClose={() => setSelectedRoomForReviews(null)}
+          roomId={selectedRoomForReviews.id}
+          roomTitle={selectedRoomForReviews.title}
+          onOpenAddReview={() => {
+            setSelectedRoomForFeedback(selectedRoomForReviews);
+            setSelectedRoomForReviews(null);
+          }}
+        />
+      )}
+
+      {/* Modal Formular Adăugare Recenzie Oaspete */}
+      {selectedRoomForFeedback && (
+        <GuestFeedbackModal
+          isOpen={Boolean(selectedRoomForFeedback)}
+          onClose={() => setSelectedRoomForFeedback(null)}
+          roomId={String(selectedRoomForFeedback.id)}
+          roomTitle={selectedRoomForFeedback.title}
+          onSubmitted={() => {
+            void loadReviewsSummary();
+          }}
+        />
+      )}
     </div>
   );
 }

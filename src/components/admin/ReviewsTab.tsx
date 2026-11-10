@@ -212,10 +212,10 @@ export default function ReviewsTab() {
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#e6b85c]">
               <Sparkles size={16} />
-              <span>Sistem Inteligent de Satisfacție & Recenzii AI</span>
+              <span>Sistem de satisfacție și evaluare oaspeți</span>
             </div>
             <h3 className="text-2xl sm:text-3xl font-bold font-['Outfit'] mt-1 text-white">
-              Performanță Ospitalitate & Standarde 5★
+              Performanță ospitalitate și standarde de calitate
             </h3>
             <p className="text-xs text-white/70 mt-1 max-w-xl">
               Fiecare recenzie trece automat prin analizatorul NLP românesc pentru a clasifica sentimentul și a extrage ariile de excelență sau reclamațiile.
@@ -224,7 +224,7 @@ export default function ReviewsTab() {
 
           <div className="flex flex-wrap items-center gap-4">
             <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 text-center">
-              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Scor General</span>
+              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Scor general</span>
               <div className="flex items-center justify-center gap-1.5 mt-0.5">
                 <span className="text-3xl font-extrabold font-['Outfit'] text-white">
                   {analytics?.overall_score || stats.avg}
@@ -234,14 +234,14 @@ export default function ReviewsTab() {
             </div>
 
             <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 text-center">
-              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Recenzii Verificate</span>
+              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Recenzii verificate</span>
               <span className="text-3xl font-extrabold font-['Outfit'] text-[#00a896] block mt-0.5">
                 {stats.count} #BK
               </span>
             </div>
 
             <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 text-center">
-              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Necesită Răspuns</span>
+              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Necesită răspuns</span>
               <span className="text-3xl font-extrabold font-['Outfit'] text-amber-300 block mt-0.5">
                 {stats.unreplied}
               </span>
@@ -254,7 +254,7 @@ export default function ReviewsTab() {
           {/* Criterii 1: Curățenie & Confort */}
           <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] block">
-              Curățenie & Confort
+              Curățenie și confort
             </span>
             <div>
               <div className="flex justify-between text-xs mb-1">
@@ -270,7 +270,7 @@ export default function ReviewsTab() {
             </div>
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-white/80">Confortul Camerei</span>
+                <span className="text-white/80">Confortul camerei</span>
                 <span className="font-bold">{analytics?.criteria.comfort || 4.8} / 5</span>
               </div>
               <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
@@ -285,11 +285,11 @@ export default function ReviewsTab() {
           {/* Criterii 2: Personal & Servicii */}
           <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] block">
-              Personal & Gastronomie
+              Personal și gastronomie
             </span>
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-white/80">Personal & Receptie</span>
+                <span className="text-white/80">Personal și recepție</span>
                 <span className="font-bold">{analytics?.criteria.staff || 5.0} / 5</span>
               </div>
               <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
@@ -301,7 +301,7 @@ export default function ReviewsTab() {
             </div>
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-white/80">Micul Dejun & Bar</span>
+                <span className="text-white/80">Micul dejun și bar</span>
                 <span className="font-bold">{analytics?.criteria.breakfast || 4.9} / 5</span>
               </div>
               <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
@@ -316,7 +316,7 @@ export default function ReviewsTab() {
           {/* Sentiment AI Bar */}
           <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] block">
-              Distribuție Sentiment AI
+              Distribuție sentiment
             </span>
             <div className="flex items-center gap-1.5 h-3 w-full rounded-full overflow-hidden bg-white/10">
               <div
@@ -351,7 +351,7 @@ export default function ReviewsTab() {
           {/* Evoluția Satisfacției */}
           <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] flex items-center gap-1.5">
-              <TrendingUp size={14} /> Evoluția Scorului
+              <TrendingUp size={14} /> Evoluția scorului
             </span>
             <div className="flex items-end justify-between h-14 pt-2 gap-2">
               {(analytics?.satisfaction_evolution || [
@@ -382,9 +382,9 @@ export default function ReviewsTab() {
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-xs font-bold text-emerald-200 mr-1">Cele mai apreciate:</span>
               {(analytics?.top_praised || [
-                { label: "Curățenie Impecabilă", count: 12 },
-                { label: "Personal & Ospitalitate de Top", count: 11 },
-                { label: "Mic Dejun & Gastronomie", count: 9 },
+                { label: "Curățenie impecabilă", count: 12 },
+                { label: "Personal și ospitalitate", count: 11 },
+                { label: "Mic dejun și gastronomie", count: 9 },
               ]).map((item, idx) => (
                 <span
                   key={idx}
@@ -426,8 +426,8 @@ export default function ReviewsTab() {
             { id: "all" as const, label: `Toate (${reviews.length})` },
             { id: "positive" as const, label: `✨ Pozitive`, icon: Smile },
             { id: "negative" as const, label: `⚠️ Reclamații`, icon: Frown },
-            { id: "unreplied" as const, label: `Fără Răspuns (${stats.unreplied})` },
-            { id: "replied" as const, label: `Cu Răspuns (${reviews.length - stats.unreplied})` },
+            { id: "unreplied" as const, label: `Fără răspuns (${stats.unreplied})` },
+            { id: "replied" as const, label: `Cu răspuns (${reviews.length - stats.unreplied})` },
           ].map((btn) => (
             <button
               key={btn.id}
@@ -476,7 +476,7 @@ export default function ReviewsTab() {
                     </span>
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-900 border border-amber-400/40">
                       <CheckCircle2 className="w-3.5 h-3.5 text-amber-700" />
-                      Sejur Confirmat #{(r.booking_code || "BK-VERIFIED").replace(/^#/, "")}
+                      Sejur confirmat #{(r.booking_code || "BK-VERIFIED").replace(/^#/, "")}
                     </span>
                     {r.unit_number && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700">
@@ -488,17 +488,17 @@ export default function ReviewsTab() {
                     {/* AI Sentiment Badge */}
                     {r.ai_sentiment === "positive" && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                        <Smile size={12} /> AI: Pozitiv ({Math.round((r.ai_confidence || 0.95) * 100)}%)
+                        <Smile size={12} /> Sentiment pozitiv ({Math.round((r.ai_confidence || 0.95) * 100)}%)
                       </span>
                     )}
                     {r.ai_sentiment === "neutral" && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
-                        <Meh size={12} /> AI: Neutru ({Math.round((r.ai_confidence || 0.75) * 100)}%)
+                        <Meh size={12} /> Sentiment neutru ({Math.round((r.ai_confidence || 0.75) * 100)}%)
                       </span>
                     )}
                     {r.ai_sentiment === "negative" && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">
-                        <Frown size={12} /> AI: Reclamație ({Math.round((r.ai_confidence || 0.88) * 100)}%)
+                        <Frown size={12} /> Reclamație ({Math.round((r.ai_confidence || 0.88) * 100)}%)
                       </span>
                     )}
                   </div>
@@ -529,16 +529,16 @@ export default function ReviewsTab() {
                 <span>•</span>
                 <span>Restaurant: <strong>{r.rating_restaurant || 5}/5</strong></span>
                 <span>•</span>
-                <span>Micul Dejun: <strong>{r.rating_breakfast || 5}/5</strong></span>
+                <span>Micul dejun: <strong>{r.rating_breakfast || 5}/5</strong></span>
                 <span>•</span>
-                <span>Confort Cameră: <strong>{r.rating_comfort}/5</strong></span>
+                <span>Confort cameră: <strong>{r.rating_comfort}/5</strong></span>
               </div>
 
               {/* Extracted AI Keywords */}
               {r.ai_keywords && r.ai_keywords.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles size={12} className="text-[#00a896]" /> Aspecte Detectate AI:
+                    <Sparkles size={12} className="text-[#00a896]" /> Aspecte remarcate:
                   </span>
                   {r.ai_keywords.map((kw, i) => (
                     <span
@@ -560,7 +560,7 @@ export default function ReviewsTab() {
               {r.admin_reply && (
                 <div className="rounded-xl bg-[#0d2c5c]/5 border-l-4 border-l-[#c69a3f] p-3.5 mb-4">
                   <div className="text-xs font-bold text-[#0d2c5c] mb-1">
-                    Răspuns Oficial — Conducerea Vila Casa Esy
+                    Răspuns oficial — Vila Casa Esy
                   </div>
                   <p className="text-xs text-slate-700 leading-relaxed">{r.admin_reply}</p>
                 </div>
@@ -574,7 +574,7 @@ export default function ReviewsTab() {
                   }}
                 >
                   <MessageSquareReply className="w-4 h-4" />
-                  {r.admin_reply ? "Editează Răspunsul Oficial" : "Răspunde Oficial"}
+                  {r.admin_reply ? "Editează răspunsul" : "Răspunde oficial"}
                 </PrimaryButton>
 
                 <div className="flex items-center gap-2">
@@ -610,22 +610,22 @@ export default function ReviewsTab() {
       <Modal
         open={Boolean(replyTarget)}
         onClose={() => setReplyTarget(null)}
-        title="Răspuns Oficial Vila Casa Esy"
+        title="Răspuns oficial Vila Casa Esy"
         subtitle={
           replyTarget
-            ? `Răspunzi recenziei lăsate de ${replyTarget.guest_name} (${replyTarget.booking_code || "Sejur Confirmat"})`
+            ? `Răspunzi recenziei lăsate de ${replyTarget.guest_name} (${replyTarget.booking_code || "Sejur confirmat"})`
             : ""
         }
         footer={
           <>
             <GhostButton onClick={() => setReplyTarget(null)}>Anulează</GhostButton>
             <PrimaryButton disabled={savingReply} onClick={handleSaveReply}>
-              {savingReply ? "Se salvează..." : "Publică Răspunsul Oficial"}
+              {savingReply ? "Se salvează..." : "Publică răspunsul oficial"}
             </PrimaryButton>
           </>
         }
       >
-        <Field label="Mesajul Oficial al Conducerii Vila Casa Esy">
+        <Field label="Mesajul oficial al conducerii Vila Casa Esy">
           <Textarea
             rows={4}
             value={replyText}

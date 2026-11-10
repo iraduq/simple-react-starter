@@ -113,7 +113,7 @@ export default function OrdersKdsTab() {
   const [newBookingCode, setNewBookingCode] = useState("");
   const [newPayment, setNewPayment] = useState<"room_charge" | "card" | "cash">("room_charge");
   const [newNotes, setNewNotes] = useState("");
-  const [newItemsText, setNewItemsText] = useState("2x Mic Dejun Continental - 68\n1x Platou Fructe de Mare - 115");
+  const [newItemsText, setNewItemsText] = useState("2x Mic dejun continental - 68\n1x Platou fructe de mare - 115");
 
   const loadOrders = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -242,20 +242,20 @@ export default function OrdersKdsTab() {
     if (method === "card") {
       return (
         <span className="inline-flex items-center gap-1 text-[11px] text-slate-600 font-medium">
-          <CreditCard className="w-3.5 h-3.5 text-indigo-600" /> POS la Cameră
+          <CreditCard className="w-3.5 h-3.5 text-indigo-600" /> POS la cameră
         </span>
       );
     }
     if (method === "cash") {
       return (
         <span className="inline-flex items-center gap-1 text-[11px] text-slate-600 font-medium">
-          <Banknote className="w-3.5 h-3.5 text-emerald-600" /> Numerar la Cameră
+          <Banknote className="w-3.5 h-3.5 text-emerald-600" /> Numerar la cameră
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 text-[11px] text-amber-800 font-semibold">
-        <Receipt className="w-3.5 h-3.5 text-amber-600" /> Pe Contul Camerei
+        <Receipt className="w-3.5 h-3.5 text-amber-600" /> Pe contul camerei
       </span>
     );
   };
@@ -337,7 +337,7 @@ export default function OrdersKdsTab() {
                           </span>
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#f0f4fa] text-[#0d2c5c] border border-[#0d2c5c]/15">
                             <BedDouble className="w-3.5 h-3.5 text-[#c69a3f]" />
-                            Room Service
+                            Room service
                           </span>
                         </div>
 
@@ -389,7 +389,7 @@ export default function OrdersKdsTab() {
                               onClick={() => handleStatusChange(order.id, "preparing")}
                               className="flex-1 py-1.5 px-3 rounded-lg bg-[#0d2c5c] hover:bg-[#07203f] text-white text-xs font-bold transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                             >
-                              Preia în Bucătărie →
+                              Preia în bucătărie →
                             </button>
                           )}
                           {order.status === "preparing" && (
@@ -398,7 +398,7 @@ export default function OrdersKdsTab() {
                               onClick={() => handleStatusChange(order.id, "delivering")}
                               className="flex-1 py-1.5 px-3 rounded-lg bg-[#0d2c5c] hover:bg-[#07203f] border border-[#c69a3f]/40 text-[#f6d892] text-xs font-bold transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                             >
-                              Trimite spre Cameră →
+                              Trimite spre cameră →
                             </button>
                           )}
                           {order.status === "delivering" && (
@@ -407,7 +407,7 @@ export default function OrdersKdsTab() {
                               onClick={() => handleStatusChange(order.id, "delivered")}
                               className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                             >
-                              ✓ Marchează Livrată
+                              ✓ Marchează ca livrată
                             </button>
                           )}
                           {order.status === "delivered" && (
@@ -442,12 +442,12 @@ export default function OrdersKdsTab() {
         footer={
           <>
             <GhostButton onClick={() => setShowModal(false)}>Anulează</GhostButton>
-            <PrimaryButton onClick={handleCreateManualOrder}>Trimite în Bucătărie</PrimaryButton>
+            <PrimaryButton onClick={handleCreateManualOrder}>Trimite în bucătărie</PrimaryButton>
           </>
         }
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Selectează Camera Disponibilă">
+          <Field label="Selectează camera disponibilă">
             <Select
               value={newLocLabel}
               onChange={(e) => setNewLocLabel(e.target.value)}
@@ -460,7 +460,7 @@ export default function OrdersKdsTab() {
             </Select>
           </Field>
 
-          <Field label="Cod Rezervare #BK (opțional)">
+          <Field label="Cod rezervare #BK (opțional)">
             <TextInput
               value={newBookingCode}
               onChange={(e) => setNewBookingCode(e.target.value)}
@@ -469,22 +469,22 @@ export default function OrdersKdsTab() {
           </Field>
 
           <div className="sm:col-span-2">
-            <Field label="Metodă de Plată">
+            <Field label="Metodă de plată">
               <Select value={newPayment} onChange={(e) => setNewPayment(e.target.value as any)}>
-                <option value="room_charge">Trecut pe Contul Camerei</option>
-                <option value="card">Card la Livrare în Cameră (POS)</option>
-                <option value="cash">Numerar la Livrare în Cameră</option>
+                <option value="room_charge">Trecut pe contul camerei</option>
+                <option value="card">Card la livrare în cameră (POS)</option>
+                <option value="cash">Numerar la livrare în cameră</option>
               </Select>
             </Field>
           </div>
 
           <div className="sm:col-span-2">
-            <Field label="Produse comandate (câte unul pe rând: Cantitate x Nume - Preț RON)">
+            <Field label="Produse comandate (câte unul pe rând: cantitate x nume - preț RON)">
               <Textarea
                 rows={4}
                 value={newItemsText}
                 onChange={(e) => setNewItemsText(e.target.value)}
-                placeholder={"2x Mic Dejun Continental - 68\n1x Platou Fructe de Mare - 115"}
+                placeholder={"2x Mic dejun continental - 68\n1x Platou fructe de mare - 115"}
               />
             </Field>
           </div>
