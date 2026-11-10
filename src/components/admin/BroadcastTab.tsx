@@ -476,7 +476,7 @@ export default function BroadcastTab() {
             </div>
 
             {/* Viewport Canvas */}
-            <div className="p-4 sm:p-5 min-h-[220px] bg-gradient-to-br from-[#f8fafc] via-[#edf2f7] to-[#e2e8f0] flex flex-col justify-end relative">
+            <div className="p-4 sm:p-5 min-h-[250px] bg-gradient-to-br from-[#f8fafc] via-[#edf2f7] to-[#e2e8f0] flex items-end justify-between gap-4 relative overflow-hidden">
               {/* Subtle background placeholder elements representing the hotel site */}
               <div className="absolute top-4 left-4 right-4 opacity-40 pointer-events-none space-y-2">
                 <div className="h-3 w-28 bg-[#0d2c5c]/20 rounded-full" />
@@ -484,37 +484,37 @@ export default function BroadcastTab() {
                 <div className="h-20 w-full rounded-xl bg-white/60 border border-white/80" />
               </div>
 
-              {/* THE TOAST NOTIFICATION CARD */}
-              <div className="relative rounded-[18px] bg-[#0d2c5c] text-white p-4 sm:p-5 shadow-[0_15px_40px_rgba(13,44,92,0.35)] border-2 border-[#c69a3f] overflow-hidden z-10 transition-all">
+              {/* THE TOAST NOTIFICATION CARD (PLASAT ELEGANT ÎN STÂNGA JOS) */}
+              <div className="relative max-w-[340px] rounded-[18px] bg-[#0d2c5c]/95 backdrop-blur-md text-white p-4 shadow-[0_15px_40px_rgba(13,44,92,0.35)] border border-[#c69a3f]/50 overflow-hidden z-10 transition-all">
                 {/* Glowing gold top strip */}
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#c69a3f] via-[#f59e0b] to-[#c69a3f]" />
+                <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#c69a3f] via-[#f59e0b] to-[#c69a3f]" />
 
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-[#c69a3f]/40 shrink-0 text-[#c69a3f] shadow-sm">
-                    <Sparkles size={18} />
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-[#c69a3f]/40 shrink-0 text-[#c69a3f] shadow-sm mt-0.5">
+                    <Sparkles size={16} />
                   </div>
                   <div className="flex-1 min-w-0 pr-4">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase bg-[#c69a3f]/20 border border-[#c69a3f]/40 text-[#f59e0b] flex items-center gap-1.5 shadow-xs">
-                        <Radio size={11} className="animate-pulse" />
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 rounded-full text-[9.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase bg-[#c69a3f]/20 border border-[#c69a3f]/40 text-[#f59e0b] flex items-center gap-1 shadow-xs">
+                        <Radio size={10} className="animate-pulse" />
                         {type === "urgent"
-                          ? "NOTIFICARE URGENTĂ"
+                          ? "Notificare urgentă"
                           : type === "event"
-                            ? "EVENIMENT HOTEL"
+                            ? "Eveniment hotel"
                             : type === "announcement"
-                              ? "ANUNȚ IMPORTANT"
-                              : "OFERTĂ SPECIALĂ"}
+                              ? "Anunț important"
+                              : "Ofertă specială"}
                       </span>
                     </div>
-                    <h4 className="font-['Outfit',sans-serif] text-[15px] font-bold text-white leading-snug drop-shadow-xs">
-                      {title.trim() || "Titlul notificării tale va apărea aici"}
+                    <h4 className="font-['Outfit',sans-serif] text-[14px] font-bold text-white leading-snug">
+                      {title.trim() || "Titlul notificării va apărea aici"}
                     </h4>
-                    <p className="mt-1 text-[12.5px] text-slate-200 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
+                    <p className="mt-1 text-[12px] text-slate-200 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
                       {message.trim() || "Mesajul detaliat cu invitația la restaurant, oferta la bar sau anunțul recepției va fi afișat elegant."}
                     </p>
                     {ctaText && (
-                      <div className="mt-3">
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] bg-[#c69a3f] hover:bg-[#b58b34] text-[#0d2c5c] text-[11.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold shadow-sm">
+                      <div className="mt-2.5">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[8px] bg-[#c69a3f] text-[#0d2c5c] text-[11px] font-['Plus_Jakarta_Sans',sans-serif] font-bold shadow-sm">
                           <span>{ctaText}</span>
                           <span>→</span>
                         </span>
@@ -522,6 +522,19 @@ export default function BroadcastTab() {
                     )}
                   </div>
                 </div>
+
+                {/* Auto-dismiss countdown bar indicator */}
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/15 overflow-hidden">
+                  <div className="h-full w-2/3 bg-gradient-to-r from-[#c69a3f] to-[#f59e0b]" />
+                </div>
+              </div>
+
+              {/* WIDGETUL DE AI CHAT ÎN DREAPTA JOS (SEPARAT COMPLET) */}
+              <div className="hidden sm:flex flex-col items-center gap-1 z-10 opacity-70 shrink-0">
+                <div className="w-11 h-11 rounded-full bg-[#0d2c5c] text-white flex items-center justify-center shadow-md border-2 border-white">
+                  <span className="text-[13px] font-bold">AI</span>
+                </div>
+                <span className="text-[9.5px] font-semibold text-[#64748b]">Widget chat</span>
               </div>
             </div>
 

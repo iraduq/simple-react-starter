@@ -156,18 +156,49 @@ export default function BroadcastAlertBanner() {
   const style = getStyleForType(current.type);
   const IconComponent = style.icon;
 
+  // Auto-dismiss countdown (8 seconds)
+  const AUTO_DISMISS_MS = 8000;
+  const [remainingMs, setRemainingMs] = useState(AUTO_DISMISS_MS);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    setRemainingMs(AUTO_DISMISS_MS);
+  }, [current?.id]);
+
+  useEffect(() => {
+    if (!current || isPaused) return;
+    const interval = 100;
+    const timer = setInterval(() => {
+      setRemainingMs((prev) => {
+        if (prev <= interval) {
+          clearInterval(timer);
+          handleDismiss(current.id);
+          return 0;
+        }
+        return prev - interval;
+      });
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [current?.id, isPaused]);
+
   // Don't cover admin panel view
   const isAdminPath = location.pathname.startsWith("/admin");
   if (isAdminPath) return null;
 
   return (
-    <aside aria-label="Notificări și alerte de la hotel" className="fixed bottom-5 right-4 sm:right-6 md:right-8 z-50 max-w-md w-[calc(100vw-32px)] sm:w-auto">
+    <aside
+      aria-label="Notificări și alerte de la hotel"
+      className="fixed bottom-6 left-4 sm:left-6 md:left-8 z-[8000] max-w-sm sm:max-w-md w-[calc(100vw-32px)] sm:w-auto"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <AnimatePresence mode="wait">
         <motion.div
           key={current.id}
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          initial={{ opacity: 0, x: -40, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: -40, scale: 0.95 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
           className={`relative rounded-[22px] backdrop-blur-xl p-5 border text-white ${style.cardBg} overflow-hidden`}
         >
@@ -195,17 +226,23 @@ export default function BroadcastAlertBanner() {
                   className={`px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase border ${style.badgeBg} flex items-center gap-1.5`}
                 >
                   <Radio size={11} className="animate-pulse" />
-                  {style.label}
+                  {current.type === "urgent"
+                    ? "Notificare urgentă"
+                    : current.type === "event"
+                      ? "Eveniment hotel"
+                      : current.type === "announcement"
+                        ? "Anunț important"
+                        : "Ofertă specială"}
                 </span>
                 <span className="text-[11px] text-white/50 font-['Plus_Jakarta_Sans',sans-serif]">
-                  Hotel Broadcast
+                  Casa Esy Live
                 </span>
               </div>
 
               <h4 className="font-['Outfit',sans-serif] text-[16px] font-bold text-white leading-snug">
                 {current.title}
               </h4>
-              <p className="mt-1 text-[13px] text-white/80 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
+              <p className="mt-1 text-[13px] text-slate-200 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
                 {current.message}
               </p>
 
@@ -216,7 +253,7 @@ export default function BroadcastAlertBanner() {
                     <Link
                       to={current.cta_link}
                       onClick={() => handleDismiss(current.id)}
-                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-[12px] bg-gradient-to-r ${style.accentColor} hover:brightness-110 text-white text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold transition shadow-md active:scale-95`}
+                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-[12px] bg-gradient-to-r ${style.accentColor} hover:brightness-110 text-[#0d2c5c] text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold transition shadow-md active:scale-95`}
                     >
                       <span>{current.cta_text}</span>
                       <ArrowRight size={13} />
@@ -238,6 +275,14 @@ export default function BroadcastAlertBanner() {
             >
               <X size={15} />
             </button>
+          </div>
+
+          {/* Auto-dismiss countdown progress bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-white/10 overflow-hidden">
+            <div
+              className={`h-full bg-gradient-to-r ${style.accentColor} transition-all duration-100 ease-linear`}
+              style={{ width: `${(remainingMs / AUTO_DISMISS_MS) * 100}%` }}
+            />
           </div>
         </motion.div>
       </AnimatePresence>
