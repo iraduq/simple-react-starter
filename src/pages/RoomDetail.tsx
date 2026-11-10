@@ -7,6 +7,7 @@ import {
   Loader as Loader2,
   Maximize,
   ShieldCheck,
+  Star,
   TicketPercent,
   Users,
 } from "lucide-react";
@@ -388,6 +389,21 @@ export default function RoomDetail() {
           >
             {room.title}
           </h1>
+
+          <div className="mt-2.5 flex flex-wrap items-center gap-3">
+            <a
+              href="#recenzii"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e8f0] bg-[#f8fafc] px-3.5 py-1 text-[12px] font-semibold text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#fff9ed] transition-colors shadow-2xs"
+            >
+              <Star size={13} className="fill-[#c69a3f] text-[#c69a3f]" />
+              <span className="font-bold">5.00</span>
+              <span className="text-[#8595aa]">·</span>
+              <span className="text-[#4f6280] font-normal hover:text-[#0d2c5c]">
+                recenzii verificate ale oaspeților ↓
+              </span>
+            </a>
+          </div>
+
           <p className="mt-3 text-[14.5px] leading-relaxed text-[#6b7c99]">
             {room.description}
           </p>
@@ -427,8 +443,6 @@ export default function RoomDetail() {
               ))}
             </ul>
           )}
-
-          <RoomReviewsSection roomId={String(roomId)} />
 
           {quote && quote.nightly_breakdown.length > 0 && (
             <section className="mt-9 rounded-2xl border border-[#e1e8f0] bg-white p-5">
@@ -704,6 +718,11 @@ export default function RoomDetail() {
           </p>
           <div className="hidden" />
         </aside>
+      </div>
+
+      {/* Secțiune dedicată recenzii oaspeți */}
+      <div id="recenzii" className="mt-16 pt-12 border-t border-[#e2e8f0]">
+        <RoomReviewsSection roomId={String(roomId)} />
       </div>
     </div>
   );
