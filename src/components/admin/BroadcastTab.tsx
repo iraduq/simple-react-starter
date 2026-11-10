@@ -248,10 +248,10 @@ export default function BroadcastTab() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#0d2c5c]/10">
         <div>
           <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
-            <Radio size={14} className="text-[#00a896] animate-pulse" />
+            <Radio size={14} className="text-[#c69a3f] animate-pulse" />
             <span>Marketing Oaspeți & Alerte Live</span>
           </div>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[34px] font-semibold text-[#0d2c5c] leading-tight">
+          <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold text-[#0d2c5c] leading-tight">
             Centru de Notificări Push & Broadcast
           </h2>
           <p className="text-[13.5px] text-[#64748b] mt-0.5 max-w-2xl font-['Plus_Jakarta_Sans',sans-serif]">
@@ -260,14 +260,14 @@ export default function BroadcastTab() {
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <div className="px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <div className="px-3.5 py-1.5 rounded-full bg-amber-50 border border-[#c69a3f]/30 text-[#0d2c5c] text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#c69a3f] animate-pulse"></span>
             <span>{activeCount} alerte active live</span>
           </div>
           <button
             onClick={loadBroadcasts}
             disabled={loading}
-            className="w-10 h-10 rounded-full border border-[#0d2c5c]/15 hover:border-[#0d2c5c] flex items-center justify-center text-[#0d2c5c] hover:bg-[#0d2c5c]/5 transition"
+            className="w-10 h-10 rounded-full border border-[#e1e8f0] hover:border-[#c69a3f] flex items-center justify-center text-[#0d2c5c] hover:bg-[#f8fafc] transition"
             title="Reîmprospătează"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
@@ -288,13 +288,13 @@ export default function BroadcastTab() {
                 key={p.name}
                 type="button"
                 onClick={() => handleApplyPreset(p)}
-                className="group p-3.5 rounded-[16px] border border-[#e1e8f0] bg-white hover:border-[#00a896] hover:shadow-md transition text-left flex items-start gap-3"
+                className="group p-3.5 rounded-[16px] border border-[#e1e8f0] bg-white hover:border-[#c69a3f] hover:shadow-md transition text-left flex items-start gap-3"
               >
-                <div className="w-9 h-9 rounded-[12px] bg-[#f0f9ff] text-[#0284c7] group-hover:bg-[#00a896] group-hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-xs">
+                <div className="w-9 h-9 rounded-[12px] bg-[#f8fafc] text-[#0d2c5c] border border-[#e1e8f0] group-hover:bg-[#0d2c5c] group-hover:text-[#c69a3f] group-hover:border-[#0d2c5c] flex items-center justify-center shrink-0 transition-colors shadow-xs">
                   <Icon size={16} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-bold text-[#0d2c5c] truncate group-hover:text-[#00a896] transition-colors font-['Plus_Jakarta_Sans',sans-serif]">
+                  <p className="text-[13px] font-bold text-[#0d2c5c] truncate group-hover:text-[#c69a3f] transition-colors font-['Plus_Jakarta_Sans',sans-serif]">
                     {p.name}
                   </p>
                   <p className="text-[11px] text-[#64748b] truncate mt-0.5">
@@ -308,11 +308,11 @@ export default function BroadcastTab() {
       </div>
 
       {/* ── GRID: COMPOSER FORM + LIVE PREVIEW ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-start">
         {/* COMPOSER CARD */}
         <div className="bg-white rounded-[24px] p-6 sm:p-7 border border-[#e1e8f0] shadow-[0_10px_35px_rgba(13,44,92,0.06)]">
           <div className="flex items-center gap-2 mb-5">
-            <Send size={16} className="text-[#00a896]" />
+            <Send size={16} className="text-[#c69a3f]" />
             <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
               Compune Notificare Broadcast
             </h3>
@@ -329,7 +329,7 @@ export default function BroadcastTab() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Cină Festivă & Muzică Live pe Ponton"
-                className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#00a896] focus:outline-none text-[13.5px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif]"
+                className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13.5px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] transition-colors"
               />
             </div>
 
@@ -343,7 +343,7 @@ export default function BroadcastTab() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Descrieți oferta sau anunțul pe scurt pentru oaspeți..."
-                className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#00a896] focus:outline-none text-[13.5px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif]"
+                className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13.5px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] transition-colors"
               />
             </div>
 
@@ -356,10 +356,10 @@ export default function BroadcastTab() {
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#00a896] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white transition-colors"
                 >
                   <option value="offer">✨ Ofertă Specială (Auriu)</option>
-                  <option value="event">🎉 Eveniment Hotel (Turcoaz)</option>
+                  <option value="event">🎉 Eveniment Hotel (Bleumarin)</option>
                   <option value="announcement">ℹ️ Anunț Important (Azur)</option>
                   <option value="urgent">🚨 Urgență / Mentenanță (Roșu)</option>
                 </select>
@@ -372,7 +372,7 @@ export default function BroadcastTab() {
                 <select
                   value={targetAudience}
                   onChange={(e) => setTargetAudience(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#00a896] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white transition-colors"
                 >
                   <option value="all">Toți vizitatorii & oaspeții</option>
                   <option value="checked_in">Doar oaspeții cazați în prezent</option>
@@ -392,7 +392,7 @@ export default function BroadcastTab() {
                   value={ctaText}
                   onChange={(e) => setCtaText(e.target.value)}
                   placeholder="Ex: Rezervă Masă"
-                  className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#00a896] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif]"
+                  className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] transition-colors"
                 />
               </div>
 
@@ -405,7 +405,7 @@ export default function BroadcastTab() {
                   value={ctaLink}
                   onChange={(e) => setCtaLink(e.target.value)}
                   placeholder="Ex: /places sau /facilitati"
-                  className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#00a896] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif]"
+                  className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] transition-colors"
                 />
               </div>
             </div>
@@ -418,7 +418,7 @@ export default function BroadcastTab() {
               <select
                 value={durationHours}
                 onChange={(e) => setDurationHours(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#00a896] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white"
+                className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white transition-colors"
               >
                 <option value="2">2 ore (eveniment rapid / promoție fulger)</option>
                 <option value="6">6 ore (după-amiază / seară)</option>
@@ -431,73 +431,104 @@ export default function BroadcastTab() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full mt-2 h-12 rounded-[14px] bg-gradient-to-r from-[#00a896] to-[#0284c7] hover:brightness-105 text-white text-[13.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(0,168,150,0.3)] transition active:scale-[0.99] disabled:opacity-50"
+              className="w-full mt-2 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99] disabled:opacity-50"
             >
-              <Send size={15} />
+              <Send size={15} className="text-[#c69a3f]" />
               <span>{submitting ? "Se transmite..." : "Transmite Acum Live către Oaspeți"}</span>
             </button>
           </form>
         </div>
 
         {/* LIVE INTERACTIVE PREVIEW */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Eye size={16} className="text-[#c69a3f]" />
-            <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-              Previzualizare în Timp Real pe Ecranul Oaspetelui
-            </h3>
+        <div className="bg-white rounded-[24px] p-6 sm:p-7 border border-[#e1e8f0] shadow-[0_10px_35px_rgba(13,44,92,0.06)] space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Eye size={16} className="text-[#c69a3f]" />
+              <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
+                Previzualizare Alertă Oaspete
+              </h3>
+            </div>
+            <span className="text-[11px] font-bold text-[#0d2c5c] bg-amber-50 border border-[#c69a3f]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c69a3f] animate-pulse" />
+              <span>Simulare Live</span>
+            </span>
           </div>
           <p className="text-[12.5px] text-[#64748b] font-['Plus_Jakarta_Sans',sans-serif]">
-            Așa va apărea alerta instant în colțul din dreapta-jos pe telefoanele și laptopurile oaspeților cazați:
+            Așa se afișează notificarea plutitoare pe telefoanele și laptopurile oaspeților cazați:
           </p>
 
-          <div className="p-6 rounded-[24px] bg-slate-900/90 border border-slate-700/60 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-3 right-3 text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded">
-              Guest Screen Preview
+          {/* Device Mockup Window */}
+          <div className="rounded-[20px] border border-[#e1e8f0] bg-slate-50 overflow-hidden shadow-sm">
+            {/* Browser top chrome */}
+            <div className="px-4 py-2.5 bg-white border-b border-[#e1e8f0] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+              </div>
+              <div className="px-3 py-0.5 rounded-full bg-[#f8fafc] border border-[#e1e8f0] text-[11px] text-[#64748b] font-mono flex items-center gap-1.5 shadow-xs">
+                <span className="text-emerald-600 text-[10px]">🔒</span>
+                <span>casaesy.ro/camere</span>
+              </div>
+              <span className="text-[10px] text-[#64748b] font-bold uppercase tracking-wider">
+                Guest UI
+              </span>
             </div>
 
-            {/* The mock alert card */}
-            <div className="mt-4 rounded-[20px] bg-[#0a1d3a] border border-[#c69a3f]/40 p-5 text-white shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#c69a3f] to-[#f59e0b]" />
+            {/* Viewport Canvas */}
+            <div className="p-4 sm:p-5 min-h-[220px] bg-gradient-to-br from-[#f8fafc] via-[#edf2f7] to-[#e2e8f0] flex flex-col justify-end relative">
+              {/* Subtle background placeholder elements representing the hotel site */}
+              <div className="absolute top-4 left-4 right-4 opacity-40 pointer-events-none space-y-2">
+                <div className="h-3 w-28 bg-[#0d2c5c]/20 rounded-full" />
+                <div className="h-2 w-48 bg-[#0d2c5c]/10 rounded-full" />
+                <div className="h-20 w-full rounded-xl bg-white/60 border border-white/80" />
+              </div>
 
-              <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/15 shrink-0 text-[#e6be65]">
-                  <Sparkles size={18} />
-                </div>
-                <div className="flex-1 min-w-0 pr-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#c69a3f]/15 border border-[#c69a3f]/30 text-[#e6be65] flex items-center gap-1.5">
-                      <Radio size={11} className="animate-pulse" />
-                      {type === "urgent"
-                        ? "NOTIFICARE URGENTĂ"
-                        : type === "event"
-                          ? "EVENIMENT HOTEL"
-                          : type === "announcement"
-                            ? "ANUNȚ IMPORTANT"
-                            : "OFERTĂ SPECIALĂ"}
-                    </span>
+              {/* THE TOAST NOTIFICATION CARD */}
+              <div className="relative rounded-[18px] bg-[#0d2c5c] text-white p-4 sm:p-5 shadow-[0_15px_40px_rgba(13,44,92,0.35)] border-2 border-[#c69a3f] overflow-hidden z-10 transition-all">
+                {/* Glowing gold top strip */}
+                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#c69a3f] via-[#f59e0b] to-[#c69a3f]" />
+
+                <div className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-[#c69a3f]/40 shrink-0 text-[#c69a3f] shadow-sm">
+                    <Sparkles size={18} />
                   </div>
-                  <h4 className="font-['Outfit',sans-serif] text-[15px] font-bold text-white leading-snug">
-                    {title || "Titlul notificării tale va apărea aici"}
-                  </h4>
-                  <p className="mt-1 text-[12.5px] text-white/80 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
-                    {message || "Mesajul detaliat cu invitația la restaurant, oferta la bar sau anunțul recepției va fi afișat elegant."}
-                  </p>
-                  {ctaText && (
-                    <div className="mt-3">
-                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] bg-gradient-to-r from-[#c69a3f] to-[#f59e0b] text-white text-[11.5px] font-bold shadow-sm">
-                        <span>{ctaText}</span>
-                        <span>→</span>
+                  <div className="flex-1 min-w-0 pr-4">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase bg-[#c69a3f]/20 border border-[#c69a3f]/40 text-[#f59e0b] flex items-center gap-1.5 shadow-xs">
+                        <Radio size={11} className="animate-pulse" />
+                        {type === "urgent"
+                          ? "NOTIFICARE URGENTĂ"
+                          : type === "event"
+                            ? "EVENIMENT HOTEL"
+                            : type === "announcement"
+                              ? "ANUNȚ IMPORTANT"
+                              : "OFERTĂ SPECIALĂ"}
                       </span>
                     </div>
-                  )}
+                    <h4 className="font-['Outfit',sans-serif] text-[15px] font-bold text-white leading-snug drop-shadow-xs">
+                      {title.trim() || "Titlul notificării tale va apărea aici"}
+                    </h4>
+                    <p className="mt-1 text-[12.5px] text-slate-200 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
+                      {message.trim() || "Mesajul detaliat cu invitația la restaurant, oferta la bar sau anunțul recepției va fi afișat elegant."}
+                    </p>
+                    {ctaText && (
+                      <div className="mt-3">
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] bg-[#c69a3f] hover:bg-[#b58b34] text-[#0d2c5c] text-[11.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold shadow-sm">
+                          <span>{ctaText}</span>
+                          <span>→</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            {/* Bottom status bar */}
+            <div className="px-4 py-2.5 bg-white border-t border-[#e1e8f0] flex items-center justify-between text-[11px] font-['Plus_Jakarta_Sans',sans-serif] text-[#64748b]">
+              <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Conexiune WebSocket Live Activă
               </span>
               <span>Casa Esy Digital Guest Portal</span>
@@ -581,7 +612,7 @@ export default function BroadcastTab() {
                               : "Toți vizitatorii"}
                         </p>
                         {b.cta_text && (
-                          <span className="text-[11px] text-[#00a896] font-semibold mt-0.5 flex items-center gap-1">
+                          <span className="text-[11px] text-[#c69a3f] font-semibold mt-0.5 flex items-center gap-1">
                             <span>{b.cta_text}</span>
                             <span>({b.cta_link})</span>
                           </span>
@@ -602,7 +633,7 @@ export default function BroadcastTab() {
                           <button
                             type="button"
                             onClick={() => handleToggle(b.id)}
-                            className="text-[12px] font-semibold text-[#0284c7] hover:underline"
+                            className="text-[12px] font-semibold text-[#0d2c5c] hover:text-[#c69a3f] hover:underline"
                           >
                             {b.is_active ? "Oprește" : "Pornește"}
                           </button>
