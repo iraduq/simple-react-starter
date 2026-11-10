@@ -9,6 +9,8 @@ import {
   UserCheck,
   Sparkles,
   BedDouble,
+  RefreshCw,
+  Radio,
 } from "lucide-react";
 import {
   get,
@@ -287,11 +289,18 @@ export default function TapeChartTab() {
         title="Diagramă de ocupare a camerelor (tape chart)"
         description="Vizualizare completă pe unități fizice (Camera 101, 102...) și zilele lunii. Apasă pe orice bară de rezervare pentru detalii, PIN Smart Lock sau descărcarea facturii PDF."
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>WebSocket live</span>
+            </span>
+            <GhostButton onClick={() => void loadAllTimelineData()}>
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#c69a3f]" : "text-[#0d2c5c]"}`} />
+            </GhostButton>
             <GhostButton onClick={prevMonth}>
               <ChevronLeft className="w-4 h-4" />
             </GhostButton>
-            <div className="px-4 py-2 rounded-xl bg-white border border-[color:var(--color-border)] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-sm min-w-[160px] text-center shadow-xs text-[#0d2c5c]">
+            <div className="px-4 py-2 rounded-xl bg-white border border-[#e1e8f0] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-sm min-w-[160px] text-center shadow-xs text-[#0d2c5c]">
               {MONTHS_RO[month]} {year}
             </div>
             <GhostButton onClick={nextMonth}>
@@ -304,24 +313,24 @@ export default function TapeChartTab() {
 
       {/* KPI Summary Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
-        <div className="p-4 rounded-2xl bg-white/85 border border-[color:var(--color-border)] flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/85 border border-[#e1e8f0] flex items-center justify-between">
           <div>
-            <div className="text-xs text-[color:var(--color-muted-foreground)]">Unități Afișate</div>
-            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="text-xs text-slate-500 font-semibold">Unități afișate</div>
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[#0d2c5c]">
               {filteredRows.length} camere
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#0d2c5c]/10 text-[#0d2c5c] flex items-center justify-center">
             <DoorOpen className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white/85 border border-[color:var(--color-border)] flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/85 border border-[#e1e8f0] flex items-center justify-between">
           <div>
-            <div className="text-xs text-[color:var(--color-muted-foreground)]">
+            <div className="text-xs text-slate-500 font-semibold">
               Sejururi în {MONTHS_RO[month]}
             </div>
-            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[#0d2c5c]">
               {stats.activeBookingsCount} rezervări
             </div>
           </div>
@@ -330,10 +339,10 @@ export default function TapeChartTab() {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white/85 border border-[color:var(--color-border)] flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/85 border border-[#e1e8f0] flex items-center justify-between">
           <div>
-            <div className="text-xs text-[color:var(--color-muted-foreground)]">Grad Mediu Ocupare</div>
-            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="text-xs text-slate-500 font-semibold">Grad mediu de ocupare</div>
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[#0d2c5c]">
               {stats.avgOccupancy}%
             </div>
           </div>
@@ -342,10 +351,10 @@ export default function TapeChartTab() {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white/85 border border-[color:var(--color-border)] flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/85 border border-[#e1e8f0] flex items-center justify-between">
           <div>
-            <div className="text-xs text-[color:var(--color-muted-foreground)]">Valoare Sejururi Lună</div>
-            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="text-xs text-slate-500 font-semibold">Valoare sejururi lună</div>
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[#0d2c5c]">
               {money(stats.monthRevenue)}
             </div>
           </div>
@@ -359,23 +368,25 @@ export default function TapeChartTab() {
       <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
         <div className="flex flex-wrap items-center gap-2">
           <button
+            type="button"
             onClick={() => setRoomFilter("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
               roomFilter === "all"
-                ? "bg-[color:var(--color-primary)] text-white border-[color:var(--color-primary)]"
-                : "bg-white text-slate-700 border-[color:var(--color-border)] hover:bg-slate-50"
+                ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
+                : "bg-white text-[#0d2c5c] border-[#e1e8f0] hover:bg-[#f8fafc] hover:border-[#c69a3f]"
             }`}
           >
-            Toate Tipurile de Camere
+            Toate tipurile de camere
           </button>
           {distinctRooms.map(([rId, rTitle]) => (
             <button
               key={rId}
+              type="button"
               onClick={() => setRoomFilter(rId)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
                 roomFilter === rId
-                  ? "bg-[color:var(--color-primary)] text-white border-[color:var(--color-primary)]"
-                  : "bg-white text-slate-700 border-[color:var(--color-border)] hover:bg-slate-50"
+                  ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
+                  : "bg-white text-[#0d2c5c] border-[#e1e8f0] hover:bg-[#f8fafc] hover:border-[#c69a3f]"
               }`}
             >
               {rTitle}
@@ -406,24 +417,28 @@ export default function TapeChartTab() {
       </div>
 
       {/* Horizontal Tape Chart Table */}
-      <div className="rounded-2xl bg-white border border-[color:var(--color-border)] shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-white border border-[#e1e8f0] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <div className="min-w-[1150px]">
             {/* Header Row: Days of the Month */}
             <div
-              className="grid border-b border-[color:var(--color-border)] bg-slate-50/90"
+              className="grid border-b border-[#e1e8f0] bg-slate-50/90 text-[12px]"
               style={{
                 gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(34px, 1fr))`,
               }}
             >
-              <div className="p-3 font-bold text-xs uppercase tracking-wider text-slate-600 border-r border-[color:var(--color-border)] sticky left-0 bg-slate-50 z-20 flex items-center justify-between">
-                <span>Unitate Fizică</span>
+              <div
+                style={{ gridRow: "1", gridColumn: "1" }}
+                className="p-3 font-bold text-xs uppercase tracking-wider text-slate-600 border-r border-[#e1e8f0] sticky left-0 bg-slate-50 z-20 flex items-center justify-between"
+              >
+                <span>Unitate fizică</span>
                 <span className="text-[10px] font-normal text-slate-400">{MONTHS_RO[month].slice(0, 3)}</span>
               </div>
               {dayColumns.map((col) => (
                 <div
                   key={col.dayNum}
-                  className={`py-2 text-center border-r border-[color:var(--color-border)]/60 flex flex-col items-center justify-center ${
+                  style={{ gridRow: "1", gridColumn: `${col.dayNum + 1}` }}
+                  className={`py-2 text-center border-r border-[#e1e8f0]/60 flex flex-col items-center justify-center ${
                     col.isToday
                       ? "bg-amber-500/20 text-amber-950 font-bold"
                       : col.isWeekend
@@ -440,7 +455,7 @@ export default function TapeChartTab() {
             {/* Body Rows: Physical Units */}
             {loading ? (
               <div className="p-12 text-center text-sm text-slate-500">
-                Se încarcă diagrama orizontală de ocupare...
+                Se încarcă diagrama de ocupare...
               </div>
             ) : filteredRows.length === 0 ? (
               <div className="p-12 text-center text-sm text-slate-500">
@@ -479,16 +494,20 @@ export default function TapeChartTab() {
                 return (
                   <div
                     key={row.unitId}
-                    className="relative grid border-b border-[color:var(--color-border)]/70 hover:bg-amber-50/20 transition-colors"
+                    className="relative grid border-b border-[#e1e8f0] hover:bg-amber-50/10 transition-colors"
                     style={{
                       gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(34px, 1fr))`,
-                      minHeight: "54px",
+                      minHeight: "56px",
+                      height: "56px",
                     }}
                   >
                     {/* Sticky Left Unit Cell */}
-                    <div className="p-2.5 border-r border-[color:var(--color-border)] sticky left-0 bg-white z-10 flex flex-col justify-center">
+                    <div
+                      style={{ gridRow: "1", gridColumn: "1" }}
+                      className="p-2.5 border-r border-[#e1e8f0] sticky left-0 bg-white z-20 flex flex-col justify-center shadow-[2px_0_5px_rgba(0,0,0,0.02)]"
+                    >
                       <div className="flex items-center justify-between gap-1">
-                        <span className="font-bold text-xs text-[color:var(--color-primary)] truncate">
+                        <span className="font-bold text-xs text-[#0d2c5c] truncate">
                           {row.unitNumber}
                         </span>
                         <span
@@ -514,7 +533,8 @@ export default function TapeChartTab() {
                     {dayColumns.map((col) => (
                       <div
                         key={col.dayNum}
-                        className={`border-r border-[color:var(--color-border)]/40 ${
+                        style={{ gridRow: "1", gridColumn: `${col.dayNum + 1}` }}
+                        className={`border-r border-[#e1e8f0]/60 ${
                           col.isToday
                             ? "bg-amber-500/10"
                             : col.isWeekend
@@ -530,17 +550,15 @@ export default function TapeChartTab() {
                       const isPending = booking.status === "pending";
                       const isCheckedIn = Boolean(booking.self_checkin_completed_at);
                       const barStyle = isCheckedIn
-                        ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-700"
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-700 shadow-sm"
                         : isPending
-                          ? "bg-amber-500 hover:bg-amber-600 text-[#0c192c] border-amber-600"
-                          : "bg-[#0f2942] hover:bg-[#163a5c] text-white border-[#0c192c]";
-
-                      const leftPercent = `calc(220px + ((100% - 220px) * ${(startCol - 1) / daysInMonth}))`;
-                      const widthPercent = `calc(((100% - 220px) * ${spanCols / daysInMonth}) - 4px)`;
+                          ? "bg-amber-500 hover:bg-amber-600 text-[#0c192c] border-amber-600 shadow-sm"
+                          : "bg-[#0d2c5c] hover:bg-[#163a5c] text-white border-[#081c3a] shadow-sm";
 
                       return (
                         <button
                           key={String(booking.id)}
+                          type="button"
                           onClick={() =>
                             setSelectedBooking({
                               booking,
@@ -549,35 +567,42 @@ export default function TapeChartTab() {
                             })
                           }
                           style={{
-                            position: "absolute",
-                            left: leftPercent,
-                            width: widthPercent,
-                            top: "8px",
-                            bottom: "8px",
+                            gridRow: "1",
+                            gridColumnStart: startCol + 1,
+                            gridColumnEnd: startCol + 1 + spanCols,
+                            zIndex: 15,
                           }}
                           title={`${guest} (${booking.booking_code || `#${booking.id}`}) • ${dateFmt(booking.check_in)} → ${dateFmt(booking.check_out)}`}
-                          className={`z-10 rounded-lg border px-2 flex items-center justify-between gap-1.5 text-[11px] font-semibold shadow-xs transition cursor-pointer overflow-hidden ${barStyle}`}
+                          className={`self-center my-auto h-9 mx-0.5 rounded-lg border px-2 flex items-center justify-between gap-1 text-[11px] font-semibold transition cursor-pointer overflow-hidden ${barStyle}`}
                         >
-                          <span className="truncate flex items-center gap-1.5">
-                            {(booking as any).channel === "booking.com" && (
-                              <span className="px-1 py-0.2 rounded bg-[#003580] text-white text-[9px] font-bold shrink-0">
-                                B.
+                          <span className="truncate flex items-center gap-1 min-w-0">
+                            {spanCols === 1 ? (
+                              <span className="truncate font-bold text-[10.5px]">
+                                {booking.booking_code ? `#${booking.booking_code.replace("BK-", "")}` : guest.split(" ")[0]}
                               </span>
+                            ) : (
+                              <>
+                                {(booking as any).channel === "booking.com" && (
+                                  <span className="px-1 py-0.2 rounded bg-[#003580] text-white text-[9px] font-bold shrink-0">
+                                    B.
+                                  </span>
+                                )}
+                                {(booking as any).channel === "airbnb" && (
+                                  <span className="px-1 py-0.2 rounded bg-[#FF385C] text-white text-[9px] font-bold shrink-0">
+                                    A.
+                                  </span>
+                                )}
+                                {(booking as any).channel === "expedia" && (
+                                  <span className="px-1 py-0.2 rounded bg-[#ffc600] text-[#002244] text-[9px] font-bold shrink-0">
+                                    E.
+                                  </span>
+                                )}
+                                <span className="truncate">{guest}</span>
+                              </>
                             )}
-                            {(booking as any).channel === "airbnb" && (
-                              <span className="px-1 py-0.2 rounded bg-[#FF385C] text-white text-[9px] font-bold shrink-0">
-                                A.
-                              </span>
-                            )}
-                            {(booking as any).channel === "expedia" && (
-                              <span className="px-1 py-0.2 rounded bg-[#ffc600] text-[#002244] text-[9px] font-bold shrink-0">
-                                E.
-                              </span>
-                            )}
-                            <span className="truncate">{guest}</span>
                           </span>
                           {booking.booking_code && spanCols >= 2 && (
-                            <span className="text-[10px] font-mono opacity-85 shrink-0 bg-black/15 px-1 rounded">
+                            <span className="text-[10px] font-mono opacity-85 shrink-0 bg-black/20 px-1 py-0.5 rounded hidden sm:inline">
                               {booking.booking_code}
                             </span>
                           )}
@@ -591,13 +616,13 @@ export default function TapeChartTab() {
 
             {/* Footer Row: Daily Occupancy Count */}
             <div
-              className="grid bg-slate-50 border-t border-[color:var(--color-border)]"
+              className="grid bg-slate-50 border-t border-[#e1e8f0]"
               style={{
                 gridTemplateColumns: `220px repeat(${daysInMonth}, minmax(34px, 1fr))`,
               }}
             >
-              <div className="p-2.5 text-[11px] font-bold text-slate-600 border-r border-[color:var(--color-border)] sticky left-0 bg-slate-50 z-10">
-                Camere Ocupate / Zi
+              <div className="p-2.5 text-[11px] font-bold text-slate-600 border-r border-[#e1e8f0] sticky left-0 bg-slate-50 z-10">
+                Camere ocupate / zi
               </div>
               {stats.dailyBooked.map((count, idx) => {
                 const ratio = filteredRows.length > 0 ? count / filteredRows.length : 0;
@@ -610,7 +635,7 @@ export default function TapeChartTab() {
                 return (
                   <div
                     key={idx}
-                    className={`py-2 text-center text-[11px] border-r border-[color:var(--color-border)]/50 ${cellColor}`}
+                    className={`py-2 text-center text-[11px] border-r border-[#e1e8f0]/50 ${cellColor}`}
                   >
                     {count}
                   </div>
@@ -628,7 +653,7 @@ export default function TapeChartTab() {
         title={
           selectedBooking
             ? `Rezervare ${selectedBooking.booking.booking_code || `#${selectedBooking.booking.id}`}`
-            : "Detalii Rezervare"
+            : "Detalii rezervare"
         }
         subtitle={
           selectedBooking ? `${selectedBooking.unitNumber} • ${selectedBooking.roomTitle}` : ""
@@ -655,7 +680,7 @@ export default function TapeChartTab() {
                 }}
               >
                 <FileDown className="w-4 h-4" />
-                {downloadingPdf ? "Se generează PDF..." : "Descarcă Factură PDF"}
+                {downloadingPdf ? "Se generează PDF..." : "Descarcă factură PDF"}
               </PrimaryButton>
             </>
           ) : null
@@ -663,16 +688,16 @@ export default function TapeChartTab() {
       >
         {selectedBooking && (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-[color:var(--color-border)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-[#e1e8f0]">
               <div>
-                <div className="text-xs text-slate-500">Oaspete Titular</div>
+                <div className="text-xs text-slate-500 font-semibold">Oaspete titular</div>
                 <div className="font-bold text-sm text-slate-900 flex items-center gap-1.5 mt-0.5">
-                  <UserCheck className="w-4 h-4 text-[color:var(--color-primary)]" />
+                  <UserCheck className="w-4 h-4 text-[#0d2c5c]" />
                   {getGuestDisplay(selectedBooking.booking)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-slate-500">Status Sejur</div>
+                <div className="text-xs text-slate-500 font-semibold">Status sejur</div>
                 <div className="mt-0.5">
                   <Badge
                     tone={
@@ -692,32 +717,32 @@ export default function TapeChartTab() {
                 </div>
               </div>
               <div>
-                <div className="text-xs text-slate-500">Check-in</div>
+                <div className="text-xs text-slate-500 font-semibold">Check-in</div>
                 <div className="font-semibold text-sm text-slate-800">
                   {dateFmt(selectedBooking.booking.check_in)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-slate-500">Check-out</div>
+                <div className="text-xs text-slate-500 font-semibold">Check-out</div>
                 <div className="font-semibold text-sm text-slate-800">
                   {dateFmt(selectedBooking.booking.check_out)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-slate-500">Total Sejur</div>
-                <div className="font-bold text-base text-[color:var(--color-primary)]">
+                <div className="text-xs text-slate-500 font-semibold">Total sejur</div>
+                <div className="font-bold text-base text-[#0d2c5c]">
                   {money(selectedBooking.booking.total_price)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-slate-500">PIN Acces Smart Lock</div>
+                <div className="text-xs text-slate-500 font-semibold">Cod acces smart lock</div>
                 <div className="font-mono font-bold text-sm text-amber-800 flex items-center gap-1 mt-0.5">
                   <KeyRound className="w-3.5 h-3.5 text-amber-600" />
-                  {selectedBooking.booking.access_pin || "Se generează la Self Check-In"}
+                  {selectedBooking.booking.access_pin || "Se generează la check-in online"}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-slate-500">Canal Distribuție</div>
+                <div className="text-xs text-slate-500 font-semibold">Canal de distribuție</div>
                 <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5 mt-0.5">
                   {(selectedBooking.booking as any).channel === "booking.com" ? (
                     <span className="px-2 py-0.5 rounded-full bg-[#003580] text-white text-[11px] font-bold">
@@ -733,7 +758,7 @@ export default function TapeChartTab() {
                     </span>
                   ) : (
                     <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-[11px] font-bold">
-                      Rezervare Directă Casa Esy
+                      Rezervare directă Casa Esy
                     </span>
                   )}
                 </div>
