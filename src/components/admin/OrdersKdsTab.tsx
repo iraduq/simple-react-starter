@@ -341,7 +341,7 @@ export default function OrdersKdsTab() {
                           </span>
                         </div>
 
-                        <div className="font-serif font-bold text-base text-[color:var(--color-foreground)] mb-1">
+                        <div className="font-['Outfit',sans-serif] font-bold text-base text-[color:var(--color-foreground)] mb-1">
                           {order.location_label}
                         </div>
 

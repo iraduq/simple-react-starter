@@ -44,23 +44,23 @@ body {
   display: none !important;
 }
 
-/* ═════════ ADMIN — design unitar (aliniat cu /home) ═════════ */
+/* ═════════ ADMIN — design unitar modern (fără fonturi serifice/italice) ═════════ */
 .admin-shell {
   font-family: var(--font-body);
   color: var(--text-secondary);
 }
 .admin-shell h1,
 .admin-shell h2 {
-  font-family: var(--font-display) !important;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif !important;
   color: var(--navy) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.01em;
-  line-height: 1.05;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
-.admin-shell main h2 { font-size: clamp(28px, 3vw, 36px); }
+.admin-shell main h2 { font-size: clamp(26px, 2.6vw, 32px); }
 .admin-shell h3,
 .admin-shell h4 {
-  font-family: var(--font-display) !important;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif !important;
   color: var(--navy) !important;
   font-weight: 600 !important;
   font-size: max(1.15em, 18px);

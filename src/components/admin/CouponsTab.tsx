@@ -194,7 +194,7 @@ export default function CouponsTab() {
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[color:var(--color-accent-light)]">
             <Sparkles className="w-3.5 h-3.5" /> Integrat cu Email Studio & Checkout Camere
           </div>
-          <h3 className="font-serif font-bold text-lg">
+          <h3 className="font-['Outfit',sans-serif] font-bold text-lg">
             Testează în timp real cum se aplică reducerea pentru oaspete
           </h3>
           <p className="text-xs text-white/75 leading-relaxed">
@@ -270,7 +270,7 @@ export default function CouponsTab() {
                     </Badge>
                   </div>
 
-                  <div className="font-serif font-bold text-2xl text-[color:var(--color-primary)] mb-1">
+                  <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)] mb-1">
                     {c.discount_type === "percent"
                       ? `${c.discount_value}% REDUCERE`
                       : `-${c.discount_value} RON DISCOUNT`}

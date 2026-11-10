@@ -46,7 +46,7 @@ export function SectionHeader({
           </div>
         )}
         <h2
-          className="font-['Cormorant_Garamond',serif] text-[28px] md:text-[34px] font-bold text-[#0d2c5c] leading-none"
+          className="font-['Outfit',sans-serif] text-[28px] md:text-[34px] font-bold text-[#0d2c5c] leading-tight tracking-tight !font-sans"
         >
           {title}
         </h2>

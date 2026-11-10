@@ -291,7 +291,7 @@ export default function TapeChartTab() {
             <GhostButton onClick={prevMonth}>
               <ChevronLeft className="w-4 h-4" />
             </GhostButton>
-            <div className="px-4 py-2 rounded-xl bg-white border border-[color:var(--color-border)] font-serif font-bold text-sm min-w-[160px] text-center shadow-xs">
+            <div className="px-4 py-2 rounded-xl bg-white border border-[color:var(--color-border)] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-sm min-w-[160px] text-center shadow-xs text-[#0d2c5c]">
               {MONTHS_RO[month]} {year}
             </div>
             <GhostButton onClick={nextMonth}>
@@ -307,7 +307,7 @@ export default function TapeChartTab() {
         <div className="p-4 rounded-2xl bg-white/85 border border-[color:var(--color-border)] flex items-center justify-between">
           <div>
             <div className="text-xs text-[color:var(--color-muted-foreground)]">Unități Afișate</div>
-            <div className="font-serif font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
               {filteredRows.length} camere
             </div>
           </div>
@@ -321,7 +321,7 @@ export default function TapeChartTab() {
             <div className="text-xs text-[color:var(--color-muted-foreground)]">
               Sejururi în {MONTHS_RO[month]}
             </div>
-            <div className="font-serif font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
               {stats.activeBookingsCount} rezervări
             </div>
           </div>
@@ -333,7 +333,7 @@ export default function TapeChartTab() {
         <div className="p-4 rounded-2xl bg-white/85 border border-[color:var(--color-border)] flex items-center justify-between">
           <div>
             <div className="text-xs text-[color:var(--color-muted-foreground)]">Grad Mediu Ocupare</div>
-            <div className="font-serif font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
               {stats.avgOccupancy}%
             </div>
           </div>
@@ -345,7 +345,7 @@ export default function TapeChartTab() {
         <div className="p-4 rounded-2xl bg-white/85 border border-[color:var(--color-border)] flex items-center justify-between">
           <div>
             <div className="text-xs text-[color:var(--color-muted-foreground)]">Valoare Sejururi Lună</div>
-            <div className="font-serif font-bold text-2xl text-[color:var(--color-primary)]">
+            <div className="font-['Outfit',sans-serif] font-bold text-2xl text-[color:var(--color-primary)]">
               {money(stats.monthRevenue)}
             </div>
           </div>
