@@ -615,7 +615,7 @@ export default function RoomDetail() {
                     }`}
                   >
                     {/* Stânga: Radio dot + Titlu + Subtitlu scurt pe o singură linie */}
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <div
                         className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                           isSelected
@@ -628,7 +628,7 @@ export default function RoomDetail() {
                         )}
                       </div>
 
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                           <span
                             className={`text-[13px] font-bold whitespace-nowrap truncate ${
