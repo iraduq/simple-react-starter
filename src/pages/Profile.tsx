@@ -30,6 +30,7 @@ import {
   FileText,
   Copy,
   Sparkles,
+  Wrench,
 } from "lucide-react";
 import {
   clearSession,
@@ -43,6 +44,7 @@ import { apiFetch } from "../lib/api";
 import { useToast } from "../components/Toast";
 import { downloadBookingInvoicePdf } from "../lib/admin";
 import RoomFolioCard from "../components/upsell/RoomFolioCard";
+import MaintenanceReportModal from "../components/maintenance/MaintenanceReportModal";
 
 type TabKey = "overview" | "personal" | "hospitality" | "reservations" | "security" | "danger";
 
@@ -550,6 +552,7 @@ function OverviewTab({
 }) {
   const { toast } = useToast();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [maintenanceModalOpen, setMaintenanceModalOpen] = useState(false);
 
   const next = useMemo(() => {
     return (
@@ -621,7 +624,15 @@ function OverviewTab({
                   </span>
                 </p>
               </div>
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <button
+                  onClick={() => setMaintenanceModalOpen(true)}
+                  className="px-4 h-11 rounded-[14px] border border-amber-300 hover:border-amber-400 text-amber-800 hover:bg-amber-50 text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
+                  title="Raportează o defecțiune tehnică în cameră"
+                >
+                  <Wrench size={14} className="text-amber-600" />
+                  <span>Raportează Problemă</span>
+                </button>
                 <button
                   onClick={() => {
                     downloadBookingInvoicePdf(
@@ -914,6 +925,14 @@ function OverviewTab({
           </button>
         </div>
       </div>
+
+      <MaintenanceReportModal
+        isOpen={maintenanceModalOpen}
+        onClose={() => setMaintenanceModalOpen(false)}
+        bookingCode={next?.booking_code}
+        unitNumber={next?.unit_number}
+        defaultGuestName={fullName}
+      />
     </div>
   );
 }
