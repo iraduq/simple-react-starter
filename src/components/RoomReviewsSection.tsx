@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ShieldCheck,
   RotateCcw,
+  Sparkles,
 } from "lucide-react";
 import { apiFetch, getCachedUser } from "../lib/auth";
 import { useToast } from "./Toast";
@@ -59,8 +60,8 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
   // Filtru interactiv pe număr de stele (5, 4, 3, 2, 1 sau null pt. toate)
   const [starFilter, setStarFilter] = useState<number | null>(null);
 
-  // Paginare: 3 recenzii per pagină
-  const PAGE_SIZE = 3;
+  // Paginare: 2 recenzii per pagină (cerință utilizator)
+  const PAGE_SIZE = 2;
   const [currentPage, setCurrentPage] = useState(1);
 
   // Modal adăugare recenzie
@@ -140,12 +141,17 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
   };
 
   const getOfficialReply = (r: ReviewItem): string | null => {
-    if (r.admin_reply && r.admin_reply.trim()) return r.admin_reply;
+    if (r.admin_reply && r.admin_reply.trim()) {
+      return r.admin_reply.replace(/în Camera \d+/gi, "la noi");
+    }
     if (r.guest_name.toLowerCase().includes("alexandru")) {
-      return "Vă mulțumim din suflet, Alexandru și Diana! Ne bucurăm că v-ați simțit minunat în Camera 102 și vă așteptăm cu drag și vara viitoare la Vila Casa Esy!";
+      return "Vă mulțumim din suflet, Alexandru și Diana! Ne bucurăm că v-ați simțit minunat la noi și vă așteptăm cu drag și vara viitoare la Vila Casa Esy!";
     }
     if (r.guest_name.toLowerCase().includes("mihai")) {
-      return "Vă mulțumim din suflet, domnule Radu! Este o onoare pentru noi că ați apreciat atenția la detalii și vă așteptăm cu drag din nou la Vila Casa Esy!";
+      return "Vă mulțumim din suflet, domnule Radu! Este o onoare pentru noi că ați apreciat atenția la detalii și vă așteptăm cu drag oricând la Vila Casa Esy!";
+    }
+    if (r.guest_name.toLowerCase().includes("elena")) {
+      return "Mulțumim, Elena! Vă așteptăm oricând cu mare drag pentru încă un răsărit pe malul mării la Vila Casa Esy!";
     }
     return null;
   };
@@ -374,8 +380,8 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                           <CheckCircle2 size={10} /> Verificat
                         </span>
                       </div>
-                      <span className="text-[11px] text-[#8a99ad]">
-                        {r.unit_number || "Sejur recent"}
+                      <span className="text-[11.5px] text-[#8a99ad]">
+                        Sejur confirmat · Oaspete Vila Casa Esy
                       </span>
                     </div>
                   </div>
@@ -401,41 +407,62 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 </div>
 
                 {/* Comentariul oaspetelui */}
-                <p className="text-[13.5px] leading-relaxed text-[#334155]">
+                <p className="text-[13.5px] leading-relaxed text-[#334155] pl-0.5">
                   {r.comment}
                 </p>
 
-                {/* Răspunsul oficial al conducerii Casa Esy */}
+                {/* ── Răspunsul oficial al conducerii Casa Esy (Design Luxury & Distins) ── */}
                 {reply && (
-                  <div className="mt-3 ml-2 sm:ml-5 rounded-2xl bg-[#f8fafd] border border-[#e1eaf5] p-4 relative overflow-hidden">
-                    <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-gradient-to-b from-[#c69a3f] to-[#e6b85c] rounded-r" />
+                  <div className="mt-4 ml-2 sm:ml-5 pl-3 sm:pl-4 border-l-2 border-[#c69a3f]/40">
+                    <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#ffffff] via-[#fdfbf7] to-[#f8fafd] border border-[#e8dfcf] ring-1 ring-[#c69a3f]/15 p-4 sm:p-5 shadow-[0_4px_20px_rgba(13,44,92,0.04)] relative overflow-hidden">
+                      {/* Linie superioară aurie de accent */}
+                      <div className="absolute inset-x-0 top-0 h-[2.5px] bg-gradient-to-r from-transparent via-[#c69a3f] to-transparent" />
 
-                    <div className="flex items-start gap-3 pl-1">
-                      {/* Logo oficial Casa Esy */}
-                      <div className="w-8 h-8 rounded-full bg-[#0d2c5c] border border-[#c69a3f]/60 flex items-center justify-center text-white shrink-0 shadow-xs">
-                        <span className="font-serif font-bold text-[11px] text-[#e6b85c] tracking-tight">
-                          CE
-                        </span>
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[12.5px] font-bold text-[#0d2c5c]">
-                              Vila Casa Esy
-                            </span>
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#926514] bg-[#fbf2dd] border border-[#eed5a1] px-2 py-0.5 rounded-full">
-                              <ShieldCheck size={11} className="text-[#c69a3f]" /> Răspuns oficial
+                      <div className="flex items-start gap-3.5">
+                        {/* Sigiliu / Avatar oficial Casa Esy */}
+                        <div className="relative shrink-0">
+                          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0d2c5c] to-[#1a4482] border-2 border-[#c69a3f] shadow-sm flex items-center justify-center text-white">
+                            <span className="font-serif font-black text-[13px] text-[#e6b85c] tracking-wider">
+                              CE
                             </span>
                           </div>
-                          <span className="text-[10.5px] text-[#8a99ad]">
-                            Conducerea resortului
-                          </span>
+                          <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#c69a3f] border border-white flex items-center justify-center text-white shadow-xs">
+                            <Sparkles size={9} className="text-white" />
+                          </div>
                         </div>
 
-                        <p className="mt-1.5 text-[12.5px] sm:text-[13px] leading-relaxed text-[#334155]">
-                          {reply}
-                        </p>
+                        <div className="flex-1 min-w-0">
+                          {/* Antet răspuns cu insigne oficiale */}
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 pb-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-[13.5px] font-extrabold text-[#0d2c5c]">
+                                Răspunsul gazdei · Vila Casa Esy
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#8a6316] bg-[#fef5df] border border-[#ecd59b] px-2.5 py-0.5 rounded-full shadow-2xs">
+                                <ShieldCheck size={11} className="text-[#c69a3f]" />
+                                Răspuns oficial verificat
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-medium text-[#8a99ad]">
+                              Echipa de ospitalitate
+                            </span>
+                          </div>
+
+                          {/* Textul răspunsului */}
+                          <p className="mt-2 text-[13px] sm:text-[13.5px] leading-relaxed text-[#1e293b] font-normal">
+                            {reply}
+                          </p>
+
+                          {/* Semnătura distinsă */}
+                          <div className="mt-3 pt-2.5 border-t border-[#ede7d8] flex items-center justify-between text-[11px] text-[#8a99ad]">
+                            <span className="italic font-serif text-[#556987]">
+                              Cu aleasă considerație și ospitalitate, Familia Casa Esy 🌊
+                            </span>
+                            <span className="text-[#c69a3f] font-semibold text-[10.5px]">
+                              Gazdă oficială
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -446,19 +473,23 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
         </div>
       )}
 
-      {/* ── 5. BARA DE PAGINARE ── */}
+      {/* ── 5. BARA DE PAGINARE (CÂTE 2 RECENZII PE PAGINĂ) ── */}
       {totalPages > 1 && (
-        <div className="mt-6 pt-4 border-t border-[#f1f5f9] flex flex-wrap items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#e1e8f0] text-xs font-semibold text-[#0d2c5c] hover:border-[#0d2c5c] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
-          >
-            <ChevronLeft size={14} /> Înapoi
-          </button>
+        <div className="mt-6 pt-4 border-t border-[#f1f5f9] flex flex-wrap items-center justify-between gap-3">
+          <div className="text-[11.5px] font-medium text-[#64748b]">
+            Afișăm recenziile <span className="font-bold text-[#0d2c5c]">{(currentPage - 1) * PAGE_SIZE + 1}</span>–<span className="font-bold text-[#0d2c5c]">{Math.min(currentPage * PAGE_SIZE, totalFilteredReviews)}</span> din <span className="font-bold text-[#0d2c5c]">{totalFilteredReviews}</span>
+          </div>
 
           <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#e1e8f0] text-xs font-semibold text-[#0d2c5c] hover:border-[#0d2c5c] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              <ChevronLeft size={14} /> Înapoi
+            </button>
+
             {Array.from({ length: totalPages }).map((_, idx) => {
               const pageNum = idx + 1;
               return (
@@ -476,16 +507,16 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 </button>
               );
             })}
-          </div>
 
-          <button
-            type="button"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#e1e8f0] text-xs font-semibold text-[#0d2c5c] hover:border-[#0d2c5c] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
-          >
-            Înainte <ChevronRight size={14} />
-          </button>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#e1e8f0] text-xs font-semibold text-[#0d2c5c] hover:border-[#0d2c5c] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              Înainte <ChevronRight size={14} />
+            </button>
+          </div>
         </div>
       )}
 
