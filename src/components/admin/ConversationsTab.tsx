@@ -281,9 +281,9 @@ export default function ConversationsTab() {
               <div className="rounded-2xl border border-[#e5dcc3] bg-gradient-to-br from-[#fcfdff] to-[#f4f7fb] p-6 shadow-sm">
                 <div className="mb-3 flex items-center justify-between border-b border-[#e1e8f0] pb-2.5">
                   <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
-                    Răspuns Extras Din Baza De Date
+                    Răspuns extras din baza de date
                   </span>
-                  <Badge tone="green">Date Verificate</Badge>
+                  <Badge tone="green">Date verificate în timp real</Badge>
                 </div>
                 <div
                   className="text-[14px] leading-relaxed text-[#0d2c5c] whitespace-pre-line space-y-1"
