@@ -2,12 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Star,
   CheckCircle2,
-  Award,
   MessageSquarePlus,
   X,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
+  Quote,
 } from "lucide-react";
 import { apiFetch, getCachedUser } from "../lib/auth";
 import { useToast } from "./Toast";
@@ -56,11 +55,10 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // Paginare recenzii (2 recenzii per pagină pentru proporție optimă în spațiu)
-  const PAGE_SIZE = 2;
-  const [currentPage, setCurrentPage] = useState(1);
+  // Paginare carusel: 1 recenzie per card editorial de lux
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Modal adaugă recenzie
+  // Modal adăugare recenzie
   const [showModal, setShowModal] = useState(false);
   const [guestName, setGuestName] = useState(defaultName);
   const [bookingCode, setBookingCode] = useState("");
@@ -101,17 +99,22 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
     onSync: () => loadReviews(true),
   });
 
-  const totalPages = Math.max(1, Math.ceil(reviews.length / PAGE_SIZE));
-  const paginatedReviews = reviews.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
+  const totalReviews = reviews.length;
+  const currentReview = totalReviews > 0 ? reviews[currentIndex] : null;
 
   useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(1);
+    if (currentIndex >= totalReviews && totalReviews > 0) {
+      setCurrentIndex(0);
     }
-  }, [totalPages, currentPage]);
+  }, [totalReviews, currentIndex]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : totalReviews - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev < totalReviews - 1 ? prev + 1 : 0));
+  };
 
   const handleSubmitReview = async () => {
     if (!comment.trim() || comment.trim().length < 5) {
@@ -141,6 +144,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
       setComment("");
       setBookingCode("");
       await loadReviews(true);
+      setCurrentIndex(0);
       toast(
         "Recenzia ta verificată a fost publicată! Îți mulțumim!",
         "success",
@@ -155,204 +159,177 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
   };
 
   return (
-    <section className="mt-8 rounded-2xl border border-[#e1e8f0] bg-white p-5 sm:p-6 shadow-xs">
-      {/* Antet elegant și compact */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#eef2f8]">
-        <div>
-          <div className="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#c69a3f]">
-            <Award size={13} /> Experiențe și recenzii verificate
-          </div>
-          <h3
-            className="text-[17px] font-bold text-[#0d2c5c]"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Ce spun oaspeții despre această cameră
-          </h3>
-        </div>
+    <section className="mt-8 relative overflow-hidden rounded-2xl border border-[#ebe4d6] bg-gradient-to-br from-[#fcfbf9] via-white to-[#f9f6ef] p-6 shadow-[0_4px_24px_rgba(13,44,92,0.04)]">
+      {/* Element grafic de fundal rafinat (ghilimea decorativă) */}
+      <Quote
+        size={110}
+        className="absolute -top-3 right-3 text-[#c69a3f]/8 pointer-events-none select-none rotate-180"
+      />
 
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 rounded-full border border-[#e1e8f0] bg-[#f8fafc] px-3 py-1">
+      {/* Antet discret și aerisit */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#f0ece1]">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 rounded-full bg-[#f4eee1] px-3 py-1">
             <Star size={13} className="fill-[#c69a3f] text-[#c69a3f]" />
             <span className="text-[13px] font-bold text-[#0d2c5c]">
               {stats.average.toFixed(2)}
             </span>
-            <span className="text-[11px] text-[#8595aa]">
-              ({stats.count} {stats.count === 1 ? "recenzie" : "recenzii"})
+          </div>
+          <div>
+            <span className="text-[12px] font-semibold text-[#0d2c5c]">
+              {stats.count} {stats.count === 1 ? "recenzie verificată" : "recenzii verificate"}
             </span>
+            <div className="text-[11px] text-[#8a99ad] hidden sm:block">
+              Curățenie {stats.cleanliness.toFixed(1)} · Confort {stats.comfort.toFixed(1)} · Locație {stats.location.toFixed(1)}
+            </div>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-1 rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-3 py-1.5 text-[11.5px] font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <MessageSquarePlus size={13} /> Scrie o recenzie
-          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setShowModal(true)}
+          className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[#0d2c5c] hover:text-[#c69a3f] transition-colors cursor-pointer"
+        >
+          <MessageSquarePlus size={13} className="text-[#c69a3f]" />
+          <span>Scrie o recenzie</span>
+        </button>
       </div>
 
-      {/* Criterii de evaluare (mini-panou rafinat) */}
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#f8fafc] rounded-xl p-3 border border-[#e1e8f0]">
-        {[
-          { label: "Curățenie", score: stats.cleanliness },
-          { label: "Confort", score: stats.comfort },
-          { label: "Locație", score: stats.location },
-          { label: "Servicii", score: stats.service },
-        ].map((cat) => (
-          <div key={cat.label} className="text-center px-1">
-            <div className="text-[10.5px] font-medium text-[#6b7c99]">
-              {cat.label}
-            </div>
-            <div className="text-[13px] font-extrabold text-[#0d2c5c]">
-              {cat.score.toFixed(1)}{" "}
-              <span className="text-[10px] font-normal text-[#8595aa]">/ 5</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Lista de recenzii paginate */}
+      {/* Corpul recenziei prezentat stil testimonial de lux */}
       {loading ? (
-        <div className="mt-4 space-y-3">
-          {[1, 2].map((n) => (
-            <div
-              key={n}
-              className="h-20 rounded-xl bg-[#f3f6fa] animate-pulse"
-            />
-          ))}
+        <div className="py-8 space-y-3">
+          <div className="h-4 w-3/4 rounded-full bg-[#f1ede3] animate-pulse" />
+          <div className="h-4 w-1/2 rounded-full bg-[#f1ede3] animate-pulse" />
+          <div className="h-8 w-1/3 rounded-full bg-[#f1ede3] animate-pulse mt-4" />
         </div>
-      ) : reviews.length === 0 ? (
-        <div className="mt-4 rounded-xl border border-dashed border-[#cbd5e1] p-6 text-center text-[#64748b]">
-          <Sparkles size={20} className="mx-auto text-[#c69a3f] mb-1.5" />
-          <p className="text-[13px] font-medium text-[#0d2c5c]">
-            Fii primul oaspete care lasă o recenzie pentru această cameră!
+      ) : !currentReview ? (
+        <div className="py-8 text-center text-[#64748b]">
+          <p className="text-[14px] font-medium text-[#0d2c5c]">
+            Fii primul oaspete care lasă o impresie despre această cameră!
+          </p>
+          <p className="text-[12px] text-[#8a99ad] mt-1">
+            Opiniile tale îi ghidează pe viitorii oaspeți în alegerea vacanței perfecte.
           </p>
         </div>
       ) : (
-        <div className="mt-4 space-y-3">
-          {paginatedReviews.map((r) => (
-            <div
-              key={r.id}
-              className="rounded-xl border border-[#e1e8f0] bg-white p-4 transition-all hover:border-[#c69a3f]/60 hover:shadow-2xs"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-[#0d2c5c]/10 text-[#0d2c5c] font-bold text-[11px] flex items-center justify-center">
-                    {r.guest_name ? r.guest_name.charAt(0).toUpperCase() : "O"}
-                  </div>
-                  <div>
-                    <span className="font-bold text-[13.5px] text-[#0d2c5c] leading-none block">
-                      {r.guest_name}
-                    </span>
-                    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-emerald-700">
-                      <CheckCircle2 size={10} /> Sejur confirmat
-                    </span>
-                  </div>
-                </div>
+        <div className="relative z-10 py-5">
+          {/* Textul recenziei */}
+          <blockquote className="text-[15px] sm:text-[16px] text-[#1e293b] leading-relaxed italic font-serif min-h-[64px]">
+            „{currentReview.comment}”
+          </blockquote>
 
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={12}
-                      className={
-                        i < r.rating_overall
-                          ? "fill-[#c69a3f] text-[#c69a3f]"
-                          : "text-slate-200"
-                      }
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <p className="text-[13px] leading-relaxed text-[#3d4f6b]">
-                „{r.comment}”
-              </p>
-
-              {r.admin_reply && (
-                <div className="mt-2.5 rounded-lg bg-[#f8fafd] border-l-2 border-l-[#c69a3f] p-2.5">
-                  <div className="text-[10.5px] font-bold text-[#0d2c5c]">
-                    Răspuns oficial Casa Esy:
-                  </div>
-                  <p className="text-[12px] text-[#4f6280] leading-snug mt-0.5">
-                    {r.admin_reply}
-                  </p>
-                </div>
-              )}
+          {/* Răspuns oficial Casa Esy (dacă există) */}
+          {currentReview.admin_reply && (
+            <div className="mt-4 rounded-xl bg-white/90 border-l-2 border-l-[#c69a3f] p-3 text-[12.5px] shadow-2xs">
+              <span className="font-bold text-[#0d2c5c]">Răspunsul gazdei Casa Esy: </span>
+              <span className="text-[#52637a] italic">{currentReview.admin_reply}</span>
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {/* Bară de paginare elegantă */}
-      {totalPages > 1 && (
-        <div className="mt-4 pt-3 border-t border-[#eef2f8] flex flex-wrap items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#e1e8f0] text-[11.5px] font-semibold text-[#0d2c5c] hover:border-[#c69a3f] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
-          >
-            <ChevronLeft size={13} /> Înapoi
-          </button>
+          {/* Profil oaspete și evaluare */}
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#f0ece1]/70">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#0d2c5c] text-[#e6b85c] font-bold text-[12px] flex items-center justify-center shadow-xs">
+                {currentReview.guest_name ? currentReview.guest_name.charAt(0).toUpperCase() : "O"}
+              </div>
+              <div>
+                <span className="text-[13px] font-bold text-[#0d2c5c] block leading-none">
+                  {currentReview.guest_name}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-emerald-700 mt-0.5">
+                  <CheckCircle2 size={11} /> Sejur verificat
+                </span>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-1 text-[11.5px] font-medium text-[#64748b]">
-            <span>Pagina {currentPage} din {totalPages}</span>
-            <div className="flex items-center gap-1 ml-1.5">
-              {Array.from({ length: totalPages }).map((_, idx) => {
-                const pageNum = idx + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    type="button"
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-6 h-6 rounded-md text-[11px] font-bold transition cursor-pointer ${
-                      currentPage === pageNum
-                        ? "bg-[#0d2c5c] text-white shadow-2xs"
-                        : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0d2c5c]"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  size={13}
+                  className={
+                    i < currentReview.rating_overall
+                      ? "fill-[#c69a3f] text-[#c69a3f]"
+                      : "text-slate-200"
+                  }
+                />
+              ))}
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#e1e8f0] text-[11.5px] font-semibold text-[#0d2c5c] hover:border-[#c69a3f] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
-          >
-            Înainte <ChevronRight size={13} />
-          </button>
         </div>
       )}
 
-      {/* Modal adaugă recenzie */}
+      {/* Bară de navigare carusel (Next / Prev) */}
+      {totalReviews > 1 && (
+        <div className="relative z-10 pt-3 border-t border-[#f0ece1] flex items-center justify-between">
+          {/* Indicatoare puncte (Dots) */}
+          <div className="flex items-center gap-1.5">
+            {reviews.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setCurrentIndex(idx)}
+                aria-label={`Mergi la recenzia ${idx + 1}`}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  currentIndex === idx
+                    ? "w-5 h-1.5 bg-[#c69a3f]"
+                    : "w-1.5 h-1.5 bg-[#dcd5c7] hover:bg-[#c69a3f]/60"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Numărător și butoane Next / Prev */}
+          <div className="flex items-center gap-2.5">
+            <span className="text-[11px] font-mono text-[#8a99ad]">
+              0{currentIndex + 1} / 0{totalReviews}
+            </span>
+
+            <div className="inline-flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Recenzia anterioară"
+                className="w-7 h-7 rounded-full border border-[#ded5c4] bg-white hover:border-[#c69a3f] text-[#0d2c5c] flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+              >
+                <ChevronLeft size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Recenzia următoare"
+                className="w-7 h-7 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+              >
+                <ChevronRight size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal adăugare recenzie */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-white text-[#0d2c5c] shadow-2xl overflow-hidden border border-[#e1e8f0]">
+          <div className="w-full max-w-lg rounded-2xl bg-white text-[#0d2c5c] shadow-2xl overflow-hidden border border-[#e1e8f0]">
             <div className="bg-[#0d2c5c] text-white px-6 py-4 flex items-center justify-between">
               <div>
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#e6b85c]">
+                <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#e6b85c]">
                   Confirmare sejur
                 </div>
-                <h3 className="text-xl font-bold">
+                <h3 className="text-lg font-bold">
                   Lasă o recenzie verificată
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+                className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div className="p-5 space-y-3.5 max-h-[80vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#0d2c5c] mb-1">
@@ -380,7 +357,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#f8fafc] p-3 rounded-2xl border border-[#e1e8f0]">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#f8fafc] p-2.5 rounded-xl border border-[#e1e8f0]">
                 {[
                   { label: "General", val: overall, set: setOverall },
                   { label: "Curățenie", val: cleanliness, set: setCleanliness },
@@ -393,13 +370,13 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                   },
                 ].map((item) => (
                   <div key={item.label} className="text-center">
-                    <div className="text-[11px] font-bold text-[#0d2c5c] mb-1">
+                    <div className="text-[10.5px] font-bold text-[#0d2c5c] mb-1">
                       {item.label}
                     </div>
                     <select
                       value={item.val}
                       onChange={(e) => item.set(Number(e.target.value))}
-                      className="rounded-lg border border-[#cbd5e1] bg-white px-2 py-1 text-xs font-bold text-[#0d2c5c] cursor-pointer"
+                      className="rounded-lg border border-[#cbd5e1] bg-white px-1.5 py-1 text-xs font-bold text-[#0d2c5c] cursor-pointer"
                     >
                       {[5, 4, 3, 2, 1].map((n) => (
                         <option key={n} value={n}>
@@ -419,8 +396,8 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                   rows={4}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="w-full rounded-xl border border-[#cbd5e1] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
-                  placeholder="Povestește-ne despre confortul camerei, ospitalitate și experiența sejurului..."
+                  className="w-full rounded-xl border border-[#cbd5e1] px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
+                  placeholder="Povestește-ne despre confortul camerei, vederea la mare, ospitalitate..."
                 />
               </div>
 
@@ -428,7 +405,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 type="button"
                 disabled={submitting}
                 onClick={handleSubmitReview}
-                className="w-full rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] py-3 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+                className="w-full rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] py-2.5 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
               >
                 {submitting
                   ? "Se publică..."
