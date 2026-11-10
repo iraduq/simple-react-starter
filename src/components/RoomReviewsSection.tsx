@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
+  RotateCcw,
 } from "lucide-react";
 import { apiFetch, getCachedUser } from "../lib/auth";
 import { useToast } from "./Toast";
@@ -55,8 +56,11 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // Paginare: 2 recenzii per pagină exact ca în macheta Dribbble
-  const PAGE_SIZE = 2;
+  // Filtru interactiv pe număr de stele (5, 4, 3, 2, 1 sau null pt. toate)
+  const [starFilter, setStarFilter] = useState<number | null>(null);
+
+  // Paginare: 3 recenzii per pagină
+  const PAGE_SIZE = 3;
   const [currentPage, setCurrentPage] = useState(1);
 
   // Modal adăugare recenzie
@@ -100,9 +104,26 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
     onSync: () => loadReviews(true),
   });
 
-  const totalReviews = reviews.length;
-  const totalPages = Math.max(1, Math.ceil(totalReviews / PAGE_SIZE));
-  const paginatedReviews = reviews.slice(
+  // Distribuție stele (5, 4, 3, 2, 1)
+  const starCounts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  reviews.forEach((r) => {
+    const rounded = Math.min(5, Math.max(1, Math.round(r.rating_overall || 5)));
+    starCounts[rounded] = (starCounts[rounded] || 0) + 1;
+  });
+
+  // Filtrare recenzii în funcție de stelele selectate
+  const filteredReviews =
+    starFilter === null
+      ? reviews
+      : reviews.filter(
+          (r) =>
+            Math.min(5, Math.max(1, Math.round(r.rating_overall || 5))) ===
+            starFilter,
+        );
+
+  const totalFilteredReviews = filteredReviews.length;
+  const totalPages = Math.max(1, Math.ceil(totalFilteredReviews / PAGE_SIZE));
+  const paginatedReviews = filteredReviews.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
@@ -113,12 +134,10 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
     }
   }, [totalPages, currentPage]);
 
-  // Distribuție stele (5, 4, 3, 2, 1) conform designului Dribbble
-  const starCounts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-  reviews.forEach((r) => {
-    const rounded = Math.min(5, Math.max(1, Math.round(r.rating_overall || 5)));
-    starCounts[rounded] = (starCounts[rounded] || 0) + 1;
-  });
+  const handleStarFilterToggle = (stars: number) => {
+    setStarFilter((prev) => (prev === stars ? null : stars));
+    setCurrentPage(1);
+  };
 
   const getOfficialReply = (r: ReviewItem): string | null => {
     if (r.admin_reply && r.admin_reply.trim()) return r.admin_reply;
@@ -177,9 +196,14 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
     <section className="mt-8 rounded-3xl border border-[#eef2f6] bg-white p-6 sm:p-8 shadow-sm">
       {/* ── 1. ANTET RECENZII ── */}
       <div className="flex items-center justify-between pb-6">
-        <h2 className="text-xl sm:text-2xl font-black text-[#0d2c5c] tracking-tight">
-          Recenzii oaspeți
-        </h2>
+        <div>
+          <h2 className="text-xl sm:text-2xl font-black text-[#0d2c5c] tracking-tight">
+            Recenzii oaspeți
+          </h2>
+          <p className="text-[12px] text-[#8a99ad] mt-0.5">
+            Apasă pe oricare nivel de stele pentru a filtra recenziile
+          </p>
+        </div>
         <button
           type="button"
           onClick={() => setShowModal(true)}
@@ -190,10 +214,22 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
         </button>
       </div>
 
-      {/* ── 2. SCOR MARE + BARE DE DISTRIBUȚIE (STIL DRIBBLE) ── */}
+      {/* ── 2. SCOR MARE + BARE INTERACTIVE DE FILTRARE PE STELE ── */}
       <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-6 sm:gap-8 items-center pb-6">
-        {/* Scor mare pe stânga */}
-        <div className="text-left">
+        {/* Scor general stânga (apasă pt. a reseta filtrul) */}
+        <button
+          type="button"
+          onClick={() => {
+            setStarFilter(null);
+            setCurrentPage(1);
+          }}
+          className={`text-left p-2.5 rounded-2xl transition-all cursor-pointer ${
+            starFilter === null
+              ? "bg-[#f8fafc] ring-1 ring-[#e2e8f0]"
+              : "hover:bg-[#f8fafc]"
+          }`}
+          title="Apasă pentru a arăta toate recenziile"
+        >
           <div className="text-5xl font-black text-[#0d2c5c] leading-none">
             {stats.average.toFixed(1)}
           </div>
@@ -211,55 +247,88 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
             ))}
           </div>
           <div className="text-[12px] font-medium text-[#64748b]">
-            {stats.count} {stats.count === 1 ? "recenzie" : "evaluări"}
+            {reviews.length} {reviews.length === 1 ? "recenzie" : "evaluări"}
           </div>
-        </div>
+        </button>
 
-        {/* Bare de distribuție pe stele (5.0, 4.0, 3.0, 2.0, 1.0) */}
+        {/* Bare interactive de filtrare (5.0, 4.0, 3.0, 2.0, 1.0) */}
         <div className="space-y-1.5">
           {[5, 4, 3, 2, 1].map((stars) => {
             const count = starCounts[stars] || 0;
-            const pct = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+            const pct = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+            const isSelected = starFilter === stars;
             return (
-              <div key={stars} className="flex items-center gap-3 text-xs font-medium text-[#64748b]">
-                <div className="w-full h-2.5 rounded-full bg-[#f1f5f9] overflow-hidden">
+              <button
+                key={stars}
+                type="button"
+                onClick={() => handleStarFilterToggle(stars)}
+                className={`w-full flex items-center gap-3 text-xs font-medium rounded-xl px-2.5 py-1.5 transition-all text-left cursor-pointer ${
+                  isSelected
+                    ? "bg-[#0d2c5c]/8 ring-1 ring-[#0d2c5c]"
+                    : "hover:bg-[#f8fafc]"
+                }`}
+                title={`Apasă pentru a vedea doar recenziile de ${stars} stele`}
+              >
+                <div className="w-full h-3 rounded-full bg-[#f1f5f9] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#0d2c5c] to-[#1e4b8a] transition-all duration-500"
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isSelected
+                        ? "bg-[#c69a3f]"
+                        : "bg-[#0d2c5c] group-hover:bg-[#1e4b8a]"
+                    }`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <div className="w-24 shrink-0 flex items-center justify-between text-[11px] font-semibold text-[#0d2c5c]">
-                  <span>{stars}.0</span>
-                  <span className="text-[#8a99ad] font-normal">{count} {count === 1 ? "recenzie" : "recenzii"}</span>
+                <div className="w-32 shrink-0 flex items-center justify-between text-[11.5px] font-semibold text-[#0d2c5c]">
+                  <span className="flex items-center gap-1">
+                    <span className={isSelected ? "font-bold text-[#c69a3f]" : ""}>
+                      {stars}.0
+                    </span>
+                    <Star
+                      size={11}
+                      className={isSelected ? "fill-[#c69a3f] text-[#c69a3f]" : "fill-slate-300 text-slate-300"}
+                    />
+                  </span>
+                  <span
+                    className={`text-[11px] ${
+                      isSelected
+                        ? "font-bold text-[#0d2c5c]"
+                        : "text-[#8a99ad] font-normal"
+                    }`}
+                  >
+                    {count} {count === 1 ? "recenzie" : "recenzii"}
+                  </span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* ── 3. PASTILE CRITERII (CLEANLINESS, COMFORT, STAFF ETC.) ── */}
-      <div className="flex flex-wrap gap-2 pt-4 pb-6 border-t border-[#f1f5f9]">
-        {[
-          { label: "Curățenie", score: stats.cleanliness },
-          { label: "Confort", score: stats.comfort },
-          { label: "Personal și servicii", score: stats.service },
-          { label: "Locație și plajă", score: stats.location },
-          { label: "Siguranță", score: 5.0 },
-        ].map((item) => (
-          <div
-            key={item.label}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
-              item.score >= 4.5
-                ? "bg-emerald-50/70 border border-emerald-200/80 text-emerald-900"
-                : "bg-[#f8fafc] border border-[#e2e8f0] text-[#0d2c5c]"
-            }`}
-          >
-            <span className="font-bold text-[12.5px]">{item.score.toFixed(1)}</span>
-            <span>{item.label}</span>
+      {/* ── 3. BANNER FILTRU ACTIV (DACĂ ESTE SELECTAT UN NIVEL DE STELE) ── */}
+      {starFilter !== null && (
+        <div className="flex items-center justify-between bg-[#f8fafd] border border-[#e1eaf5] rounded-xl px-4 py-2.5 mb-2 text-xs">
+          <div className="flex items-center gap-2 text-[#0d2c5c] font-medium">
+            <span>Filtru activ:</span>
+            <span className="font-bold flex items-center gap-1 text-[#c69a3f] bg-white px-2 py-0.5 rounded-md border border-[#c69a3f]/30">
+              {starFilter}.0 <Star size={11} className="fill-[#c69a3f]" />
+            </span>
+            <span className="text-[#64748b]">
+              ({totalFilteredReviews} {totalFilteredReviews === 1 ? "recenzie găsită" : "recenzii găsite"})
+            </span>
           </div>
-        ))}
-      </div>
+          <button
+            type="button"
+            onClick={() => {
+              setStarFilter(null);
+              setCurrentPage(1);
+            }}
+            className="inline-flex items-center gap-1 text-[11.5px] font-bold text-[#0d2c5c] hover:text-[#c69a3f] transition-colors cursor-pointer"
+          >
+            <RotateCcw size={12} /> Resetează filtrul
+          </button>
+        </div>
+      )}
 
       {/* ── 4. LISTA DE RECENZII INDIVIDUALE ── */}
       {loading ? (
@@ -268,11 +337,21 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
             <div key={n} className="h-28 rounded-2xl bg-[#f8fafc] animate-pulse" />
           ))}
         </div>
-      ) : totalReviews === 0 ? (
+      ) : totalFilteredReviews === 0 ? (
         <div className="py-8 text-center text-[#64748b]">
           <p className="text-[14px] font-medium text-[#0d2c5c]">
-            Fii primul oaspete care lasă o recenzie pentru această cameră!
+            Nu există recenzii de {starFilter} stele pentru această cameră.
           </p>
+          <button
+            type="button"
+            onClick={() => {
+              setStarFilter(null);
+              setCurrentPage(1);
+            }}
+            className="mt-2 text-xs font-bold text-[#c69a3f] hover:underline cursor-pointer"
+          >
+            Arată toate recenziile
+          </button>
         </div>
       ) : (
         <div className="divide-y divide-[#f1f5f9]">
@@ -367,7 +446,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
         </div>
       )}
 
-      {/* ── 5. BARA DE PAGINARE (NEXT / PREV CU NUMERE) ── */}
+      {/* ── 5. BARA DE PAGINARE ── */}
       {totalPages > 1 && (
         <div className="mt-6 pt-4 border-t border-[#f1f5f9] flex flex-wrap items-center justify-between gap-2">
           <button
