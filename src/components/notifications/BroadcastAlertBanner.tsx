@@ -58,6 +58,11 @@ export default function BroadcastAlertBanner() {
   const lastEvent = liveSync?.lastEvent;
   const location = useLocation();
 
+  // Auto-dismiss countdown (8 seconds)
+  const AUTO_DISMISS_MS = 8000;
+  const [remainingMs, setRemainingMs] = useState(AUTO_DISMISS_MS);
+  const [isPaused, setIsPaused] = useState(false);
+
   // Load active notifications
   useEffect(() => {
     let mounted = true;
@@ -101,67 +106,10 @@ export default function BroadcastAlertBanner() {
     (b) => b.is_active && !dismissedIds.includes(b.id)
   );
 
-  if (activeList.length === 0) return null;
-
-  // Show the latest broadcast item
-  const current = activeList[0];
-
-  const handleDismiss = (id: number) => {
-    saveDismissedId(id);
-    setDismissedIds((prev) => [...prev, id]);
-  };
-
-  const getStyleForType = (type: string) => {
-    switch (type) {
-      case "urgent":
-        return {
-          cardBg: "bg-[#0b1c33]/95 border-red-500/40 shadow-[0_12px_36px_rgba(239,68,68,0.25)]",
-          badgeBg: "bg-red-500/15 border-red-500/30 text-red-400",
-          icon: AlertTriangle,
-          iconColor: "text-red-400",
-          accentColor: "from-red-500 to-rose-600",
-          label: "NOTIFICARE URGENTĂ",
-        };
-      case "event":
-        return {
-          cardBg: "bg-[#071d3d]/95 border-[#00a896]/40 shadow-[0_12px_36px_rgba(0,168,150,0.22)]",
-          badgeBg: "bg-[#00a896]/15 border-[#00a896]/30 text-[#00c9b7]",
-          icon: Calendar,
-          iconColor: "text-[#00c9b7]",
-          accentColor: "from-[#00a896] to-[#0284c7]",
-          label: "EVENIMENT HOTEL",
-        };
-      case "announcement":
-        return {
-          cardBg: "bg-[#0b1b36]/95 border-[#0284c7]/40 shadow-[0_12px_36px_rgba(2,132,199,0.22)]",
-          badgeBg: "bg-[#0284c7]/15 border-[#0284c7]/30 text-sky-400",
-          icon: Info,
-          iconColor: "text-sky-400",
-          accentColor: "from-[#0284c7] to-[#3b82f6]",
-          label: "ANUNȚ IMPORTANT",
-        };
-      case "offer":
-      default:
-        return {
-          cardBg: "bg-[#0a1d3a]/95 border-[#c69a3f]/40 shadow-[0_12px_36px_rgba(198,154,63,0.22)]",
-          badgeBg: "bg-[#c69a3f]/15 border-[#c69a3f]/30 text-[#e6be65]",
-          icon: Sparkles,
-          iconColor: "text-[#e6be65]",
-          accentColor: "from-[#c69a3f] to-[#f59e0b]",
-          label: "OFERTĂ SPECIALĂ",
-        };
-    }
-  };
-
-  const style = getStyleForType(current.type);
-  const IconComponent = style.icon;
-
-  // Auto-dismiss countdown (8 seconds)
-  const AUTO_DISMISS_MS = 8000;
-  const [remainingMs, setRemainingMs] = useState(AUTO_DISMISS_MS);
-  const [isPaused, setIsPaused] = useState(false);
+  const current = activeList.length > 0 ? activeList[0] : null;
 
   useEffect(() => {
+    if (!current) return;
     setRemainingMs(AUTO_DISMISS_MS);
   }, [current?.id]);
 
@@ -182,9 +130,58 @@ export default function BroadcastAlertBanner() {
     return () => clearInterval(timer);
   }, [current?.id, isPaused]);
 
-  // Don't cover admin panel view
+  const handleDismiss = (id: number) => {
+    saveDismissedId(id);
+    setDismissedIds((prev) => [...prev, id]);
+  };
+
+  const getStyleForType = (type: string) => {
+    switch (type) {
+      case "urgent":
+        return {
+          cardBg: "bg-[#0b1c33]/95 border-red-500/40 shadow-[0_12px_36px_rgba(239,68,68,0.25)]",
+          badgeBg: "bg-red-500/15 border-red-500/30 text-red-400",
+          icon: AlertTriangle,
+          iconColor: "text-red-400",
+          accentColor: "from-red-500 to-rose-600",
+          label: "Notificare urgentă",
+        };
+      case "event":
+        return {
+          cardBg: "bg-[#071d3d]/95 border-[#00a896]/40 shadow-[0_12px_36px_rgba(0,168,150,0.22)]",
+          badgeBg: "bg-[#00a896]/15 border-[#00a896]/30 text-[#00c9b7]",
+          icon: Calendar,
+          iconColor: "text-[#00c9b7]",
+          accentColor: "from-[#00a896] to-[#0284c7]",
+          label: "Eveniment resort",
+        };
+      case "announcement":
+        return {
+          cardBg: "bg-[#0b1b36]/95 border-[#0284c7]/40 shadow-[0_12px_36px_rgba(2,132,199,0.22)]",
+          badgeBg: "bg-[#0284c7]/15 border-[#0284c7]/30 text-sky-400",
+          icon: Info,
+          iconColor: "text-sky-400",
+          accentColor: "from-[#0284c7] to-[#3b82f6]",
+          label: "Anunț important",
+        };
+      case "offer":
+      default:
+        return {
+          cardBg: "bg-[#0a1d3a]/95 border-[#c69a3f]/40 shadow-[0_12px_36px_rgba(198,154,63,0.22)]",
+          badgeBg: "bg-[#c69a3f]/15 border-[#c69a3f]/30 text-[#e6be65]",
+          icon: Sparkles,
+          iconColor: "text-[#e6be65]",
+          accentColor: "from-[#c69a3f] to-[#f59e0b]",
+          label: "Ofertă specială",
+        };
+    }
+  };
+
   const isAdminPath = location.pathname.startsWith("/admin");
-  if (isAdminPath) return null;
+  if (isAdminPath || !current) return null;
+
+  const style = getStyleForType(current.type);
+  const IconComponent = style.icon;
 
   return (
     <aside
