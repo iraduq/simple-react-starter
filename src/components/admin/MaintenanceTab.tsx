@@ -69,6 +69,54 @@ export default function MaintenanceTab() {
   const [resolutionNote, setResolutionNote] = useState("");
   const [submittingNote, setSubmittingNote] = useState(false);
 
+  // Admin create ticket modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newUnitNumber, setNewUnitNumber] = useState("");
+  const [newCategory, setNewCategory] = useState("ac");
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newPriority, setNewPriority] = useState("normal");
+  const [newGuestName, setNewGuestName] = useState("Recepție / Administrație Casa Esy");
+  const [newGuestPhone, setNewGuestPhone] = useState("");
+  const [newAssignedTo, setNewAssignedTo] = useState("Echipa Tehnică de Gardă");
+  const [creatingTicket, setCreatingTicket] = useState(false);
+
+  const handleCreateTicketSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newDescription.trim()) {
+      toast("Vă rugăm introduceți titlul și descrierea defecțiunii.", "error");
+      return;
+    }
+    setCreatingTicket(true);
+    try {
+      const payload = {
+        unit_number: newUnitNumber.trim() || "Recepție / Resort",
+        category: newCategory,
+        title: newTitle.trim(),
+        description: newDescription.trim(),
+        priority: newPriority,
+        guest_name: newGuestName.trim() || "Recepție Casa Esy",
+        guest_phone: newGuestPhone.trim() || null,
+        assigned_to: newAssignedTo.trim() || null,
+      };
+      const res = await apiFetch<TicketData>("/admin/maintenance/tickets", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      toast(`Tichetul #${res.ticket_code || "NOU"} a fost înregistrat cu succes!`, "success");
+      setCreateModalOpen(false);
+      setNewTitle("");
+      setNewDescription("");
+      setNewUnitNumber("");
+      setNewGuestPhone("");
+      await loadData();
+    } catch (err: any) {
+      toast(err?.message || "Eroare la crearea tichetului.", "error");
+    } finally {
+      setCreatingTicket(false);
+    }
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -200,10 +248,10 @@ export default function MaintenanceTab() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#0d2c5c]/10">
         <div>
           <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
-            <Wrench size={14} className="text-[#00a896]" />
+            <Wrench size={14} className="text-[#c69a3f]" />
             <span>Operațiuni Hoteliere & SLA Mentenanță</span>
           </div>
-          <h2 className="font-['Cormorant_Garamond',serif] text-[28px] sm:text-[34px] font-semibold text-[#0d2c5c] leading-tight">
+          <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold text-[#0d2c5c] leading-tight">
             Mentenanță & Incident Management
           </h2>
           <p className="text-[13.5px] text-[#64748b] mt-0.5 max-w-2xl font-['Plus_Jakarta_Sans',sans-serif]">
@@ -212,6 +260,14 @@ export default function MaintenanceTab() {
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => setCreateModalOpen(true)}
+            className="px-4 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99]"
+          >
+            <Plus size={16} className="text-[#c69a3f]" />
+            <span>Tichet Nou Mentenanță</span>
+          </button>
           <button
             onClick={loadData}
             disabled={loading}
@@ -261,7 +317,7 @@ export default function MaintenanceTab() {
           </div>
 
           <div className="p-5 rounded-[22px] bg-white border border-[#e1e8f0] shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[14px] bg-sky-50 text-sky-700 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-[14px] bg-[#0d2c5c]/10 text-[#0d2c5c] flex items-center justify-center shrink-0">
               <Clock size={22} />
             </div>
             <div>
@@ -271,24 +327,24 @@ export default function MaintenanceTab() {
               <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#0d2c5c] leading-none mt-1">
                 {stats.avg_resolution_minutes} min
               </p>
-              <p className="text-[11px] text-sky-700 font-semibold mt-1">
+              <p className="text-[11px] text-[#0d2c5c] font-semibold mt-1">
                 Target SLA &lt; 60 min
               </p>
             </div>
           </div>
 
           <div className="p-5 rounded-[22px] bg-white border border-[#e1e8f0] shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[14px] bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-[14px] bg-amber-50 text-[#c69a3f] flex items-center justify-center shrink-0">
               <Sparkles size={22} />
             </div>
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
                 Conformitate SLA
               </p>
-              <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#00a896] leading-none mt-1">
+              <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#c69a3f] leading-none mt-1">
                 {stats.sla_compliance_percent}%
               </p>
-              <p className="text-[11px] text-teal-700 font-semibold mt-1">
+              <p className="text-[11px] text-[#c69a3f] font-semibold mt-1">
                 Standard hotel 5 stele
               </p>
             </div>
@@ -331,7 +387,7 @@ export default function MaintenanceTab() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Caută cameră, oaspete, tichet..."
-              className="pl-8 pr-3 py-1.5 rounded-[10px] border border-[#e1e8f0] text-[12.5px] text-[#0d2c5c] focus:border-[#00a896] outline-none w-56"
+              className="pl-8 pr-3 py-1.5 rounded-[10px] border border-[#e1e8f0] text-[12.5px] text-[#0d2c5c] focus:border-[#c69a3f] outline-none w-56 font-['Plus_Jakarta_Sans',sans-serif]"
             />
           </div>
         </div>
@@ -395,7 +451,7 @@ export default function MaintenanceTab() {
 
                       <td className="py-3.5 px-3 max-w-xs">
                         <div className="flex items-center gap-1.5 font-bold text-[#0d2c5c] text-[13px]">
-                          <Icon size={14} className="text-[#00a896] shrink-0" />
+                          <Icon size={14} className="text-[#c69a3f] shrink-0" />
                           <span className="truncate">{t.title}</span>
                         </div>
                         <p className="text-[11.5px] text-[#64748b] line-clamp-2 mt-0.5">
@@ -469,7 +525,7 @@ export default function MaintenanceTab() {
                                   "Echipa Tehnică de Gardă"
                                 )
                               }
-                              className="px-2.5 py-1 rounded-[8px] bg-sky-50 hover:bg-sky-100 text-[#0284c7] text-[11.5px] font-bold transition"
+                              className="px-2.5 py-1 rounded-[8px] bg-[#0d2c5c]/10 hover:bg-[#0d2c5c]/20 text-[#0d2c5c] text-[11.5px] font-bold transition"
                             >
                               Preia în Lucru
                             </button>
@@ -506,6 +562,178 @@ export default function MaintenanceTab() {
           </div>
         )}
       </div>
+
+      {/* ── MODAL CREARE TICHET MENTENANȚĂ (ADMIN) ── */}
+      {createModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[24px] max-w-lg w-full p-6 sm:p-7 border border-[#e1e8f0] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-[#e1e8f0]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-[12px] bg-amber-50 text-[#c69a3f] border border-[#c69a3f]/30 flex items-center justify-center">
+                  <Wrench size={18} />
+                </div>
+                <div>
+                  <h4 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
+                    Tichet Nou de Mentenanță
+                  </h4>
+                  <p className="text-[11.5px] text-[#64748b] font-['Plus_Jakarta_Sans',sans-serif]">
+                    Înregistrare incident tehnic direct din panoul de administrare
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCreateModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTicketSubmit} className="space-y-4 font-['Plus_Jakarta_Sans',sans-serif]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                    Cameră / Locație Resort *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newUnitNumber}
+                    onChange={(e) => setNewUnitNumber(e.target.value)}
+                    placeholder="Ex: Camera 204 sau Piscină"
+                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                    Categorie Defecțiune *
+                  </label>
+                  <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
+                  >
+                    <option value="ac">❄️ Climatizare / Aer Condiționat</option>
+                    <option value="plumbing">🚰 Instalații Sanitare & Apă</option>
+                    <option value="electrical">💡 Electricitate & Iluminat</option>
+                    <option value="tv_wifi">📶 Smart TV, Rețea & Wi-Fi</option>
+                    <option value="housekeeping">✨ Housekeeping / Consumabile</option>
+                    <option value="other">🔧 Alte Solicitări Tehnice</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                  Titlu Incident / Defecțiune *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="Ex: Presiune slabă apă caldă la cabina de duș"
+                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                  Descriere Detaliată a Problemei *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Descrieți simptomele defecțiunii, instrucțiuni de acces sau orice detalii relevante pentru echipă..."
+                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                    Prioritate Incident
+                  </label>
+                  <select
+                    value={newPriority}
+                    onChange={(e) => setNewPriority(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
+                  >
+                    <option value="urgent">🚨 Urgentă (SLA 30 min)</option>
+                    <option value="high">⚠️ Ridicată (SLA 60 min)</option>
+                    <option value="normal">⏱️ Normală (SLA 120 min)</option>
+                    <option value="low">☕ Scăzută (SLA 240 min)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                    Atribuire Tehnician
+                  </label>
+                  <select
+                    value={newAssignedTo}
+                    onChange={(e) => setNewAssignedTo(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
+                  >
+                    <option value="Echipa Tehnică de Gardă">Echipa Tehnică de Gardă</option>
+                    <option value="Ion Popescu (Instalații)">Ion Popescu (Instalații)</option>
+                    <option value="Adrian Nistor (Electrician)">Adrian Nistor (Electrician)</option>
+                    <option value="Vlad Enache (IT & Rețea)">Vlad Enache (IT & Rețea)</option>
+                    <option value="Housekeeping Șef Tură">Housekeeping Șef Tură</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                    Raportor / Oaspete
+                  </label>
+                  <input
+                    type="text"
+                    value={newGuestName}
+                    onChange={(e) => setNewGuestName(e.target.value)}
+                    placeholder="Nume oaspete sau Recepție"
+                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
+                    Telefon Contact (opțional)
+                  </label>
+                  <input
+                    type="tel"
+                    value={newGuestPhone}
+                    onChange={(e) => setNewGuestPhone(e.target.value)}
+                    placeholder="+40 7XX XXX XXX"
+                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e1e8f0]">
+                <button
+                  type="button"
+                  onClick={() => setCreateModalOpen(false)}
+                  className="px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] text-[#64748b] hover:bg-slate-50 text-[12.5px] font-bold transition"
+                >
+                  Anulează
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingTicket}
+                  className="px-5 py-2.5 rounded-[12px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-bold flex items-center gap-2 shadow-sm transition active:scale-[0.99] disabled:opacity-50"
+                >
+                  <Plus size={15} className="text-[#c69a3f]" />
+                  <span>{creatingTicket ? "Se înregistrează..." : "Înregistrează Tichetul"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ── MODAL REZOLVARE TICHET CU NOTĂ TEHNICĂ ── */}
       {resolvingId && (
