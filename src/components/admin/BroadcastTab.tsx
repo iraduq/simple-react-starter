@@ -374,7 +374,7 @@ export default function BroadcastTab() {
                   onChange={(e) => setTargetAudience(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white transition-colors"
                 >
-                  <option value="all">Toți vizitatorii & oaspeții</option>
+                  <option value="all">Toți vizitatorii și oaspeții</option>
                   <option value="checked_in">Doar oaspeții cazați în prezent</option>
                   <option value="vip">Oaspeți VIP / Membri Club</option>
                 </select>
@@ -385,20 +385,20 @@ export default function BroadcastTab() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[11px] font-bold tracking-wider uppercase text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
-                  Text Buton Acțiune (CTA)
+                  Text buton acțiune (CTA)
                 </label>
                 <input
                   type="text"
                   value={ctaText}
                   onChange={(e) => setCtaText(e.target.value)}
-                  placeholder="Ex: Rezervă Masă"
+                  placeholder="Ex: Rezervă o masă"
                   className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] transition-colors"
                 />
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold tracking-wider uppercase text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
-                  Link Destinație CTA
+                  Link destinație CTA
                 </label>
                 <input
                   type="text"
@@ -413,7 +413,7 @@ export default function BroadcastTab() {
             {/* Durată / Expirare */}
             <div>
               <label className="block text-[11px] font-bold tracking-wider uppercase text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
-                Valabilitate Notificare
+                Valabilitate notificare
               </label>
               <select
                 value={durationHours}
@@ -529,9 +529,9 @@ export default function BroadcastTab() {
             <div className="px-4 py-2.5 bg-white border-t border-[#e1e8f0] flex items-center justify-between text-[11px] font-['Plus_Jakarta_Sans',sans-serif] text-[#64748b]">
               <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Conexiune WebSocket Live Activă
+                Conexiune WebSocket live activă
               </span>
-              <span>Casa Esy Digital Guest Portal</span>
+              <span>Casa Esy Guest Portal</span>
             </div>
           </div>
         </div>
@@ -543,7 +543,7 @@ export default function BroadcastTab() {
           <div className="flex items-center gap-2">
             <Radio size={16} className="text-[#0d2c5c]" />
             <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-              Jurnal Broadcast & Alerte ({broadcasts.length})
+              Jurnal de notificări și alerte ({broadcasts.length})
             </h3>
           </div>
         </div>
@@ -561,7 +561,7 @@ export default function BroadcastTab() {
                 <tr className="border-b border-[#e1e8f0] text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
                   <th className="py-3 px-3">Status</th>
                   <th className="py-3 px-3">Tip</th>
-                  <th className="py-3 px-3">Titlu & Mesaj</th>
+                  <th className="py-3 px-3">Titlu și mesaj</th>
                   <th className="py-3 px-3">Audiență / CTA</th>
                   <th className="py-3 px-3">Data emiterii</th>
                   <th className="py-3 px-3 text-right">Acțiuni</th>
