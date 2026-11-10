@@ -55,7 +55,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // Paginare carusel: 1 recenzie per card editorial de lux
+  // Paginare carusel: 1 recenzie per card editorial
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Modal adăugare recenzie
@@ -159,17 +159,11 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
   };
 
   return (
-    <section className="mt-8 relative overflow-hidden rounded-2xl border border-[#ebe4d6] bg-gradient-to-br from-[#fcfbf9] via-white to-[#f9f6ef] p-6 shadow-[0_4px_24px_rgba(13,44,92,0.04)]">
-      {/* Element grafic de fundal rafinat (ghilimea decorativă) */}
-      <Quote
-        size={110}
-        className="absolute -top-3 right-3 text-[#c69a3f]/8 pointer-events-none select-none rotate-180"
-      />
-
-      {/* Antet discret și aerisit */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#f0ece1]">
+    <section className="mt-8 rounded-2xl border border-[#e1e8f0] bg-white p-6 shadow-xs">
+      {/* Antet discret și aerisit pe fundal alb curat */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#eef2f8]">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 rounded-full bg-[#f4eee1] px-3 py-1">
+          <div className="flex items-center gap-1.5 rounded-full border border-[#e1e8f0] bg-[#f8fafd] px-3 py-1">
             <Star size={13} className="fill-[#c69a3f] text-[#c69a3f]" />
             <span className="text-[13px] font-bold text-[#0d2c5c]">
               {stats.average.toFixed(2)}
@@ -195,15 +189,15 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
         </button>
       </div>
 
-      {/* Corpul recenziei prezentat stil testimonial de lux */}
+      {/* Corpul recenziei */}
       {loading ? (
-        <div className="py-8 space-y-3">
-          <div className="h-4 w-3/4 rounded-full bg-[#f1ede3] animate-pulse" />
-          <div className="h-4 w-1/2 rounded-full bg-[#f1ede3] animate-pulse" />
-          <div className="h-8 w-1/3 rounded-full bg-[#f1ede3] animate-pulse mt-4" />
+        <div className="py-7 space-y-3">
+          <div className="h-4 w-3/4 rounded-full bg-[#f1f5f9] animate-pulse" />
+          <div className="h-4 w-1/2 rounded-full bg-[#f1f5f9] animate-pulse" />
+          <div className="h-8 w-1/3 rounded-full bg-[#f1f5f9] animate-pulse mt-4" />
         </div>
       ) : !currentReview ? (
-        <div className="py-8 text-center text-[#64748b]">
+        <div className="py-7 text-center text-[#64748b]">
           <p className="text-[14px] font-medium text-[#0d2c5c]">
             Fii primul oaspete care lasă o impresie despre această cameră!
           </p>
@@ -212,24 +206,24 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
           </p>
         </div>
       ) : (
-        <div className="relative z-10 py-5">
+        <div className="py-5">
           {/* Textul recenziei */}
-          <blockquote className="text-[15px] sm:text-[16px] text-[#1e293b] leading-relaxed italic font-serif min-h-[64px]">
+          <blockquote className="text-[14.5px] sm:text-[15.5px] text-[#1e293b] leading-relaxed italic min-h-[56px]">
             „{currentReview.comment}”
           </blockquote>
 
           {/* Răspuns oficial Casa Esy (dacă există) */}
           {currentReview.admin_reply && (
-            <div className="mt-4 rounded-xl bg-white/90 border-l-2 border-l-[#c69a3f] p-3 text-[12.5px] shadow-2xs">
+            <div className="mt-3.5 rounded-xl bg-[#f8fafd] border-l-2 border-l-[#c69a3f] p-3 text-[12.5px]">
               <span className="font-bold text-[#0d2c5c]">Răspunsul gazdei Casa Esy: </span>
               <span className="text-[#52637a] italic">{currentReview.admin_reply}</span>
             </div>
           )}
 
           {/* Profil oaspete și evaluare */}
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#f0ece1]/70">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#f1f5f9]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#0d2c5c] text-[#e6b85c] font-bold text-[12px] flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-full bg-[#0d2c5c] text-white font-bold text-[12px] flex items-center justify-center shadow-xs">
                 {currentReview.guest_name ? currentReview.guest_name.charAt(0).toUpperCase() : "O"}
               </div>
               <div>
@@ -261,7 +255,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
 
       {/* Bară de navigare carusel (Next / Prev) */}
       {totalReviews > 1 && (
-        <div className="relative z-10 pt-3 border-t border-[#f0ece1] flex items-center justify-between">
+        <div className="pt-3 border-t border-[#f1f5f9] flex items-center justify-between">
           {/* Indicatoare puncte (Dots) */}
           <div className="flex items-center gap-1.5">
             {reviews.map((_, idx) => (
@@ -272,8 +266,8 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 aria-label={`Mergi la recenzia ${idx + 1}`}
                 className={`transition-all duration-300 rounded-full cursor-pointer ${
                   currentIndex === idx
-                    ? "w-5 h-1.5 bg-[#c69a3f]"
-                    : "w-1.5 h-1.5 bg-[#dcd5c7] hover:bg-[#c69a3f]/60"
+                    ? "w-5 h-1.5 bg-[#0d2c5c]"
+                    : "w-1.5 h-1.5 bg-[#cbd5e1] hover:bg-[#0d2c5c]/60"
                 }`}
               />
             ))}
@@ -290,7 +284,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 type="button"
                 onClick={handlePrev}
                 aria-label="Recenzia anterioară"
-                className="w-7 h-7 rounded-full border border-[#ded5c4] bg-white hover:border-[#c69a3f] text-[#0d2c5c] flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                className="w-7 h-7 rounded-full border border-[#e1e8f0] bg-white hover:border-[#0d2c5c] text-[#0d2c5c] flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
               >
                 <ChevronLeft size={13} />
               </button>
@@ -298,7 +292,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                 type="button"
                 onClick={handleNext}
                 aria-label="Recenzia următoare"
-                className="w-7 h-7 rounded-full bg-[#0d2c5c] hover:bg-[#c69a3f] text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                className="w-7 h-7 rounded-full bg-[#0d2c5c] hover:bg-[#1a417c] text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
               >
                 <ChevronRight size={13} />
               </button>
@@ -396,7 +390,7 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
                   rows={4}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="w-full rounded-xl border border-[#cbd5e1] px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
+                  className="w-full rounded-xl border border-[#cbd5e1] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
                   placeholder="Povestește-ne despre confortul camerei, vederea la mare, ospitalitate..."
                 />
               </div>
