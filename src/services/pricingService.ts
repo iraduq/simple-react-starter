@@ -7,13 +7,18 @@ export const getRoomPricing = (
   roomId: string | number,
   checkIn: string,
   checkOut: string,
+  planCode: string = "flexible",
+  adults: number = 2,
+  extraGuests: number = 0,
 ) =>
   apiFetch<BookingPriceCalculation>(
     `/rooms/${roomId}/pricing?check_in=${encodeURIComponent(
       checkIn.length === 10 ? toUtcIso(checkIn) : checkIn,
     )}&check_out=${encodeURIComponent(
       checkOut.length === 10 ? toUtcIso(checkOut) : checkOut,
-    )}`,
+    )}&plan_code=${encodeURIComponent(planCode)}&adults=${encodeURIComponent(
+      adults,
+    )}&extra_guests=${encodeURIComponent(extraGuests)}`,
   );
 
 /** GET /api/pricing/calculate — engine price for a single date + rate plan. */

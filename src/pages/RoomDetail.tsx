@@ -180,18 +180,16 @@ export default function RoomDetail() {
     setQuoting(true);
     setQuoteError(null);
     try {
-      const res = await getRoomPricing(roomId, checkIn, checkOut);
-      let f = 1;
-      const typeId = room?.room_type?.id;
-      if (typeId != null) {
-        try {
-          f = await ratePlanFactor(typeId, checkIn, nights, plan, adults);
-        } catch {
-          f = 1;
-        }
-      }
+      const res = await getRoomPricing(
+        roomId,
+        checkIn,
+        checkOut,
+        plan,
+        adults,
+        children,
+      );
       setQuote(res);
-      setFactor(f);
+      setFactor(1);
     } catch (err) {
       setQuote(null);
       setQuoteError(httpErrorMessage(err, "Nu am putut calcula prețul."));
@@ -206,12 +204,20 @@ export default function RoomDetail() {
     hasConflict,
     plan,
     adults,
-    room?.room_type?.id,
+    children,
   ]);
 
   useEffect(() => {
     void loadQuote();
   }, [loadQuote]);
+
+  const currentBasePrice = room
+    ? plan === "non_refundable"
+      ? Math.round(room.base_price * 0.9)
+      : plan === "breakfast"
+      ? room.base_price + 35
+      : room.base_price
+    : 0;
 
   const adj = (n: number) => n * factor;
   const subtotal = quote ? adj(quote.subtotal) : null;
@@ -481,7 +487,7 @@ export default function RoomDetail() {
         <aside className="h-fit rounded-2xl border border-[#e1e8f0] bg-white p-5 lg:sticky lg:top-24">
           <div className="flex items-end gap-2">
             <p className="text-[24px] font-bold text-[#0d2c5c]">
-              {quoting ? "…" : ron(total ?? avgNight ?? room.base_price)}
+              {quoting ? "…" : ron(total ?? avgNight ?? currentBasePrice)}
             </p>
             <span className="pb-1 text-[12px] text-[#8595aa]">
               {total != null
@@ -554,25 +560,70 @@ export default function RoomDetail() {
           <div className="mt-4">
             <span className={labelCls}>Plan tarifar</span>
             <div className="flex flex-col gap-2">
-              {RATE_PLANS.map((p) => (
-                <button
-                  key={p.code}
-                  type="button"
-                  onClick={() => setPlan(p.code)}
-                  className={`rounded-xl border px-3.5 py-2.5 text-left transition-colors ${
-                    plan === p.code
-                      ? "border-[#c69a3f] bg-[#fdf8ec]"
-                      : "border-[#e1e8f0] hover:border-[#c69a3f]"
-                  }`}
-                >
-                  <span className="block text-[13px] font-semibold text-[#0d2c5c]">
-                    {p.label}
-                  </span>
-                  <span className="block text-[11.5px] text-[#8595aa]">
-                    {p.hint}
-                  </span>
-                </button>
-              ))}
+              {[
+                {
+                  code: "flexible" as const,
+                  label: "Flexibil",
+                  hint: "Anulare gratuită, plata la sosire",
+                  priceText: room ? `${ron(room.base_price)} / noapte` : "Preț standard",
+                  badge: "Standard",
+                  badgeClass: "bg-slate-100 text-slate-700 border-slate-200",
+                },
+                {
+                  code: "non_refundable" as const,
+                  label: "Nerambursabil",
+                  hint: "Cel mai bun preț garantat, fără opțiune de anulare",
+                  priceText: room ? `${ron(Math.round(room.base_price * 0.9))} / noapte` : "-10%",
+                  badge: "-10% reducere",
+                  badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200 font-bold",
+                  extraHint: room ? `Economisești ${ron(Math.round(room.base_price * 0.1))} / noapte` : undefined,
+                },
+                {
+                  code: "breakfast" as const,
+                  label: "Mic dejun inclus",
+                  hint: "Mic dejun bufet suedez inclus pentru toți oaspeții",
+                  priceText: room ? `${ron(room.base_price + 35)} / noapte` : "+35 RON",
+                  badge: "+35 RON / noapte",
+                  badgeClass: "bg-amber-50 text-amber-900 border-amber-200 font-bold",
+                  extraHint: "Bufet cald și rece inclus zilnic",
+                },
+              ].map((p) => {
+                const isSelected = plan === p.code;
+                return (
+                  <button
+                    key={p.code}
+                    type="button"
+                    onClick={() => setPlan(p.code)}
+                    className={`rounded-2xl border p-3 text-left transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-[#c69a3f] bg-[#fffcf5] ring-2 ring-[#c69a3f]/20 shadow-xs"
+                        : "border-[#e2e8f0] bg-white hover:border-[#cbd5e1] hover:bg-[#fafbfc]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[13px] font-bold ${isSelected ? "text-[#0d2c5c]" : "text-[#1e293b]"}`}>
+                          {p.label}
+                        </span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${p.badgeClass}`}>
+                          {p.badge}
+                        </span>
+                      </div>
+                      <span className={`text-[13px] font-extrabold ${isSelected ? "text-[#0d2c5c]" : "text-[#475569]"}`}>
+                        {p.priceText}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-[11px] text-[#8595aa]">
+                      <span>{p.hint}</span>
+                      {p.extraHint && (
+                        <span className="text-[10.5px] font-semibold text-emerald-700">
+                          {p.extraHint}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -659,12 +710,20 @@ export default function RoomDetail() {
             )}
             {quote && subtotal != null && taxes != null && total != null && (
               <>
-                <div className="flex justify-between text-[#3d4f6b]">
+                <div className="flex justify-between items-center text-[#3d4f6b]">
                   <span>
                     {quote.nights} {quote.nights === 1 ? "noapte" : "nopți"} ·
                     cazare
                   </span>
                   <span>{ron(subtotal)}</span>
+                </div>
+                <div className="flex justify-between items-center text-[#3d4f6b]">
+                  <span>Plan tarifar</span>
+                  <span className="text-xs font-semibold text-[#0d2c5c]">
+                    {plan === "flexible" && "Flexibil (standard)"}
+                    {plan === "non_refundable" && "Nerambursabil (-10% inclus)"}
+                    {plan === "breakfast" && `Mic dejun inclus (+${ron(35 * quote.nights)})`}
+                  </span>
                 </div>
                 <div className="flex justify-between text-[#3d4f6b]">
                   <span>Taxe</span>
