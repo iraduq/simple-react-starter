@@ -17,7 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio, Globe, Wrench, Crown, SlidersHorizontal,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, Coffee, TicketPercent, Star, Radio, Globe, Wrench, Crown, SlidersHorizontal,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -47,6 +47,7 @@ import ChannelManagerTab from "./ChannelManagerTab";
 import MaintenanceTab from "./MaintenanceTab";
 import LoyaltyTab from "./LoyaltyTab";
 import EnvConfigTab from "./EnvConfigTab";
+import BreakfastTab from "./BreakfastTab";
 
 export type TabKey =
   | "bookings"
@@ -66,6 +67,7 @@ export type TabKey =
   | "conversations"
   | "tape_chart"
   | "orders_kds"
+  | "breakfast"
   | "coupons"
   | "reviews"
   | "broadcast"
@@ -81,6 +83,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "broadcast", label: "Alerte și notificări", icon: Radio },
   { key: "maintenance", label: "Mentenanță și tichete", icon: Wrench },
   { key: "loyalty", label: "Program VIP și puncte", icon: Crown },
+  { key: "breakfast", label: "Mic dejun și bucătărie", icon: Coffee },
   { key: "orders_kds", label: "Comenzi room service", icon: ChefHat },
   { key: "coupons", label: "Cupoane și reduceri", icon: TicketPercent },
   { key: "reviews", label: "Recenzii oaspeți", icon: Star },
@@ -364,6 +367,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "qr_studio" && <QrStudioTab />}
             {tab === "conversations" && <ConversationsTab />}
             {tab === "tape_chart" && <TapeChartTab />}
+            {tab === "breakfast" && <BreakfastTab />}
             {tab === "orders_kds" && <OrdersKdsTab />}
             {tab === "coupons" && <CouponsTab />}
             {tab === "reviews" && <ReviewsTab />}
