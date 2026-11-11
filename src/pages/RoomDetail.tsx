@@ -581,7 +581,7 @@ export default function RoomDetail() {
                   label: "Flexibil",
                   badge: null,
                   badgeColor: "",
-                  hint: "Anulare gratuită până la 30 zile înainte",
+                  hint: "Anulare și rambursare automată în 30 zile",
                   priceVal: ron(Math.round(baseRatePerNight)),
                 },
                 {
@@ -598,7 +598,7 @@ export default function RoomDetail() {
                   label: "Mic dejun inclus",
                   badge: "+35 RON",
                   badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
-                  hint: "Bufet suedez inclus · anulare 30 zile",
+                  hint: "Bufet suedez · rambursare în 30 zile",
                   priceVal: ron(Math.round(baseRatePerNight + 35)),
                 },
               ].map((p) => {

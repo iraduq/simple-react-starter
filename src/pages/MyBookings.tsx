@@ -49,7 +49,7 @@ export default function MyBookings() {
   const cancel = async (b: Booking) => {
     const isPaid = b.payment_status === "paid";
     const promptMsg = isPaid
-      ? `Sigur dorești să anulezi rezervarea #${b.booking_code || b.id}? Deoarece ești în termenul de 30 de zile înainte de check-in, vei primi automat restituirea integrală de ${ron(b.total_price)} pe cardul tău prin Stripe.`
+      ? `Sigur dorești să anulezi rezervarea #${b.booking_code || b.id}? Deoarece nu au trecut 30 de zile de la rezervare, vei primi automat rambursarea integrală de ${ron(b.total_price)} pe cardul tău prin Stripe.`
       : "Sigur dorești să anulezi această rezervare?";
 
     if (!window.confirm(promptMsg)) return;
@@ -121,15 +121,41 @@ export default function MyBookings() {
             const isCancelled = b.status === "cancelled";
             const isCompleted = b.status === "completed";
 
-            // Calcul zile până la check-in
-            const checkInDate = b.check_in ? new Date(b.check_in) : null;
+            // Calcul zile scurse de la rezervare (fereastră de 30 de zile pentru refund automat)
             const today = new Date();
-            const daysUntil = checkInDate
-              ? Math.ceil((checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-              : 0;
+            const todayUtcDay = Date.UTC(
+              today.getUTCFullYear(),
+              today.getUTCMonth(),
+              today.getUTCDate(),
+            );
+            const bookedAt = b.created_at ? new Date(b.created_at) : today;
+            const bookedUtcDay = Date.UTC(
+              bookedAt.getUTCFullYear(),
+              bookedAt.getUTCMonth(),
+              bookedAt.getUTCDate(),
+            );
+            const daysElapsed = Math.max(
+              0,
+              Math.floor((todayUtcDay - bookedUtcDay) / 86400000),
+            );
+            const daysLeft = Math.max(0, 30 - daysElapsed);
 
-            const isEligibleForFreeCancel = !isNonRefundable && daysUntil >= 30;
-            const canCancel = !isCancelled && !isCompleted && (!isPaid || isEligibleForFreeCancel);
+            const checkInDate = b.check_in ? new Date(b.check_in) : null;
+            const hasCheckedInPassed = checkInDate
+              ? Date.UTC(
+                  checkInDate.getUTCFullYear(),
+                  checkInDate.getUTCMonth(),
+                  checkInDate.getUTCDate(),
+                ) < todayUtcDay
+              : false;
+
+            const isEligibleForFreeCancel =
+              !isNonRefundable && daysElapsed <= 30 && !hasCheckedInPassed;
+            const canCancel =
+              !isCancelled &&
+              !isCompleted &&
+              !hasCheckedInPassed &&
+              (!isPaid || isEligibleForFreeCancel);
 
             return (
               <li
@@ -176,13 +202,17 @@ export default function MyBookings() {
                         <span className="text-slate-500 font-medium">
                           • Plan Nerambursabil (anularea sau restituirea nu sunt disponibile)
                         </span>
+                      ) : hasCheckedInPassed ? (
+                        <span className="text-slate-500 font-medium">
+                          • Data de check-in a trecut
+                        </span>
                       ) : isPaid && isEligibleForFreeCancel ? (
                         <span className="text-emerald-700 font-medium">
-                          • Anulare gratuită disponibilă (până la 30 de zile înainte · {daysUntil} zile rămase) · Rambursare 100% Stripe
+                          • Anulare & rambursare automată 100% Stripe disponibilă ({daysLeft} zile rămase din termenul de 30 de zile)
                         </span>
                       ) : isPaid && !isEligibleForFreeCancel ? (
                         <span className="text-amber-700 font-medium">
-                          • Termenul de anulare gratuită (30 de zile înainte) a expirat ({daysUntil} zile rămase până la check-in)
+                          • Termenul de 30 de zile pentru rambursare automată a expirat ({daysElapsed} zile de la rezervare)
                         </span>
                       ) : null}
                     </div>
