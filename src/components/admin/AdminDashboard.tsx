@@ -17,7 +17,7 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio, Globe, Wrench, Crown,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, TicketPercent, Star, Radio, Globe, Wrench, Crown, SlidersHorizontal,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
@@ -46,6 +46,7 @@ import BroadcastTab from "./BroadcastTab";
 import ChannelManagerTab from "./ChannelManagerTab";
 import MaintenanceTab from "./MaintenanceTab";
 import LoyaltyTab from "./LoyaltyTab";
+import EnvConfigTab from "./EnvConfigTab";
 
 export type TabKey =
   | "bookings"
@@ -70,7 +71,8 @@ export type TabKey =
   | "broadcast"
   | "channel_manager"
   | "maintenance"
-  | "loyalty";
+  | "loyalty"
+  | "env_config";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
@@ -94,6 +96,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "conversations", label: "Interogare DB și chat", icon: MessageSquare },
   { key: "email_studio", label: "Email studio", icon: Mail },
   { key: "qr_studio", label: "Coduri QR și Wi-Fi", icon: QrCode },
+  { key: "env_config", label: "Variabile și Cloud", icon: SlidersHorizontal },
   { key: "users", label: "Utilizatori", icon: Users },
   { key: "audit", label: "Jurnal de securitate", icon: Shield },
 ];
@@ -367,6 +370,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "broadcast" && <BroadcastTab />}
             {tab === "maintenance" && <MaintenanceTab />}
             {tab === "loyalty" && <LoyaltyTab />}
+            {tab === "env_config" && <EnvConfigTab />}
             {tab === "channel_manager" && (
               <ChannelManagerTab onNavigateToTapeChart={() => setTab("tape_chart")} />
             )}
