@@ -11,10 +11,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { ron } from "../lib/format";
+import { API_URL } from "../lib/config";
 
-const API_BASE = (
-  import.meta.env.VITE_API_URL || "https://backend-licenta-i0lr.onrender.com"
-).replace(/\/$/, "");
+const API_BASE = API_URL.replace(/\/$/, "");
 const CHAT_URL = `${API_BASE}/api/chat/`;
 const SESSION_KEY = "casaesy_chat_session";
 

@@ -38,7 +38,7 @@ import {
   EmptyState,
   inputCls,
 } from "./ui";
-import { get, post, patch, del, list, errMsg } from "../../lib/admin";
+import { get, post, patch, del, list, errMsg, API_URL } from "../../lib/admin";
 import { useToast } from "../Toast";
 import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
@@ -246,10 +246,11 @@ export default function LostFoundTab() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const apiBase = API_URL.replace(/\/$/, "");
       const token = localStorage.getItem("access_token");
       const res = await fetch(`${apiBase}/lost-found/upload-photo`, {
         method: "POST",
+        credentials: "include",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },

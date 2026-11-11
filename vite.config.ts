@@ -4,9 +4,14 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  // Backend-ul tinta pentru proxy-ul de dezvoltare (implicit: Render).
+  const useLocal =
+    mode === "local" || env.VITE_USE_LOCAL_BACKEND === "true";
   const target =
-    env.VITE_PROXY_TARGET || "https://backend-licenta-i0lr.onrender.com";
+    env.VITE_PROXY_TARGET ||
+    (useLocal
+      ? "http://127.0.0.1:8000"
+      : "https://backend-licenta-i0lr.onrender.com");
+  const isHttps = target.startsWith("https://");
 
   return {
     plugins: [react(), tailwindcss()],
@@ -18,7 +23,7 @@ export default defineConfig(({ mode }) => {
         "/api": {
           target,
           changeOrigin: true,
-          secure: true,
+          secure: isHttps,
           rewrite: (path) => path.replace(/^\/api/, ""),
           // Doar in dev: cookie-urile vin de la un backend HTTPS cu Secure +
           // SameSite=None, pe care browserele le resping pe pagini http://IP.
@@ -34,6 +39,12 @@ export default defineConfig(({ mode }) => {
               );
             });
           },
+        },
+        "/ws": {
+          target,
+          ws: true,
+          changeOrigin: true,
+          secure: isHttps,
         },
       },
     },
