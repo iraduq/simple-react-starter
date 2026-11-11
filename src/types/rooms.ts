@@ -76,6 +76,7 @@ export type RoomDetail = {
   max_guests_children: number;
   size_sqm?: number | null;
   base_price: number;
+  price_per_night?: number | null;
   is_active: boolean;
   facilities?: {
     id: number | string;

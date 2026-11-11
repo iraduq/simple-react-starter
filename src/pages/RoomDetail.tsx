@@ -61,6 +61,7 @@ export default function RoomDetail() {
   const [requests, setRequests] = useState("");
 
   const [quote, setQuote] = useState<BookingPriceCalculation | null>(null);
+  const [todayDynamicRate, setTodayDynamicRate] = useState<number | null>(null);
   const [factor, setFactor] = useState(1);
   const [quoting, setQuoting] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
@@ -209,6 +210,30 @@ export default function RoomDetail() {
     void loadQuote();
   }, [loadQuote]);
 
+  useEffect(() => {
+    if (!roomId) return;
+    let active = true;
+    const now = new Date();
+    const todayIso = toISODate(now);
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowIso = toISODate(tomorrow);
+
+    getRoomPricing(roomId, todayIso, tomorrowIso, "flexible", adults, children)
+      .then((res) => {
+        if (active && res && res.nights > 0) {
+          setTodayDynamicRate(Math.round((res.subtotal / res.nights) * 100) / 100);
+        }
+      })
+      .catch(() => {
+        // fallback la room.price_per_night / base_price
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [roomId, adults, children]);
+
   // Verifică dacă backend-ul a aplicat deja planul tarifar în calcul
   const backendHandledPlan =
     quote?.nightly_breakdown?.[0]?.debug_info?.rate_plan_code === plan;
@@ -256,13 +281,18 @@ export default function RoomDetail() {
     return null;
   }, [subtotal, quote]);
 
-  // Prețul de bază pe noapte: dacă datele sunt alese, folosește media din motorul de prețuri; dacă nu, base_price-ul camerei
+  // Prețul de bază dinamic pe noapte: folosește media din motorul de prețuri sau prețul dinamic al zilei curente
   const baseRatePerNight = useMemo(() => {
     if (quote && quote.nights > 0) {
-      return quote.subtotal / quote.nights;
+      const raw = quote.subtotal / quote.nights;
+      if (backendHandledPlan) {
+        if (plan === "non_refundable") return Math.round((raw / 0.9) * 100) / 100;
+        if (plan === "breakfast") return Math.round((raw - 35) * 100) / 100;
+      }
+      return raw;
     }
-    return room?.base_price ?? 150;
-  }, [quote, room?.base_price]);
+    return todayDynamicRate ?? room?.price_per_night ?? room?.base_price ?? 150;
+  }, [quote, backendHandledPlan, plan, todayDynamicRate, room?.price_per_night, room?.base_price]);
 
   const currentBasePrice = useMemo(() => {
     if (plan === "non_refundable") return Math.round(baseRatePerNight * 0.9);
@@ -762,7 +792,7 @@ export default function RoomDetail() {
                     {quote.nights} {quote.nights === 1 ? "noapte" : "nopți"} ·
                     cazare
                   </span>
-                  <span>{ron(quote.subtotal)}</span>
+                  <span>{ron(Math.round(baseRatePerNight * quote.nights * 100) / 100)}</span>
                 </div>
                 <div className="flex justify-between items-center text-[#3d4f6b]">
                   <span className="flex items-center gap-1.5">
@@ -784,7 +814,7 @@ export default function RoomDetail() {
                   >
                     {plan === "flexible" && "Inclus"}
                     {plan === "non_refundable" &&
-                      `-${ron(quote.subtotal * 0.1)} (-10%)`}
+                      `-${ron(Math.round(baseRatePerNight * quote.nights * 0.1 * 100) / 100)} (-10%)`}
                     {plan === "breakfast" &&
                       `+${ron(35 * quote.nights)} (+35/noapte)`}
                   </span>

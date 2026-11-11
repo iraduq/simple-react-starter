@@ -17,6 +17,7 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import { apiFetch } from "../lib/api";
 import { searchAvailability } from "../services/roomsService";
+import { getRoomPricing } from "../services/pricingService";
 import { httpErrorMessage } from "../services/apiClient";
 import { useToast } from "../components/Toast";
 import RoomReviewsModal from "../components/reviews/RoomReviewsModal";
@@ -402,7 +403,43 @@ export default function Rooms() {
       const arr = Array.isArray(data)
         ? (data as ApiRoom[])
         : ((data as { items?: ApiRoom[] })?.items ?? []);
-      setAllRooms(arr.filter((r) => r.is_active !== false).map(mapRoom));
+      const activeRaw = arr.filter((r) => r.is_active !== false);
+      const mapped = activeRaw.map(mapRoom);
+      setAllRooms(mapped);
+
+      const missingDynamic = activeRaw.filter((r) => r.price_per_night == null);
+      if (missingDynamic.length > 0) {
+        const now = new Date();
+        const todayIso = toISODate(now);
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowIso = toISODate(tomorrow);
+
+        const quotes = await Promise.allSettled(
+          missingDynamic.map((r) =>
+            getRoomPricing(String(r.id), todayIso, tomorrowIso, "flexible", 2, 0),
+          ),
+        );
+
+        const dynamicById = new Map<string, number>();
+        quotes.forEach((res, idx) => {
+          if (res.status === "fulfilled" && res.value && res.value.nights > 0) {
+            dynamicById.set(
+              String(missingDynamic[idx].id),
+              Math.round(res.value.subtotal / res.value.nights),
+            );
+          }
+        });
+
+        if (dynamicById.size > 0) {
+          setAllRooms((prev) =>
+            prev.map((item) => {
+              const dyn = dynamicById.get(String(item.id));
+              return dyn != null ? { ...item, price: dyn } : item;
+            }),
+          );
+        }
+      }
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Nu am putut încărca camerele.",
@@ -862,7 +899,7 @@ export default function Rooms() {
                                   <span className="font-sans text-[24px] sm:text-[26px] font-semibold tracking-normal text-white">
                                     {total != null
                                       ? ron(total)
-                                      : `${room.price} lei`}
+                                      : `${Math.round(room.price)} lei`}
                                   </span>
                                   <span className="text-[11px] font-light text-white/60 tracking-wider uppercase">
                                     {total != null
