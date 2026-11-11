@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
+import { Modal } from "./ui";
 
 interface TicketData {
   id: number;
@@ -564,229 +565,202 @@ export default function MaintenanceTab() {
       </div>
 
       {/* ── MODAL CREARE TICHET MENTENANȚĂ (ADMIN) ── */}
-      {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[24px] max-w-lg w-full p-6 sm:p-7 border border-[#e1e8f0] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-[#e1e8f0]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-[12px] bg-amber-50 text-[#c69a3f] border border-[#c69a3f]/30 flex items-center justify-center">
-                  <Wrench size={18} />
-                </div>
-                <div>
-                  <h4 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-                    Tichet nou de mentenanță
-                  </h4>
-                  <p className="text-[11.5px] text-[#64748b] font-['Plus_Jakarta_Sans',sans-serif]">
-                    Înregistrare incident tehnic direct din panoul de administrare
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCreateModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition"
-              >
-                ✕
-              </button>
+      <Modal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Tichet nou de mentenanță"
+        subtitle="Înregistrare incident tehnic direct din panoul de administrare"
+        width="max-w-2xl"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setCreateModalOpen(false)}
+              className="rounded-full border border-[#dce4ef] bg-white px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c] hover:bg-[#f1f5f9] transition-colors cursor-pointer"
+            >
+              Anulează
+            </button>
+            <button
+              type="submit"
+              form="create-maintenance-form"
+              disabled={creatingTicket}
+              className="rounded-full bg-[#0d2c5c] hover:bg-[#133b7a] px-6 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-white flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            >
+              <Plus size={14} className="text-[#e6b85c]" />
+              <span>{creatingTicket ? "Se înregistrează..." : "Înregistrează tichetul"}</span>
+            </button>
+          </>
+        }
+      >
+        <form id="create-maintenance-form" onSubmit={handleCreateTicketSubmit} className="space-y-4 font-['Plus_Jakarta_Sans',sans-serif] pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
+                Cameră sau zonă resort *
+              </label>
+              <input
+                type="text"
+                required
+                value={newUnitNumber}
+                onChange={(e) => setNewUnitNumber(e.target.value)}
+                placeholder="Ex: Camera 204 sau zona piscinei"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
+              />
             </div>
-
-            <form onSubmit={handleCreateTicketSubmit} className="space-y-4 font-['Plus_Jakarta_Sans',sans-serif]">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Cameră sau zonă resort *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newUnitNumber}
-                    onChange={(e) => setNewUnitNumber(e.target.value)}
-                    placeholder="Ex: Camera 204 sau zona piscinei"
-                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Categorie defecțiune *
-                  </label>
-                  <select
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
-                  >
-                    <option value="ac">❄️ Climatizare și aer condiționat</option>
-                    <option value="plumbing">🚰 Instalații sanitare și apă</option>
-                    <option value="electrical">💡 Electricitate și iluminat</option>
-                    <option value="tv_wifi">📶 Smart TV, rețea și Wi-Fi</option>
-                    <option value="housekeeping">✨ Curățenie și consumabile</option>
-                    <option value="other">🔧 Alte solicitări tehnice</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Titlu incident sau defecțiune *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Ex: Presiune scăzută la apa caldă în cabina de duș"
-                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Descriere detaliată a problemei *
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Descrie simptomele defecțiunii, detalii de acces sau alte instrucțiuni utile pentru tehnician..."
-                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Prioritate incident
-                  </label>
-                  <select
-                    value={newPriority}
-                    onChange={(e) => setNewPriority(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
-                  >
-                    <option value="urgent">🚨 Urgentă (intervenție în 30 min)</option>
-                    <option value="high">⚠️ Ridicată (intervenție în 60 min)</option>
-                    <option value="normal">⏱️ Normală (rezolvare în 2 ore)</option>
-                    <option value="low">☕ Scăzută (pe parcursul zilei)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Atribuire tehnician
-                  </label>
-                  <select
-                    value={newAssignedTo}
-                    onChange={(e) => setNewAssignedTo(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none bg-white"
-                  >
-                    <option value="Echipa Tehnică de Gardă">Echipa tehnică de gardă</option>
-                    <option value="Ion Popescu (Instalații)">Ion Popescu (instalații sanitare)</option>
-                    <option value="Adrian Nistor (Electrician)">Adrian Nistor (electrician)</option>
-                    <option value="Vlad Enache (IT & Rețea)">Vlad Enache (rețea și IT)</option>
-                    <option value="Housekeeping Șef Tură">Șef tură curățenie</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Persoană raportoare sau oaspete
-                  </label>
-                  <input
-                    type="text"
-                    value={newGuestName}
-                    onChange={(e) => setNewGuestName(e.target.value)}
-                    placeholder="Ex: Nume oaspete sau recepție"
-                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                    Telefon de contact (opțional)
-                  </label>
-                  <input
-                    type="tel"
-                    value={newGuestPhone}
-                    onChange={(e) => setNewGuestPhone(e.target.value)}
-                    placeholder="+40 7XX XXX XXX"
-                    className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] text-[13px] text-[#0d2c5c] outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e1e8f0]">
-                <button
-                  type="button"
-                  onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] text-[#64748b] hover:bg-slate-50 text-[12.5px] font-bold transition"
-                >
-                  Anulează
-                </button>
-                <button
-                  type="submit"
-                  disabled={creatingTicket}
-                  className="px-5 py-2.5 rounded-[12px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-bold flex items-center gap-2 shadow-sm transition active:scale-[0.99] disabled:opacity-50"
-                >
-                  <Plus size={15} className="text-[#c69a3f]" />
-                  <span>{creatingTicket ? "Se înregistrează..." : "Înregistrează tichetul"}</span>
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
+                Categorie defecțiune *
+              </label>
+              <select
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all cursor-pointer"
+              >
+                <option value="ac">❄️ Climatizare și aer condiționat</option>
+                <option value="plumbing">🚰 Instalații sanitare și apă</option>
+                <option value="electrical">💡 Electricitate și iluminat</option>
+                <option value="tv_wifi">📶 Smart TV, rețea și Wi-Fi</option>
+                <option value="housekeeping">✨ Curățenie și consumabile</option>
+                <option value="other">🔧 Alte solicitări tehnice</option>
+              </select>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5">
+              Titlu incident sau defecțiune *
+            </label>
+            <input
+              type="text"
+              required
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Ex: Presiune scăzută la apa caldă în cabina de duș"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5">
+              Descriere detaliată a problemei *
+            </label>
+            <textarea
+              required
+              rows={3}
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              placeholder="Descrie simptomele defecțiunii, detalii de acces sau alte instrucțiuni utile pentru tehnician..."
+              className="w-full px-3.5 py-2.5 rounded-2xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] text-[#0d2c5c] outline-none resize-none transition-all"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
+                Prioritate incident
+              </label>
+              <select
+                value={newPriority}
+                onChange={(e) => setNewPriority(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all cursor-pointer"
+              >
+                <option value="urgent">🚨 Urgentă (intervenție în 30 min)</option>
+                <option value="high">⚠️ Ridicată (intervenție în 60 min)</option>
+                <option value="normal">⏱️ Normală (rezolvare în 2 ore)</option>
+                <option value="low">☕ Scăzută (pe parcursul zilei)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
+                Atribuire tehnician
+              </label>
+              <select
+                value={newAssignedTo}
+                onChange={(e) => setNewAssignedTo(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all cursor-pointer"
+              >
+                <option value="Echipa Tehnică de Gardă">Echipa tehnică de gardă</option>
+                <option value="Ion Popescu (Instalații)">Ion Popescu (instalații sanitare)</option>
+                <option value="Adrian Nistor (Electrician)">Adrian Nistor (electrician)</option>
+                <option value="Vlad Enache (IT & Rețea)">Vlad Enache (rețea și IT)</option>
+                <option value="Housekeeping Șef Tură">Șef tură curățenie</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
+                Persoană raportoare
+              </label>
+              <input
+                type="text"
+                value={newGuestName}
+                onChange={(e) => setNewGuestName(e.target.value)}
+                placeholder="Ex: Nume oaspete sau recepție"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
+                Telefon de contact (opțional)
+              </label>
+              <input
+                type="tel"
+                value={newGuestPhone}
+                onChange={(e) => setNewGuestPhone(e.target.value)}
+                placeholder="+40 7XX XXX XXX"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
+              />
+            </div>
+          </div>
+        </form>
+      </Modal>
 
       {/* ── MODAL REZOLVARE TICHET CU NOTĂ TEHNICĂ ── */}
-      {resolvingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[24px] max-w-md w-full p-6 border border-[#e1e8f0] shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h4 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-                Finalizează tichetul de mentenanță
-              </h4>
-              <button
-                onClick={() => setResolvingId(null)}
-                className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleResolveSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Notă tehnică de remediere:
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={resolutionNote}
-                  onChange={(e) => setResolutionNote(e.target.value)}
-                  placeholder="Ex: Înlocuit garnitură și baterie duș, verificat presiune cald/rece. Testat OK."
-                  className="w-full px-3 py-2 rounded-[12px] border border-[#e1e8f0] text-[13px] text-[#0d2c5c] outline-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setResolvingId(null)}
-                  className="px-4 py-2 rounded-[10px] border border-[#e1e8f0] text-[#64748b] text-[12px] font-bold"
-                >
-                  Anulează
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingNote}
-                  className="px-5 py-2 rounded-[10px] bg-emerald-600 hover:bg-emerald-700 text-white text-[12.5px] font-bold flex items-center gap-1.5 shadow-sm"
-                >
-                  <Check size={14} />
-                  <span>{submittingNote ? "Se salvează..." : "Marchează ca rezolvat"}</span>
-                </button>
-              </div>
-            </form>
+      <Modal
+        open={Boolean(resolvingId)}
+        onClose={() => setResolvingId(null)}
+        title="Finalizează tichetul"
+        subtitle="Introdu nota tehnică de remediere pentru arhiva de mentenanță"
+        width="max-w-lg"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setResolvingId(null)}
+              className="rounded-full border border-[#dce4ef] bg-white px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c] hover:bg-[#f1f5f9] transition-colors cursor-pointer"
+            >
+              Anulează
+            </button>
+            <button
+              type="submit"
+              form="resolve-maintenance-form"
+              disabled={submittingNote}
+              className="rounded-full bg-[#0d2c5c] hover:bg-[#133b7a] px-6 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-white flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            >
+              <Check size={14} className="text-[#e6b85c]" />
+              <span>{submittingNote ? "Se salvează..." : "Marchează rezolvat"}</span>
+            </button>
+          </>
+        }
+      >
+        <form id="resolve-maintenance-form" onSubmit={handleResolveSubmit} className="space-y-4 pt-2">
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5">
+              Notă tehnică de remediere *
+            </label>
+            <textarea
+              required
+              rows={4}
+              value={resolutionNote}
+              onChange={(e) => setResolutionNote(e.target.value)}
+              placeholder="Ex: Înlocuit garnitură și baterie duș, verificat presiune cald/rece. Testat OK."
+              className="w-full px-3.5 py-2.5 rounded-2xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] text-[#0d2c5c] outline-none resize-none transition-all"
+            />
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </div>
   );
 }
