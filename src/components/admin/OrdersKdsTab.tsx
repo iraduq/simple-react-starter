@@ -16,6 +16,7 @@ import {
   ArrowRight,
   UtensilsCrossed,
   Wallet,
+  Crown,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
@@ -48,6 +49,11 @@ export interface RoomServiceOrderItem {
   guest_name: string;
   guest_phone?: string | null;
   items: OrderItem[];
+  subtotal_amount?: number | null;
+  discount_percent?: number;
+  discount_amount?: number;
+  vip_tier?: string | null;
+  discount_reason?: string | null;
   total_amount: number;
   payment_method: "room_charge" | "card" | "cash" | string;
   notes?: string | null;
@@ -578,6 +584,20 @@ export default function OrdersKdsTab() {
                                 </span>
                               </div>
                             ))}
+                            {order.discount_amount && order.discount_amount > 0 ? (
+                              <div
+                                title={order.discount_reason || undefined}
+                                className="pt-1.5 mt-1 border-t border-[#e1e8f0] flex items-center justify-between gap-2 text-[11px]"
+                              >
+                                <span className="inline-flex items-center gap-1 font-bold text-[#8a6420]">
+                                  <Crown className="w-3 h-3 text-[#c69a3f]" />
+                                  VIP {order.vip_tier || ""} (-{order.discount_percent || 0}%)
+                                </span>
+                                <span className="font-['Outfit',sans-serif] font-bold text-emerald-700 tabular-nums">
+                                  -{Number(order.discount_amount).toFixed(2)} lei
+                                </span>
+                              </div>
+                            ) : null}
                           </div>
 
                           {/* Guest Notes */}
@@ -592,6 +612,11 @@ export default function OrdersKdsTab() {
                           <div className="flex items-center justify-between pt-2.5 border-t border-[#eef2f8]">
                             {renderPaymentBadge(order.payment_method)}
                             <div className="text-right">
+                              {order.discount_amount && order.discount_amount > 0 && order.subtotal_amount ? (
+                                <span className="text-[11px] text-[#94a3b8] line-through mr-1.5 tabular-nums">
+                                  {Number(order.subtotal_amount).toFixed(0)}
+                                </span>
+                              ) : null}
                               <span className="font-['Outfit',sans-serif] font-extrabold text-[17px] text-[#0d2c5c] tabular-nums">
                                 {order.total_amount.toFixed(0)}
                               </span>

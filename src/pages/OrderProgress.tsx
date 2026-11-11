@@ -11,6 +11,7 @@ import {
   CreditCard,
   Banknote,
   BellRing,
+  Crown,
 } from "lucide-react";
 import { apiFetch } from "../lib/api";
 import { lei } from "../services/placesService";
@@ -22,6 +23,11 @@ interface TrackedOrder {
   location_label: string;
   booking_code?: string | null;
   items: { id: string; title: string; price: number; qty: number }[];
+  subtotal_amount?: number | null;
+  discount_percent?: number;
+  discount_amount?: number;
+  vip_tier?: string | null;
+  discount_reason?: string | null;
   total_amount: number;
   payment_method: string;
   notes?: string | null;
@@ -248,6 +254,33 @@ export default function OrderProgress() {
                 ))}
               </div>
 
+              {order.discount_amount && order.discount_amount > 0 ? (
+                <div className="mt-4 rounded-2xl border border-[#c69a3f]/45 bg-[#fdf8ec] p-4 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0d2c5c] text-[#e6b85c]">
+                      <Crown size={17} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold uppercase tracking-wider text-[#0d2c5c]">
+                        Reducere VIP {order.vip_tier || ""} (-{order.discount_percent || 0}%)
+                      </div>
+                      <p className="text-xs text-[#7c5817] mt-0.5">
+                        {order.discount_reason ||
+                          `Reducere automată aplicată deoarece deții statutul VIP ${order.vip_tier || ""}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-[#64748b] block">
+                      Subtotal: {lei(order.subtotal_amount ?? order.total_amount + order.discount_amount)}
+                    </span>
+                    <span className="text-sm font-extrabold text-emerald-700">
+                      -{lei(order.discount_amount)} economisiți
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+
               {order.notes && (
                 <div className="mt-4 rounded-2xl bg-[#fdf8ec] border border-[#c69a3f]/30 p-3.5 text-xs text-[#8a6420]">
                   <strong>Preferințe transmise bucătăriei:</strong> „{order.notes}”
@@ -275,9 +308,16 @@ export default function OrderProgress() {
                   <span className="text-xs uppercase tracking-wider text-[#94a3b8] block">
                     Total Comandă
                   </span>
-                  <span className="font-['Cormorant_Garamond',serif] text-3xl font-bold text-[#0d2c5c]">
-                    {lei(order.total_amount)}
-                  </span>
+                  <div className="flex items-baseline justify-end gap-2">
+                    {order.discount_amount && order.discount_amount > 0 && order.subtotal_amount ? (
+                      <span className="text-sm font-semibold text-[#94a3b8] line-through">
+                        {lei(order.subtotal_amount)}
+                      </span>
+                    ) : null}
+                    <span className="font-['Cormorant_Garamond',serif] text-3xl font-bold text-[#0d2c5c]">
+                      {lei(order.total_amount)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

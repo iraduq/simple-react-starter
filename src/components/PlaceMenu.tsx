@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
+  Crown,
 } from "lucide-react";
 import type { MenuCategory } from "../types/places";
 import { lei } from "../services/placesService";
@@ -63,6 +64,37 @@ export default function PlaceMenu({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [vipBenefit, setVipBenefit] = useState<{
+    tier: string;
+    discount_percent: number;
+    reason?: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!hasSession()) {
+      setVipBenefit(null);
+      return;
+    }
+    apiFetch<{
+      tier: string;
+      order_discount_percent?: number;
+      order_discount_reason?: string | null;
+    }>("/loyalty/my-account")
+      .then((acc) => {
+        const pct = Number(acc?.order_discount_percent || 0);
+        if (acc?.tier && pct > 0) {
+          setVipBenefit({
+            tier: acc.tier,
+            discount_percent: pct,
+            reason:
+              acc.order_discount_reason ||
+              `Reducere automată ${pct}% aplicată deoarece ai statutul VIP ${acc.tier}`,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!cartViewOpen) return;
     if (!hasSession()) {
@@ -74,9 +106,13 @@ export default function PlaceMenu({
     apiFetch<{
       eligible: boolean;
       active_rooms: ActiveStayRoom[];
+      vip_benefit?: { tier: string; discount_percent: number; reason?: string | null };
       message?: string | null;
     }>("/orders/active-stay-rooms")
       .then((res) => {
+        if (res?.vip_benefit && Number(res.vip_benefit.discount_percent || 0) > 0) {
+          setVipBenefit(res.vip_benefit);
+        }
         const list = res?.active_rooms || [];
         setActiveRooms(list);
         if (list.length > 0) {
@@ -144,7 +180,13 @@ export default function PlaceMenu({
 
   const cartLines = Object.values(cart);
   const totalCount = cartLines.reduce((acc, l) => acc + l.qty, 0);
-  const totalAmount = cartLines.reduce((acc, l) => acc + l.price * l.qty, 0);
+  const subtotalAmount = Math.round(cartLines.reduce((acc, l) => acc + l.price * l.qty, 0) * 100) / 100;
+  const vipDiscountPercent = vipBenefit?.discount_percent ?? 0;
+  const vipDiscountAmount =
+    vipDiscountPercent > 0
+      ? Math.round(subtotalAmount * (vipDiscountPercent / 100) * 100) / 100
+      : 0;
+  const totalAmount = Math.max(0, Math.round((subtotalAmount - vipDiscountAmount) * 100) / 100);
 
   const selectedRoomObj = activeRooms.find((r) => r.booking_id === selectedBookingId) || activeRooms[0];
 
@@ -289,13 +331,48 @@ export default function PlaceMenu({
                 </div>
               ))}
 
-              <div className="p-4 bg-white rounded-b-2xl flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#475569]">
-                  Total de plată
-                </span>
-                <span className="font-['Cormorant_Garamond',serif] text-2xl font-bold text-[#0d2c5c]">
-                  {lei(totalAmount)}
-                </span>
+              <div className="p-4 bg-white rounded-b-2xl space-y-2.5">
+                {vipBenefit && vipDiscountAmount > 0 && (
+                  <>
+                    <div className="flex items-center justify-between text-xs font-semibold text-[#475569]">
+                      <span>Subtotal preparate</span>
+                      <span>{lei(subtotalAmount)}</span>
+                    </div>
+                    <div className="rounded-xl border border-[#c69a3f]/40 bg-[#fdf8ec] px-3 py-2 flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2 min-w-0">
+                        <Crown size={14} className="text-[#c69a3f] shrink-0 mt-0.5" />
+                        <div className="text-xs leading-snug">
+                          <div className="font-bold text-[#0d2c5c]">
+                            Reducere automată VIP {vipBenefit.tier} (-{vipDiscountPercent}%)
+                          </div>
+                          <div className="text-[11px] text-[#7c5817]">
+                            {vipBenefit.reason ||
+                              `Aplicată automat deoarece deții statutul VIP ${vipBenefit.tier}`}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="font-bold text-xs text-emerald-700 shrink-0 tabular-nums">
+                        -{lei(vipDiscountAmount)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#475569]">
+                    Total de plată
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    {vipDiscountAmount > 0 && (
+                      <span className="text-xs font-semibold text-[#94a3b8] line-through">
+                        {lei(subtotalAmount)}
+                      </span>
+                    )}
+                    <span className="font-['Cormorant_Garamond',serif] text-2xl font-bold text-[#0d2c5c]">
+                      {lei(totalAmount)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -450,6 +527,27 @@ export default function PlaceMenu({
   /* ── VEDERE MENIU ÎN MODALUL DIN DREAPTA ── */
   return (
     <div className="relative pb-6">
+      {vipBenefit && vipBenefit.discount_percent > 0 && (
+        <div className="mb-4 rounded-2xl border border-[#c69a3f]/40 bg-[#fdf8ec] px-4 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#0d2c5c] text-[#e6b85c]">
+              <Crown size={15} />
+            </span>
+            <div className="text-xs leading-snug">
+              <span className="font-bold text-[#0d2c5c]">
+                Statut VIP {vipBenefit.tier} activ:
+              </span>{" "}
+              <span className="text-[#7c5817] font-medium">
+                ai automat -{vipBenefit.discount_percent}% reducere la fiecare comandă.
+              </span>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-full bg-[#0d2c5c] text-[#e6b85c] px-2.5 py-1 text-[10.5px] font-extrabold uppercase tracking-wider">
+            -{vipBenefit.discount_percent}% VIP
+          </span>
+        </div>
+      )}
+
       {/* Category Pills */}
       <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1">
         {withItems.map((c) => {
@@ -603,10 +701,22 @@ export default function PlaceMenu({
                 </span>
               </div>
               <div>
-                <div className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#e6b85c]">
-                  Coș Room Service în Cameră
+                <div className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#e6b85c] flex items-center gap-1.5">
+                  <span>Coș Room Service</span>
+                  {vipBenefit && vipDiscountPercent > 0 && (
+                    <span className="rounded-full bg-[#e6b85c]/20 px-2 py-0.5 text-[9.5px] text-[#e6b85c]">
+                      VIP {vipBenefit.tier} -{vipDiscountPercent}% aplicat
+                    </span>
+                  )}
                 </div>
-                <div className="text-base font-bold leading-tight">{lei(totalAmount)}</div>
+                <div className="text-base font-bold leading-tight flex items-baseline gap-2">
+                  <span>{lei(totalAmount)}</span>
+                  {vipDiscountAmount > 0 && (
+                    <span className="text-xs font-normal text-white/60 line-through">
+                      {lei(subtotalAmount)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 

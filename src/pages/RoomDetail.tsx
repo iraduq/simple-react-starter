@@ -10,6 +10,7 @@ import {
   Star,
   TicketPercent,
   Users,
+  Crown,
 } from "lucide-react";
 import { apiFetch } from "../lib/api";
 import { httpErrorMessage } from "../services/apiClient";
@@ -79,6 +80,11 @@ export default function RoomDetail() {
   const [vipCoupons, setVipCoupons] = useState<
     Array<{ code: string; discount_value: number; status: string }>
   >([]);
+  const [vipStayBenefit, setVipStayBenefit] = useState<{
+    tier: string;
+    stay_discount_percent: number;
+    stay_discount_reason?: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (!hasSession()) return;
@@ -90,6 +96,24 @@ export default function RoomDetail() {
         setVipCoupons(active);
       })
       .catch(() => setVipCoupons([]));
+
+    apiFetch<{
+      tier: string;
+      stay_discount_percent?: number;
+      stay_discount_reason?: string | null;
+    }>("/loyalty/my-account")
+      .then((acc) => {
+        if (acc?.tier && Number(acc?.stay_discount_percent || 0) > 0) {
+          setVipStayBenefit({
+            tier: acc.tier,
+            stay_discount_percent: Number(acc.stay_discount_percent),
+            stay_discount_reason: acc.stay_discount_reason,
+          });
+        } else {
+          setVipStayBenefit(null);
+        }
+      })
+      .catch(() => setVipStayBenefit(null));
   }, []);
 
   const [blocked, setBlocked] = useState<Set<string>>(new Set());
@@ -314,13 +338,19 @@ export default function RoomDetail() {
     if (plan === "breakfast") return Math.round(baseRatePerNight + 35);
     return Math.round(baseRatePerNight);
   }, [plan, baseRatePerNight]);
-  const couponDiscount =
-    appliedCoupon && total != null
-      ? appliedCoupon.discount_type === "percent"
-        ? Math.round(total * (appliedCoupon.discount_value / 100))
-        : Math.min(total, appliedCoupon.discount_value)
+  const vipStayDiscount =
+    vipStayBenefit && vipStayBenefit.stay_discount_percent > 0 && total != null
+      ? Math.round(total * (vipStayBenefit.stay_discount_percent / 100) * 100) / 100
       : 0;
-  const finalTotal = total != null ? Math.max(1, total - couponDiscount) : null;
+  const totalAfterVip =
+    total != null ? Math.max(1, Math.round((total - vipStayDiscount) * 100) / 100) : null;
+  const couponDiscount =
+    appliedCoupon && totalAfterVip != null
+      ? appliedCoupon.discount_type === "percent"
+        ? Math.round(totalAfterVip * (appliedCoupon.discount_value / 100))
+        : Math.min(totalAfterVip, appliedCoupon.discount_value)
+      : 0;
+  const finalTotal = totalAfterVip != null ? Math.max(1, Math.round((totalAfterVip - couponDiscount) * 100) / 100) : null;
 
   const handleApplyCoupon = async (overrideCode?: string) => {
     const codeToApply = (overrideCode ?? couponCodeInput).trim().toUpperCase();
@@ -866,6 +896,25 @@ export default function RoomDetail() {
                   <span>Taxe (TVA 19%)</span>
                   <span>{ron(taxes)}</span>
                 </div>
+                {vipStayBenefit && vipStayDiscount > 0 && (
+                  <div className="rounded-xl border border-[#c69a3f]/40 bg-[#fdf8ec] px-3 py-2 flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 min-w-0">
+                      <Crown size={13} className="text-[#c69a3f] shrink-0 mt-0.5" />
+                      <div className="text-[11.5px] leading-snug">
+                        <div className="font-bold text-[#0d2c5c]">
+                          Reducere automată VIP {vipStayBenefit.tier} (-{vipStayBenefit.stay_discount_percent}%)
+                        </div>
+                        <div className="text-[10.5px] text-[#7c5817]">
+                          {vipStayBenefit.stay_discount_reason ||
+                            `Aplicată automat deoarece ai statutul VIP ${vipStayBenefit.tier}`}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="font-bold text-xs text-emerald-700 shrink-0">
+                      -{ron(vipStayDiscount)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between pt-2 text-[16px] font-bold text-[#0d2c5c]">
                   <span>Total</span>
                   <span>

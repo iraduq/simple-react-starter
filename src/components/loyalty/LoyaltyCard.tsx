@@ -52,6 +52,10 @@ export interface LoyaltyAccountData {
   tier_progress_percent: number;
   tier_perks: string[];
   multiplier: number;
+  order_discount_percent?: number;
+  stay_discount_percent?: number;
+  order_discount_reason?: string | null;
+  stay_discount_reason?: string | null;
   coupons?: LoyaltyCouponItem[];
   redeemed_perks?: LoyaltyRedeemedPerkItem[];
 }
