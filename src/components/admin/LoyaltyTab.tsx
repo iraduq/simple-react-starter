@@ -3,15 +3,16 @@ import {
   Crown,
   Award,
   Sparkles,
-  TrendingUp,
-  Search,
   PlusCircle,
   ShieldCheck,
-  Gift,
-  Coins,
-  Users,
+  History,
+  ArrowUpRight,
+  ArrowDownRight,
+  TicketPercent,
+  RefreshCw,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
+import { useAdminLiveSync } from "../../context/AdminLiveSyncContext";
 import { useToast } from "../Toast";
 import {
   SectionHeader,
@@ -21,7 +22,6 @@ import {
   Modal,
   Field,
   inputCls,
-  Badge,
 } from "./ui";
 
 interface AdminLoyaltyAccount {
@@ -33,7 +33,36 @@ interface AdminLoyaltyAccount {
   points_balance: number;
   total_points_earned: number;
   total_points_spent: number;
+  active_coupons_count?: number;
+  redeemed_perks_count?: number;
   created_at: string | null;
+}
+
+interface AdminAccountDetails {
+  account: AdminLoyaltyAccount & { multiplier?: number };
+  transactions: Array<{
+    id: number;
+    points: number;
+    type: string;
+    description: string;
+    created_at: string | null;
+  }>;
+  vouchers: {
+    coupons: Array<{
+      code: string;
+      title: string;
+      discount_value: number;
+      status: string;
+      valid_until?: string | null;
+    }>;
+    perks: Array<{
+      id: number;
+      title: string;
+      booking_code?: string | null;
+      points_spent: number;
+      created_at?: string | null;
+    }>;
+  };
 }
 
 export default function LoyaltyTab() {
@@ -43,11 +72,14 @@ export default function LoyaltyTab() {
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState<string>("all");
 
-  // Adjust Modal
   const [adjustTarget, setAdjustTarget] = useState<AdminLoyaltyAccount | null>(null);
-  const [adjustPoints, setAdjustPoints] = useState<number>(100);
-  const [adjustReason, setAdjustReason] = useState<string>("Bonus Fidelitate Casa Esy VIP");
+  const [adjustPoints, setAdjustPoints] = useState<number>(150);
+  const [adjustReason, setAdjustReason] = useState<string>("Bonus de Fidelitate Casa Esy");
   const [savingAdjust, setSavingAdjust] = useState(false);
+
+  const [detailsTarget, setDetailsTarget] = useState<AdminLoyaltyAccount | null>(null);
+  const [detailsData, setDetailsData] = useState<AdminAccountDetails | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const loadAccounts = useCallback(async () => {
     setLoading(true);
@@ -64,6 +96,29 @@ export default function LoyaltyTab() {
   useEffect(() => {
     void loadAccounts();
   }, [loadAccounts]);
+
+  useAdminLiveSync({
+    topic: "loyalty",
+    onSync: () => {
+      void loadAccounts();
+    },
+  });
+
+  const openMemberDetails = async (acc: AdminLoyaltyAccount) => {
+    setDetailsTarget(acc);
+    setDetailsData(null);
+    setLoadingDetails(true);
+    try {
+      const data = await apiFetch<AdminAccountDetails>(
+        `/loyalty/admin/accounts/${acc.user_id}/transactions`
+      );
+      setDetailsData(data);
+    } catch (err: any) {
+      toast(err?.message || "Nu s-a putut încărca istoricul membrului.", "error");
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
 
   const stats = useMemo(() => {
     const totalMembers = accounts.length;
@@ -92,6 +147,10 @@ export default function LoyaltyTab() {
 
   const handleAdjustPoints = async () => {
     if (!adjustTarget) return;
+    if (!Number(adjustPoints)) {
+      toast("Introdu o valoare de puncte diferită de zero.", "warning");
+      return;
+    }
     setSavingAdjust(true);
     try {
       await apiFetch("/loyalty/admin/adjust-points", {
@@ -117,10 +176,15 @@ export default function LoyaltyTab() {
       <SectionHeader
         eyebrow="Fidelizare și oaspeți VIP"
         title="Clubul de privilegii Casa Esy și statutul VIP"
-        description="Gestionează membrii clubului de fidelitate, nivelurile de loialitate (Bronze, Silver, Gold, Platinum) și alocă puncte bonus."
+        description="Gestionează membrii clubului de fidelitate, nivelurile de loialitate (Bronze, Silver, Gold, Platinum), voucherele revendicate și alocarea punctelor bonus."
+        action={
+          <GhostButton onClick={() => void loadAccounts()}>
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            <span>Reîmprospătează</span>
+          </GhostButton>
+        }
       />
 
-      {/* KPI Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="p-4 rounded-2xl bg-white border border-slate-200">
           <span className="text-[11px] font-semibold text-slate-500 uppercase">Membri Club</span>
@@ -129,7 +193,7 @@ export default function LoyaltyTab() {
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200">
           <span className="text-[11px] font-semibold text-slate-500 uppercase">Puncte Circulație</span>
-          <p className="text-2xl font-bold font-['Outfit'] text-[#e6b85c] mt-0.5">{stats.totalPoints}</p>
+          <p className="text-2xl font-bold font-['Outfit'] text-[#c69a3f] mt-0.5">{stats.totalPoints}</p>
         </div>
 
         <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100/50 border border-teal-200">
@@ -161,7 +225,6 @@ export default function LoyaltyTab() {
         </div>
       </div>
 
-      {/* Filter Tabs & Search */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {["all", "Bronze", "Silver", "Gold", "Platinum"].map((t) => (
@@ -188,7 +251,6 @@ export default function LoyaltyTab() {
         </div>
       </div>
 
-      {/* Accounts Table */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -197,8 +259,8 @@ export default function LoyaltyTab() {
                 <th className="px-5 py-3.5">Membru VIP</th>
                 <th className="px-5 py-3.5">Statut / Tier</th>
                 <th className="px-5 py-3.5">Sold Puncte</th>
-                <th className="px-5 py-3.5">Total Acumulat</th>
-                <th className="px-5 py-3.5">Total Cheltuit</th>
+                <th className="px-5 py-3.5">Acumulat / Cheltuit</th>
+                <th className="px-5 py-3.5">Vouchere Active</th>
                 <th className="px-5 py-3.5 text-right">Acțiuni</th>
               </tr>
             </thead>
@@ -248,21 +310,35 @@ export default function LoyaltyTab() {
                       <span className="text-xs text-slate-400 ml-1">pct</span>
                     </td>
                     <td className="px-5 py-4 text-xs font-semibold text-slate-600">
-                      {acc.total_points_earned} pct
+                      <span className="text-emerald-700">{acc.total_points_earned}</span>
+                      {" / "}
+                      <span className="text-slate-500">{acc.total_points_spent} pct</span>
                     </td>
                     <td className="px-5 py-4 text-xs font-semibold text-slate-600">
-                      {acc.total_points_spent} pct
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[#0d2c5c]">
+                        <TicketPercent size={12} className="text-[#c69a3f]" />
+                        <span>
+                          {acc.active_coupons_count || 0} cupoane · {acc.redeemed_perks_count || 0} beneficii
+                        </span>
+                      </span>
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-4 text-right space-x-2">
+                      <button
+                        onClick={() => void openMemberDetails(acc)}
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 hover:border-[#0d2c5c] text-[#0d2c5c] hover:bg-slate-50 text-xs font-bold transition-colors inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <History size={13} />
+                        <span>Istoric</span>
+                      </button>
                       <button
                         onClick={() => {
                           setAdjustTarget(acc);
                           setAdjustPoints(150);
                           setAdjustReason("Bonus de Fidelitate Casa Esy");
                         }}
-                        className="px-3 py-1.5 rounded-xl border border-teal-200 hover:border-[#00a896] text-[#00a896] hover:bg-teal-50 text-xs font-bold transition-colors inline-flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl border border-amber-200 hover:border-[#c69a3f] text-[#0d2c5c] bg-amber-50/70 hover:bg-amber-100/70 text-xs font-bold transition-colors inline-flex items-center gap-1 cursor-pointer"
                       >
-                        <PlusCircle size={13} />
+                        <PlusCircle size={13} className="text-[#c69a3f]" />
                         <span>Ajustează Puncte</span>
                       </button>
                     </td>
@@ -274,7 +350,6 @@ export default function LoyaltyTab() {
         </div>
       </div>
 
-      {/* Modal Ajustare Manuală Puncte */}
       <Modal
         open={Boolean(adjustTarget)}
         onClose={() => setAdjustTarget(null)}
@@ -294,6 +369,23 @@ export default function LoyaltyTab() {
         }
       >
         <div className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {[100, 250, 500, 1000, -100].map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setAdjustPoints(preset)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                  adjustPoints === preset
+                    ? "bg-[#0d2c5c] text-white border-[#0d2c5c]"
+                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                {preset > 0 ? `+${preset} pct` : `${preset} pct`}
+              </button>
+            ))}
+          </div>
+
           <Field label="Valoare Puncte (pozitiv pentru acordare, negativ pentru deducere)">
             <input
               type="number"
@@ -313,6 +405,102 @@ export default function LoyaltyTab() {
             />
           </Field>
         </div>
+      </Modal>
+
+      <Modal
+        open={Boolean(detailsTarget)}
+        onClose={() => setDetailsTarget(null)}
+        title={detailsTarget ? `Istoric VIP · ${detailsTarget.user_name}` : "Istoric VIP"}
+        subtitle={detailsTarget?.user_email}
+        footer={<GhostButton onClick={() => setDetailsTarget(null)}>Închide</GhostButton>}
+      >
+        {loadingDetails ? (
+          <p className="text-sm text-slate-500 py-6 text-center">Se încarcă detaliile VIP...</p>
+        ) : detailsData ? (
+          <div className="space-y-5">
+            {(detailsData.vouchers.coupons.length > 0 || detailsData.vouchers.perks.length > 0) && (
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Vouchere & Beneficii Revendicate
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {detailsData.vouchers.coupons.map((c) => (
+                    <div
+                      key={c.code}
+                      className="rounded-xl border border-amber-200 bg-amber-50/50 p-2.5 text-xs"
+                    >
+                      <div className="flex items-center justify-between font-bold text-[#0d2c5c]">
+                        <span className="font-mono">{c.code}</span>
+                        <span className="uppercase text-[10px] text-[#c69a3f]">{c.status}</span>
+                      </div>
+                      <p className="text-slate-600 mt-0.5 truncate">{c.title}</p>
+                    </div>
+                  ))}
+                  {detailsData.vouchers.perks.map((p) => (
+                    <div
+                      key={p.id}
+                      className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs"
+                    >
+                      <p className="font-bold text-[#0d2c5c] truncate">{p.title}</p>
+                      <p className="text-slate-500 mt-0.5">
+                        {p.booking_code ? `Sejur #${p.booking_code}` : "Fără rezervare asociată"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Ultimele Tranzacții ({detailsData.transactions.length})
+              </p>
+              <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto border border-slate-200 rounded-xl">
+                {detailsData.transactions.length === 0 ? (
+                  <p className="text-xs text-slate-500 p-4 text-center">Nicio tranzacție.</p>
+                ) : (
+                  detailsData.transactions.map((tx) => {
+                    const pos = tx.points > 0;
+                    return (
+                      <div key={tx.id} className="px-3.5 py-2.5 flex items-center justify-between text-xs gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            className={`p-1 rounded-full ${
+                              pos ? "bg-amber-50 text-[#c69a3f]" : "bg-slate-100 text-[#0d2c5c]"
+                            }`}
+                          >
+                            {pos ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[#0d2c5c] truncate">{tx.description}</p>
+                            <p className="text-[10.5px] text-slate-400">
+                              {tx.created_at
+                                ? new Date(tx.created_at).toLocaleDateString("ro-RO", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "Recent"}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={`font-bold font-['Outfit'] shrink-0 ${
+                            pos ? "text-[#c69a3f]" : "text-[#0d2c5c]"
+                          }`}
+                        >
+                          {pos ? `+${tx.points}` : tx.points} pct
+                        </span>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </Modal>
     </div>
   );

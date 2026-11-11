@@ -20,6 +20,7 @@ export type SyncTopic =
   | "audit"
   | "lost_found"
   | "analytics"
+  | "loyalty"
   | "all";
 
 export interface SyncMessage {

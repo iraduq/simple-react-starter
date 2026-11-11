@@ -76,6 +76,21 @@ export default function RoomDetail() {
     discount_amount: number;
     final_total: number;
   } | null>(null);
+  const [vipCoupons, setVipCoupons] = useState<
+    Array<{ code: string; discount_value: number; status: string }>
+  >([]);
+
+  useEffect(() => {
+    if (!hasSession()) return;
+    apiFetch<{ coupons?: Array<{ code: string; discount_value: number; status: string }> }>(
+      "/loyalty/my-vouchers",
+    )
+      .then((res) => {
+        const active = (res?.coupons || []).filter((c) => c.status === "available");
+        setVipCoupons(active);
+      })
+      .catch(() => setVipCoupons([]));
+  }, []);
 
   const [blocked, setBlocked] = useState<Set<string>>(new Set());
   const [liveHeldInfo, setLiveHeldInfo] = useState<{
@@ -307,8 +322,10 @@ export default function RoomDetail() {
       : 0;
   const finalTotal = total != null ? Math.max(1, total - couponDiscount) : null;
 
-  const handleApplyCoupon = async () => {
-    if (!couponCodeInput.trim()) return;
+  const handleApplyCoupon = async (overrideCode?: string) => {
+    const codeToApply = (overrideCode ?? couponCodeInput).trim().toUpperCase();
+    if (!codeToApply) return;
+    if (overrideCode) setCouponCodeInput(codeToApply);
     setValidatingCoupon(true);
     try {
       const res = await apiFetch<{
@@ -322,7 +339,7 @@ export default function RoomDetail() {
       }>("/coupons/validate", {
         method: "POST",
         body: JSON.stringify({
-          code: couponCodeInput.trim().toUpperCase(),
+          code: codeToApply,
           subtotal: total ?? room?.base_price ?? 0,
         }),
       });
@@ -726,13 +743,31 @@ export default function RoomDetail() {
               <button
                 type="button"
                 disabled={validatingCoupon || !couponCodeInput.trim()}
-                onClick={handleApplyCoupon}
+                onClick={() => void handleApplyCoupon()}
                 className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#fdf8ec] border border-[#c69a3f] px-3.5 py-2 text-xs font-bold text-[#0d2c5c] hover:bg-[#c69a3f] transition cursor-pointer disabled:opacity-50"
               >
                 <TicketPercent size={14} />
                 {validatingCoupon ? "..." : "Aplică"}
               </button>
             </div>
+            {vipCoupons.length > 0 && !appliedCoupon && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-semibold text-[#6b7c99]">
+                  Voucherele tale VIP:
+                </span>
+                {vipCoupons.map((vc) => (
+                  <button
+                    key={vc.code}
+                    type="button"
+                    onClick={() => void handleApplyCoupon(vc.code)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-[#c69a3f]/40 px-2.5 py-1 text-[11px] font-mono font-bold text-[#0d2c5c] hover:bg-amber-100 transition cursor-pointer"
+                  >
+                    <TicketPercent size={12} className="text-[#c69a3f]" />
+                    <span>{vc.code} (-{vc.discount_value}%)</span>
+                  </button>
+                ))}
+              </div>
+            )}
             {appliedCoupon && (
               <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs text-emerald-900">
                 <span>

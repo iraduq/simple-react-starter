@@ -37,12 +37,13 @@ import {
   type SessionUser,
 } from "../lib/auth";
 import { apiFetch } from "../lib/api";
+import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
 import { useToast } from "../components/Toast";
 import { downloadBookingInvoicePdf } from "../lib/admin";
 import RoomFolioCard from "../components/upsell/RoomFolioCard";
 import MaintenanceReportModal from "../components/maintenance/MaintenanceReportModal";
 import GuestFeedbackModal from "../components/reviews/GuestFeedbackModal";
-import LoyaltyCard from "../components/loyalty/LoyaltyCard";
+import LoyaltyCard, { type LoyaltyAccountData } from "../components/loyalty/LoyaltyCard";
 
 type TabKey = "overview" | "personal" | "reservations" | "security" | "danger";
 
@@ -111,6 +112,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(!user);
   const [tab, setTab] = useState<TabKey>("overview");
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loyaltyAccount, setLoyaltyAccount] = useState<LoyaltyAccountData | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const { toast } = useToast();
@@ -119,7 +121,19 @@ export default function Profile() {
     apiFetch<Booking[]>("/bookings/my-bookings")
       .then((d) => setBookings(Array.isArray(d) ? d : []))
       .catch(() => setBookings([]));
+    apiFetch<LoyaltyAccountData>("/loyalty/my-account")
+      .then((d) => setLoyaltyAccount(d))
+      .catch(() => {});
   }, []);
+
+  useAdminLiveSync({
+    topic: "loyalty",
+    onSync: () => {
+      apiFetch<LoyaltyAccountData>("/loyalty/my-account")
+        .then((d) => setLoyaltyAccount(d))
+        .catch(() => {});
+    },
+  });
 
   useEffect(() => {
     let active = true;
@@ -285,7 +299,7 @@ export default function Profile() {
                 <div className="mt-2 flex items-center justify-center">
                   <span className="px-3.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 text-[11px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-xs">
                     <span className="text-[#c69a3f]">★</span>
-                    <span>Oaspete Privilège • Casa Esy Gold</span>
+                    <span>Oaspete Privilège • Casa Esy {loyaltyAccount?.tier || "Bronze"}</span>
                   </span>
                 </div>
                 <p className="text-[12px] text-[#64748b] mt-2 flex items-center justify-center gap-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
@@ -318,13 +332,15 @@ export default function Profile() {
                   Beneficii incluse în statut:
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {[
-                    "Check-in devreme (11:00)",
-                    "Șezlong VIP în zona de plajă",
-                    "Butler și room service dedicat",
-                    "Acces spa și piscină",
-                    "Parcare privată inclusă",
-                  ].map((label) => (
+                  {(loyaltyAccount?.tier_perks?.length
+                    ? loyaltyAccount.tier_perks
+                    : [
+                        "100 Puncte / noapte cazare",
+                        "1 Punct / 10 RON comenzi",
+                        "Welcome Drink rece la check-in",
+                        "Wi-Fi de mare viteză gratuit",
+                      ]
+                  ).map((label) => (
                     <span
                       key={label}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#e1e8f0] bg-[#f8fafc] text-[11.5px] font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#0d2c5c]"
@@ -336,23 +352,12 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* STATISTICI DIN REZERVARI REALE */}
+              {/* STATISTICI DIN CONTUL VIP & REZERVARI REALE */}
               <div className="mt-6 pt-5 border-t border-[#e1e8f0] grid grid-cols-3 text-center">
                 {(() => {
                   const valid = bookings.filter((b) => b.status !== "cancelled");
-                  const nightsTotal = valid.reduce(
-                    (n, b) =>
-                      n +
-                      Math.max(
-                        0,
-                        Math.round(
-                          (+new Date(b.check_out) - +new Date(b.check_in)) /
-                            864e5
-                        )
-                      ),
-                    0
-                  );
-                  const points = nightsTotal * 150;
+                  const points = loyaltyAccount?.points_balance ?? 0;
+                  const vipTier = loyaltyAccount?.tier || "Bronze";
                   return (
                     <>
                       <div>
@@ -373,7 +378,7 @@ export default function Profile() {
                       </div>
                       <div>
                         <p className="font-['Outfit',sans-serif] text-[26px] sm:text-[28px] font-bold text-[#c69a3f] leading-none">
-                          {valid.length >= 2 ? "Gold" : "Silver"}
+                          {vipTier}
                         </p>
                         <p className="font-['Plus_Jakarta_Sans',sans-serif] text-[11px] text-[#c69a3f] mt-1 font-semibold">
                           Statut VIP
@@ -466,6 +471,7 @@ export default function Profile() {
                 user={user}
                 bookings={bookings}
                 goToTab={setTab}
+                onLoyaltyChange={setLoyaltyAccount}
               />
             )}
 
@@ -496,10 +502,12 @@ function OverviewTab({
   user,
   bookings,
   goToTab,
+  onLoyaltyChange,
 }: {
   user: NonNullable<SessionUser>;
   bookings: Booking[];
   goToTab: (t: TabKey) => void;
+  onLoyaltyChange: (acc: LoyaltyAccountData | null) => void;
 }) {
   const { toast } = useToast();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -700,7 +708,17 @@ function OverviewTab({
       </div>
 
       {/* PROGRAM VIP & LOYALTY PRIVILEGE CLUB */}
-      <LoyaltyCard />
+      <LoyaltyCard
+        bookings={bookings.map((b) => ({
+          id: b.id,
+          booking_code: b.booking_code,
+          check_in: b.check_in,
+          check_out: b.check_out,
+          status: b.status,
+          room_title: b.room?.title,
+        }))}
+        onAccountChange={onLoyaltyChange}
+      />
 
       {/* NOTA CAMEREI & SOLD RĂMAS (ROOM FOLIO & UPSELLING MIC DEJUN) */}
       {next && (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   X,
   Award,
@@ -11,6 +11,9 @@ import {
   UtensilsCrossed,
   CheckCircle2,
   Lock,
+  Copy,
+  Check,
+  Calendar,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
@@ -28,12 +31,22 @@ export interface LoyaltyRewardItem {
   user_has_tier: boolean;
 }
 
+export interface LoyaltyBookingOption {
+  id: string;
+  booking_code?: string;
+  check_in: string;
+  check_out: string;
+  status: string;
+  room_title?: string;
+}
+
 interface LoyaltyRewardsModalProps {
   isOpen: boolean;
   onClose: () => void;
   userTier: string;
   userPoints: number;
   rewards: LoyaltyRewardItem[];
+  bookings?: LoyaltyBookingOption[];
   onRedeemed: () => void;
 }
 
@@ -54,12 +67,40 @@ export default function LoyaltyRewardsModal({
   userTier,
   userPoints,
   rewards,
+  bookings = [],
   onRedeemed,
 }: LoyaltyRewardsModalProps) {
   const { toast } = useToast();
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
+  const [selectedBookingCode, setSelectedBookingCode] = useState<string>("");
+  const [issuedCoupon, setIssuedCoupon] = useState<{ code: string; title: string } | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const eligibleBookings = bookings.filter(
+    (b) => b.booking_code && b.status !== "cancelled" && b.status !== "completed"
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIssuedCoupon(null);
+      setCopiedCode(false);
+    } else if (eligibleBookings.length > 0 && !selectedBookingCode) {
+      setSelectedBookingCode(eligibleBookings[0].booking_code || "");
+    }
+  }, [isOpen, eligibleBookings.length]);
 
   if (!isOpen) return null;
+
+  const handleCopyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(true);
+      toast(`Codul ${code} a fost copiat!`, "success");
+      setTimeout(() => setCopiedCode(false), 2000);
+    } catch {
+      toast(`Cod voucher: ${code}`, "info");
+    }
+  };
 
   const handleRedeem = async (reward: LoyaltyRewardItem) => {
     if (!reward.can_redeem) {
@@ -73,10 +114,18 @@ export default function LoyaltyRewardsModal({
 
     setRedeemingId(reward.id);
     try {
+      const payload: { reward_id: string; booking_code?: string } = { reward_id: reward.id };
+      if (reward.reward_type !== "discount" && selectedBookingCode) {
+        payload.booking_code = selectedBookingCode;
+      }
+
       const res = await apiFetch<any>("/loyalty/redeem", {
         method: "POST",
-        body: JSON.stringify({ reward_id: reward.id }),
+        body: JSON.stringify(payload),
       });
+      if (res?.coupon_code) {
+        setIssuedCoupon({ code: res.coupon_code, title: reward.title });
+      }
       toast(res?.message || "Recompensă revendicată cu succes!", "success");
       onRedeemed();
     } catch (err: any) {
@@ -89,7 +138,6 @@ export default function LoyaltyRewardsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Header */}
         <div className="relative px-6 py-5 bg-gradient-to-r from-[#0d2c5c] via-[#0f3469] to-[#c69a3f] text-white">
           <button
             onClick={onClose}
@@ -111,13 +159,55 @@ export default function LoyaltyRewardsModal({
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-6 overflow-y-auto space-y-4">
+          {issuedCoupon && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                  Voucher VIP Emis & Activ (Valabil 90 zile)
+                </p>
+                <p className="text-sm font-bold text-[#0d2c5c] mt-0.5">{issuedCoupon.title}</p>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Aplică acest cod în pagina de rezervare pentru reducerea instantă.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleCopyCode(issuedCoupon.code)}
+                className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0d2c5c] text-white text-xs font-mono font-bold hover:bg-[#071d3d] transition cursor-pointer"
+              >
+                <span>{issuedCoupon.code}</span>
+                {copiedCode ? <Check size={14} className="text-emerald-300" /> : <Copy size={14} />}
+              </button>
+            </div>
+          )}
+
+          {eligibleBookings.length > 0 && (
+            <div className="rounded-2xl bg-[#f8fafc] border border-[#e1e8f0] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#0d2c5c]">
+                <Calendar size={15} className="text-[#c69a3f] shrink-0" />
+                <span>Asociază facilitățile de sejur (Prosecco, Late Check-out etc.) unei rezervări:</span>
+              </div>
+              <select
+                value={selectedBookingCode}
+                onChange={(e) => setSelectedBookingCode(e.target.value)}
+                className="px-3 py-1.5 rounded-xl bg-white border border-[#e1e8f0] text-xs font-semibold text-[#0d2c5c] outline-none focus:border-[#c69a3f]"
+              >
+                <option value="">Fără asociere imediată (în cont)</option>
+                {eligibleBookings.map((b) => (
+                  <option key={b.id} value={b.booking_code}>
+                    #{b.booking_code} · {b.room_title || "Sejur"} (
+                    {new Date(b.check_in).toLocaleDateString("ro-RO", { day: "2-digit", month: "short" })})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {rewards.map((r) => {
               const Icon = ICON_MAP[r.icon] || Award;
               const isLocked = !r.user_has_tier;
-              const notEnoughPoints = r.user_has_tier && userPoints < r.points_cost;
 
               return (
                 <div

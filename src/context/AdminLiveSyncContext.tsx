@@ -130,6 +130,13 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "booking_updated",
     "pricing_updated",
   ],
+  loyalty: [
+    "loyalty_updated",
+    "coupons_updated",
+    "payment_confirmed",
+    "booking_updated",
+    "orders_updated",
+  ],
   all: [],
 };
 
