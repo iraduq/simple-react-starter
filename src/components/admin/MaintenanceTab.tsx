@@ -1,26 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Wrench,
   Clock,
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
-  User,
+  UserCheck,
   Phone,
   Droplets,
   Wind,
   Lightbulb,
   Tv,
   Sparkles,
-  Search,
-  Filter,
   Check,
   Plus,
   Trash2,
+  Users,
+  Pencil,
+  ShieldCheck,
+  UserPlus,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
-import { Modal } from "./ui";
+import { useAdminLiveSync } from "../../context/AdminLiveSyncContext";
+import {
+  SectionHeader,
+  Card,
+  PrimaryButton,
+  GhostButton,
+  SearchInput,
+  Modal,
+  Field,
+  TextInput,
+  Select,
+  Textarea,
+  Badge,
+  Pagination,
+  usePaged,
+  TableSkeleton,
+  EmptyState,
+} from "./ui";
 
 interface TicketData {
   id: number;
@@ -56,21 +75,48 @@ interface MaintenanceStats {
   sla_compliance_percent: number;
 }
 
+interface TechnicianItem {
+  id: number;
+  name: string;
+  specialty: string;
+  department: "mentenanta" | "tehnic_it" | "housekeeping" | string;
+  phone?: string | null;
+  is_active: boolean;
+  label: string;
+}
+
+const DEPT_LABELS: Record<string, string> = {
+  mentenanta: "Mentenanță tehnică",
+  tehnic_it: "IT și rețea",
+  housekeeping: "Curățenie și menaj",
+};
+
 export default function MaintenanceTab() {
   const { toast } = useToast();
+
+  const [subView, setSubView] = useState<"tickets" | "technicians">("tickets");
+
   const [tickets, setTickets] = useState<TicketData[]>([]);
+  const [technicians, setTechnicians] = useState<TechnicianItem[]>([]);
   const [stats, setStats] = useState<MaintenanceStats | null>(null);
   const [loading, setLoading] = useState(false);
+
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deptFilter, setDeptFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [techSearch, setTechSearch] = useState("");
 
-  // Assign staff modal/dialog state
-  const [resolvingId, setResolvingId] = useState<number | null>(null);
+  const [resolvingTicket, setResolvingTicket] = useState<TicketData | null>(null);
   const [resolutionNote, setResolutionNote] = useState("");
   const [submittingNote, setSubmittingNote] = useState(false);
 
-  // Admin create ticket modal state
+  const [assignTarget, setAssignTarget] = useState<TicketData | null>(null);
+  const [assignChoice, setAssignChoice] = useState("");
+  const [assigning, setAssigning] = useState(false);
+
+  const [deleteTicketTarget, setDeleteTicketTarget] = useState<TicketData | null>(null);
+  const [deletingTicket, setDeletingTicket] = useState(false);
+
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [newUnitNumber, setNewUnitNumber] = useState("");
   const [newCategory, setNewCategory] = useState("ac");
@@ -79,8 +125,55 @@ export default function MaintenanceTab() {
   const [newPriority, setNewPriority] = useState("normal");
   const [newGuestName, setNewGuestName] = useState("Recepție / Administrație Casa Esy");
   const [newGuestPhone, setNewGuestPhone] = useState("");
-  const [newAssignedTo, setNewAssignedTo] = useState("Echipa Tehnică de Gardă");
+  const [newAssignedTo, setNewAssignedTo] = useState("");
   const [creatingTicket, setCreatingTicket] = useState(false);
+
+  const [techModalOpen, setTechModalOpen] = useState(false);
+  const [editingTech, setEditingTech] = useState<TechnicianItem | null>(null);
+  const [techName, setTechName] = useState("");
+  const [techSpecialty, setTechSpecialty] = useState("");
+  const [techDept, setTechDept] = useState<"mentenanta" | "tehnic_it" | "housekeeping">("mentenanta");
+  const [techPhone, setTechPhone] = useState("");
+  const [techActive, setTechActive] = useState(true);
+  const [savingTech, setSavingTech] = useState(false);
+  const [deleteTechTarget, setDeleteTechTarget] = useState<TechnicianItem | null>(null);
+  const [deletingTech, setDeletingTech] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [tData, sData, techData] = await Promise.all([
+        apiFetch<TicketData[]>("/admin/maintenance/tickets"),
+        apiFetch<MaintenanceStats>("/admin/maintenance/stats"),
+        apiFetch<TechnicianItem[]>("/admin/maintenance/technicians"),
+      ]);
+      setTickets(Array.isArray(tData) ? tData : []);
+      setStats(sData);
+      setTechnicians(Array.isArray(techData) ? techData : []);
+    } catch (err: any) {
+      toast(err?.message || "Eroare la încărcarea datelor de mentenanță.", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
+
+  useAdminLiveSync({
+    topic: "all",
+    onSync: (payload) => {
+      if (payload?.event?.startsWith("maintenance_")) {
+        void loadData();
+      }
+    },
+  });
+
+  const activeTechnicians = useMemo(
+    () => technicians.filter((t) => t.is_active),
+    [technicians]
+  );
 
   const handleCreateTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +203,7 @@ export default function MaintenanceTab() {
       setNewDescription("");
       setNewUnitNumber("");
       setNewGuestPhone("");
+      setNewAssignedTo("");
       await loadData();
     } catch (err: any) {
       toast(err?.message || "Eroare la crearea tichetului.", "error");
@@ -118,44 +212,17 @@ export default function MaintenanceTab() {
     }
   };
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [tData, sData] = await Promise.all([
-        apiFetch<TicketData[]>("/admin/maintenance/tickets"),
-        apiFetch<MaintenanceStats>("/admin/maintenance/stats"),
-      ]);
-      setTickets(Array.isArray(tData) ? tData : []);
-      setStats(sData);
-    } catch (err: any) {
-      toast(err?.message || "Eroare la încărcarea tichetelor.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleUpdateStatus = async (
+  const handleUpdateTicket = async (
     id: number,
-    newStatus: string,
-    assigned?: string,
-    notes?: string
+    updates: { status?: string; assigned_to?: string; resolution_notes?: string }
   ) => {
     try {
       const res = await apiFetch<TicketData>(`/admin/maintenance/tickets/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({
-          status: newStatus,
-          assigned_to: assigned,
-          resolution_notes: notes,
-        }),
+        body: JSON.stringify(updates),
       });
-
       setTickets((prev) => prev.map((t) => (t.id === id ? res : t)));
-      toast(`Tichetul #${res.ticket_code} a fost actualizat la «${newStatus}».`, "success");
+      toast(`Tichetul #${res.ticket_code} a fost actualizat.`, "success");
       const updatedStats = await apiFetch<MaintenanceStats>("/admin/maintenance/stats");
       setStats(updatedStats);
     } catch (err: any) {
@@ -163,66 +230,225 @@ export default function MaintenanceTab() {
     }
   };
 
+  const openAssignModal = (ticket: TicketData) => {
+    setAssignTarget(ticket);
+    if (ticket.assigned_to) {
+      setAssignChoice(ticket.assigned_to);
+    } else {
+      const match =
+        activeTechnicians.find((t) => t.department === ticket.department) ||
+        activeTechnicians[0];
+      setAssignChoice(match ? match.label : "");
+    }
+  };
+
+  const handleAssignSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assignTarget) return;
+    setAssigning(true);
+    try {
+      await handleUpdateTicket(assignTarget.id, {
+        assigned_to: assignChoice,
+        status:
+          assignChoice.trim() && assignTarget.status === "open"
+            ? "in_progress"
+            : assignTarget.status,
+      });
+      setAssignTarget(null);
+    } finally {
+      setAssigning(false);
+    }
+  };
+
   const handleResolveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resolvingId) return;
+    if (!resolvingTicket) return;
     setSubmittingNote(true);
     try {
-      await handleUpdateStatus(resolvingId, "resolved", undefined, resolutionNote);
-      setResolvingId(null);
+      await handleUpdateTicket(resolvingTicket.id, {
+        status: "resolved",
+        resolution_notes: resolutionNote,
+      });
+      setResolvingTicket(null);
       setResolutionNote("");
     } finally {
       setSubmittingNote(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Sigur doriți să ștergeți acest tichet?")) return;
+  const confirmDeleteTicket = async () => {
+    if (!deleteTicketTarget) return;
+    setDeletingTicket(true);
     try {
-      await apiFetch(`/admin/maintenance/tickets/${id}`, { method: "DELETE" });
-      setTickets((prev) => prev.filter((t) => t.id !== id));
-      toast("Tichetul a fost șters.", "success");
+      await apiFetch(`/admin/maintenance/tickets/${deleteTicketTarget.id}`, {
+        method: "DELETE",
+      });
+      toast(`Tichetul #${deleteTicketTarget.ticket_code} a fost șters.`, "success");
+      setDeleteTicketTarget(null);
+      await loadData();
     } catch (err: any) {
       toast(err?.message || "Eroare la ștergerea tichetului.", "error");
+    } finally {
+      setDeletingTicket(false);
     }
   };
 
-  const filteredTickets = tickets.filter((t) => {
-    if (statusFilter !== "all" && t.status !== statusFilter) return false;
-    if (deptFilter !== "all" && t.department !== deptFilter) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      const match =
-        t.ticket_code.toLowerCase().includes(q) ||
-        t.unit_number.toLowerCase().includes(q) ||
-        t.guest_name.toLowerCase().includes(q) ||
-        t.title.toLowerCase().includes(q);
-      if (!match) return false;
-    }
-    return true;
-  });
+  const openCreateTechnicianModal = () => {
+    setEditingTech(null);
+    setTechName("");
+    setTechSpecialty("");
+    setTechDept("mentenanta");
+    setTechPhone("");
+    setTechActive(true);
+    setTechModalOpen(true);
+  };
 
-  const getPriorityBadge = (p: string) => {
+  const openEditTechnicianModal = (tech: TechnicianItem) => {
+    setEditingTech(tech);
+    setTechName(tech.name);
+    setTechSpecialty(tech.specialty);
+    setTechDept(
+      (tech.department as "mentenanta" | "tehnic_it" | "housekeeping") || "mentenanta"
+    );
+    setTechPhone(tech.phone || "");
+    setTechActive(tech.is_active);
+    setTechModalOpen(true);
+  };
+
+  const handleSaveTechnician = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!techName.trim()) {
+      toast("Numele tehnicianului este obligatoriu.", "error");
+      return;
+    }
+    setSavingTech(true);
+    try {
+      if (editingTech) {
+        await apiFetch<TechnicianItem>(`/admin/maintenance/technicians/${editingTech.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            name: techName.trim(),
+            specialty: techSpecialty.trim() || "Mentenanță generală",
+            department: techDept,
+            phone: techPhone.trim() || null,
+            is_active: techActive,
+          }),
+        });
+        toast(`Tehnicianul ${techName.trim()} a fost actualizat.`, "success");
+      } else {
+        const created = await apiFetch<TechnicianItem>("/admin/maintenance/technicians", {
+          method: "POST",
+          body: JSON.stringify({
+            name: techName.trim(),
+            specialty: techSpecialty.trim() || "Mentenanță generală",
+            department: techDept,
+            phone: techPhone.trim() || null,
+            is_active: techActive,
+          }),
+        });
+        toast(`Tehnicianul ${created.name} a fost adăugat în echipă.`, "success");
+        if (createModalOpen) {
+          setNewAssignedTo(created.label);
+        }
+      }
+      setTechModalOpen(false);
+      await loadData();
+    } catch (err: any) {
+      toast(err?.message || "Eroare la salvarea tehnicianului.", "error");
+    } finally {
+      setSavingTech(false);
+    }
+  };
+
+  const handleToggleTechActive = async (tech: TechnicianItem) => {
+    try {
+      await apiFetch<TechnicianItem>(`/admin/maintenance/technicians/${tech.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ is_active: !tech.is_active }),
+      });
+      toast(
+        !tech.is_active
+          ? `${tech.name} este acum activ pentru atribuire.`
+          : `${tech.name} a fost marcat indisponibil.`,
+        "success"
+      );
+      await loadData();
+    } catch (err: any) {
+      toast(err?.message || "Eroare la actualizarea stării.", "error");
+    }
+  };
+
+  const confirmDeleteTechnician = async () => {
+    if (!deleteTechTarget) return;
+    setDeletingTech(true);
+    try {
+      await apiFetch(`/admin/maintenance/technicians/${deleteTechTarget.id}`, {
+        method: "DELETE",
+      });
+      toast(`Tehnicianul ${deleteTechTarget.name} a fost eliminat.`, "success");
+      setDeleteTechTarget(null);
+      await loadData();
+    } catch (err: any) {
+      toast(err?.message || "Eroare la ștergerea tehnicianului.", "error");
+    } finally {
+      setDeletingTech(false);
+    }
+  };
+
+  const filteredTickets = useMemo(() => {
+    return tickets.filter((t) => {
+      if (statusFilter !== "all" && t.status !== statusFilter) return false;
+      if (deptFilter !== "all" && t.department !== deptFilter) return false;
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const match =
+          t.ticket_code.toLowerCase().includes(q) ||
+          t.unit_number.toLowerCase().includes(q) ||
+          t.guest_name.toLowerCase().includes(q) ||
+          t.title.toLowerCase().includes(q) ||
+          (t.assigned_to || "").toLowerCase().includes(q);
+        if (!match) return false;
+      }
+      return true;
+    });
+  }, [tickets, statusFilter, deptFilter, search]);
+
+  const filteredTechnicians = useMemo(() => {
+    const q = techSearch.trim().toLowerCase();
+    if (!q) return technicians;
+    return technicians.filter(
+      (tech) =>
+        tech.name.toLowerCase().includes(q) ||
+        tech.specialty.toLowerCase().includes(q) ||
+        (DEPT_LABELS[tech.department] || tech.department).toLowerCase().includes(q) ||
+        (tech.phone || "").toLowerCase().includes(q)
+    );
+  }, [technicians, techSearch]);
+
+  const ticketsPaged = usePaged(filteredTickets, 8);
+  const techPaged = usePaged(filteredTechnicians, 9);
+
+  const getPriorityTone = (p: string): "red" | "gold" | "navy" | "muted" => {
     switch (p) {
       case "urgent":
-        return "bg-red-50 text-red-800 border-red-200";
+        return "red";
       case "high":
-        return "bg-amber-50 text-amber-800 border-amber-200";
+        return "gold";
       case "normal":
+        return "navy";
       default:
-        return "bg-slate-100 text-slate-700 border-slate-200";
+        return "muted";
     }
   };
 
-  const getStatusBadge = (s: string) => {
+  const getStatusTone = (s: string): "green" | "navy" | "gold" => {
     switch (s) {
       case "resolved":
-        return "bg-emerald-50 text-emerald-800 border-emerald-200";
+        return "green";
       case "in_progress":
-        return "bg-sky-50 text-sky-800 border-sky-200";
-      case "open":
+        return "navy";
       default:
-        return "bg-amber-50 text-amber-800 border-amber-200";
+        return "gold";
     }
   };
 
@@ -243,523 +469,802 @@ export default function MaintenanceTab() {
     }
   };
 
+  const initials = (name: string) =>
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() || "")
+      .join("") || "TH";
+
   return (
-    <div className="space-y-8 font-sans">
-      {/* ── HEADER ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#0d2c5c]/10">
-        <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
-            <Wrench size={14} className="text-[#c69a3f]" />
-            <span>Operațiuni hoteliere și intervenții tehnice</span>
+    <div className="space-y-6">
+      <SectionHeader
+        eyebrow="Operațiuni Hoteliere și Tehnice"
+        title="Mentenanță și tichete de service"
+        description="Gestionarea defecțiunilor raportate, alocarea dinamică către echipa de tehnicieni Casa Esy și monitorizarea timpilor de intervenție SLA."
+        actions={
+          <div className="flex flex-wrap items-center gap-2.5">
+            <GhostButton size="sm" onClick={() => void loadData()} disabled={loading}>
+              <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+              Reîncarcă
+            </GhostButton>
+            {subView === "technicians" ? (
+              <PrimaryButton size="sm" onClick={openCreateTechnicianModal}>
+                <UserPlus size={14} />
+                Adaugă tehnician
+              </PrimaryButton>
+            ) : (
+              <PrimaryButton
+                size="sm"
+                onClick={() => {
+                  setNewAssignedTo("");
+                  setCreateModalOpen(true);
+                }}
+              >
+                <Plus size={14} />
+                Tichet nou
+              </PrimaryButton>
+            )}
           </div>
-          <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold text-[#0d2c5c] leading-tight">
-            Mentenanță și tichete de service
-          </h2>
-          <p className="text-[13.5px] text-[#64748b] mt-0.5 max-w-2xl font-['Plus_Jakarta_Sans',sans-serif]">
-            Urmărirea în timp real a defecțiunilor semnalate de turiști, atribuirea către echipe tehnice și contorizarea timpului de remediere conform SLA.
-          </p>
-        </div>
+        }
+      />
 
-        <div className="flex items-center gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={() => setCreateModalOpen(true)}
-            className="px-4 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99] cursor-pointer"
-          >
-            <Plus size={16} className="text-[#c69a3f]" />
-            <span>Tichet nou de mentenanță</span>
-          </button>
-          <button
-            onClick={loadData}
-            disabled={loading}
-            className="w-10 h-10 rounded-full border border-[#0d2c5c]/15 hover:border-[#0d2c5c] flex items-center justify-center text-[#0d2c5c] hover:bg-[#0d2c5c]/5 transition cursor-pointer"
-            title="Reîmprospătează tichetele"
-          >
-            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
-          </button>
-        </div>
-      </div>
-
-      {/* ── METRICI SLA & INDICATORI ── */}
       {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-[22px] bg-white border border-[#e1e8f0] shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[14px] bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
-              <AlertTriangle size={22} />
-            </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                Tichete Active
-              </p>
-              <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#0d2c5c] leading-none mt-1">
-                {stats.open_tickets + stats.in_progress_tickets}
-              </p>
-              <p className="text-[11px] text-amber-700 font-semibold mt-1">
-                {stats.urgent_tickets} urgente de rezolvat
-              </p>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-[22px] bg-white border border-[#e1e8f0] shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[14px] bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-              <CheckCircle2 size={22} />
-            </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                Rezolvate cu Succes
-              </p>
-              <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-emerald-700 leading-none mt-1">
-                {stats.resolved_tickets}
-              </p>
-              <p className="text-[11px] text-[#64748b] mt-1">
-                Din {stats.total_tickets} tichete totale
-              </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white overflow-hidden shadow-[0_8px_28px_rgba(13,44,92,0.04)]">
+            <div className="h-1 w-full bg-gradient-to-r from-[#c69a3f] to-[#e6b85c]" />
+            <div className="p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[#fdf8ec] border border-[#c69a3f]/30 text-[#8a6420] flex items-center justify-center shrink-0">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
+                  Tichete Active
+                </p>
+                <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#0d2c5c] leading-none mt-1">
+                  {stats.open_tickets + stats.in_progress_tickets}
+                </p>
+                <p className="text-[11px] font-semibold text-[#8a6420] mt-1">
+                  {stats.urgent_tickets} urgente de rezolvat
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="p-5 rounded-[22px] bg-white border border-[#e1e8f0] shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[14px] bg-[#0d2c5c]/10 text-[#0d2c5c] flex items-center justify-center shrink-0">
-              <Clock size={22} />
-            </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                Timp Mediu Remediere
-              </p>
-              <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#0d2c5c] leading-none mt-1">
-                {stats.avg_resolution_minutes} min
-              </p>
-              <p className="text-[11px] text-[#0d2c5c] font-semibold mt-1">
-                Target SLA &lt; 60 min
-              </p>
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white overflow-hidden shadow-[0_8px_28px_rgba(13,44,92,0.04)]">
+            <div className="h-1 w-full bg-gradient-to-r from-emerald-600 to-teal-500" />
+            <div className="p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[#e6f2ea] text-[#1f6b45] flex items-center justify-center shrink-0">
+                <CheckCircle2 size={20} />
+              </div>
+              <div>
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
+                  Rezolvate cu Succes
+                </p>
+                <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#1f6b45] leading-none mt-1">
+                  {stats.resolved_tickets}
+                </p>
+                <p className="text-[11px] text-[#6b7c99] mt-1">
+                  Din {stats.total_tickets} tichete totale
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="p-5 rounded-[22px] bg-white border border-[#e1e8f0] shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[14px] bg-amber-50 text-[#c69a3f] flex items-center justify-center shrink-0">
-              <Sparkles size={22} />
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white overflow-hidden shadow-[0_8px_28px_rgba(13,44,92,0.04)]">
+            <div className="h-1 w-full bg-gradient-to-r from-[#0d2c5c] to-[#1e4b8f]" />
+            <div className="p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[#eef2f7] text-[#0d2c5c] flex items-center justify-center shrink-0">
+                <Clock size={20} />
+              </div>
+              <div>
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
+                  Timp Mediu Remediere
+                </p>
+                <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#0d2c5c] leading-none mt-1">
+                  {stats.avg_resolution_minutes} min
+                </p>
+                <p className="text-[11px] font-semibold text-[#0d2c5c] mt-1">
+                  Target SLA &lt; 60 min
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                Conformitate SLA
-              </p>
-              <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#c69a3f] leading-none mt-1">
-                {stats.sla_compliance_percent}%
-              </p>
-              <p className="text-[11px] text-[#c69a3f] font-semibold mt-1">
-                Standard hotel 5 stele
-              </p>
+          </div>
+
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white overflow-hidden shadow-[0_8px_28px_rgba(13,44,92,0.04)]">
+            <div className="h-1 w-full bg-gradient-to-r from-[#0d2c5c] via-[#c69a3f] to-[#0d2c5c]" />
+            <div className="p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[#0d2c5c] text-[#e6b85c] flex items-center justify-center shrink-0">
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
+                  Conformitate SLA & Echipă
+                </p>
+                <p className="font-['Outfit',sans-serif] text-[26px] font-bold text-[#0d2c5c] leading-none mt-1">
+                  {stats.sla_compliance_percent}%
+                </p>
+                <p className="text-[11px] font-semibold text-[#8a6420] mt-1">
+                  {activeTechnicians.length} tehnicieni activi
+                </p>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── FILTRE & CĂUTARE ── */}
-      <div className="bg-white p-4 rounded-[20px] border border-[#e1e8f0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748b] mr-1 flex items-center gap-1">
-            <Filter size={13} /> Status:
-          </span>
-          {[
-            { key: "all", label: "Toate" },
-            { key: "open", label: "Deschise" },
-            { key: "in_progress", label: "În lucru" },
-            { key: "resolved", label: "Rezolvate" },
-          ].map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              onClick={() => setStatusFilter(f.key)}
-              className={`px-3 py-1.5 rounded-[10px] text-[12px] font-bold transition ${
-                statusFilter === f.key
-                  ? "bg-[#0d2c5c] text-white shadow-xs"
-                  : "bg-slate-100 text-[#64748b] hover:bg-slate-200"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex rounded-2xl border border-[#e1e8f0] bg-white p-1.5 shadow-xs">
+          <button
+            type="button"
+            onClick={() => setSubView("tickets")}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
+              subView === "tickets"
+                ? "bg-[#0d2c5c] text-white shadow-[0_6px_16px_rgba(13,44,92,0.2)]"
+                : "text-[#4f6280] hover:text-[#0d2c5c]"
+            }`}
+          >
+            <Wrench size={14} className={subView === "tickets" ? "text-[#e6b85c]" : ""} />
+            <span>Tichete de incident ({tickets.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSubView("technicians")}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
+              subView === "technicians"
+                ? "bg-[#0d2c5c] text-white shadow-[0_6px_16px_rgba(13,44,92,0.2)]"
+                : "text-[#4f6280] hover:text-[#0d2c5c]"
+            }`}
+          >
+            <Users size={14} className={subView === "technicians" ? "text-[#e6b85c]" : ""} />
+            <span>Echipă & Tehnicieni ({technicians.length})</span>
+          </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Caută cameră, oaspete, tichet..."
-              className="pl-8 pr-3 py-1.5 rounded-[10px] border border-[#e1e8f0] text-[12.5px] text-[#0d2c5c] focus:border-[#c69a3f] outline-none w-56 font-['Plus_Jakarta_Sans',sans-serif]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ── TABEL TICHETE MENTENANȚĂ ── */}
-      <div className="bg-white rounded-[24px] border border-[#e1e8f0] p-6 shadow-[0_10px_35px_rgba(13,44,92,0.06)]">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-            Listă tichete de incident ({filteredTickets.length})
-          </h3>
-        </div>
-
-        {filteredTickets.length === 0 ? (
-          <div className="py-12 text-center text-[#64748b]">
-            <CheckCircle2 size={36} className="mx-auto text-emerald-400 mb-3" />
-            <p className="font-semibold text-[14px]">Niciun incident înregistrat pentru filtrele selectate.</p>
-            <p className="text-[12px] mt-0.5">Toate solicitările din camere sunt rezolvate la zi.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#e1e8f0] text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                  <th className="py-3 px-3">Tichet și dată</th>
-                  <th className="py-3 px-3">Cameră și oaspete</th>
-                  <th className="py-3 px-3">Defecțiune</th>
-                  <th className="py-3 px-3">Departament / tehnician</th>
-                  <th className="py-3 px-3">Prioritate și SLA</th>
-                  <th className="py-3 px-3">Stare</th>
-                  <th className="py-3 px-3 text-right">Acțiuni</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e1e8f0] text-[13px]">
-                {filteredTickets.map((t) => {
-                  const Icon = getCategoryIcon(t.category);
-                  return (
-                    <tr key={t.id} className="hover:bg-[#f8fafc] transition-colors">
-                      <td className="py-3.5 px-3">
-                        <span className="font-mono font-bold text-[12px] text-[#0d2c5c]">
-                          #{t.ticket_code}
-                        </span>
-                        <p className="text-[11px] text-[#64748b] mt-0.5">
-                          {t.created_at
-                            ? new Date(t.created_at).toLocaleTimeString("ro-RO", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "—"}
-                        </p>
-                      </td>
-
-                      <td className="py-3.5 px-3">
-                        <span className="font-bold text-[#0d2c5c]">
-                          {t.unit_number}
-                        </span>
-                        <p className="text-[11.5px] text-[#64748b] mt-0.5">
-                          {t.guest_name}
-                        </p>
-                      </td>
-
-                      <td className="py-3.5 px-3 max-w-xs">
-                        <div className="flex items-center gap-1.5 font-bold text-[#0d2c5c] text-[13px]">
-                          <Icon size={14} className="text-[#c69a3f] shrink-0" />
-                          <span className="truncate">{t.title}</span>
-                        </div>
-                        <p className="text-[11.5px] text-[#64748b] line-clamp-2 mt-0.5">
-                          {t.description}
-                        </p>
-                        {t.resolution_notes && (
-                          <p className="text-[11px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded mt-1 font-semibold">
-                            ✓ {t.resolution_notes}
-                          </p>
-                        )}
-                      </td>
-
-                      <td className="py-3.5 px-3">
-                        <span className="text-[12px] font-bold text-[#0d2c5c] block">
-                          {t.department === "mentenanta"
-                            ? "Mentenanță tehnică"
-                            : t.department === "housekeeping"
-                              ? "Curățenie și menaj"
-                              : "IT și rețea"}
-                        </span>
-                        <span className="text-[11.5px] text-[#64748b]">
-                          {t.assigned_to || (
-                            <span className="text-amber-700 italic">Nealocat</span>
-                          )}
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-3">
-                        <div className="flex items-center gap-1.5">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10.5px] font-bold border uppercase tracking-wider ${getPriorityBadge(
-                              t.priority
-                            )}`}
-                          >
-                            {t.priority}
-                          </span>
-                          {t.is_overdue && (
-                            <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800 text-[10px] font-bold">
-                              SLA Depășit
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[11px] text-[#64748b] mt-1 block">
-                          Target SLA: {t.sla_minutes} min (trecut: {t.elapsed_minutes} min)
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-3">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase tracking-wider ${getStatusBadge(
-                            t.status
-                          )}`}
-                        >
-                          {t.status === "resolved"
-                            ? "Rezolvat ✓"
-                            : t.status === "in_progress"
-                              ? "În Lucru"
-                              : "Deschis"}
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {t.status === "open" && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleUpdateStatus(
-                                  t.id,
-                                  "in_progress",
-                                  "Echipa Tehnică de Gardă"
-                                )
-                              }
-                              className="px-2.5 py-1 rounded-[8px] bg-[#0d2c5c]/10 hover:bg-[#0d2c5c]/20 text-[#0d2c5c] text-[11.5px] font-bold transition"
-                            >
-                              Preia în Lucru
-                            </button>
-                          )}
-
-                          {t.status !== "resolved" && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setResolvingId(t.id);
-                                setResolutionNote("");
-                              }}
-                              className="px-2.5 py-1 rounded-[8px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11.5px] font-bold transition"
-                            >
-                              Rezolvă
-                            </button>
-                          )}
-
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(t.id)}
-                            className="p-1 rounded text-red-500 hover:bg-red-50 transition"
-                            title="Șterge tichet"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+        {subView === "tickets" && (
+          <button
+            type="button"
+            onClick={() => setSubView("technicians")}
+            className="text-xs font-bold text-[#8a6420] hover:text-[#0d2c5c] inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <UserPlus size={14} />
+            Gestionează lista de tehnicieni →
+          </button>
         )}
       </div>
 
-      {/* ── MODAL CREARE TICHET MENTENANȚĂ (ADMIN) ── */}
+      {subView === "tickets" ? (
+        <Card className="overflow-hidden">
+          <div className="flex flex-col gap-3 border-b border-[#eef2f7] bg-[#f8fafd]/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                { key: "all", label: "Toate" },
+                { key: "open", label: "Deschise" },
+                { key: "in_progress", label: "În lucru" },
+                { key: "resolved", label: "Rezolvate" },
+              ].map((f) => {
+                const active = statusFilter === f.key;
+                return (
+                  <button
+                    key={f.key}
+                    type="button"
+                    onClick={() => setStatusFilter(f.key)}
+                    className={`rounded-full px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] transition cursor-pointer ${
+                      active
+                        ? "bg-[#0d2c5c] text-white shadow-xs"
+                        : "bg-white border border-[#e1e8f0] text-[#4f6280] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
+
+              <select
+                value={deptFilter}
+                onChange={(e) => setDeptFilter(e.target.value)}
+                className="rounded-full border border-[#e1e8f0] bg-white px-3.5 py-1.5 text-[11.5px] font-semibold text-[#0d2c5c] outline-none focus:border-[#c69a3f] cursor-pointer"
+              >
+                <option value="all">Toate departamentele</option>
+                <option value="mentenanta">Mentenanță tehnică</option>
+                <option value="tehnic_it">IT și rețea</option>
+                <option value="housekeeping">Curățenie și menaj</option>
+              </select>
+            </div>
+
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Caută tichet, cameră, tehnician..."
+            />
+          </div>
+
+          {loading ? (
+            <TableSkeleton rows={6} />
+          ) : filteredTickets.length === 0 ? (
+            <EmptyState
+              title="Niciun tichet găsit"
+              hint="Ajustează filtrele de stare sau înregistrează un tichet nou de mentenanță."
+            />
+          ) : (
+            <>
+              <div className="w-full overflow-x-auto">
+                <table className="w-full min-w-[960px] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-[#eef2f7] bg-[#0d2c5c]/[0.025] text-[10px] font-bold uppercase tracking-[0.18em] text-[#6b7c99]">
+                      <th className="py-3.5 px-5">Tichet</th>
+                      <th className="py-3.5 px-4">Cameră / Oaspete</th>
+                      <th className="py-3.5 px-4">Defecțiune</th>
+                      <th className="py-3.5 px-4">Departament & Tehnician</th>
+                      <th className="py-3.5 px-4">Prioritate & SLA</th>
+                      <th className="py-3.5 px-4">Stare</th>
+                      <th className="py-3.5 px-5 text-right">Acțiuni</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#eef2f7]">
+                    {ticketsPaged.slice.map((t) => {
+                      const Icon = getCategoryIcon(t.category);
+                      return (
+                        <tr key={t.id} className="transition-colors hover:bg-[#f8fafd]">
+                          <td className="py-4 px-5 align-top">
+                            <span className="inline-block rounded-lg bg-[#eef2f7] px-2.5 py-1 font-mono text-[11.5px] font-bold text-[#0d2c5c]">
+                              #{t.ticket_code}
+                            </span>
+                            <div className="mt-1.5 text-[11px] font-medium text-[#6b7c99]">
+                              {t.created_at
+                                ? new Date(t.created_at).toLocaleTimeString("ro-RO", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "—"}
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-4 align-top">
+                            <div className="font-bold text-[#0d2c5c]">{t.unit_number}</div>
+                            <div className="text-[12px] text-[#6b7c99] mt-0.5">{t.guest_name}</div>
+                          </td>
+
+                          <td className="py-4 px-4 max-w-xs align-top">
+                            <div className="flex items-center gap-1.5 font-bold text-[#0d2c5c] text-[13px]">
+                              <Icon size={14} className="text-[#c69a3f] shrink-0" />
+                              <span className="truncate">{t.title}</span>
+                            </div>
+                            <p className="mt-1 text-[12px] text-[#4f6280] line-clamp-2 leading-relaxed">
+                              {t.description}
+                            </p>
+                            {t.resolution_notes && (
+                              <p className="mt-2 rounded-xl border border-[#1f6b45]/20 bg-[#e6f2ea] px-2.5 py-1 text-[11px] font-semibold text-[#1f6b45]">
+                                ✓ {t.resolution_notes}
+                              </p>
+                            )}
+                          </td>
+
+                          <td className="py-4 px-4 align-top">
+                            <span className="block text-[12px] font-bold text-[#0d2c5c]">
+                              {DEPT_LABELS[t.department] || "Mentenanță tehnică"}
+                            </span>
+                            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                              {t.assigned_to ? (
+                                <span className="inline-flex items-center gap-1 rounded-lg border border-[#c69a3f]/30 bg-[#fdf8ec] px-2 py-0.5 text-[11px] font-semibold text-[#8a6420]">
+                                  <UserCheck size={12} />
+                                  {t.assigned_to}
+                                </span>
+                              ) : (
+                                <span className="text-[11.5px] italic text-amber-700 font-medium">
+                                  Nealocat
+                                </span>
+                              )}
+                              {t.status !== "resolved" && (
+                                <button
+                                  type="button"
+                                  onClick={() => openAssignModal(t)}
+                                  className="text-[11px] font-bold text-[#0d2c5c] underline decoration-[#c69a3f] underline-offset-2 hover:text-[#c69a3f] cursor-pointer"
+                                >
+                                  {t.assigned_to ? "Schimbă" : "Atribuie"}
+                                </button>
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-4 align-top">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <Badge tone={getPriorityTone(t.priority)}>{t.priority}</Badge>
+                              {t.is_overdue && <Badge tone="red">SLA Depășit</Badge>}
+                            </div>
+                            <div className="mt-1.5 text-[11px] font-medium text-[#6b7c99]">
+                              Target {t.sla_minutes} min · trecut {t.elapsed_minutes} min
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-4 align-top">
+                            <Badge tone={getStatusTone(t.status)}>
+                              {t.status === "resolved"
+                                ? "Rezolvat ✓"
+                                : t.status === "in_progress"
+                                  ? "În lucru"
+                                  : "Deschis"}
+                            </Badge>
+                          </td>
+
+                          <td className="py-4 px-5 text-right align-top">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {t.status !== "resolved" && (
+                                <button
+                                  type="button"
+                                  onClick={() => openAssignModal(t)}
+                                  className="rounded-xl border border-[#e1e8f0] bg-white px-2.5 py-1.5 text-[11px] font-bold text-[#0d2c5c] hover:border-[#0d2c5c] transition cursor-pointer"
+                                >
+                                  {t.status === "open" ? "Preia" : "Alocă"}
+                                </button>
+                              )}
+
+                              {t.status !== "resolved" && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setResolvingTicket(t);
+                                    setResolutionNote("");
+                                  }}
+                                  className="rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-3 py-1.5 text-[11px] font-bold transition cursor-pointer"
+                                >
+                                  Rezolvă
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => setDeleteTicketTarget(t)}
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-rose-200 bg-rose-50/60 text-rose-700 hover:bg-rose-100 transition cursor-pointer"
+                                title="Șterge tichet"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                page={ticketsPaged.page}
+                pages={ticketsPaged.pages}
+                total={ticketsPaged.total}
+                perPage={ticketsPaged.perPage}
+                onPage={ticketsPaged.setPage}
+              />
+            </>
+          )}
+        </Card>
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="flex flex-col gap-3 border-b border-[#eef2f7] bg-[#f8fafd]/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+              <h3 className="font-['Outfit',sans-serif] text-base font-bold text-[#0d2c5c]">
+                Echipa de intervenție și mentenanță
+              </h3>
+              <p className="text-xs text-[#6b7c99]">
+                Tehnicienii activi apar automat în dropdown-ul „Atribuire tehnician” la crearea și preluarea tichetelor.
+              </p>
+            </div>
+            <SearchInput
+              value={techSearch}
+              onChange={setTechSearch}
+              placeholder="Caută tehnician sau specializare..."
+            />
+          </div>
+
+          {filteredTechnicians.length === 0 ? (
+            <EmptyState
+              title="Niciun tehnician configurat"
+              hint="Adaugă membrii echipei tehnice folosind butonul «Adaugă tehnician»."
+            />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
+                {techPaged.slice.map((tech) => (
+                  <div
+                    key={tech.id}
+                    className={`rounded-2xl border p-5 transition-all flex flex-col justify-between gap-4 ${
+                      tech.is_active
+                        ? "border-[#e1e8f0] bg-white shadow-[0_6px_22px_rgba(13,44,92,0.04)]"
+                        : "border-[#e1e8f0] bg-[#f8fafc] opacity-75"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0d2c5c] text-sm font-bold text-[#e6b85c]">
+                          {initials(tech.name)}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-['Outfit',sans-serif] font-bold text-[15px] text-[#0d2c5c] truncate">
+                            {tech.name}
+                          </h4>
+                          <p className="text-xs font-medium text-[#8a6420] truncate">
+                            {tech.specialty}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge tone={tech.is_active ? "green" : "muted"}>
+                        {tech.is_active ? "Activ" : "Indisponibil"}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs text-[#4f6280]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#6b7c99]">Departament:</span>
+                        <span className="font-semibold text-[#0d2c5c]">
+                          {DEPT_LABELS[tech.department] || tech.department}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#6b7c99]">Telefon:</span>
+                        <span className="inline-flex items-center gap-1 font-mono font-semibold text-[#0d2c5c]">
+                          <Phone size={11} className="text-[#c69a3f]" />
+                          {tech.phone || "Nesetat"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 border-t border-[#eef2f7] pt-3">
+                      <button
+                        type="button"
+                        onClick={() => void handleToggleTechActive(tech)}
+                        className="rounded-lg border border-[#e1e8f0] bg-[#f8fafd] px-2.5 py-1.5 text-[11px] font-semibold text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
+                      >
+                        {tech.is_active ? "Marchează indisponibil" : "Activează"}
+                      </button>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => openEditTechnicianModal(tech)}
+                          title="Editează tehnician"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] bg-white text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTechTarget(tech)}
+                          title="Șterge tehnician"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 cursor-pointer"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Pagination
+                page={techPaged.page}
+                pages={techPaged.pages}
+                total={techPaged.total}
+                perPage={techPaged.perPage}
+                onPage={techPaged.setPage}
+              />
+            </>
+          )}
+        </Card>
+      )}
+
       <Modal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         title="Tichet nou de mentenanță"
-        subtitle="Înregistrare incident tehnic direct din panoul de administrare"
+        subtitle="Înregistrare incident tehnic și alocare către un tehnician"
         width="max-w-2xl"
         footer={
           <>
-            <button
+            <GhostButton onClick={() => setCreateModalOpen(false)}>Anulează</GhostButton>
+            <PrimaryButton
               type="button"
-              onClick={() => setCreateModalOpen(false)}
-              className="rounded-full border border-[#dce4ef] bg-white px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c] hover:bg-[#f1f5f9] transition-colors cursor-pointer"
-            >
-              Anulează
-            </button>
-            <button
-              type="submit"
-              form="create-maintenance-form"
               disabled={creatingTicket}
-              className="rounded-full bg-[#0d2c5c] hover:bg-[#133b7a] px-6 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-white flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              onClick={() => {
+                const form = document.getElementById("create-maintenance-form") as HTMLFormElement | null;
+                form?.requestSubmit();
+              }}
             >
-              <Plus size={14} className="text-[#e6b85c]" />
-              <span>{creatingTicket ? "Se înregistrează..." : "Înregistrează tichetul"}</span>
-            </button>
+              <Plus size={14} />
+              {creatingTicket ? "Se înregistrează..." : "Înregistrează tichetul"}
+            </PrimaryButton>
           </>
         }
       >
-        <form id="create-maintenance-form" onSubmit={handleCreateTicketSubmit} className="space-y-4 font-['Plus_Jakarta_Sans',sans-serif] pt-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
-                Cameră sau zonă resort *
-              </label>
-              <input
-                type="text"
+        <form id="create-maintenance-form" onSubmit={handleCreateTicketSubmit} className="space-y-4 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Cameră sau zonă resort *">
+              <TextInput
                 required
                 value={newUnitNumber}
                 onChange={(e) => setNewUnitNumber(e.target.value)}
                 placeholder="Ex: Camera 204 sau zona piscinei"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
               />
-            </div>
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
-                Categorie defecțiune *
-              </label>
-              <select
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all cursor-pointer"
-              >
-                <option value="ac">❄️ Climatizare și aer condiționat</option>
-                <option value="plumbing">🚰 Instalații sanitare și apă</option>
-                <option value="electrical">💡 Electricitate și iluminat</option>
-                <option value="tv_wifi">📶 Smart TV, rețea și Wi-Fi</option>
-                <option value="housekeeping">✨ Curățenie și consumabile</option>
-                <option value="other">🔧 Alte solicitări tehnice</option>
-              </select>
-            </div>
+            </Field>
+
+            <Field label="Categorie defecțiune *">
+              <Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                <option value="ac">Climatizare și aer condiționat</option>
+                <option value="plumbing">Instalații sanitare și apă</option>
+                <option value="electrical">Electricitate și iluminat</option>
+                <option value="tv_wifi">Smart TV, rețea și Wi-Fi</option>
+                <option value="housekeeping">Curățenie și consumabile</option>
+                <option value="other">Alte solicitări tehnice</option>
+              </Select>
+            </Field>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5">
-              Titlu incident sau defecțiune *
-            </label>
-            <input
-              type="text"
+          <Field label="Titlu incident sau defecțiune *">
+            <TextInput
               required
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Ex: Presiune scăzută la apa caldă în cabina de duș"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5">
-              Descriere detaliată a problemei *
-            </label>
-            <textarea
+          <Field label="Descriere detaliată a problemei *">
+            <Textarea
               required
               rows={3}
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
-              placeholder="Descrie simptomele defecțiunii, detalii de acces sau alte instrucțiuni utile pentru tehnician..."
-              className="w-full px-3.5 py-2.5 rounded-2xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] text-[#0d2c5c] outline-none resize-none transition-all"
+              placeholder="Descrie simptomele defecțiunii, detalii de acces sau instrucțiuni utile..."
             />
+          </Field>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Prioritate incident">
+              <Select value={newPriority} onChange={(e) => setNewPriority(e.target.value)}>
+                <option value="urgent">Urgentă (intervenție în 30 min)</option>
+                <option value="high">Ridicată (intervenție în 60 min)</option>
+                <option value="normal">Normală (rezolvare în 2 ore)</option>
+                <option value="low">Scăzută (pe parcursul zilei)</option>
+              </Select>
+            </Field>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b7c99] ml-0.5">
+                  Atribuire tehnician
+                </span>
+                <button
+                  type="button"
+                  onClick={openCreateTechnicianModal}
+                  className="text-[11px] font-bold text-[#8a6420] hover:text-[#0d2c5c] cursor-pointer"
+                >
+                  + Tehnician nou
+                </button>
+              </div>
+              <Select value={newAssignedTo} onChange={(e) => setNewAssignedTo(e.target.value)}>
+                <option value="">Nealocat (va fi preluat ulterior)</option>
+                {activeTechnicians.map((tech) => (
+                  <option key={tech.id} value={tech.label}>
+                    {tech.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
-                Prioritate incident
-              </label>
-              <select
-                value={newPriority}
-                onChange={(e) => setNewPriority(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all cursor-pointer"
-              >
-                <option value="urgent">🚨 Urgentă (intervenție în 30 min)</option>
-                <option value="high">⚠️ Ridicată (intervenție în 60 min)</option>
-                <option value="normal">⏱️ Normală (rezolvare în 2 ore)</option>
-                <option value="low">☕ Scăzută (pe parcursul zilei)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
-                Atribuire tehnician
-              </label>
-              <select
-                value={newAssignedTo}
-                onChange={(e) => setNewAssignedTo(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all cursor-pointer"
-              >
-                <option value="Echipa Tehnică de Gardă">Echipa tehnică de gardă</option>
-                <option value="Ion Popescu (Instalații)">Ion Popescu (instalații sanitare)</option>
-                <option value="Adrian Nistor (Electrician)">Adrian Nistor (electrician)</option>
-                <option value="Vlad Enache (IT & Rețea)">Vlad Enache (rețea și IT)</option>
-                <option value="Housekeeping Șef Tură">Șef tură curățenie</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
-                Persoană raportoare
-              </label>
-              <input
-                type="text"
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Persoană raportoare">
+              <TextInput
                 value={newGuestName}
                 onChange={(e) => setNewGuestName(e.target.value)}
                 placeholder="Ex: Nume oaspete sau recepție"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
               />
-            </div>
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5 whitespace-nowrap">
-                Telefon de contact (opțional)
-              </label>
-              <input
+            </Field>
+
+            <Field label="Telefon de contact (opțional)">
+              <TextInput
                 type="tel"
                 value={newGuestPhone}
                 onChange={(e) => setNewGuestPhone(e.target.value)}
                 placeholder="+40 7XX XXX XXX"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] font-medium text-[#0d2c5c] outline-none transition-all"
               />
+            </Field>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={Boolean(assignTarget)}
+        onClose={() => setAssignTarget(null)}
+        title={`Alocă tehnician · #${assignTarget?.ticket_code || ""}`}
+        subtitle={assignTarget ? `${assignTarget.unit_number} — ${assignTarget.title}` : undefined}
+      >
+        <form onSubmit={handleAssignSubmit} className="space-y-4 pt-1">
+          <Field label="Selectează tehnician din echipă">
+            <Select value={assignChoice} onChange={(e) => setAssignChoice(e.target.value)}>
+              <option value="">Nealocat (lasă tichetul liber)</option>
+              {activeTechnicians.map((tech) => (
+                <option key={tech.id} value={tech.label}>
+                  {tech.label} — {DEPT_LABELS[tech.department] || tech.department}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
+          {activeTechnicians.length === 0 && (
+            <p className="rounded-xl border border-[#c69a3f]/40 bg-[#fdf8ec] px-3.5 py-2.5 text-xs text-[#8a6420]">
+              Nu ai tehnicieni activi în listă. Adaugă un tehnician mai jos sau din tab-ul „Echipă & Tehnicieni”.
+            </p>
+          )}
+
+          <div className="flex items-center justify-between gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setAssignTarget(null);
+                setSubView("technicians");
+                openCreateTechnicianModal();
+              }}
+              className="text-xs font-bold text-[#8a6420] hover:text-[#0d2c5c] cursor-pointer"
+            >
+              + Adaugă tehnician nou
+            </button>
+
+            <div className="flex items-center gap-2">
+              <GhostButton onClick={() => setAssignTarget(null)}>Anulează</GhostButton>
+              <PrimaryButton type="submit" disabled={assigning}>
+                {assigning ? "Se salvează..." : "Confirmă alocarea"}
+              </PrimaryButton>
             </div>
           </div>
         </form>
       </Modal>
 
-      {/* ── MODAL REZOLVARE TICHET CU NOTĂ TEHNICĂ ── */}
       <Modal
-        open={Boolean(resolvingId)}
-        onClose={() => setResolvingId(null)}
-        title="Finalizează tichetul"
-        subtitle="Introdu nota tehnică de remediere pentru arhiva de mentenanță"
-        width="max-w-lg"
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setResolvingId(null)}
-              className="rounded-full border border-[#dce4ef] bg-white px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c] hover:bg-[#f1f5f9] transition-colors cursor-pointer"
-            >
-              Anulează
-            </button>
-            <button
-              type="submit"
-              form="resolve-maintenance-form"
-              disabled={submittingNote}
-              className="rounded-full bg-[#0d2c5c] hover:bg-[#133b7a] px-6 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-white flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-            >
-              <Check size={14} className="text-[#e6b85c]" />
-              <span>{submittingNote ? "Se salvează..." : "Marchează rezolvat"}</span>
-            </button>
-          </>
-        }
+        open={techModalOpen}
+        onClose={() => setTechModalOpen(false)}
+        title={editingTech ? `Editează tehnician: ${editingTech.name}` : "Adaugă tehnician nou"}
+        subtitle="Tehnicienii activi pot fi atribuiți imediat la orice tichet"
       >
-        <form id="resolve-maintenance-form" onSubmit={handleResolveSubmit} className="space-y-4 pt-2">
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] mb-1.5">
-              Notă tehnică de remediere *
-            </label>
-            <textarea
+        <form onSubmit={handleSaveTechnician} className="space-y-4 pt-1">
+          <Field label="Nume complet *">
+            <TextInput
+              required
+              value={techName}
+              onChange={(e) => setTechName(e.target.value)}
+              placeholder="Ex: Marius Ionescu"
+            />
+          </Field>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Specializare / Rol *">
+              <TextInput
+                value={techSpecialty}
+                onChange={(e) => setTechSpecialty(e.target.value)}
+                placeholder="Ex: Instalații & HVAC"
+              />
+            </Field>
+
+            <Field label="Departament">
+              <Select
+                value={techDept}
+                onChange={(e) =>
+                  setTechDept(
+                    e.target.value as "mentenanta" | "tehnic_it" | "housekeeping"
+                  )
+                }
+              >
+                <option value="mentenanta">Mentenanță tehnică</option>
+                <option value="tehnic_it">IT și rețea</option>
+                <option value="housekeeping">Curățenie și menaj</option>
+              </Select>
+            </Field>
+          </div>
+
+          <Field label="Telefon de contact">
+            <TextInput
+              type="tel"
+              value={techPhone}
+              onChange={(e) => setTechPhone(e.target.value)}
+              placeholder="+40 7XX XXX XXX"
+            />
+          </Field>
+
+          <label className="flex items-center gap-2.5 text-xs text-[#2a3b52] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={techActive}
+              onChange={(e) => setTechActive(e.target.checked)}
+              className="h-4 w-4 rounded border-[#cbd5e1] accent-[#0d2c5c]"
+            />
+            <span>Tehnician activ (disponibil pentru atribuire)</span>
+          </label>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <GhostButton onClick={() => setTechModalOpen(false)}>Anulează</GhostButton>
+            <PrimaryButton type="submit" disabled={savingTech}>
+              {savingTech ? "Se salvează..." : "Salvează tehnician"}
+            </PrimaryButton>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={Boolean(resolvingTicket)}
+        onClose={() => setResolvingTicket(null)}
+        title={`Finalizează tichet #${resolvingTicket?.ticket_code || ""}`}
+        subtitle="Introdu nota tehnică de remediere pentru arhiva de mentenanță"
+      >
+        <form onSubmit={handleResolveSubmit} className="space-y-4 pt-1">
+          <Field label="Notă tehnică de remediere *">
+            <Textarea
               required
               rows={4}
               value={resolutionNote}
               onChange={(e) => setResolutionNote(e.target.value)}
               placeholder="Ex: Înlocuit garnitură și baterie duș, verificat presiune cald/rece. Testat OK."
-              className="w-full px-3.5 py-2.5 rounded-2xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 text-[13px] text-[#0d2c5c] outline-none resize-none transition-all"
             />
+          </Field>
+          <div className="flex justify-end gap-2">
+            <GhostButton onClick={() => setResolvingTicket(null)}>Anulează</GhostButton>
+            <PrimaryButton type="submit" disabled={submittingNote}>
+              <Check size={14} />
+              {submittingNote ? "Se salvează..." : "Marchează rezolvat"}
+            </PrimaryButton>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        open={Boolean(deleteTicketTarget)}
+        onClose={() => setDeleteTicketTarget(null)}
+        title="Confirmare ștergere tichet"
+      >
+        <div className="space-y-4 pt-1">
+          <p className="text-sm text-[#2a3b52]">
+            Sigur dorești să ștergi tichetul{" "}
+            <code className="rounded bg-[#eef2f7] px-2 py-0.5 font-mono font-bold text-[#0d2c5c]">
+              #{deleteTicketTarget?.ticket_code}
+            </code>{" "}
+            ({deleteTicketTarget?.title})?
+          </p>
+          <div className="flex justify-end gap-2">
+            <GhostButton onClick={() => setDeleteTicketTarget(null)}>Renunță</GhostButton>
+            <button
+              type="button"
+              disabled={deletingTicket}
+              onClick={() => void confirmDeleteTicket()}
+              className="rounded-full bg-rose-700 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white hover:bg-rose-800 disabled:opacity-50 cursor-pointer"
+            >
+              {deletingTicket ? "Se șterge..." : "Șterge definitiv"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={Boolean(deleteTechTarget)}
+        onClose={() => setDeleteTechTarget(null)}
+        title="Confirmare eliminare tehnician"
+      >
+        <div className="space-y-4 pt-1">
+          <p className="text-sm text-[#2a3b52]">
+            Sigur dorești să elimini tehnicianul{" "}
+            <strong className="text-[#0d2c5c]">{deleteTechTarget?.name}</strong> din lista echipei?
+          </p>
+          <div className="flex justify-end gap-2">
+            <GhostButton onClick={() => setDeleteTechTarget(null)}>Renunță</GhostButton>
+            <button
+              type="button"
+              disabled={deletingTech}
+              onClick={() => void confirmDeleteTechnician()}
+              className="rounded-full bg-rose-700 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white hover:bg-rose-800 disabled:opacity-50 cursor-pointer"
+            >
+              {deletingTech ? "Se elimină..." : "Elimină"}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
