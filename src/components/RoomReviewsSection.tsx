@@ -3,14 +3,13 @@ import {
   Star,
   CheckCircle2,
   MessageSquarePlus,
-  X,
   ChevronLeft,
   ChevronRight,
   RotateCcw,
 } from "lucide-react";
-import { apiFetch, getCachedUser } from "../lib/auth";
-import { useToast } from "./Toast";
+import { apiFetch } from "../lib/auth";
 import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
+import GuestFeedbackModal from "./reviews/GuestFeedbackModal";
 
 interface ReviewItem {
   id: string;
@@ -39,11 +38,6 @@ interface ReviewStats {
 }
 
 export default function RoomReviewsSection({ roomId }: { roomId: string }) {
-  const { toast } = useToast();
-  const user = getCachedUser();
-  const defaultName =
-    [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "";
-
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [stats, setStats] = useState<ReviewStats>({
     count: 0,
@@ -64,15 +58,6 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
 
   // Modal adăugare recenzie
   const [showModal, setShowModal] = useState(false);
-  const [guestName, setGuestName] = useState(defaultName);
-  const [bookingCode, setBookingCode] = useState("");
-  const [overall, setOverall] = useState(5);
-  const [cleanliness, setCleanliness] = useState(5);
-  const [comfort, setComfort] = useState(5);
-  const [locationScore, setLocationScore] = useState(5);
-  const [serviceScore, setServiceScore] = useState(5);
-  const [comment, setComment] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   const loadReviews = useCallback(
     async (silent = false) => {
@@ -153,48 +138,6 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
       return "Mulțumim, Elena! Vă așteptăm oricând cu mare drag pentru încă un răsărit pe malul mării la Vila Casa Esy!";
     }
     return null;
-  };
-
-  const handleSubmitReview = async () => {
-    if (!comment.trim() || comment.trim().length < 5) {
-      toast(
-        "Scrie câteva cuvinte despre experiența ta la Vila Casa Esy.",
-        "error",
-      );
-      return;
-    }
-    setSubmitting(true);
-    try {
-      await apiFetch("/reviews", {
-        method: "POST",
-        body: JSON.stringify({
-          room_id: roomId,
-          booking_code: bookingCode.trim() || undefined,
-          guest_name: guestName.trim() || "Oaspete Casa Esy",
-          rating_overall: overall,
-          rating_cleanliness: cleanliness,
-          rating_comfort: comfort,
-          rating_location: locationScore,
-          rating_service: serviceScore,
-          comment: comment.trim(),
-        }),
-      });
-      setShowModal(false);
-      setComment("");
-      setBookingCode("");
-      await loadReviews(true);
-      setCurrentPage(1);
-      toast(
-        "Recenzia ta verificată a fost publicată! Îți mulțumim!",
-        "success",
-      );
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Eroare la publicarea recenziei.";
-      toast(message, "error");
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const categoryScores = [
@@ -523,111 +466,15 @@ export default function RoomReviewsSection({ roomId }: { roomId: string }) {
       )}
 
       {/* ── 7. MODAL ADĂUGARE RECENZIE ── */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white text-[#0d2c5c] shadow-2xl overflow-hidden border border-[#e1e8f0]">
-            <div className="bg-[#0d2c5c] text-white px-6 py-4 flex items-center justify-between">
-              <div>
-                <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#e6b85c]">
-                  Confirmare sejur
-                </div>
-                <h3 className="text-lg font-bold">
-                  Lasă o recenzie verificată
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="p-5 space-y-3.5 max-h-[80vh] overflow-y-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-[#0d2c5c] mb-1">
-                    Numele tău
-                  </label>
-                  <input
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className="w-full rounded-xl border border-[#cbd5e1] px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
-                    placeholder="ex: Alexandru Ionescu"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#0d2c5c] mb-1">
-                    Cod rezervare (opțional)
-                  </label>
-                  <input
-                    value={bookingCode}
-                    onChange={(e) =>
-                      setBookingCode(e.target.value.toUpperCase())
-                    }
-                    className="w-full rounded-xl border border-[#cbd5e1] px-3.5 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
-                    placeholder="ex: BK-88412"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#f8fafc] p-2.5 rounded-xl border border-[#e1e8f0]">
-                {[
-                  { label: "General", val: overall, set: setOverall },
-                  { label: "Curățenie", val: cleanliness, set: setCleanliness },
-                  { label: "Confort", val: comfort, set: setComfort },
-                  { label: "Plajă", val: locationScore, set: setLocationScore },
-                  {
-                    label: "Servicii",
-                    val: serviceScore,
-                    set: setServiceScore,
-                  },
-                ].map((item) => (
-                  <div key={item.label} className="text-center">
-                    <div className="text-[10.5px] font-bold text-[#0d2c5c] mb-1">
-                      {item.label}
-                    </div>
-                    <select
-                      value={item.val}
-                      onChange={(e) => item.set(Number(e.target.value))}
-                      className="rounded-lg border border-[#cbd5e1] bg-white px-1.5 py-1 text-xs font-bold text-[#0d2c5c] cursor-pointer"
-                    >
-                      {[5, 4, 3, 2, 1].map((n) => (
-                        <option key={n} value={n}>
-                          {n} ★
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#0d2c5c] mb-1">
-                  Cum a fost sejurul tău la Vila Casa Esy?
-                </label>
-                <textarea
-                  rows={4}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  className="w-full rounded-xl border border-[#cbd5e1] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
-                  placeholder="Povestește-ne despre confortul camerei, vederea la mare, ospitalitate..."
-                />
-              </div>
-
-              <button
-                type="button"
-                disabled={submitting}
-                onClick={handleSubmitReview}
-                className="w-full rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] py-2.5 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
-              >
-                {submitting ? "Se publică..." : "Publică recenzia verificată"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <GuestFeedbackModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        roomId={roomId}
+        onSubmitted={() => {
+          void loadReviews(true);
+          setCurrentPage(1);
+        }}
+      />
     </section>
   );
 }
