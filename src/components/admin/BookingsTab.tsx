@@ -187,10 +187,32 @@ export default function BookingsTab() {
     const next7Str = next7Date.toISOString().slice(0, 10);
     const monthPrefix = todayStr.slice(0, 7);
 
+    const q = email.trim().toLowerCase();
+
     return bookings.filter((b) => {
       const userObj = users.find((u) => String(u.id) === String(b.user_id));
+      const roomObj = rooms.find((r) => String(r.id) === String(b.room_id));
       const searchEmail =
         b.user_email || b.guest_email || userObj?.email || "";
+      const userNameFromObj = userObj
+        ? `${userObj.first_name || ""} ${userObj.last_name || ""}`.trim()
+        : "";
+      const searchName =
+        b.guest_name ||
+        b.user_name ||
+        userNameFromObj ||
+        (searchEmail ? searchEmail.split("@")[0] : "");
+      const searchRoom =
+        b.room_name ||
+        (roomObj as any)?.title ||
+        roomObj?.name ||
+        "";
+      const searchCode = String(b.booking_code || "");
+      const searchShortId = String(b.id || "").substring(0, 8);
+      const searchFullId = String(b.id || "");
+      const searchUnit = String((b as any).room_unit_number || "");
+      const searchStatus = String(b.status || "");
+
       const ci = (b.check_in || "").slice(0, 10);
       const co = (b.check_out || "").slice(0, 10);
 
@@ -207,16 +229,28 @@ export default function BookingsTab() {
         dateOk = Boolean(ci && co && ci <= exactDate && co >= exactDate);
       }
 
+      const matchesQuery =
+        !q ||
+        [
+          searchEmail,
+          searchName,
+          searchCode,
+          searchShortId,
+          searchFullId,
+          searchRoom,
+          searchUnit,
+          searchStatus,
+        ].some((val) => val.toLowerCase().includes(q));
+
       return (
         (status === "all" || b.status === status) &&
         (roomId === "all" || String(b.room_id) === roomId) &&
         (unitId === "all" || String(b.room_unit_id || "") === unitId) &&
         dateOk &&
-        (!email.trim() ||
-          searchEmail.toLowerCase().includes(email.trim().toLowerCase()))
+        matchesQuery
       );
     });
-  }, [bookings, status, roomId, unitId, datePreset, exactDate, email, users]);
+  }, [bookings, status, roomId, unitId, datePreset, exactDate, email, users, rooms]);
 
   const sortedFiltered = useMemo(() => {
     if (!sortKey) return filtered;
@@ -584,7 +618,7 @@ export default function BookingsTab() {
             </FormField>
           )}
           <div className="flex-1 w-full">
-            <FormField label="Căutare email client">
+            <FormField label="Căutare rezervare">
               <div className="relative">
                 <Search
                   size={16}
@@ -592,7 +626,7 @@ export default function BookingsTab() {
                 />
                 <input
                   className={`${fieldInput} pl-11`}
-                  placeholder="client@email.ro"
+                  placeholder="ID, cod, nume client, email, cameră..."
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -719,9 +753,15 @@ export default function BookingsTab() {
                           <td className="px-6 py-4">
                             <button
                               onClick={() =>
-                                copyToClipboard(String(b.id), "ID Rezervare")
+                                copyToClipboard(
+                                  String(
+                                    b.booking_code ||
+                                      String(b.id).substring(0, 8),
+                                  ),
+                                  "ID Rezervare",
+                                )
                               }
-                              className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
+                              className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70 cursor-pointer"
                               title="Click pentru a copia ID-ul rezervării"
                             >
                               <span className="text-[13px] font-medium text-[#6b7c99]">
@@ -738,27 +778,43 @@ export default function BookingsTab() {
                               <button
                                 onClick={() =>
                                   copyToClipboard(
-                                    String(b.user_id || ""),
-                                    "ID Client",
+                                    displayName,
+                                    "Nume Client",
                                   )
                                 }
-                                className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70"
-                                title="Click pentru a copia ID-ul clientului"
+                                className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70 cursor-pointer"
+                                title="Click pentru a copia numele clientului"
                               >
                                 <span className="block text-[14px] font-semibold text-[#0d2c5c]">
                                   {displayName}
                                 </span>
-                                {b.user_id && (
+                                <Copy
+                                  size={12}
+                                  className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
+                                />
+                              </button>
+
+                              {rawEmail ? (
+                                <button
+                                  onClick={() =>
+                                    copyToClipboard(rawEmail, "Email Client")
+                                  }
+                                  className="group flex items-center gap-1.5 text-left transition-all hover:opacity-70 cursor-pointer"
+                                  title="Click pentru a copia email-ul"
+                                >
+                                  <span className="text-[13px] text-[#6b7c99] block">
+                                    {displayEmail}
+                                  </span>
                                   <Copy
                                     size={12}
                                     className="text-[#6b7c99] opacity-0 transition-opacity group-hover:opacity-100"
                                   />
-                                )}
-                              </button>
-
-                              <span className="text-[13px] text-[#6b7c99] block">
-                                {displayEmail}
-                              </span>
+                                </button>
+                              ) : (
+                                <span className="text-[13px] text-[#6b7c99] block">
+                                  {displayEmail}
+                                </span>
+                              )}
 
                               {b.booking_code && (
                                 <button
