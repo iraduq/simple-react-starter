@@ -7,7 +7,7 @@ import {
   Search,
   CheckCircle2,
   Copy,
-  MoreHorizontal, FileText,
+  MoreHorizontal, FileText, RotateCcw, AlertTriangle,
 } from "lucide-react";
 import { Badge, statusTone, TableSkeleton, EmptyState, Modal, SectionHeader } from "./ui";
 import {
@@ -38,7 +38,9 @@ const PAGE_SIZE = 10;
 interface BookingItem {
   id: string | number;
   status?: string;
+  payment_status?: string;
   room_id?: string | number;
+  room_unit_id?: string | null;
   room_name?: string;
   user_id?: string | number;
   user_email?: string;
@@ -73,8 +75,30 @@ export default function BookingsTab() {
   const [cancelTarget, setCancelTarget] = useState<BookingItem | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [editTarget, setEditTarget] = useState<BookingItem | null>(null);
-  const [form, setForm] = useState({ check_in: "", check_out: "", guests: 1 });
+  const [form, setForm] = useState({
+    check_in: "",
+    check_out: "",
+    guests: 1,
+    room_id: "",
+    room_unit_id: "",
+  });
   const [formErr, setFormErr] = useState<Record<string, string>>({});
+  const [availLoading, setAvailLoading] = useState(false);
+  const [availData, setAvailData] = useState<{
+    can_save: boolean;
+    capacity_ok: boolean;
+    max_capacity: number;
+    free_count: number;
+    chosen_unit_conflict: boolean;
+    available_units: Array<{ id: string; unit_number: string; floor?: string | number | null; is_free: boolean }>;
+    rooms: Array<{ id: string; title: string; capacity: number; free_units: number }>;
+    new_total_price: number;
+    price_diff: number;
+    nights: number;
+    message: string;
+  } | null>(null);
+  const [editRefundOpen, setEditRefundOpen] = useState(false);
+  const [editRefundReason, setEditRefundReason] = useState("");
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -151,9 +175,14 @@ export default function BookingsTab() {
     setBusy(`${cancelTarget.id}-cancel`);
     try {
       await post(`/bookings/${cancelTarget.id}/cancel`, {
-        reason: cancelReason.trim() || null,
+        cancellation_reason: cancelReason.trim() || "Anulat de administrator",
       });
-      toast("Rezervare anulată.", "success");
+      toast(
+        cancelTarget.payment_status === "paid"
+          ? "Rezervare anulată și rambursare Stripe procesată."
+          : "Rezervare anulată.",
+        "success",
+      );
       setCancelTarget(null);
       setCancelReason("");
       await load();
@@ -167,6 +196,9 @@ export default function BookingsTab() {
   const openEdit = (b: BookingItem) => {
     setEditTarget(b);
     setFormErr({});
+    setAvailData(null);
+    setEditRefundOpen(false);
+    setEditRefundReason("");
 
     const totalGuests =
       (b.guests_adults || 0) + (b.guests_children || 0) || b.guests || 1;
@@ -175,8 +207,41 @@ export default function BookingsTab() {
       check_in: (b.check_in || "").slice(0, 10),
       check_out: (b.check_out || "").slice(0, 10),
       guests: Number(totalGuests),
+      room_id: String(b.room_id || ""),
+      room_unit_id: String((b as any).room_unit_id || ""),
     });
   };
+
+  useEffect(() => {
+    if (!editTarget || !form.check_in || !form.check_out || form.check_out <= form.check_in) {
+      setAvailData(null);
+      return;
+    }
+    let cancelled = false;
+    setAvailLoading(true);
+    const qs = new URLSearchParams({
+      check_in: `${form.check_in}T15:00:00Z`,
+      check_out: `${form.check_out}T11:00:00Z`,
+      guests_total: String(Math.max(1, Number(form.guests) || 1)),
+    });
+    if (form.room_id) qs.set("room_id", form.room_id);
+    if (form.room_unit_id) qs.set("room_unit_id", form.room_unit_id);
+
+    get<typeof availData>(`/bookings/${editTarget.id}/edit-availability?${qs.toString()}`)
+      .then((res) => {
+        if (!cancelled) setAvailData(res);
+      })
+      .catch(() => {
+        if (!cancelled) setAvailData(null);
+      })
+      .finally(() => {
+        if (!cancelled) setAvailLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editTarget, form.check_in, form.check_out, form.room_id, form.room_unit_id, form.guests]);
 
   const submitEdit = async () => {
     if (!editTarget) return;
@@ -195,9 +260,37 @@ export default function BookingsTab() {
         check_in: form.check_in,
         check_out: form.check_out,
         guests_adults: Number(form.guests),
+        room_id: form.room_id || undefined,
+        room_unit_id: form.room_unit_id || undefined,
       });
-      toast("Rezervare actualizată.", "success");
+      toast("Rezervare actualizată cu succes.", "success");
       setEditTarget(null);
+      await load();
+    } catch (e) {
+      toast(errMsg(e), "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const submitEditRefund = async () => {
+    if (!editTarget) return;
+    setBusy(`${editTarget.id}-refund`);
+    try {
+      await post(`/bookings/${editTarget.id}/cancel`, {
+        cancellation_reason:
+          editRefundReason.trim() ||
+          "Mutarea nu a fost posibilă — anulată și rambursată de administrator",
+      });
+      toast(
+        editTarget.payment_status === "paid"
+          ? "Rezervare anulată și refund Stripe emis cu succes!"
+          : "Rezervare anulată cu succes.",
+        "success",
+      );
+      setEditTarget(null);
+      setEditRefundOpen(false);
+      setEditRefundReason("");
       await load();
     } catch (e) {
       toast(errMsg(e), "error");
@@ -636,8 +729,8 @@ export default function BookingsTab() {
                 </p>
               </div>
             </div>
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#6b7c99]">Perioada & oaspeți</p>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#6b7c99]">Perioada, camera & oaspeți</p>
+            <div className="grid gap-4 sm:grid-cols-2">
               <FormField label="Check-in">
                 <input
                   type="date"
@@ -668,6 +761,37 @@ export default function BookingsTab() {
                   </span>
                 )}
               </FormField>
+              <FormField label="Tip cameră">
+                <select
+                  className={`${fieldInput} mt-2`}
+                  value={form.room_id}
+                  onChange={(e) =>
+                    setForm({ ...form, room_id: e.target.value, room_unit_id: "" })
+                  }
+                >
+                  {(availData?.rooms || rooms.map((r) => ({ id: String(r.id), title: r.title, capacity: r.capacity || 2, free_units: -1 }))).map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.title} (max {r.capacity} pers.{r.free_units >= 0 ? ` · ${r.free_units} libere` : ""})
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+              <FormField label="Unitate fizică">
+                <select
+                  className={`${fieldInput} mt-2`}
+                  value={form.room_unit_id}
+                  onChange={(e) =>
+                    setForm({ ...form, room_unit_id: e.target.value })
+                  }
+                >
+                  <option value="">Alocare automată (prima unitate liberă)</option>
+                  {(availData?.available_units || []).map((u) => (
+                    <option key={u.id} value={u.id} disabled={!u.is_free}>
+                      Cam {u.unit_number} {u.is_free ? "— Liberă" : "— Ocupată"}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
               <FormField label="Oaspeți">
                 <input
                   type="number"
@@ -684,21 +808,113 @@ export default function BookingsTab() {
                   </span>
                 )}
               </FormField>
+              {availData && (
+                <div className="flex flex-col justify-end pb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
+                    Preț recalculat ({availData.nights} {availData.nights === 1 ? "noapte" : "nopți"})
+                  </span>
+                  <div className="mt-1 flex items-baseline gap-2">
+                    <span className="text-lg font-bold text-[#0d2c5c]">
+                      {availData.new_total_price} RON
+                    </span>
+                    {availData.price_diff !== 0 && (
+                      <span className={`text-xs font-semibold ${availData.price_diff > 0 ? "text-amber-700" : "text-emerald-700"}`}>
+                        ({availData.price_diff > 0 ? "+" : ""}{availData.price_diff} RON)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="mt-8 flex justify-end gap-3 border-t border-[#eef2f7] pt-5">
-              <button
-                onClick={() => setEditTarget(null)}
-                className="rounded-full border border-[#e1e8f0] bg-white px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#2a3b52] transition-all hover:border-[#0d2c5c] cursor-pointer"
+
+            {availLoading ? (
+              <div className="mt-4 rounded-2xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-3 text-xs text-[#4f6280]">
+                Se verifică disponibilitatea în timp real...
+              </div>
+            ) : availData ? (
+              <div
+                className={`mt-4 flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-xs font-medium ${
+                  availData.can_save
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : "border-rose-200 bg-rose-50 text-rose-800"
+                }`}
               >
-                Renunță
-              </button>
-              <button
-                disabled={busy === `${editTarget?.id}-edit`}
-                onClick={() => void submitEdit()}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] px-7 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer disabled:opacity-50"
-              >
-                Salvează
-              </button>
+                {availData.can_save ? (
+                  <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-700" />
+                ) : (
+                  <AlertTriangle size={16} className="shrink-0 mt-0.5 text-rose-700" />
+                )}
+                <span>{availData.message}</span>
+              </div>
+            ) : null}
+
+            {editRefundOpen && editTarget && (
+              <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50/70 p-4 space-y-3">
+                <p className="text-xs font-bold text-rose-900">
+                  {editTarget.payment_status === "paid"
+                    ? `Anulare și rambursare integrală Stripe (${editTarget.total_price ?? 0} RON)`
+                    : "Confirmare anulare rezervare"}
+                </p>
+                <input
+                  type="text"
+                  placeholder="Motiv anulare / refund (opțional)..."
+                  value={editRefundReason}
+                  onChange={(e) => setEditRefundReason(e.target.value)}
+                  className={fieldInput}
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditRefundOpen(false)}
+                    className="rounded-full border border-[#cbd5e1] bg-white px-4 py-1.5 text-[11px] font-bold text-[#334155] cursor-pointer"
+                  >
+                    Înapoi
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy === `${editTarget.id}-refund`}
+                    onClick={() => void submitEditRefund()}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-rose-700 hover:bg-rose-800 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white cursor-pointer disabled:opacity-50"
+                  >
+                    <RotateCcw size={12} />
+                    {busy === `${editTarget.id}-refund`
+                      ? "Se procesează..."
+                      : editTarget.payment_status === "paid"
+                        ? "Confirmă Anulare & Refund"
+                        : "Confirmă Anularea"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#eef2f7] pt-5">
+              <div>
+                {editTarget && !["cancelled", "completed"].includes(String(editTarget.status || "")) && !editRefundOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setEditRefundOpen(true)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-rose-700 hover:bg-rose-100 transition cursor-pointer"
+                  >
+                    <RotateCcw size={13} />
+                    {editTarget.payment_status === "paid" ? "Anulează & Refund" : "Anulează rezervarea"}
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setEditTarget(null)}
+                  className="rounded-full border border-[#e1e8f0] bg-white px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#2a3b52] transition-all hover:border-[#0d2c5c] cursor-pointer"
+                >
+                  Renunță
+                </button>
+                <button
+                  disabled={busy === `${editTarget?.id}-edit` || (availData !== null && !availData.can_save)}
+                  onClick={() => void submitEdit()}
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0d2c5c] to-[#1a3a6e] px-7 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-md transition-all hover:shadow-lg hover:from-[#07203f] hover:to-[#0d2c5c] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Salvează
+                </button>
+              </div>
             </div>
           </div>
         </Modal>
