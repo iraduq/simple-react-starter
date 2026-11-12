@@ -689,9 +689,9 @@ export default function RoomDetail() {
                 {
                   code: "breakfast" as const,
                   label: "Mic dejun inclus",
-                  badge: "+35 RON / pers.",
+                  badge: "+35 RON / persoană",
                   badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
-                  hint: `Bufet suedez (${totalGuestsCount} ${totalGuestsCount === 1 ? "pers." : "pers."} × 35 RON/noapte)`,
+                  hint: `Bufet suedez (${totalGuestsCount} ${totalGuestsCount === 1 ? "persoană" : "persoane"} × 35 RON / persoană)`,
                   priceVal: ron(Math.round(baseRatePerNight + breakfastAddonPerNight)),
                 },
               ].map((p) => {
@@ -919,7 +919,7 @@ export default function RoomDetail() {
                     {plan === "non_refundable" &&
                       `-${ron(Math.round(baseRatePerNight * quote.nights * 0.1 * 100) / 100)} (-10%)`}
                     {plan === "breakfast" &&
-                      `+${ron(breakfastAddonPerNight * quote.nights)} (${totalGuestsCount} pers. × 35/noapte)`}
+                      `+${ron(breakfastAddonPerNight * quote.nights)} (35 RON / persoană × ${totalGuestsCount})`}
                   </span>
                 </div>
                 {plan !== "flexible" && (
