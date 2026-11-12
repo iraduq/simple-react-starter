@@ -291,36 +291,49 @@ export default function ChannelManagerTab({
       </div>
 
       {/* ── SIMULATOR SINCRONIZARE REZERVARE EXTERNĂ ── */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-gradient-to-tr from-[#071d3d] via-[#0d2c5c] to-[#0b2853] text-white shadow-2xl border border-[#c69a3f]/30 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#c69a3f]/10 blur-[80px] pointer-events-none" />
+      <div className="p-6 sm:p-8 rounded-[24px] bg-white border border-[#e1e8f0] shadow-[0_10px_35px_rgba(13,44,92,0.06)] relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0d2c5c] via-[#c69a3f] to-[#0d2c5c]" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="max-w-xl">
-            <div className="flex items-center gap-2 text-[10.5px] font-bold tracking-[0.25em] uppercase text-[#c69a3f] mb-2">
-              <Zap size={14} className="text-[#c69a3f] animate-pulse" />
-              <span>Simulare sincronizare rezervare externă</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdf8ed] border border-[#c69a3f]/30 text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#a67c2e] mb-3">
+              <Zap size={13} className="text-[#c69a3f]" />
+              <span>Simulator Webhook &amp; Sincronizare OTA</span>
             </div>
-            <h3 className="font-['Outfit',sans-serif] text-[24px] sm:text-[30px] font-bold text-white leading-tight">
-              Simulare rezervare de pe canalele OTA
+            <h3 className="font-['Outfit',sans-serif] text-[22px] sm:text-[26px] font-bold text-[#0d2c5c] leading-tight">
+              Simulare rezervare din canale externe
             </h3>
-            <p className="mt-2 text-[13.5px] text-slate-200 leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
-              Apasă butonul de mai jos pentru a trimite o rezervare de test către sistem. Aplicația va aloca automat o cameră liberă, va calcula adaosul specific canalului și va actualiza în timp real diagrama de ocupare a camerelor.
+            <p className="mt-2 text-[13.5px] text-[#5b6e8d] leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
+              Testează fără un cont comercial activ pe Booking/Airbnb cum primește sistemul o rezervare externă: alocă automat prima unitate fizică liberă (fără suprapuneri), aplică adaosul canalului și actualizează instant prin WebSocket diagrama de ocupare.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
               {[
-                { key: "booking.com", label: "Booking.com", col: "bg-[#003580] hover:bg-[#002244]" },
-                { key: "airbnb", label: "Airbnb", col: "bg-[#FF385C] hover:bg-[#e0314f]" },
-                { key: "expedia", label: "Expedia", col: "bg-[#ffc600] text-[#002244] hover:bg-[#e6b200]" },
+                {
+                  key: "booking.com",
+                  label: "Booking.com",
+                  active: "bg-[#003580] text-white border-[#003580] shadow-md",
+                  idle: "bg-[#f8fafd] text-[#0d2c5c] border-[#dce4f0] hover:border-[#003580]/40",
+                },
+                {
+                  key: "airbnb",
+                  label: "Airbnb",
+                  active: "bg-[#FF385C] text-white border-[#FF385C] shadow-md",
+                  idle: "bg-[#f8fafd] text-[#0d2c5c] border-[#dce4f0] hover:border-[#FF385C]/40",
+                },
+                {
+                  key: "expedia",
+                  label: "Expedia",
+                  active: "bg-[#c69a3f] text-white border-[#c69a3f] shadow-md",
+                  idle: "bg-[#f8fafd] text-[#0d2c5c] border-[#dce4f0] hover:border-[#c69a3f]/50",
+                },
               ].map((btn) => (
                 <button
                   key={btn.key}
                   type="button"
                   onClick={() => setSelectedChannel(btn.key)}
-                  className={`px-4 py-2 rounded-[12px] text-[12px] font-extrabold uppercase tracking-wider transition shadow-sm ${
-                    selectedChannel === btn.key
-                      ? "ring-2 ring-white scale-105 " + btn.col
-                      : "bg-white/10 text-white/80 hover:bg-white/20"
+                  className={`px-4 py-2 rounded-full border text-[12px] font-bold uppercase tracking-wider transition cursor-pointer ${
+                    selectedChannel === btn.key ? btn.active : btn.idle
                   }`}
                 >
                   {btn.label}
@@ -330,15 +343,15 @@ export default function ChannelManagerTab({
           </div>
 
           {/* Formular configurare & Buton acțiune */}
-          <div className="w-full lg:max-w-md bg-white/10 backdrop-blur-md p-5 rounded-[22px] border border-white/15 space-y-3.5">
+          <div className="w-full lg:max-w-md bg-[#f8fafd] p-5 rounded-[20px] border border-[#e1e8f0] space-y-3.5">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-200 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                Cameră țintă:
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+                Cameră țintă
               </label>
               <select
                 value={selectedRoomId}
                 onChange={(e) => setSelectedRoomId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[12px] bg-slate-900/90 border border-white/20 text-white text-[13px] outline-none"
+                className="w-full px-3.5 py-2.5 rounded-[12px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[13px] font-medium outline-none focus:border-[#0d2c5c]"
               >
                 <option value="">Alocare automată (prima cameră liberă)</option>
                 {parity.map((r) => (
@@ -350,13 +363,13 @@ export default function ChannelManagerTab({
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-200 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                Oaspete de test:
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+                Oaspete de test
               </label>
               <select
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[12px] bg-slate-900/90 border border-white/20 text-white text-[13px] outline-none"
+                className="w-full px-3.5 py-2.5 rounded-[12px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[13px] font-medium outline-none focus:border-[#0d2c5c]"
               >
                 <option value="Hans Müller (Germania)">🇩🇪 Hans Müller (Germania)</option>
                 <option value="Sophie Laurent (Franța)">🇫🇷 Sophie Laurent (Franța)</option>
@@ -370,9 +383,9 @@ export default function ChannelManagerTab({
               type="button"
               disabled={simulating}
               onClick={handleSimulate}
-              className="w-full h-12 rounded-[14px] bg-gradient-to-r from-[#c69a3f] to-[#f59e0b] hover:brightness-105 text-[#0d2c5c] font-['Outfit',sans-serif] text-[15px] font-extrabold flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(198,154,63,0.35)] transition active:scale-95 disabled:opacity-50"
+              className="w-full h-11 rounded-[12px] bg-[#0d2c5c] hover:bg-[#163d7a] text-white font-['Outfit',sans-serif] text-[14px] font-bold flex items-center justify-center gap-2 shadow-[0_6px_20px_rgba(13,44,92,0.18)] transition active:scale-[0.99] disabled:opacity-50 cursor-pointer"
             >
-              <Zap size={16} />
+              <Zap size={15} className="text-[#f59e0b]" />
               <span>
                 {simulating
                   ? "Se generează rezervarea..."
@@ -384,16 +397,16 @@ export default function ChannelManagerTab({
 
         {/* FEEDBACK REZERVAT LIVE PREVIEW */}
         {lastSimulated && (
-          <div className="mt-6 pt-5 border-t border-white/15 bg-white/5 p-4 rounded-[18px] flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fadeIn">
+          <div className="mt-6 pt-5 border-t border-[#e1e8f0] bg-emerald-50/70 p-4 rounded-[16px] border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-700 flex items-center justify-center shrink-0">
                 <Check size={20} />
               </div>
               <div>
-                <p className="font-bold text-[14px] text-white">
+                <p className="font-bold text-[14px] text-[#0d2c5c]">
                   Rezervare confirmată: #{lastSimulated.booking_code} (Ref. {lastSimulated.external_reference})
                 </p>
-                <p className="text-[12px] text-white/70">
+                <p className="text-[12.5px] text-[#475569]">
                   {lastSimulated.guest_name} · {lastSimulated.room_title} (Camera {lastSimulated.unit_number}) · {lastSimulated.nights} nopți · {lastSimulated.total_price} RON
                 </p>
               </div>
@@ -403,9 +416,9 @@ export default function ChannelManagerTab({
               <button
                 type="button"
                 onClick={onNavigateToTapeChart}
-                className="px-4 py-2 rounded-[12px] bg-white text-[#0d2c5c] text-[12px] font-bold hover:bg-slate-100 transition shrink-0 flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 rounded-[10px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[12px] font-bold hover:bg-[#f8fafd] transition shrink-0 flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
-                <span>Deschide diagrama de ocupare a camerelor</span>
+                <span>Deschide diagrama de ocupare</span>
                 <ArrowRight size={13} />
               </button>
             )}
