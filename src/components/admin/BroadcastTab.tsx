@@ -403,26 +403,106 @@ export default function BroadcastTab() {
                 <label className="block text-[11px] font-bold tracking-wider uppercase text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
                   Text buton acțiune (CTA)
                 </label>
-                <input
-                  type="text"
-                  value={ctaText}
-                  onChange={(e) => setCtaText(e.target.value)}
-                  placeholder="Ex: Rezervă o masă"
-                  className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] transition-colors"
-                />
+                {(() => {
+                  const presetCtaTexts = [
+                    "Rezervă o masă",
+                    "Rezervă Masă",
+                    "Vezi Meniul Barului",
+                    "Rezervă la Spa",
+                    "Facilități Resort",
+                    "Vezi Camerele",
+                    "Contactează Recepția",
+                  ];
+                  const isCustomCtaText = Boolean(
+                    ctaText && !presetCtaTexts.includes(ctaText)
+                  );
+                  return (
+                    <div className="space-y-2">
+                      <select
+                        value={isCustomCtaText ? "__custom__" : ctaText}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v === "__custom__") {
+                            if (!isCustomCtaText) setCtaText("Află mai multe");
+                          } else {
+                            setCtaText(v);
+                          }
+                        }}
+                        className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white transition-colors"
+                      >
+                        <option value="">Fără buton (doar mesaj)</option>
+                        <option value="Rezervă o masă">Rezervă o masă</option>
+                        <option value="Rezervă Masă">Rezervă Masă</option>
+                        <option value="Vezi Meniul Barului">Vezi Meniul Barului</option>
+                        <option value="Rezervă la Spa">Rezervă la Spa</option>
+                        <option value="Facilități Resort">Facilități Resort</option>
+                        <option value="Vezi Camerele">Vezi Camerele</option>
+                        <option value="Contactează Recepția">Contactează Recepția</option>
+                        <option value="__custom__">Text personalizat...</option>
+                      </select>
+                      {isCustomCtaText && (
+                        <input
+                          type="text"
+                          value={ctaText}
+                          onChange={(e) => setCtaText(e.target.value)}
+                          placeholder="Scrie textul butonului..."
+                          className="w-full px-3.5 py-2 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif]"
+                        />
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold tracking-wider uppercase text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
                   Link destinație CTA
                 </label>
-                <input
-                  type="text"
-                  value={ctaLink}
-                  onChange={(e) => setCtaLink(e.target.value)}
-                  placeholder="Ex: /places sau /facilitati"
-                  className="w-full px-4 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] transition-colors"
-                />
+                {(() => {
+                  const presetCtaLinks = [
+                    "/places",
+                    "/facilitati",
+                    "/camere",
+                    "/contact",
+                    "/",
+                  ];
+                  const isCustomCtaLink = Boolean(
+                    ctaLink && !presetCtaLinks.includes(ctaLink)
+                  );
+                  return (
+                    <div className="space-y-2">
+                      <select
+                        value={isCustomCtaLink ? "__custom__" : ctaLink}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v === "__custom__") {
+                            if (!isCustomCtaLink) setCtaLink("/places");
+                          } else {
+                            setCtaLink(v);
+                          }
+                        }}
+                        className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white transition-colors"
+                      >
+                        <option value="">Fără link</option>
+                        <option value="/places">Restaurante, Bar &amp; Room Service (/places)</option>
+                        <option value="/facilitati">Facilități Resort &amp; Spa (/facilitati)</option>
+                        <option value="/camere">Camere &amp; Rezervări (/camere)</option>
+                        <option value="/contact">Contact &amp; Recepție (/contact)</option>
+                        <option value="/">Pagina Principală (/)</option>
+                        <option value="__custom__">Link personalizat...</option>
+                      </select>
+                      {isCustomCtaLink && (
+                        <input
+                          type="text"
+                          value={ctaLink}
+                          onChange={(e) => setCtaLink(e.target.value)}
+                          placeholder="Ex: /places sau https://..."
+                          className="w-full px-3.5 py-2 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif]"
+                        />
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 

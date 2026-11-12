@@ -85,12 +85,28 @@ export default function BroadcastAlertBanner() {
     if (!lastEvent) return;
     if (lastEvent.event === "new_broadcast_alert" && lastEvent.data) {
       const newItem = lastEvent.data as BroadcastItem;
+      if ((newItem.target_audience || "all") !== "all") {
+        apiFetch<BroadcastItem[]>("/notifications/active")
+          .then((data) => {
+            if (Array.isArray(data)) setBroadcasts(data);
+          })
+          .catch(() => {});
+        return;
+      }
       setBroadcasts((prev) => {
         const filtered = prev.filter((b) => b.id !== newItem.id);
         return [newItem, ...filtered];
       });
     } else if (lastEvent.event === "broadcast_updated" && lastEvent.data) {
       const updated = lastEvent.data as BroadcastItem;
+      if ((updated.target_audience || "all") !== "all") {
+        apiFetch<BroadcastItem[]>("/notifications/active")
+          .then((data) => {
+            if (Array.isArray(data)) setBroadcasts(data);
+          })
+          .catch(() => {});
+        return;
+      }
       setBroadcasts((prev) =>
         prev
           .map((b) => (b.id === updated.id ? updated : b))
