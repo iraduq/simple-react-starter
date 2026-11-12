@@ -1,20 +1,14 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
-  X,
   Wrench,
   Wind,
   Droplets,
   Lightbulb,
   Tv,
   Sparkles,
-  AlertTriangle,
-  Clock,
   CheckCircle2,
   Send,
-  User,
-  Phone,
-  ShieldCheck,
-  ChevronRight,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
@@ -34,42 +28,36 @@ const CATEGORIES = [
     name: "Aer Condiționat",
     desc: "Nu răcește, zgomotos sau telecomandă defectă",
     icon: Wind,
-    color: "from-sky-500 to-blue-600",
   },
   {
     id: "plumbing",
     name: "Instalații Sanitare",
     desc: "Presiune scăzută la duș, robinet sau scurgere",
     icon: Droplets,
-    color: "from-cyan-500 to-teal-600",
   },
   {
     id: "electrical",
     name: "Electricitate & Becuri",
     desc: "Bec ars, priză sau întrerupător nefuncțional",
     icon: Lightbulb,
-    color: "from-amber-500 to-orange-600",
   },
   {
     id: "tv_wifi",
     name: "Smart TV & Wi-Fi",
     desc: "Semnal Wi-Fi slab, aplicații TV sau cablu",
     icon: Tv,
-    color: "from-indigo-500 to-purple-600",
   },
   {
     id: "housekeeping",
     name: "Curățenie & Consumabile",
     desc: "Prosoape suplimentare, cosmetice sau curățenie",
     icon: Sparkles,
-    color: "from-emerald-500 to-teal-700",
   },
   {
     id: "other",
     name: "Alte Defecțiuni",
     desc: "Ușă, seif, balcon sau mobilier",
     icon: Wrench,
-    color: "from-slate-600 to-slate-800",
   },
 ];
 
@@ -84,11 +72,10 @@ export default function MaintenanceReportModal({
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState("ac");
   const [priority, setPriority] = useState("normal");
-  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [roomUnit, setRoomUnit] = useState(unitNumber || "Camera mea");
-  const [guestName, setGuestName] = useState(defaultGuestName);
-  const [guestPhone, setGuestPhone] = useState(defaultGuestPhone);
+  const [guestName] = useState(defaultGuestName);
+  const [guestPhone] = useState(defaultGuestPhone);
   const [submitting, setSubmitting] = useState(false);
   const [submittedTicket, setSubmittedTicket] = useState<any | null>(null);
 
@@ -102,7 +89,7 @@ export default function MaintenanceReportModal({
     }
 
     const catObj = CATEGORIES.find((c) => c.id === selectedCategory);
-    const finalTitle = title.trim() || `Problemă ${catObj?.name || "Cameră"}`;
+    const finalTitle = `Problemă ${catObj?.name || "Cameră"}`;
 
     setSubmitting(true);
     try {
@@ -129,37 +116,70 @@ export default function MaintenanceReportModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-[28px] max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-[#e1e8f0]">
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-[#c69a3f]/30 flex items-center justify-between bg-[#0d2c5c] text-white">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[12px] bg-[#c69a3f]/15 flex items-center justify-center border border-[#c69a3f]/40 text-[#f3d48b]">
-              <Wrench size={20} />
-            </div>
-            <div>
-              <h3 className="font-['Outfit',sans-serif] text-[18px] sm:text-[20px] font-bold text-white leading-tight">
-                Asistență Tehnică & Mentenanță
-              </h3>
-              <p className="text-[12px] text-slate-200/80">
-                Raportează o problemă în cameră · Echipa Casa Esy intervine rapid
-              </p>
-            </div>
-          </div>
+  const subtitleParts = [
+    unitNumber ? `Camera / Suita ${unitNumber}` : null,
+    bookingCode ? `Cod rezervare #${bookingCode}` : null,
+    !unitNumber && !bookingCode ? "Echipa noastră intervine în cel mai scurt timp" : null,
+  ].filter(Boolean);
 
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#c69a3f]/30 text-white flex items-center justify-center transition"
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-[#07203f]/55 backdrop-blur-md">
+      <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
+      <div
+        className="relative z-10 w-full max-w-2xl max-h-[calc(100vh-3rem)] flex flex-col rounded-[28px] bg-white shadow-[0_30px_80px_rgba(7,32,63,0.35)] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header stil Casa Esy cu val organic & cercuri decorative */}
+        <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-[#0d2c5c] via-[#123a72] to-[#07203f] px-6 sm:px-7 pt-5 pb-9">
+          <svg
+            viewBox="0 0 120 120"
+            fill="none"
+            className="pointer-events-none absolute -right-6 -top-8 h-36 w-36 text-white/10"
           >
-            <X size={16} />
-          </button>
+            <circle cx="60" cy="60" r="22" stroke="currentColor" strokeWidth="1.2" />
+            <circle cx="60" cy="60" r="36" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2 5" />
+            <circle cx="60" cy="60" r="50" stroke="currentColor" strokeWidth="0.6" />
+          </svg>
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#e6b85c]">
+                Vila Casa Esy · Asistență și mentenanță
+              </span>
+              <h2
+                className="mt-1 text-[22px] sm:text-[25px] font-bold leading-tight !text-white tracking-tight"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                Asistență tehnică în cameră
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer"
+              aria-label="Închide"
+            >
+              ✕
+            </button>
+          </div>
+          <svg
+            viewBox="0 0 400 24"
+            preserveAspectRatio="none"
+            className="absolute bottom-0 left-0 h-6 w-full text-white"
+          >
+            <path d="M0 24 V12 Q50 0 100 12 T200 12 T300 12 T400 12 V24 Z" fill="currentColor" />
+          </svg>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 font-sans bg-[#fcfbf8]">
+        {/* Subtitlu curat sub val */}
+        {subtitleParts.length > 0 && (
+          <div className="px-6 sm:px-7 pt-1.5 text-xs font-medium text-[#6b7c99] shrink-0">
+            {subtitleParts.join(" • ")}
+          </div>
+        )}
+
+        {/* Conținut scrollabil */}
+        <div className="flex-1 overflow-y-auto px-6 sm:px-7 py-5 space-y-5">
           {submittedTicket ? (
-            /* ── TICKET CONFIRMED / LIVE TRACKER ── */
             <div className="space-y-6 text-center py-4">
               <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-sm">
                 <CheckCircle2 size={32} />
@@ -169,31 +189,47 @@ export default function MaintenanceReportModal({
                 <span className="px-3 py-1 rounded-full bg-[#fdf8ec] text-[#9c7624] border border-[#c69a3f]/40 text-[11px] font-mono font-bold tracking-wider">
                   Cod Tichet: #{submittedTicket.ticket_code}
                 </span>
-                <h4 className="font-['Outfit',sans-serif] text-[22px] font-bold text-[#0d2c5c] mt-2">
-                  Solicitarea a fost transmisă departamentului!
+                <h4
+                  className="text-[22px] font-bold text-[#0d2c5c] mt-2"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  Solicitarea a fost transmisă echipei
                 </h4>
-                <p className="text-[13px] text-[#64748b] mt-1 max-w-md mx-auto">
-                  Echipa de intervenție <strong>{submittedTicket.department === "mentenanta" ? "Mentenanță" : submittedTicket.department === "housekeeping" ? "Housekeeping" : "IT & Tehnic"}</strong> a primit notificarea ta.
+                <p className="text-[13px] text-[#6b7c99] mt-1 max-w-md mx-auto">
+                  Departamentul{" "}
+                  <strong>
+                    {submittedTicket.department === "mentenanta"
+                      ? "Mentenanță"
+                      : submittedTicket.department === "housekeeping"
+                        ? "Housekeeping"
+                        : "IT & Tehnic"}
+                  </strong>{" "}
+                  a primit notificarea dumneavoastră.
                 </p>
               </div>
 
-              {/* Progress Steps */}
-              <div className="p-4 rounded-[18px] bg-white border border-[#e1e8f0] text-left space-y-3">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
-                  Urmărire În Timp Real:
+              <div className="p-4 rounded-2xl bg-[#f8fafd] border border-[#dce4ef] text-left space-y-3">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
+                  Urmărire în timp real
                 </p>
 
                 <div className="space-y-2.5">
                   <div className="flex items-center gap-3 text-[12.5px] font-semibold text-emerald-700">
-                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">
+                      ✓
+                    </span>
                     <span>1. Solicitare înregistrată în sistem</span>
                   </div>
                   <div className="flex items-center gap-3 text-[12.5px] font-semibold text-[#0d2c5c]">
-                    <span className="w-5 h-5 rounded-full bg-[#c69a3f] text-[#0d2c5c] flex items-center justify-center text-[10px] font-bold animate-pulse">2</span>
+                    <span className="w-5 h-5 rounded-full bg-[#c69a3f] text-[#0d2c5c] flex items-center justify-center text-[10px] font-bold animate-pulse">
+                      2
+                    </span>
                     <span>2. Alocare tehnician de serviciu (SLA: {submittedTicket.sla_minutes} min)</span>
                   </div>
-                  <div className="flex items-center gap-3 text-[12.5px] text-[#94a3b8]">
-                    <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px] font-bold">3</span>
+                  <div className="flex items-center gap-3 text-[12.5px] text-[#8a99ad]">
+                    <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px] font-bold">
+                      3
+                    </span>
                     <span>3. Remediere la cameră & verificare</span>
                   </div>
                 </div>
@@ -202,19 +238,19 @@ export default function MaintenanceReportModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-[12px] bg-[#0d2c5c] text-white text-[13px] font-bold hover:bg-[#143d7a] transition shadow-sm"
+                className="rounded-full bg-[#0d2c5c] hover:bg-[#133b7a] px-7 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-white transition shadow-sm cursor-pointer"
               >
-                Am înțeles, mulțumesc
+                Am înțeles
               </button>
             </div>
           ) : (
-            /* ── INCIDENT REPORT FORM ── */
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form id="maintenance-report-form" onSubmit={handleSubmit} className="space-y-5">
+              {/* Categorii */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c]/70 mb-2 font-['Plus_Jakarta_Sans',sans-serif]">
-                  1. Alege Categoria Defecțiunii:
+                <label className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#6b7c99] mb-2.5">
+                  Categoria defecțiunii
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {CATEGORIES.map((cat) => {
                     const Icon = cat.icon;
                     const isSelected = selectedCategory === cat.id;
@@ -223,26 +259,26 @@ export default function MaintenanceReportModal({
                         key={cat.id}
                         type="button"
                         onClick={() => setSelectedCategory(cat.id)}
-                        className={`p-3 rounded-[16px] border text-left transition flex flex-col justify-between ${
+                        className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 cursor-pointer ${
                           isSelected
-                            ? "border-[#c69a3f] bg-[#fdf8ec] ring-2 ring-[#c69a3f]/25 shadow-xs"
-                            : "border-[#e1e8f0] bg-white hover:border-[#c69a3f]/60 hover:bg-[#fdfaf4]"
+                            ? "border-[#c69a3f] bg-[#fdfaf2] ring-2 ring-[#c69a3f]/20 shadow-xs"
+                            : "border-[#dce4ef] bg-[#f8fafd] hover:bg-white hover:border-[#c69a3f]/50"
                         }`}
                       >
                         <div
-                          className={`w-8 h-8 rounded-[10px] flex items-center justify-center mb-2 ${
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                             isSelected
-                              ? "bg-[#0d2c5c] text-[#f3d48b]"
-                              : "bg-[#f8fafd] text-[#0d2c5c]"
+                              ? "bg-[#0d2c5c] text-[#e6b85c]"
+                              : "bg-white border border-[#dce4ef] text-[#0d2c5c]"
                           }`}
                         >
                           <Icon size={16} />
                         </div>
-                        <div>
-                          <p className="font-['Outfit',sans-serif] text-[13px] font-bold text-[#0d2c5c] leading-tight">
+                        <div className="min-w-0">
+                          <p className="text-[13.5px] font-bold text-[#0d2c5c] leading-tight">
                             {cat.name}
                           </p>
-                          <p className="text-[10px] text-[#64748b] mt-0.5 line-clamp-1">
+                          <p className="text-[11px] text-[#6b7c99] mt-0.5 line-clamp-1">
                             {cat.desc}
                           </p>
                         </div>
@@ -252,31 +288,16 @@ export default function MaintenanceReportModal({
                 </div>
               </div>
 
-              {/* Descriere */}
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c]/70 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                  2. Detaliază Problema Întâmpinată:
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ex: Aerul condiționat face zgomot sau apa caldă nu are presiune..."
-                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] bg-white focus:border-[#c69a3f] focus:ring-2 focus:ring-[#c69a3f]/15 text-[13px] text-[#0d2c5c] outline-none transition"
-                />
-              </div>
-
               {/* Urgență & Cameră */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c]/70 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                    Nivel de Urgență:
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#6b7c99] mb-1.5">
+                    Nivel de urgență
                   </label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[12px] border border-[#e1e8f0] bg-white focus:border-[#c69a3f] text-[12.5px] font-bold text-[#0d2c5c] outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white text-sm font-semibold text-[#0d2c5c] focus:outline-none focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 transition-all"
                   >
                     <option value="normal">Normal (Rezolvare în max 2 ore)</option>
                     <option value="high">Ridicată (Rezolvare în max 1 oră)</option>
@@ -285,8 +306,8 @@ export default function MaintenanceReportModal({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c]/70 mb-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                    Număr Cameră / Suită:
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#6b7c99] mb-1.5">
+                    Număr cameră / suită
                   </label>
                   <input
                     type="text"
@@ -294,25 +315,55 @@ export default function MaintenanceReportModal({
                     value={roomUnit}
                     onChange={(e) => setRoomUnit(e.target.value)}
                     placeholder="Ex: Camera 204"
-                    className="w-full px-3 py-2 rounded-[12px] border border-[#e1e8f0] bg-white focus:border-[#c69a3f] text-[12.5px] text-[#0d2c5c] font-bold outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white text-sm font-semibold text-[#0d2c5c] focus:outline-none focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#143d7a] border border-[#c69a3f]/30 text-white font-['Outfit',sans-serif] text-[15px] font-bold flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(13,44,92,0.22)] transition active:scale-95 disabled:opacity-50"
-                >
-                  <Send size={15} className="text-[#f3d48b]" />
-                  <span>{submitting ? "Se transmite..." : "Trimite Solicitarea către Echipă"}</span>
-                </button>
+              {/* Descriere */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
+                    Detaliază problema întâmpinată
+                  </label>
+                  <span className="text-[11px] text-[#8a99ad]">Intervenție prioritară</span>
+                </div>
+                <textarea
+                  required
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Descrieți pe scurt problema: ex. aerul condiționat face zgomot, presiune scăzută la apă caldă..."
+                  className="w-full px-4 py-3 rounded-2xl border border-[#dce4ef] bg-[#f8fafd] focus:bg-white text-sm text-[#0d2c5c] focus:outline-none focus:border-[#0d2c5c] focus:ring-2 focus:ring-[#0d2c5c]/15 resize-none transition-all"
+                />
               </div>
             </form>
           )}
         </div>
+
+        {/* Footer în stilul Casa Esy */}
+        {!submittedTicket && (
+          <div className="flex items-center justify-end gap-2.5 border-t border-[#eef2f7] bg-[#f8fafd] px-6 sm:px-7 py-4 shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-full border border-[#dce4ef] bg-white px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c] hover:bg-[#f1f5f9] transition-colors cursor-pointer"
+            >
+              Anulează
+            </button>
+            <button
+              type="submit"
+              form="maintenance-report-form"
+              disabled={submitting}
+              className="rounded-full bg-[#0d2c5c] hover:bg-[#133b7a] px-6 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.14em] text-white flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            >
+              <Send size={13} />
+              <span>{submitting ? "Se transmite..." : "Trimite solicitarea"}</span>
+            </button>
+          </div>
+        )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
