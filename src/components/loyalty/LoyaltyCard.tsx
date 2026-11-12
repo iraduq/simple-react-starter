@@ -261,12 +261,21 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto shrink-0">
-            <button
-              onClick={() => setRewardsModalOpen(true)}
-              className="px-4 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#071d3d] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            <Link
+              to="/places"
+              className="px-4 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#133b7a] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
             >
               <Gift size={14} className="text-[#c69a3f]" />
-              <span>Catalog Recompense ({rewards.length})</span>
+              <span>Comandă cu puncte în /places</span>
+              <ArrowUpRight size={13} className="text-[#c69a3f]" />
+            </Link>
+
+            <button
+              onClick={() => setRewardsModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-[14px] bg-[#fdf8ec] hover:bg-[#faefd6] text-[#0d2c5c] font-bold text-xs flex items-center gap-1.5 border border-[#c69a3f]/40 transition-colors cursor-pointer"
+            >
+              <TicketPercent size={14} className="text-[#9c7624]" />
+              <span>Vouchere ({rewards.length})</span>
             </button>
 
             <button
@@ -278,6 +287,14 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
             </button>
           </div>
         </div>
+
+        <p className="mt-3 text-[12px] text-[#6b7c99] font-['Plus_Jakarta_Sans',sans-serif]">
+          Pentru a comanda gratuit sau cu reducere folosind punctele tale VIP, intră pe pagina{" "}
+          <Link to="/places" className="font-bold text-[#0d2c5c] underline decoration-[#c69a3f]">
+            /places (Restaurant, Bar & SPA)
+          </Link>{" "}
+          și activează opțiunea „Folosește punctele VIP” direct în coș.
+        </p>
 
         {(coupons.length > 0 || redeemedPerks.length > 0) && (
           <div className="mt-5 pt-5 border-t border-[#e1e8f0] space-y-3">

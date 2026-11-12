@@ -68,24 +68,33 @@ export default function PlaceMenu({
     tier: string;
     discount_percent: number;
     reason?: string | null;
+    points_balance?: number;
   } | null>(null);
+  const [vipPointsBalance, setVipPointsBalance] = useState<number>(0);
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState<boolean>(false);
 
   useEffect(() => {
     if (!hasSession()) {
       setVipBenefit(null);
+      setVipPointsBalance(0);
       return;
     }
     apiFetch<{
       tier: string;
+      points_balance?: number;
       order_discount_percent?: number;
       order_discount_reason?: string | null;
     }>("/loyalty/my-account")
       .then((acc) => {
+        if (typeof acc?.points_balance === "number") {
+          setVipPointsBalance(acc.points_balance);
+        }
         const pct = Number(acc?.order_discount_percent || 0);
         if (acc?.tier && pct > 0) {
           setVipBenefit({
             tier: acc.tier,
             discount_percent: pct,
+            points_balance: acc.points_balance,
             reason:
               acc.order_discount_reason ||
               `Reducere automată ${pct}% aplicată deoarece ai statutul VIP ${acc.tier}`,
@@ -106,10 +115,13 @@ export default function PlaceMenu({
     apiFetch<{
       eligible: boolean;
       active_rooms: ActiveStayRoom[];
-      vip_benefit?: { tier: string; discount_percent: number; reason?: string | null };
+      vip_benefit?: { tier: string; discount_percent: number; reason?: string | null; points_balance?: number };
       message?: string | null;
     }>("/orders/active-stay-rooms")
       .then((res) => {
+        if (typeof res?.vip_benefit?.points_balance === "number") {
+          setVipPointsBalance(res.vip_benefit.points_balance);
+        }
         if (res?.vip_benefit && Number(res.vip_benefit.discount_percent || 0) > 0) {
           setVipBenefit(res.vip_benefit);
         }
@@ -186,7 +198,15 @@ export default function PlaceMenu({
     vipDiscountPercent > 0
       ? Math.round(subtotalAmount * (vipDiscountPercent / 100) * 100) / 100
       : 0;
-  const totalAmount = Math.max(0, Math.round((subtotalAmount - vipDiscountAmount) * 100) / 100);
+  const afterVipAmount = Math.max(0, Math.round((subtotalAmount - vipDiscountAmount) * 100) / 100);
+  const maxPointsDiscountRon = Math.round((vipPointsBalance / 10) * 100) / 100;
+  const pointsDiscountRon = useLoyaltyPoints
+    ? Math.min(afterVipAmount, maxPointsDiscountRon)
+    : 0;
+  const pointsUsed = useLoyaltyPoints
+    ? Math.min(vipPointsBalance, Math.round(pointsDiscountRon * 10))
+    : 0;
+  const totalAmount = Math.max(0, Math.round((afterVipAmount - pointsDiscountRon) * 100) / 100);
 
   const selectedRoomObj = activeRooms.find((r) => r.booking_id === selectedBookingId) || activeRooms[0];
 
@@ -201,6 +221,7 @@ export default function PlaceMenu({
           booking_code: selectedRoomObj.booking_code,
           location_label: selectedRoomObj.location_label,
           payment_method: paymentMethod,
+          use_loyalty_points: useLoyaltyPoints,
           notes: notes.trim() || undefined,
           items: cartLines.map((l) => ({
             id: l.id,
@@ -464,6 +485,34 @@ export default function PlaceMenu({
                   );
                 })}
               </div>
+
+              {vipPointsBalance > 0 && (
+                <div className="rounded-2xl border border-[#c69a3f]/40 bg-[#fdf8ec] p-4 space-y-2">
+                  <label className="flex items-center justify-between gap-3 cursor-pointer">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#9c7624]">
+                        Puncte VIP disponibile: {vipPointsBalance} pct
+                      </p>
+                      <p className="text-xs text-[#0d2c5c] font-medium mt-0.5">
+                        Folosește punctele pentru reducere automată (10 pct = 1 RON)
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={useLoyaltyPoints}
+                      onChange={(e) => setUseLoyaltyPoints(e.target.checked)}
+                      className="h-5 w-5 accent-[#0d2c5c] rounded cursor-pointer"
+                    />
+                  </label>
+                  {useLoyaltyPoints && pointsUsed > 0 && (
+                    <div className="pt-2 border-t border-[#c69a3f]/25 text-xs font-bold text-[#0d2c5c]">
+                      {totalAmount === 0
+                        ? `Comandă gratuită! Achitată integral cu ${pointsUsed} puncte VIP (0 RON).`
+                        : `Plătești doar ${lei(totalAmount)} pentru că ai folosit ${pointsUsed} puncte VIP (-${lei(pointsDiscountRon)}).`}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
