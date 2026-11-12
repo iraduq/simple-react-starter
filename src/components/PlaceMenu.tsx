@@ -514,22 +514,38 @@ export default function PlaceMenu({
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#475569] mb-1.5">
-                    Metodă de Plată
-                  </label>
-                  <select
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as any)}
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3.5 py-2.5 text-sm font-semibold text-[#0d2c5c] focus:border-[#c69a3f] focus:bg-white outline-none"
-                  >
-                    <option value="room_charge">Trecut pe Contul Camerei (Room Folio)</option>
-                    <option value="pay_at_table">Plată direct la Masă (Card / Cash la ospătar)</option>
-                    <option value="card">Card la Livrare în Cameră (POS)</option>
-                    <option value="cash">Numerar la Livrare în Cameră</option>
-                  </select>
-                </div>
+              <div className="space-y-3.5">
+                {totalAmount > 0 && (
+                  <div>
+                    <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#475569] mb-2">
+                      Metodă de Plată (Livrare în Cameră)
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {[
+                        { id: "room_charge", label: "Contul Camerei", sub: "Room Folio" },
+                        { id: "card", label: "Card la Livrare", sub: "POS în cameră" },
+                        { id: "cash", label: "Numerar la Livrare", sub: "Cash la cameră" },
+                      ].map((opt) => {
+                        const active = paymentMethod === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setPaymentMethod(opt.id as any)}
+                            className={`rounded-xl border px-3 py-2.5 text-left transition-all cursor-pointer ${
+                              active
+                                ? "border-[#c69a3f] bg-[#fdf8ec] ring-2 ring-[#c69a3f]/20"
+                                : "border-[#e2e8f0] bg-[#f8fafc] hover:bg-white hover:border-[#c69a3f]/50"
+                            }`}
+                          >
+                            <span className="block text-xs font-bold text-[#0d2c5c]">{opt.label}</span>
+                            <span className="block text-[10.5px] text-[#6b7c99]">{opt.sub}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#475569] mb-1.5">
