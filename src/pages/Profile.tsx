@@ -216,7 +216,7 @@ export default function Profile() {
     user.email.split("@")[0];
 
   return (
-    <div className="min-h-screen w-full bg-[#fbfcfd] text-[#0d2c5c] font-sans antialiased relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#f8f6f1] text-[#0d2c5c] font-sans antialiased relative overflow-hidden">
       {/* ── OBIECTE MARITIME & ELEMENTE FLOTANTE PE FUNDAL ALB ── */}
       <FloatingMaritimeBackgroundWhite />
 
@@ -297,7 +297,7 @@ export default function Profile() {
                   {fullName}
                 </h1>
                 <div className="mt-2 flex items-center justify-center">
-                  <span className="px-3.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 text-[11px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-xs">
+                  <span className="px-3.5 py-1 rounded-full bg-[#fdf8ec] text-[#9c7624] border border-[#c69a3f]/35 text-[11px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-xs">
                     <span className="text-[#c69a3f]">★</span>
                     <span>Oaspete Privilège • Casa Esy {loyaltyAccount?.tier || "Bronze"}</span>
                   </span>

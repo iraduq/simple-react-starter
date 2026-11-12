@@ -142,14 +142,14 @@ export default function RoomFolioCard({
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-[#e1e8f0]">
           <div>
-            <div className="flex items-center gap-2 text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#00a896] mb-1">
+            <div className="flex items-center gap-2 text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
               <Receipt size={14} />
               <span>Nota Camerei & Situație Financiară (Room Folio)</span>
             </div>
             <h3 className="font-['Outfit',sans-serif] text-[20px] sm:text-[22px] font-bold text-[#0d2c5c]">
               Soldul Curent al Sejurului Dumneavoastră
             </h3>
-            <p className="text-[12.5px] text-[#64748b] mt-0.5 font-['Plus_Jakarta_Sans',sans-serif]">
+            <p className="text-[12.5px] text-[#6b7c99] mt-0.5 font-['Plus_Jakarta_Sans',sans-serif]">
               Rezervare #{folio.booking_code} · {folio.room_title} (
               {folio.unit_number})
             </p>
@@ -159,9 +159,9 @@ export default function RoomFolioCard({
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="px-4 py-2.5 rounded-[12px] bg-gradient-to-r from-[#00a896] to-[#0284c7] hover:brightness-105 text-white text-[12.5px] font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95"
+              className="px-4 py-2.5 rounded-[12px] bg-[#0d2c5c] hover:bg-[#133b7a] border border-[#c69a3f]/30 text-white text-[12.5px] font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95"
             >
-              <Plus size={14} />
+              <Plus size={14} className="text-[#e6b85c]" />
               <span>Adaugă Mic Dejun / Suplimente</span>
             </button>
             <button
@@ -213,15 +213,15 @@ export default function RoomFolioCard({
           <div className="p-4 rounded-[18px] bg-[#f8fafc] border border-[#e1e8f0] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#00a896] flex items-center gap-1.5">
-                  <Egg size={13} />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] flex items-center gap-1.5">
+                  <Egg size={13} className="text-[#c69a3f]" />
                   <span>Mic Dejun & Suplimente</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-teal-50 text-teal-800 border border-teal-200">
+                <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#fdf8ec] text-[#9c7624] border border-[#c69a3f]/35">
                   {folio.addons.length} adăugate
                 </span>
               </div>
-              <p className="font-['Outfit',sans-serif] text-[22px] font-bold text-[#00a896]">
+              <p className="font-['Outfit',sans-serif] text-[22px] font-bold text-[#0d2c5c]">
                 {folio.addons_total.toLocaleString("ro-RO")} RON
               </p>
               {folio.addons.length === 0 ? (
@@ -248,7 +248,7 @@ export default function RoomFolioCard({
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="mt-3 pt-2.5 border-t border-slate-200 text-[11px] font-bold text-[#00a896] hover:underline flex items-center gap-1 text-left"
+              className="mt-3 pt-2.5 border-t border-slate-200 text-[11px] font-bold text-[#9c7624] hover:text-[#0d2c5c] hover:underline flex items-center gap-1 text-left transition-colors"
             >
               <span>+ Adaugă opțiuni mic dejun</span>
               <ArrowRight size={11} />
@@ -259,15 +259,15 @@ export default function RoomFolioCard({
           <div className="p-4 rounded-[18px] bg-[#f8fafc] border border-[#e1e8f0] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#d97706] flex items-center gap-1.5">
-                  <Utensils size={13} />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#9c7624] flex items-center gap-1.5">
+                  <Utensils size={13} className="text-[#c69a3f]" />
                   <span>Consumație Restaurant</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#fdf8ec] text-[#9c7624] border border-[#c69a3f]/35">
                   Room Folio
                 </span>
               </div>
-              <p className="font-['Outfit',sans-serif] text-[22px] font-bold text-[#d97706]">
+              <p className="font-['Outfit',sans-serif] text-[22px] font-bold text-[#0d2c5c]">
                 {folio.room_service_folio_total.toLocaleString("ro-RO")} RON
               </p>
               {folio.orders.filter((o) => o.is_on_folio).length === 0 ? (
