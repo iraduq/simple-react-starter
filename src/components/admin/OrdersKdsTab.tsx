@@ -17,6 +17,7 @@ import {
   UtensilsCrossed,
   Wallet,
   Crown,
+  History,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
@@ -59,7 +60,15 @@ export interface RoomServiceOrderItem {
   notes?: string | null;
   status: "new" | "preparing" | "delivering" | "delivered" | "cancelled";
   created_at?: string | null;
+  updated_at?: string | null;
 }
+
+const isWithinLast24h = (iso?: string | null) => {
+  if (!iso) return true;
+  const ms = new Date(iso).getTime();
+  if (isNaN(ms)) return true;
+  return Date.now() - ms <= 24 * 60 * 60 * 1000;
+};
 
 interface HotelUnitOption {
   unit_id: string;
@@ -115,9 +124,9 @@ const COLUMNS: {
   {
     key: "delivered",
     title: "Livrate în cameră",
-    subtitle: "Predate oaspeților",
-    emptyTitle: "Încă fără livrări",
-    emptyHint: "Comenzile finalizate astăzi vor fi arhivate aici.",
+    subtitle: "Curățate automat după 24h",
+    emptyTitle: "Nicio livrare în ultimele 24h",
+    emptyHint: "Comenzile mai vechi de 24h se mută automat în «Istoric comenzi».",
     iconBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
     countBadge: "bg-emerald-50 text-emerald-800 border-emerald-200",
     accentBar: "from-emerald-500 to-teal-600",
@@ -156,6 +165,7 @@ export default function OrdersKdsTab() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [paymentFilter, setPaymentFilter] = useState<"all" | "room_charge" | "direct">("all");
+  const [viewMode, setViewMode] = useState<"kds" | "history">("kds");
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const [showModal, setShowModal] = useState(false);
@@ -409,8 +419,35 @@ export default function OrdersKdsTab() {
       </div>
 
       {/* Filter & Search toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="w-full sm:max-w-md">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setViewMode("kds")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
+              viewMode === "kds"
+                ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-xs"
+                : "bg-white text-[#0d2c5c] border-[#e1e8f0] hover:bg-[#f8fafc]"
+            }`}
+          >
+            <ChefHat className="w-3.5 h-3.5" />
+            <span>Panou Live (KDS)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("history")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
+              viewMode === "history"
+                ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-xs"
+                : "bg-white text-[#0d2c5c] border-[#e1e8f0] hover:bg-[#f8fafc]"
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Istoric comenzi ({orders.length})</span>
+          </button>
+        </div>
+
+        <div className="w-full lg:max-w-sm">
           <SearchInput
             value={search}
             onChange={setSearch}
@@ -440,7 +477,7 @@ export default function OrdersKdsTab() {
         </div>
       </div>
 
-      {/* Kanban Board */}
+      {/* Kanban Board or History Table */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((n) => (
@@ -450,11 +487,149 @@ export default function OrdersKdsTab() {
             />
           ))}
         </div>
+      ) : viewMode === "history" ? (
+        <div className="rounded-[24px] bg-white border border-[#e1e8f0] shadow-[0_10px_34px_rgba(13,44,92,0.05)] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#eef2f7] bg-[#f8fafd] flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 className="font-['Outfit',sans-serif] text-base font-bold text-[#0d2c5c]">
+                Arhivă și istoric complet Room Service ({filtered.length})
+              </h3>
+              <p className="text-xs text-[#64748b]">
+                Comenzile livrate se curăță automat din panoul live KDS după 24h, dar rămân aici pentru evidență și audit.
+              </p>
+            </div>
+          </div>
+          {filtered.length === 0 ? (
+            <div className="py-12 text-center text-sm text-[#64748b]">
+              Nicio comandă găsită pentru filtrele selectate.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[920px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-[#eef2f7] bg-[#0d2c5c]/[0.025] text-[10px] font-bold uppercase tracking-[0.18em] text-[#6b7c99]">
+                    <th className="py-3.5 px-5">Comandă &amp; Dată</th>
+                    <th className="py-3.5 px-4">Cameră &amp; Oaspete</th>
+                    <th className="py-3.5 px-4">Produse comandate</th>
+                    <th className="py-3.5 px-4">Plată</th>
+                    <th className="py-3.5 px-4">Total</th>
+                    <th className="py-3.5 px-4">Stare</th>
+                    <th className="py-3.5 px-5 text-right">Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#eef2f7]">
+                  {filtered.map((order) => {
+                    const loc = splitLocation(order.location_label);
+                    const archived24h =
+                      order.status === "delivered" &&
+                      !isWithinLast24h(order.updated_at || order.created_at);
+                    const statusMap: Record<string, { label: string; cls: string }> = {
+                      new: { label: "Nouă", cls: "bg-amber-50 text-[#946c1d] border-[#c69a3f]/35" },
+                      preparing: { label: "În preparare", cls: "bg-[#f0f4fa] text-[#0d2c5c] border-[#0d2c5c]/20" },
+                      delivering: { label: "În livrare", cls: "bg-sky-50 text-sky-700 border-sky-200" },
+                      delivered: { label: "Livrată", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+                      cancelled: { label: "Anulată", cls: "bg-rose-50 text-rose-700 border-rose-200" },
+                    };
+                    const st = statusMap[order.status] || statusMap.new;
+                    return (
+                      <tr key={order.id} className="hover:bg-[#f8fafd] transition-colors">
+                        <td className="py-4 px-5 align-top">
+                          <span className="inline-block font-['Outfit',sans-serif] text-[12px] font-extrabold text-[#0d2c5c] bg-[#0d2c5c]/8 px-2.5 py-0.5 rounded-lg border border-[#0d2c5c]/15">
+                            {order.order_code}
+                          </span>
+                          <div className="mt-1.5 text-[11px] text-[#64748b] whitespace-nowrap">
+                            {order.created_at
+                              ? new Date(order.created_at).toLocaleString("ro-RO", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "—"}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 align-top">
+                          <div className="font-bold text-[#0d2c5c] flex items-center gap-1.5">
+                            <BedDouble className="w-3.5 h-3.5 text-[#c69a3f] shrink-0" />
+                            <span>{loc.main}</span>
+                          </div>
+                          {loc.detail && (
+                            <div className="text-[11px] text-[#64748b] mt-0.5">{loc.detail}</div>
+                          )}
+                          <div className="text-[11.5px] text-[#334155] font-medium mt-1">
+                            {order.guest_name || "Oaspete"}
+                            {order.booking_code && (
+                              <span className="ml-1.5 font-mono text-[10px] font-bold text-[#8a6420] bg-[#fdf8ec] px-1.5 py-0.5 rounded border border-[#c69a3f]/30">
+                                #{order.booking_code.replace(/^#/, "")}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 align-top max-w-xs">
+                          <div className="space-y-1">
+                            {order.items.map((it, idx) => (
+                              <div key={idx} className="text-[12px] text-[#1e293b]">
+                                <span className="font-bold text-[#0d2c5c]">{it.qty}×</span> {it.title}
+                              </div>
+                            ))}
+                          </div>
+                          {order.notes && (
+                            <p className="mt-1.5 text-[11px] italic text-[#64748b]">
+                              „{order.notes}”
+                            </p>
+                          )}
+                        </td>
+                        <td className="py-4 px-4 align-top">
+                          {renderPaymentBadge(order.payment_method)}
+                          {order.discount_amount && order.discount_amount > 0 ? (
+                            <div className="mt-1 text-[11px] font-semibold text-emerald-700">
+                              VIP -{Number(order.discount_amount).toFixed(2)} RON
+                            </div>
+                          ) : null}
+                        </td>
+                        <td className="py-4 px-4 align-top font-['Outfit',sans-serif] font-bold text-[#0d2c5c] whitespace-nowrap">
+                          {Number(order.total_amount || 0).toFixed(2)} RON
+                        </td>
+                        <td className="py-4 px-4 align-top">
+                          <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${st.cls}`}>
+                            {st.label}
+                          </span>
+                          {archived24h && (
+                            <div className="mt-1 text-[10px] font-semibold text-[#94a3b8]">
+                              Arhivată (&gt;24h)
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-4 px-5 text-right align-top">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteOrder(order.id, order.order_code)}
+                            title="Șterge comanda"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch">
           {COLUMNS.map((col) => {
             const ColIcon = col.icon;
-            const colOrders = filtered.filter((o) => o.status === col.key);
+            const colOrders = filtered.filter((o) => {
+              if (o.status !== col.key) return false;
+              if (col.key === "delivered") {
+                return isWithinLast24h(o.updated_at || o.created_at);
+              }
+              return true;
+            });
             const colTotal = colOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
 
             return (
