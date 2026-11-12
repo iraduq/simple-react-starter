@@ -233,16 +233,25 @@ export default function BroadcastAlertBanner() {
             </div>
 
             {/* Content Body */}
-            <div className="flex-1 min-w-0 pr-5">
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-[0.12em] uppercase border ${style.badgeBg}`}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2 flex-wrap min-w-0">
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-[0.12em] uppercase border ${style.badgeBg}`}
+                  >
+                    {style.label}
+                  </span>
+                  <span className="text-[10.5px] font-semibold tracking-wide uppercase text-[#94a3b8] font-['Plus_Jakarta_Sans',sans-serif] whitespace-nowrap">
+                    Casa Esy
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleDismiss(current.id)}
+                  title="Închide notificarea"
+                  className="w-7 h-7 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0d2c5c] flex items-center justify-center transition cursor-pointer shrink-0"
                 >
-                  {style.label}
-                </span>
-                <span className="text-[10.5px] font-semibold tracking-wide uppercase text-[#94a3b8] font-['Plus_Jakarta_Sans',sans-serif]">
-                  Casa Esy
-                </span>
+                  <X size={14} />
+                </button>
               </div>
 
               <h4 className="font-['Outfit',sans-serif] text-[16px] font-bold !text-[#0d2c5c] leading-snug">
@@ -273,14 +282,6 @@ export default function BroadcastAlertBanner() {
               )}
             </div>
 
-            {/* Close Button */}
-            <button
-              onClick={() => handleDismiss(current.id)}
-              title="Închide notificarea"
-              className="absolute top-3.5 right-3.5 w-7 h-7 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0d2c5c] flex items-center justify-center transition cursor-pointer"
-            >
-              <X size={14} />
-            </button>
           </div>
 
           {/* Auto-dismiss countdown progress bar */}

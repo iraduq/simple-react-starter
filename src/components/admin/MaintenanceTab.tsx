@@ -110,9 +110,13 @@ export default function MaintenanceTab() {
   const [resolutionNote, setResolutionNote] = useState("");
   const [submittingNote, setSubmittingNote] = useState(false);
 
-  const [assignTarget, setAssignTarget] = useState<TicketData | null>(null);
-  const [assignChoice, setAssignChoice] = useState("");
-  const [assigning, setAssigning] = useState(false);
+  const [editTicketTarget, setEditTicketTarget] = useState<TicketData | null>(null);
+  const [editAssignedTo, setEditAssignedTo] = useState("");
+  const [editDepartment, setEditDepartment] = useState("mentenanta");
+  const [editPriority, setEditPriority] = useState("normal");
+  const [editStatus, setEditStatus] = useState("open");
+  const [editResolutionNotes, setEditResolutionNotes] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const [deleteTicketTarget, setDeleteTicketTarget] = useState<TicketData | null>(null);
   const [deletingTicket, setDeletingTicket] = useState(false);
@@ -214,7 +218,13 @@ export default function MaintenanceTab() {
 
   const handleUpdateTicket = async (
     id: number,
-    updates: { status?: string; assigned_to?: string; resolution_notes?: string }
+    updates: {
+      status?: string;
+      priority?: string;
+      department?: string;
+      assigned_to?: string;
+      resolution_notes?: string;
+    }
   ) => {
     try {
       const res = await apiFetch<TicketData>(`/admin/maintenance/tickets/${id}`, {
@@ -230,33 +240,30 @@ export default function MaintenanceTab() {
     }
   };
 
-  const openAssignModal = (ticket: TicketData) => {
-    setAssignTarget(ticket);
-    if (ticket.assigned_to) {
-      setAssignChoice(ticket.assigned_to);
-    } else {
-      const match =
-        activeTechnicians.find((t) => t.department === ticket.department) ||
-        activeTechnicians[0];
-      setAssignChoice(match ? match.label : "");
-    }
+  const openEditTicketModal = (ticket: TicketData) => {
+    setEditTicketTarget(ticket);
+    setEditAssignedTo(ticket.assigned_to || "");
+    setEditDepartment(ticket.department || "mentenanta");
+    setEditPriority(ticket.priority || "normal");
+    setEditStatus(ticket.status || "open");
+    setEditResolutionNotes(ticket.resolution_notes || "");
   };
 
-  const handleAssignSubmit = async (e: React.FormEvent) => {
+  const handleEditTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!assignTarget) return;
-    setAssigning(true);
+    if (!editTicketTarget) return;
+    setSavingEdit(true);
     try {
-      await handleUpdateTicket(assignTarget.id, {
-        assigned_to: assignChoice,
-        status:
-          assignChoice.trim() && assignTarget.status === "open"
-            ? "in_progress"
-            : assignTarget.status,
+      await handleUpdateTicket(editTicketTarget.id, {
+        assigned_to: editAssignedTo,
+        department: editDepartment,
+        priority: editPriority,
+        status: editStatus,
+        resolution_notes: editResolutionNotes,
       });
-      setAssignTarget(null);
+      setEditTicketTarget(null);
     } finally {
-      setAssigning(false);
+      setSavingEdit(false);
     }
   };
 
@@ -745,9 +752,9 @@ export default function MaintenanceTab() {
                             <span className="block text-[12px] font-bold text-[#0d2c5c]">
                               {DEPT_LABELS[t.department] || "Mentenanță tehnică"}
                             </span>
-                            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                            <div className="mt-1.5">
                               {t.assigned_to ? (
-                                <span className="inline-flex items-center gap-1 rounded-lg border border-[#c69a3f]/30 bg-[#fdf8ec] px-2 py-0.5 text-[11px] font-semibold text-[#8a6420]">
+                                <span className="inline-flex items-center gap-1 rounded-lg border border-[#c69a3f]/30 bg-[#fdf8ec] px-2.5 py-0.5 text-[11px] font-semibold text-[#8a6420]">
                                   <UserCheck size={12} />
                                   {t.assigned_to}
                                 </span>
@@ -755,15 +762,6 @@ export default function MaintenanceTab() {
                                 <span className="text-[11.5px] italic text-amber-700 font-medium">
                                   Nealocat
                                 </span>
-                              )}
-                              {t.status !== "resolved" && (
-                                <button
-                                  type="button"
-                                  onClick={() => openAssignModal(t)}
-                                  className="text-[11px] font-bold text-[#0d2c5c] underline decoration-[#c69a3f] underline-offset-2 hover:text-[#c69a3f] cursor-pointer"
-                                >
-                                  {t.assigned_to ? "Schimbă" : "Atribuie"}
-                                </button>
                               )}
                             </div>
                           </td>
@@ -779,39 +777,42 @@ export default function MaintenanceTab() {
                           </td>
 
                           <td className="py-4 px-4 align-top">
-                            <Badge tone={getStatusTone(t.status)}>
-                              {t.status === "resolved"
-                                ? "Rezolvat ✓"
-                                : t.status === "in_progress"
-                                  ? "În lucru"
-                                  : "Deschis"}
-                            </Badge>
+                            <select
+                              value={t.status}
+                              onChange={(e) => {
+                                const nextStatus = e.target.value;
+                                if (nextStatus === "resolved" && !t.resolution_notes) {
+                                  setResolvingTicket(t);
+                                  setResolutionNote("");
+                                  return;
+                                }
+                                void handleUpdateTicket(t.id, { status: nextStatus });
+                              }}
+                              aria-label={`Stare tichet #${t.ticket_code}`}
+                              className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wider outline-none cursor-pointer transition ${
+                                t.status === "resolved"
+                                  ? "border-[#1f6b45]/25 bg-[#e6f2ea] text-[#1f6b45]"
+                                  : t.status === "in_progress"
+                                    ? "border-[#0d2c5c]/20 bg-[#eef3fb] text-[#0d2c5c]"
+                                    : "border-[#c69a3f]/35 bg-[#fdf8ec] text-[#8a6420]"
+                              }`}
+                            >
+                              <option value="open">Deschis</option>
+                              <option value="in_progress">În lucru</option>
+                              <option value="resolved">Rezolvat</option>
+                            </select>
                           </td>
 
                           <td className="py-4 px-5 text-right align-top">
                             <div className="flex items-center justify-end gap-1.5">
-                              {t.status !== "resolved" && (
-                                <button
-                                  type="button"
-                                  onClick={() => openAssignModal(t)}
-                                  className="rounded-xl border border-[#e1e8f0] bg-white px-2.5 py-1.5 text-[11px] font-bold text-[#0d2c5c] hover:border-[#0d2c5c] transition cursor-pointer"
-                                >
-                                  {t.status === "open" ? "Preia" : "Alocă"}
-                                </button>
-                              )}
-
-                              {t.status !== "resolved" && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setResolvingTicket(t);
-                                    setResolutionNote("");
-                                  }}
-                                  className="rounded-xl bg-[#0d2c5c] hover:bg-[#c69a3f] text-white hover:text-[#0d2c5c] px-3 py-1.5 text-[11px] font-bold transition cursor-pointer"
-                                >
-                                  Rezolvă
-                                </button>
-                              )}
+                              <button
+                                type="button"
+                                onClick={() => openEditTicketModal(t)}
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-[#e1e8f0] bg-white text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#fdf8ec] transition cursor-pointer"
+                                title="Editează tichet / Atribuie tehnician"
+                              >
+                                <Pencil size={13} />
+                              </button>
 
                               <button
                                 type="button"
@@ -1075,14 +1076,14 @@ export default function MaintenanceTab() {
       </Modal>
 
       <Modal
-        open={Boolean(assignTarget)}
-        onClose={() => setAssignTarget(null)}
-        title={`Alocă tehnician · #${assignTarget?.ticket_code || ""}`}
-        subtitle={assignTarget ? `${assignTarget.unit_number} — ${assignTarget.title}` : undefined}
+        open={Boolean(editTicketTarget)}
+        onClose={() => setEditTicketTarget(null)}
+        title={`Editează tichet · #${editTicketTarget?.ticket_code || ""}`}
+        subtitle={editTicketTarget ? `${editTicketTarget.unit_number} — ${editTicketTarget.title}` : undefined}
       >
-        <form onSubmit={handleAssignSubmit} className="space-y-4 pt-1">
-          <Field label="Selectează tehnician din echipă">
-            <Select value={assignChoice} onChange={(e) => setAssignChoice(e.target.value)}>
+        <form onSubmit={handleEditTicketSubmit} className="space-y-4 pt-1">
+          <Field label="Tehnician atribuit">
+            <Select value={editAssignedTo} onChange={(e) => setEditAssignedTo(e.target.value)}>
               <option value="">Nealocat (lasă tichetul liber)</option>
               {activeTechnicians.map((tech) => (
                 <option key={tech.id} value={tech.label}>
@@ -1090,6 +1091,42 @@ export default function MaintenanceTab() {
                 </option>
               ))}
             </Select>
+          </Field>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Field label="Departament">
+              <Select value={editDepartment} onChange={(e) => setEditDepartment(e.target.value)}>
+                <option value="mentenanta">Mentenanță tehnică</option>
+                <option value="tehnic_it">IT și rețea</option>
+                <option value="housekeeping">Curățenie și menaj</option>
+              </Select>
+            </Field>
+
+            <Field label="Prioritate">
+              <Select value={editPriority} onChange={(e) => setEditPriority(e.target.value)}>
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </Select>
+            </Field>
+
+            <Field label="Stare">
+              <Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
+                <option value="open">Deschis</option>
+                <option value="in_progress">În lucru</option>
+                <option value="resolved">Rezolvat</option>
+              </Select>
+            </Field>
+          </div>
+
+          <Field label="Notă de remediere / observații">
+            <Textarea
+              rows={3}
+              value={editResolutionNotes}
+              onChange={(e) => setEditResolutionNotes(e.target.value)}
+              placeholder="Detalii intervenție sau notă tehnică..."
+            />
           </Field>
 
           {activeTechnicians.length === 0 && (
@@ -1102,7 +1139,7 @@ export default function MaintenanceTab() {
             <button
               type="button"
               onClick={() => {
-                setAssignTarget(null);
+                setEditTicketTarget(null);
                 setSubView("technicians");
                 openCreateTechnicianModal();
               }}
@@ -1112,9 +1149,9 @@ export default function MaintenanceTab() {
             </button>
 
             <div className="flex items-center gap-2">
-              <GhostButton onClick={() => setAssignTarget(null)}>Anulează</GhostButton>
-              <PrimaryButton type="submit" disabled={assigning}>
-                {assigning ? "Se salvează..." : "Confirmă alocarea"}
+              <GhostButton onClick={() => setEditTicketTarget(null)}>Anulează</GhostButton>
+              <PrimaryButton type="submit" disabled={savingEdit}>
+                {savingEdit ? "Se salvează..." : "Salvează modificările"}
               </PrimaryButton>
             </div>
           </div>
