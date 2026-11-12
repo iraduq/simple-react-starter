@@ -88,6 +88,17 @@ export default function ChannelManagerTab({
   const [selectedChannel, setSelectedChannel] = useState<string>("booking.com");
   const [selectedRoomId, setSelectedRoomId] = useState<string>("");
   const [guestName, setGuestName] = useState<string>("Hans Müller (Germania)");
+  const [checkIn, setCheckIn] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  });
+  const [checkOut, setCheckOut] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().slice(0, 10);
+  });
+  const [guestsAdults, setGuestsAdults] = useState<number>(2);
   const [simulating, setSimulating] = useState(false);
   const [lastSimulated, setLastSimulated] = useState<SimulatedBookingResult | null>(null);
 
@@ -126,7 +137,20 @@ export default function ChannelManagerTab({
     }
   };
 
+  const simNights = (() => {
+    if (!checkIn || !checkOut) return 0;
+    const diff = Math.round(
+      (new Date(checkOut + "T00:00:00").getTime() - new Date(checkIn + "T00:00:00").getTime()) /
+        86400000
+    );
+    return diff > 0 ? diff : 0;
+  })();
+
   const handleSimulate = async () => {
+    if (!checkIn || !checkOut || simNights <= 0) {
+      toast("Selectează o perioadă validă (Check-out trebuie să fie după Check-in).", "error");
+      return;
+    }
     setSimulating(true);
     try {
       const result = await apiFetch<SimulatedBookingResult>(
@@ -137,6 +161,9 @@ export default function ChannelManagerTab({
             channel: selectedChannel,
             room_id: selectedRoomId || undefined,
             guest_name: guestName || undefined,
+            check_in: checkIn,
+            check_out: checkOut,
+            guests_adults: guestsAdults,
           }),
         }
       );
@@ -362,21 +389,75 @@ export default function ChannelManagerTab({
               </select>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
-                Oaspete de test
-              </label>
-              <select
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[12px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[13px] font-medium outline-none focus:border-[#0d2c5c]"
-              >
-                <option value="Hans Müller (Germania)">🇩🇪 Hans Müller (Germania)</option>
-                <option value="Sophie Laurent (Franța)">🇫🇷 Sophie Laurent (Franța)</option>
-                <option value="John Smith (Marea Britanie)">🇬🇧 John Smith (Marea Britanie)</option>
-                <option value="Matteo Rossi (Italia)">🇮🇹 Matteo Rossi (Italia)</option>
-                <option value="Alexander Lindqvist (Suedia)">🇸🇪 Alexander Lindqvist (Suedia)</option>
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+                  Check-in
+                </label>
+                <input
+                  type="date"
+                  value={checkIn}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCheckIn(val);
+                    if (val && (!checkOut || checkOut <= val)) {
+                      const next = new Date(val + "T00:00:00");
+                      next.setDate(next.getDate() + 1);
+                      setCheckOut(next.toISOString().slice(0, 10));
+                    }
+                  }}
+                  className="w-full px-3 py-2 rounded-[12px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[13px] font-medium outline-none focus:border-[#0d2c5c]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+                  Check-out {simNights > 0 ? `(${simNights} ${simNights === 1 ? "noapte" : "nopți"})` : ""}
+                </label>
+                <input
+                  type="date"
+                  value={checkOut}
+                  min={checkIn || undefined}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className="w-full px-3 py-2 rounded-[12px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[13px] font-medium outline-none focus:border-[#0d2c5c]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+                  Oaspete de test
+                </label>
+                <select
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-[12px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[13px] font-medium outline-none focus:border-[#0d2c5c]"
+                >
+                  <option value="Hans Müller (Germania)">🇩🇪 Hans Müller (Germania)</option>
+                  <option value="Sophie Laurent (Franța)">🇫🇷 Sophie Laurent (Franța)</option>
+                  <option value="John Smith (Marea Britanie)">🇬🇧 John Smith (Marea Britanie)</option>
+                  <option value="Matteo Rossi (Italia)">🇮🇹 Matteo Rossi (Italia)</option>
+                  <option value="Alexander Lindqvist (Suedia)">🇸🇪 Alexander Lindqvist (Suedia)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+                  Oaspeți
+                </label>
+                <select
+                  value={guestsAdults}
+                  onChange={(e) => setGuestsAdults(Number(e.target.value))}
+                  className="w-full px-3 py-2.5 rounded-[12px] bg-white border border-[#dce4f0] text-[#0d2c5c] text-[13px] font-medium outline-none focus:border-[#0d2c5c]"
+                >
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <option key={n} value={n}>
+                      {n} {n === 1 ? "adult" : "adulți"}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <button
