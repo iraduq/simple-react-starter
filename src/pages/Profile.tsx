@@ -613,7 +613,7 @@ function OverviewTab({
                   className="px-4 h-11 rounded-[14px] border border-[#e1e8f0] hover:border-[#c69a3f] text-[#0d2c5c] hover:bg-[#f8fafc] text-[12.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 bg-white transition-colors shadow-xs"
                 >
                   <Download size={14} className="text-[#c69a3f]" />
-                  <span>Descarcă voucher</span>
+                  <span>Descarcă factură</span>
                 </button>
                 <button
                   onClick={() => goToTab("reservations")}
@@ -1135,7 +1135,10 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
             <span className="w-5 h-px bg-[#c69a3f]" />
             <span>Sejururi și documente</span>
           </p>
-          <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold tracking-tight text-[#0d2c5c]">
+          <h2
+            className="text-[28px] sm:text-[34px] font-bold tracking-tight text-[#0d2c5c]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             Rezervările tale la Casa Esy
           </h2>
         </div>
@@ -1301,10 +1304,10 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
                         toast(e?.message || "Factura nu a putut fi descărcată.", "error")
                       )
                     }
-                    className="mt-2 flex items-center gap-1.5 rounded-[10px] border border-[#e1e8f0] bg-[#f8fafd] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] hover:border-[#c69a3f] transition-all"
+                    className="mt-2 flex items-center gap-1.5 rounded-full border border-[#c69a3f]/40 bg-[#fdf8ec] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c] hover:bg-[#c69a3f]/15 hover:border-[#c69a3f] transition-all cursor-pointer"
                   >
-                    <Download size={13} className="text-[#c69a3f]" />
-                    <span>Factură și voucher</span>
+                    <Download size={13} className="text-[#9c7624]" />
+                    <span>Factură</span>
                   </button>
 
                   {(() => {
@@ -1326,16 +1329,16 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
                             type="button"
                             disabled={cancellingId === r.id}
                             onClick={() => void handleCancelRefund(r.id)}
-                            className="flex items-center gap-1 rounded-[10px] bg-rose-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-rose-700 transition-all disabled:opacity-60"
+                            className="flex items-center gap-1 rounded-full bg-rose-600 px-3.5 py-1.5 text-[11px] font-bold text-white hover:bg-rose-700 transition-all disabled:opacity-60 cursor-pointer"
                           >
                             <RefreshCcw size={12} className={cancellingId === r.id ? "animate-spin" : ""} />
-                            <span>{cancellingId === r.id ? "Procesare..." : "Confirmă Refund"}</span>
+                            <span>{cancellingId === r.id ? "Procesare..." : "Confirmă anularea"}</span>
                           </button>
                           <button
                             type="button"
                             disabled={cancellingId === r.id}
                             onClick={() => setConfirmCancelId(null)}
-                            className="rounded-[10px] border border-[#e1e8f0] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#6b7c99] hover:bg-slate-50"
+                            className="rounded-full border border-[#dce4ef] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6b7c99] hover:bg-slate-50 cursor-pointer"
                           >
                             Nu
                           </button>
@@ -1347,10 +1350,10 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
                       <button
                         type="button"
                         onClick={() => setConfirmCancelId(r.id)}
-                        className="mt-2 flex items-center gap-1.5 rounded-[10px] border border-rose-200 bg-rose-50/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-rose-700 hover:bg-rose-100 transition-all"
+                        className="mt-2 flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50/70 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-rose-700 hover:bg-rose-100 transition-all cursor-pointer"
                       >
                         <RefreshCcw size={12} />
-                        <span>Anulare & Refund ({30 - daysElapsed}z)</span>
+                        <span>Anulare</span>
                       </button>
                     );
                   })()}
@@ -1602,27 +1605,30 @@ function DangerTab({ onDeleted }: { onDeleted: () => void }) {
   };
 
   return (
-    <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-red-200 space-y-6">
+    <div className="bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_40px_rgba(13,44,92,0.06)] border border-rose-200/80 space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       <div>
-        <p className="font-['Plus_Jakarta_Sans',sans-serif] text-[11px] font-bold tracking-[0.22em] uppercase text-red-600 mb-2 flex items-center gap-2">
-          <span className="w-5 h-px bg-red-400" />
+        <p className="text-[11px] font-bold tracking-[0.22em] uppercase text-rose-600 mb-2 flex items-center gap-2">
+          <span className="w-5 h-px bg-rose-400" />
           <span>Zonă de siguranță cont</span>
         </p>
-        <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold tracking-tight text-red-700">
+        <h2
+          className="text-[28px] sm:text-[34px] font-bold tracking-tight text-rose-700"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
           Ștergere definitivă a contului
         </h2>
-        <p className="text-[13.5px] text-[#64748b] mt-1 leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
+        <p className="text-[13.5px] text-[#6b7c99] mt-1 leading-relaxed">
           Această acțiune este ireversibilă. Toate datele tale, rezervările și punctele de loialitate vor fi eliminate definitiv din sistemul Casa Esy.
         </p>
       </div>
 
-      <div className="p-5 rounded-[18px] border border-red-200 bg-red-50/50">
+      <div className="p-5 rounded-[18px] border border-rose-200/80 bg-rose-50/40">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
-            <h4 className="text-[15px] font-bold text-red-900">
+            <h4 className="font-['Plus_Jakarta_Sans',sans-serif] text-[15px] font-bold text-rose-950">
               Elimină definitiv contul tău Casa Esy
             </h4>
-            <p className="text-[12.5px] text-red-700/80 mt-1 max-w-[500px]">
+            <p className="text-[12.5px] text-rose-800/80 mt-1 max-w-[500px]">
               Vei fi delogat imediat de pe toate dispozitivele și nu vei mai putea recupera contul sau istoricul de sejururi.
             </p>
           </div>
@@ -1682,7 +1688,7 @@ function FloatingMaritimeBackgroundWhite() {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       {/* 1. SOFT CONTEMPORARY RADIAL MESH */}
-      <div className="absolute top-0 left-0 w-full h-[600px] bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(0,168,150,0.06),transparent_70%)]" />
+      <div className="absolute top-0 left-0 w-full h-[600px] bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(198,154,63,0.07),transparent_70%)]" />
 
       {/* 2. SUBTLE ARCHITECTURAL WATERMARKS (STATIC, ELEGANT, ULTRA-LOW OPACITY) */}
       <div className="absolute -top-12 -right-16 w-[520px] h-[520px] opacity-[0.02] text-[#0d2c5c]">

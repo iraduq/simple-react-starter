@@ -498,7 +498,7 @@ export default function CheckIn() {
                         className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-4 py-2 text-[12px] font-bold text-rose-700 hover:bg-rose-50 transition-colors"
                       >
                         <RotateCcw size={14} />
-                        Solicită Refund
+                        Anulare
                       </button>
                     ) : null}
                   </div>
@@ -527,7 +527,7 @@ export default function CheckIn() {
                           ) : (
                             <RotateCcw size={14} />
                           )}
-                          {refunding ? "Se procesează refund-ul..." : "Confirmă anularea & refund 100%"}
+                          {refunding ? "Se procesează anularea..." : "Confirmă anularea"}
                         </button>
                         <button
                           type="button"

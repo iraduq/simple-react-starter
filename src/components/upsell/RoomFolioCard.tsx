@@ -6,15 +6,12 @@ import {
   CreditCard,
   CheckCircle2,
   AlertCircle,
-  Plus,
-  ArrowRight,
   ShieldCheck,
   RefreshCw,
   Sparkles,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
-import BreakfastUpsellModal from "./BreakfastUpsellModal";
 
 export interface FolioData {
   booking_id: string;
@@ -85,7 +82,6 @@ export default function RoomFolioCard({
   const { toast } = useToast();
   const [folio, setFolio] = useState<FolioData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
   const [settling, setSettling] = useState(false);
 
   const loadFolio = async () => {
@@ -156,14 +152,6 @@ export default function RoomFolioCard({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="px-4 py-2.5 rounded-[12px] bg-[#0d2c5c] hover:bg-[#133b7a] border border-[#c69a3f]/30 text-white text-[12.5px] font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95"
-            >
-              <Plus size={14} className="text-[#e6b85c]" />
-              <span>Adaugă Mic Dejun / Suplimente</span>
-            </button>
             <button
               onClick={loadFolio}
               disabled={loading}
@@ -245,14 +233,9 @@ export default function RoomFolioCard({
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="mt-3 pt-2.5 border-t border-slate-200 text-[11px] font-bold text-[#9c7624] hover:text-[#0d2c5c] hover:underline flex items-center gap-1 text-left transition-colors"
-            >
-              <span>+ Adaugă opțiuni mic dejun</span>
-              <ArrowRight size={11} />
-            </button>
+            <div className="mt-3 pt-2.5 border-t border-slate-200 text-[11px] text-[#6b7c99]">
+              Inclus în planul tarifar ales
+            </div>
           </div>
 
           {/* 3. Comenzi Restaurant & Room Service pe Cameră */}
@@ -376,17 +359,6 @@ export default function RoomFolioCard({
           )}
         </div>
       </div>
-
-      {/* Modal for adding breakfast */}
-      <BreakfastUpsellModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        bookingId={folio.booking_id}
-        bookingCode={folio.booking_code}
-        nightsCount={folio.nights}
-        adultsCount={folio.guests_adults}
-        onSuccess={loadFolio}
-      />
     </>
   );
 }
