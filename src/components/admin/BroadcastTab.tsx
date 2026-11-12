@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Radio,
   Sparkles,
@@ -8,6 +8,7 @@ import {
   Send,
   Plus,
   Trash2,
+  Pencil,
   CheckCircle2,
   Eye,
   RefreshCw,
@@ -93,6 +94,8 @@ export default function BroadcastTab() {
   const [submitting, setSubmitting] = useState(false);
 
   // Form State
+  const composerRef = useRef<HTMLDivElement>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [type, setType] = useState<string>("offer");
@@ -129,6 +132,31 @@ export default function BroadcastTab() {
     toast(`Șablonul «${p.name}» a fost încărcat în formular.`, "success");
   };
 
+  const handleStartEdit = (b: BroadcastItem) => {
+    setEditingId(b.id);
+    setTitle(b.title || "");
+    setMessage(b.message || "");
+    setType(b.type || "offer");
+    setTargetAudience(b.target_audience || "all");
+    setPriority(b.priority || "normal");
+    setCtaText(b.cta_text || "");
+    setCtaLink(b.cta_link || "");
+    setDurationHours(b.expires_at ? "24" : "never");
+    composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
+    setMessage("");
+    setType("offer");
+    setTargetAudience("all");
+    setPriority("normal");
+    setCtaText("");
+    setCtaLink("");
+    setDurationHours("24");
+  };
+
   const handleCreateBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !message.trim()) {
@@ -155,25 +183,36 @@ export default function BroadcastTab() {
         priority,
         cta_text: ctaText.trim() || null,
         cta_link: ctaLink.trim() || null,
-        is_active: true,
         expires_at,
       };
 
-      const res = await apiFetch<BroadcastItem>("/admin/broadcasts", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      if (editingId !== null) {
+        const updated = await apiFetch<BroadcastItem>(`/admin/broadcasts/${editingId}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        });
+        toast("Notificarea a fost actualizată live!", "success");
+        setBroadcasts((prev) =>
+          prev.map((b) => (b.id === editingId ? updated : b))
+        );
+        handleCancelEdit();
+      } else {
+        const res = await apiFetch<BroadcastItem>("/admin/broadcasts", {
+          method: "POST",
+          body: JSON.stringify({ ...payload, is_active: true }),
+        });
 
-      toast("Notificarea a fost transmisă live tuturor oaspeților!", "success");
-      setBroadcasts((prev) => [res, ...prev.filter((b) => b.id !== res.id)]);
+        toast("Notificarea a fost transmisă live tuturor oaspeților!", "success");
+        setBroadcasts((prev) => [res, ...prev.filter((b) => b.id !== res.id)]);
 
-      // Reset form
-      setTitle("");
-      setMessage("");
-      setCtaText("");
-      setCtaLink("");
+        // Reset form
+        setTitle("");
+        setMessage("");
+        setCtaText("");
+        setCtaLink("");
+      }
     } catch (err: any) {
-      toast(err?.message || "Eroare la crearea notificării.", "error");
+      toast(err?.message || "Eroare la salvarea notificării.", "error");
     } finally {
       setSubmitting(false);
     }
@@ -310,12 +349,34 @@ export default function BroadcastTab() {
       {/* ── GRID: COMPOSER FORM + LIVE PREVIEW ── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-start">
         {/* COMPOSER CARD */}
-        <div className="bg-white rounded-[24px] p-6 sm:p-7 border border-[#e1e8f0] shadow-[0_10px_35px_rgba(13,44,92,0.06)]">
-          <div className="flex items-center gap-2 mb-5">
-            <Send size={16} className="text-[#c69a3f]" />
-            <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
-              Compune notificare nouă
-            </h3>
+        <div
+          ref={composerRef}
+          className={`bg-white rounded-[24px] p-6 sm:p-7 border shadow-[0_10px_35px_rgba(13,44,92,0.06)] transition-colors ${
+            editingId !== null ? "border-[#c69a3f] ring-2 ring-[#c69a3f]/20" : "border-[#e1e8f0]"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2 mb-5">
+            <div className="flex items-center gap-2">
+              {editingId !== null ? (
+                <Pencil size={16} className="text-[#c69a3f]" />
+              ) : (
+                <Send size={16} className="text-[#c69a3f]" />
+              )}
+              <h3 className="font-['Outfit',sans-serif] text-[18px] font-bold text-[#0d2c5c]">
+                {editingId !== null
+                  ? `Editează notificarea #${editingId}`
+                  : "Compune notificare nouă"}
+              </h3>
+            </div>
+            {editingId !== null && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="px-3 py-1 rounded-full border border-[#e1e8f0] text-[11.5px] font-bold text-[#64748b] hover:text-[#0d2c5c] hover:border-[#0d2c5c]/30 transition cursor-pointer"
+              >
+                Anulează editarea
+              </button>
+            )}
           </div>
 
           <form onSubmit={handleCreateBroadcast} className="space-y-4">
@@ -527,10 +588,16 @@ export default function BroadcastTab() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full mt-2 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99] disabled:opacity-50"
+              className="w-full mt-2 h-12 rounded-[14px] bg-[#0d2c5c] hover:bg-[#07203f] text-white text-[13.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(13,44,92,0.18)] transition active:scale-[0.99] disabled:opacity-50 cursor-pointer"
             >
               <Send size={15} className="text-[#c69a3f]" />
-              <span>{submitting ? "Se transmite..." : "Transmite acum către oaspeți"}</span>
+              <span>
+                {submitting
+                  ? "Se salvează..."
+                  : editingId !== null
+                    ? "Salvează modificările"
+                    : "Transmite acum către oaspeți"}
+              </span>
             </button>
           </form>
         </div>
@@ -761,15 +828,23 @@ export default function BroadcastTab() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             type="button"
+                            onClick={() => handleStartEdit(b)}
+                            className="p-1.5 rounded-lg text-[#0d2c5c] hover:bg-[#f0f4fa] transition cursor-pointer"
+                            title="Editează notificarea"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => handleToggle(b.id)}
-                            className="text-[12px] font-semibold text-[#0d2c5c] hover:text-[#c69a3f] hover:underline"
+                            className="text-[12px] font-semibold text-[#0d2c5c] hover:text-[#c69a3f] hover:underline cursor-pointer"
                           >
                             {b.is_active ? "Oprește" : "Pornește"}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(b.id)}
-                            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition"
+                            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition cursor-pointer"
                             title="Șterge definitiv"
                           >
                             <Trash2 size={14} />
