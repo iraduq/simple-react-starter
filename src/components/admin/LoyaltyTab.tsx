@@ -697,41 +697,59 @@ export default function LoyaltyTab() {
 
                             {(matchedOrder ? [matchedOrder] : relatedOrders).length > 0 && (
                               <div className="space-y-2">
-                                {(matchedOrder ? [matchedOrder] : relatedOrders).map((ord) => (
-                                  <div key={ord.id} className="rounded-xl border border-amber-200/70 bg-white p-3 space-y-2">
-                                    <div className="flex items-center justify-between gap-2">
-                                      <span className="inline-flex items-center gap-1.5 font-bold text-[#0d2c5c]">
-                                        <UtensilsCrossed size={14} className="text-[#c69a3f]" />
-                                        Comandă {ord.order_code} · {ord.location_label}
-                                      </span>
-                                      <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold uppercase text-[#9c7624]">
-                                        {ord.status}
-                                      </span>
+                                {(matchedOrder ? [matchedOrder] : relatedOrders).map((ord) => {
+                                  const fmtPayment = (pm?: string | null) => {
+                                    const m = (pm || "").toLowerCase();
+                                    if (m === "room_charge") return "Cont cameră (la check-out)";
+                                    if (m === "card" || m === "stripe") return "Card bancar (Stripe)";
+                                    if (m === "cash") return "Numerar";
+                                    if (m === "loyalty_points" || m === "points") return "Puncte VIP";
+                                    return pm || "—";
+                                  };
+                                  const fmtOrderStatus = (st?: string | null) => {
+                                    const s = (st || "").toLowerCase();
+                                    if (s === "new" || s === "pending") return "Nouă";
+                                    if (s === "preparing" || s === "in_progress") return "În preparare";
+                                    if (s === "delivered" || s === "completed") return "Livrată";
+                                    if (s === "cancelled") return "Anulată";
+                                    return st || "—";
+                                  };
+                                  return (
+                                    <div key={ord.id} className="rounded-xl border border-amber-200/70 bg-white p-3.5 space-y-2.5">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <span className="inline-flex items-center gap-1.5 font-bold text-[#0d2c5c]">
+                                          <UtensilsCrossed size={14} className="text-[#c69a3f]" />
+                                          Comandă {ord.order_code} · {ord.location_label}
+                                        </span>
+                                        <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold uppercase text-[#9c7624]">
+                                          {fmtOrderStatus(ord.status)}
+                                        </span>
+                                      </div>
+                                      <div className="divide-y divide-slate-100 rounded-lg border border-slate-100 bg-slate-50/70 px-3 py-1">
+                                        {ord.items.map((it, i) => (
+                                          <div key={i} className="py-1.5 flex items-center justify-between text-[11.5px]">
+                                            <span className="text-[#0d2c5c] font-medium">
+                                              {it.qty}x {it.title}
+                                            </span>
+                                            <span className="font-semibold text-slate-700">
+                                              {(Number(it.price || 0) * Number(it.qty || 1)).toFixed(2)} RON
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <div className="flex flex-wrap items-center justify-between gap-2 text-[11.5px] text-slate-600 pt-1">
+                                        <span>
+                                          Plată: <strong className="text-[#0d2c5c]">{fmtPayment(ord.payment_method)}</strong>
+                                          {ord.discount_amount > 0 ? ` · Reducere: -${ord.discount_amount} RON` : ""}
+                                          {ord.notes ? ` · Mențiuni: "${ord.notes}"` : ""}
+                                        </span>
+                                        <span className="font-bold text-[#0d2c5c]">
+                                          Total achitat: {ord.total_amount} RON
+                                        </span>
+                                      </div>
                                     </div>
-                                    <div className="divide-y divide-slate-100 rounded-lg border border-slate-100 bg-slate-50/70 px-2.5 py-1">
-                                      {ord.items.map((it, i) => (
-                                        <div key={i} className="py-1 flex items-center justify-between text-[11px]">
-                                          <span className="text-[#0d2c5c] font-medium">
-                                            {it.qty}x {it.title}
-                                          </span>
-                                          <span className="font-semibold text-slate-700">
-                                            {(Number(it.price || 0) * Number(it.qty || 1)).toFixed(2)} RON
-                                          </span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-600 pt-1">
-                                      <span>
-                                        Plată: <strong className="text-[#0d2c5c]">{ord.payment_method}</strong>
-                                        {ord.discount_amount > 0 ? ` · Reducere: -${ord.discount_amount} RON` : ""}
-                                        {ord.notes ? ` · Mențiuni: "${ord.notes}"` : ""}
-                                      </span>
-                                      <span className="font-bold text-[#0d2c5c]">
-                                        Total achitat: {ord.total_amount} RON
-                                      </span>
-                                    </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             )}
 
