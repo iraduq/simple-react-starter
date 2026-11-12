@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Star,
-  Award,
   MessageSquareReply,
   Eye,
   EyeOff,
@@ -15,10 +14,8 @@ import {
   Frown,
   AlertTriangle,
   ThumbsUp,
-  Coffee,
-  UtensilsCrossed,
-  HeartHandshake,
-  Sparkle,
+  MessageSquare,
+  ShieldCheck,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { dateFmt } from "../../lib/admin";
@@ -32,7 +29,6 @@ import {
   Modal,
   Field,
   Textarea,
-  Badge,
 } from "./ui";
 
 export interface AdminReviewItem {
@@ -83,12 +79,26 @@ export interface ReviewAnalyticsData {
   satisfaction_evolution: Array<{ period: string; score: number }>;
 }
 
+function formatScore(value: number | undefined | null, fallback = 5): string {
+  const num = Number(value ?? fallback);
+  if (!Number.isFinite(num)) return fallback.toFixed(1);
+  return Number.isInteger(num) ? `${num}.0` : num.toFixed(2).replace(/0$/, "");
+}
+
+function getInitials(name: string): string {
+  const parts = (name || "O").trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
+}
+
 export default function ReviewsTab() {
   const { toast } = useToast();
   const [reviews, setReviews] = useState<AdminReviewItem[]>([]);
   const [analytics, setAnalytics] = useState<ReviewAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filterMode, setFilterMode] = useState<"all" | "unreplied" | "replied" | "positive" | "negative">("all");
+  const [filterMode, setFilterMode] = useState<
+    "all" | "unreplied" | "replied" | "positive" | "negative"
+  >("all");
   const [search, setSearch] = useState("");
 
   // Modal Răspuns Oficial
@@ -146,11 +156,64 @@ export default function ReviewsTab() {
     const count = reviews.length;
     const avg =
       count > 0
-        ? (reviews.reduce((a, r) => a + Number(r.rating_overall || 5), 0) / count).toFixed(2)
-        : "5.00";
+        ? reviews.reduce((a, r) => a + Number(r.rating_overall || 5), 0) / count
+        : 5;
     const unreplied = reviews.filter((r) => !r.admin_reply).length;
-    return { count, avg, unreplied };
+    const positiveCount = reviews.filter((r) => r.ai_sentiment === "positive").length;
+    const neutralCount = reviews.filter((r) => r.ai_sentiment === "neutral").length;
+    const negativeCount = reviews.filter((r) => r.ai_sentiment === "negative").length;
+    return {
+      count,
+      avg,
+      unreplied,
+      positiveCount,
+      neutralCount,
+      negativeCount,
+    };
   }, [reviews]);
+
+  const overallScore = analytics?.overall_score ?? stats.avg;
+  const posPct =
+    analytics?.sentiment_distribution?.positive_pct ??
+    (stats.count > 0 ? Math.round((stats.positiveCount / stats.count) * 100) : 100);
+  const neuPct =
+    analytics?.sentiment_distribution?.neutral_pct ??
+    (stats.count > 0 ? Math.round((stats.neutralCount / stats.count) * 100) : 0);
+  const negPct =
+    analytics?.sentiment_distribution?.negative_pct ??
+    (stats.count > 0 ? Math.round((stats.negativeCount / stats.count) * 100) : 0);
+
+  const criteriaItems = [
+    {
+      label: "Curățenie",
+      score: analytics?.criteria?.cleanliness ?? 5,
+      barClass: "bg-emerald-500",
+    },
+    {
+      label: "Confortul camerei",
+      score: analytics?.criteria?.comfort ?? 5,
+      barClass: "bg-teal-500",
+    },
+    {
+      label: "Personal și recepție",
+      score: analytics?.criteria?.staff ?? 5,
+      barClass: "bg-[#0d2c5c]",
+    },
+    {
+      label: "Micul dejun și bar",
+      score: analytics?.criteria?.breakfast ?? 5,
+      barClass: "bg-[#c69a3f]",
+    },
+  ];
+
+  const evolutionItems = analytics?.satisfaction_evolution?.length
+    ? analytics.satisfaction_evolution
+    : [
+        { period: "Iun", score: 4.8 },
+        { period: "Iul", score: 4.9 },
+        { period: "Aug", score: 4.95 },
+        { period: "Sep", score: 4.92 },
+      ];
 
   const handleSaveReply = async () => {
     if (!replyTarget) return;
@@ -206,241 +269,300 @@ export default function ReviewsTab() {
         description="Monitorizează scorurile multi-criteriale, analiza sentimentului în timp real cu AI, cele mai apreciate facilități și reclamațiile recurente."
       />
 
-      {/* AI Satisfaction & Analytics Overview Panel */}
-      <div className="rounded-3xl bg-gradient-to-br from-[#0d2c5c] via-[#0f3469] to-[#082046] p-6 text-white shadow-xl border border-white/10">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+      {/* Top KPI Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="rounded-2xl bg-gradient-to-br from-[#0d2c5c] to-[#133b78] p-5 text-white shadow-sm border border-[#0d2c5c]/20 flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#e6b85c]">
-              <Sparkles size={16} />
-              <span>Sistem de satisfacție și evaluare oaspeți</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#e6b85c]">
+              Scor general
+            </span>
+            <div className="flex items-baseline gap-1.5 mt-1">
+              <span className="text-3xl font-extrabold font-['Outfit']">
+                {formatScore(overallScore)}
+              </span>
+              <span className="text-sm text-white/70 font-medium">/ 5</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold font-['Outfit'] mt-1 text-white">
-              Performanță ospitalitate și standarde de calitate
+            <div className="flex items-center gap-0.5 mt-1.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  size={13}
+                  className={
+                    i < Math.round(overallScore)
+                      ? "fill-amber-400 text-amber-400"
+                      : "text-white/25"
+                  }
+                />
+              ))}
+            </div>
+          </div>
+          <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
+            <Star size={20} className="fill-amber-400 text-amber-400" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Recenzii verificate
+            </span>
+            <div className="text-3xl font-extrabold font-['Outfit'] text-[#0d2c5c] mt-1">
+              {stats.count}
+            </div>
+            <span className="text-xs text-slate-500 mt-0.5 block">
+              Sejururi confirmate (#BK)
+            </span>
+          </div>
+          <div className="w-11 h-11 rounded-2xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center shrink-0">
+            <ShieldCheck size={20} />
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Necesită răspuns
+            </span>
+            <div
+              className={`text-3xl font-extrabold font-['Outfit'] mt-1 ${
+                stats.unreplied > 0 ? "text-amber-600" : "text-emerald-600"
+              }`}
+            >
+              {stats.unreplied}
+            </div>
+            <span className="text-xs text-slate-500 mt-0.5 block">
+              {stats.unreplied === 0
+                ? "Toate recenziile au răspuns"
+                : "Așteaptă răspuns oficial"}
+            </span>
+          </div>
+          <div
+            className={`w-11 h-11 rounded-2xl border flex items-center justify-center shrink-0 ${
+              stats.unreplied > 0
+                ? "bg-amber-50 text-amber-600 border-amber-100"
+                : "bg-emerald-50 text-emerald-600 border-emerald-100"
+            }`}
+          >
+            <MessageSquare size={20} />
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Sentiment pozitiv AI
+            </span>
+            <div className="text-3xl font-extrabold font-['Outfit'] text-emerald-600 mt-1">
+              {posPct}%
+            </div>
+            <span className="text-xs text-slate-500 mt-0.5 block">
+              Analiză automată NLP română
+            </span>
+          </div>
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+            <Sparkles size={20} />
+          </div>
+        </div>
+      </div>
+
+      {/* Analytics Grid: Criteria + Sentiment & Highlights + Evolution Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Card 1: Criteria */}
+        <div className="rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">
+              Evaluare pe criterii
             </h3>
-            <p className="text-xs text-white/70 mt-1 max-w-xl">
-              Fiecare recenzie trece automat prin analizatorul NLP românesc pentru a clasifica sentimentul și a extrage ariile de excelență sau reclamațiile.
-            </p>
+            <span className="text-[11px] font-medium text-slate-400">Medie / 5.0</span>
           </div>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 text-center">
-              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Scor general</span>
-              <div className="flex items-center justify-center gap-1.5 mt-0.5">
-                <span className="text-3xl font-extrabold font-['Outfit'] text-white">
-                  {analytics?.overall_score || stats.avg}
-                </span>
-                <Star size={22} className="fill-amber-400 text-amber-400" />
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 text-center">
-              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Recenzii verificate</span>
-              <span className="text-3xl font-extrabold font-['Outfit'] text-[#00a896] block mt-0.5">
-                {stats.count} #BK
-              </span>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 text-center">
-              <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider block">Necesită răspuns</span>
-              <span className="text-3xl font-extrabold font-['Outfit'] text-amber-300 block mt-0.5">
-                {stats.unreplied}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 5 Criterii & Sentiment Distribution Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 pt-6">
-          {/* Criterii 1: Curățenie & Confort */}
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] block">
-              Curățenie și confort
-            </span>
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-white/80">Curățenie</span>
-                <span className="font-bold">{analytics?.criteria.cleanliness || 4.9} / 5</span>
-              </div>
-              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-emerald-400 rounded-full"
-                  style={{ width: `${((analytics?.criteria.cleanliness || 4.9) / 5) * 100}%` }}
-                />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-white/80">Confortul camerei</span>
-                <span className="font-bold">{analytics?.criteria.comfort || 4.8} / 5</span>
-              </div>
-              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-teal-400 rounded-full"
-                  style={{ width: `${((analytics?.criteria.comfort || 4.8) / 5) * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Criterii 2: Personal & Servicii */}
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] block">
-              Personal și gastronomie
-            </span>
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-white/80">Personal și recepție</span>
-                <span className="font-bold">{analytics?.criteria.staff || 5.0} / 5</span>
-              </div>
-              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#00a896] rounded-full"
-                  style={{ width: `${((analytics?.criteria.staff || 5.0) / 5) * 100}%` }}
-                />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-white/80">Micul dejun și bar</span>
-                <span className="font-bold">{analytics?.criteria.breakfast || 4.9} / 5</span>
-              </div>
-              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-amber-400 rounded-full"
-                  style={{ width: `${((analytics?.criteria.breakfast || 4.9) / 5) * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Sentiment AI Bar */}
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] block">
-              Distribuție sentiment
-            </span>
-            <div className="flex items-center gap-1.5 h-3 w-full rounded-full overflow-hidden bg-white/10">
-              <div
-                className="h-full bg-emerald-400"
-                style={{ width: `${analytics?.sentiment_distribution.positive_pct || 90}%` }}
-                title="Pozitive"
-              />
-              <div
-                className="h-full bg-amber-400"
-                style={{ width: `${analytics?.sentiment_distribution.neutral_pct || 7}%` }}
-                title="Neutre"
-              />
-              <div
-                className="h-full bg-rose-400"
-                style={{ width: `${analytics?.sentiment_distribution.negative_pct || 3}%` }}
-                title="Reclamații"
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-1 text-[11px] pt-1">
-              <span className="text-emerald-300 font-semibold">
-                ● {analytics?.sentiment_distribution.positive_pct || 90}% Pozitiv
-              </span>
-              <span className="text-amber-300 font-semibold text-center">
-                ● {analytics?.sentiment_distribution.neutral_pct || 7}% Neutru
-              </span>
-              <span className="text-rose-300 font-semibold text-right">
-                ● {analytics?.sentiment_distribution.negative_pct || 3}% Atenție
-              </span>
-            </div>
-          </div>
-
-          {/* Evoluția Satisfacției */}
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#e6b85c] flex items-center gap-1.5">
-              <TrendingUp size={14} /> Evoluția scorului
-            </span>
-            <div className="flex items-end justify-between h-14 pt-2 gap-2">
-              {(analytics?.satisfaction_evolution || [
-                { period: "Iun", score: 4.8 },
-                { period: "Iul", score: 4.9 },
-                { period: "Aug", score: 4.95 },
-                { period: "Sep", score: 4.92 },
-              ]).map((item, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] font-bold text-white/90">{item.score}</span>
-                  <div
-                    className="w-full bg-gradient-to-t from-teal-500 to-[#00a896] rounded-t-md"
-                    style={{ height: `${((item.score - 4.0) / 1.0) * 40 + 10}px` }}
-                  />
-                  <span className="text-[10px] text-white/60">{item.period}</span>
+          <div className="space-y-3.5">
+            {criteriaItems.map((item) => {
+              const pct = Math.max(0, Math.min(100, (Number(item.score) / 5) * 100));
+              return (
+                <div key={item.label}>
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="font-medium text-slate-700">{item.label}</span>
+                    <span className="font-bold text-[#0d2c5c]">
+                      {formatScore(item.score)} / 5
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${item.barClass}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
-              ))}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Card 2: Sentiment & AI Highlights */}
+        <div className="rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs flex flex-col justify-between gap-4">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">
+                Distribuție sentiment
+              </h3>
+              <span className="text-[11px] font-medium text-slate-400">
+                {stats.count} recenzii
+              </span>
+            </div>
+
+            <div className="flex items-center h-3 w-full rounded-full overflow-hidden bg-slate-100">
+              {posPct > 0 && (
+                <div
+                  className="h-full bg-emerald-500 transition-all"
+                  style={{ width: `${posPct}%` }}
+                  title={`Pozitive: ${posPct}%`}
+                />
+              )}
+              {neuPct > 0 && (
+                <div
+                  className="h-full bg-amber-400 transition-all"
+                  style={{ width: `${neuPct}%` }}
+                  title={`Neutre: ${neuPct}%`}
+                />
+              )}
+              {negPct > 0 && (
+                <div
+                  className="h-full bg-rose-500 transition-all"
+                  style={{ width: `${negPct}%` }}
+                  title={`Atenție: ${negPct}%`}
+                />
+              )}
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] mt-2.5 font-semibold">
+              <span className="inline-flex items-center gap-1.5 text-emerald-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                {posPct}% Pozitiv
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-amber-700">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                {neuPct}% Neutru
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-rose-700">
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                {negPct}% Atenție
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 space-y-2.5">
+            <div>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 mb-1.5">
+                <ThumbsUp size={13} className="text-emerald-600" />
+                <span>Cele mai apreciate</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {(analytics?.top_praised?.length
+                  ? analytics.top_praised
+                  : [
+                      { label: "Curățenie impecabilă", count: 12 },
+                      { label: "Personal și ospitalitate", count: 11 },
+                      { label: "Mic dejun și gastronomie", count: 9 },
+                    ]
+                )
+                  .slice(0, 4)
+                  .map((item, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80"
+                    >
+                      {item.label} ({item.count})
+                    </span>
+                  ))}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-1.5 text-[11px]">
+              <AlertTriangle size={13} className="text-rose-500 shrink-0 mt-0.5" />
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-bold text-slate-600">Reclamații recurente:</span>
+                {analytics?.recurring_complaints && analytics.recurring_complaints.length > 0 ? (
+                  analytics.recurring_complaints.map((item, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200"
+                    >
+                      {item.label} ({item.count})
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-slate-400 italic">
+                    Nicio reclamație recurentă în ultimele 30 de zile.
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Highlights: Top Praised & Recurring Complaints */}
-        <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 shrink-0">
-              <ThumbsUp size={16} />
-            </span>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-bold text-emerald-200 mr-1">Cele mai apreciate:</span>
-              {(analytics?.top_praised || [
-                { label: "Curățenie impecabilă", count: 12 },
-                { label: "Personal și ospitalitate", count: 11 },
-                { label: "Mic dejun și gastronomie", count: 9 },
-              ]).map((item, idx) => (
-                <span
-                  key={idx}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-200 border border-emerald-500/30"
-                >
-                  {item.label} ({item.count})
-                </span>
-              ))}
-            </div>
+        {/* Card 3: Score Evolution */}
+        <div className="rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c] flex items-center gap-1.5">
+              <TrendingUp size={14} className="text-[#c69a3f]" />
+              Evoluția scorului
+            </h3>
+            <span className="text-[11px] font-medium text-slate-400">Ultimele luni</span>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-xl bg-rose-500/20 text-rose-300 shrink-0">
-              <AlertTriangle size={16} />
-            </span>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-bold text-rose-200 mr-1">Reclamații recurente:</span>
-              {(analytics?.recurring_complaints && analytics.recurring_complaints.length > 0 ? (
-                analytics.recurring_complaints.map((item, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/15 text-rose-200 border border-rose-500/30"
-                  >
-                    {item.label} ({item.count})
+          <div className="flex items-end justify-between gap-3 h-32 pt-4 px-1">
+            {evolutionItems.map((item, i) => {
+              const clamped = Math.max(0, Math.min(1, (Number(item.score) - 3.5) / 1.5));
+              const barHeightPx = Math.round(clamped * 68 + 16);
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+                  <span className="text-[11px] font-bold text-[#0d2c5c] mb-1.5">
+                    {formatScore(item.score)}
                   </span>
-                ))
-              ) : (
-                <span className="text-xs text-white/60 italic">Nicio reclamație recurentă activă în ultimele 30 de zile.</span>
-              ))}
-            </div>
+                  <div
+                    className="w-full max-w-[44px] rounded-t-lg bg-gradient-to-t from-[#0d2c5c] to-[#1e5099] shadow-xs transition-all duration-500"
+                    style={{ height: `${barHeightPx}px` }}
+                  />
+                  <span className="text-[11px] font-semibold text-slate-500 mt-2">
+                    {item.period}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200/90 shadow-xs">
+        <div className="flex flex-wrap items-center gap-1.5">
           {[
-            { id: "all" as const, label: `Toate (${reviews.length})` },
-            { id: "positive" as const, label: `✨ Pozitive`, icon: Smile },
-            { id: "negative" as const, label: `⚠️ Reclamații`, icon: Frown },
-            { id: "unreplied" as const, label: `Fără răspuns (${stats.unreplied})` },
-            { id: "replied" as const, label: `Cu răspuns (${reviews.length - stats.unreplied})` },
-          ].map((btn) => (
-            <button
-              key={btn.id}
-              onClick={() => setFilterMode(btn.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer flex items-center gap-1.5 ${
-                filterMode === btn.id
-                  ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              {btn.label}
-            </button>
-          ))}
+            { id: "all" as const, label: `Toate (${reviews.length})`, icon: null },
+            { id: "positive" as const, label: "Pozitive", icon: Smile },
+            { id: "negative" as const, label: "Reclamații", icon: AlertTriangle },
+            { id: "unreplied" as const, label: `Fără răspuns (${stats.unreplied})`, icon: null },
+            {
+              id: "replied" as const,
+              label: `Cu răspuns (${reviews.length - stats.unreplied})`,
+              icon: CheckCircle2,
+            },
+          ].map((btn) => {
+            const Icon = btn.icon;
+            return (
+              <button
+                key={btn.id}
+                onClick={() => setFilterMode(btn.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer inline-flex items-center gap-1.5 ${
+                  filterMode === btn.id
+                    ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-xs"
+                    : "bg-slate-50/70 text-slate-700 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                {Icon && <Icon size={13} />}
+                {btn.label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="w-full sm:w-72">
@@ -456,8 +578,15 @@ export default function ReviewsTab() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-44 rounded-2xl bg-white/60 border border-slate-200 animate-pulse" />
+            <div
+              key={n}
+              className="h-44 rounded-2xl bg-white/60 border border-slate-200 animate-pulse"
+            />
           ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-2xl bg-white border border-slate-200 p-10 text-center text-sm text-slate-500">
+          Nu există recenzii care să corespundă filtrului curent.
         </div>
       ) : (
         <div className="space-y-4">
@@ -465,85 +594,113 @@ export default function ReviewsTab() {
             <div
               key={r.id}
               className={`rounded-2xl bg-white border p-5 shadow-xs transition-all ${
-                r.is_visible ? "border-slate-200 hover:border-slate-300" : "border-slate-200 opacity-60"
+                r.is_visible
+                  ? "border-slate-200 hover:border-slate-300"
+                  : "border-slate-200 bg-slate-50/60 opacity-75"
               }`}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-['Outfit'] font-bold text-base text-[#0d2c5c]">
-                      {r.guest_name}
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-900 border border-amber-400/40">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-amber-700" />
-                      Sejur confirmat #{(r.booking_code || "BK-VERIFIED").replace(/^#/, "")}
-                    </span>
-                    {r.unit_number && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700">
-                        <BedDouble className="w-3 h-3" />
-                        {r.unit_number}
-                      </span>
-                    )}
-
-                    {/* AI Sentiment Badge */}
-                    {r.ai_sentiment === "positive" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                        <Smile size={12} /> Sentiment pozitiv ({Math.round((r.ai_confidence || 0.95) * 100)}%)
-                      </span>
-                    )}
-                    {r.ai_sentiment === "neutral" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
-                        <Meh size={12} /> Sentiment neutru ({Math.round((r.ai_confidence || 0.75) * 100)}%)
-                      </span>
-                    )}
-                    {r.ai_sentiment === "negative" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">
-                        <Frown size={12} /> Reclamație ({Math.round((r.ai_confidence || 0.88) * 100)}%)
-                      </span>
-                    )}
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-3.5">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-[#0d2c5c]/10 text-[#0d2c5c] font-['Outfit'] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                    {getInitials(r.guest_name)}
                   </div>
 
-                  <div className="text-xs text-slate-500 mt-0.5">
-                    {r.room_title} • Publicată pe {dateFmt(r.created_at)}
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-['Outfit'] font-bold text-base text-[#0d2c5c]">
+                        {r.guest_name}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+                        Sejur confirmat #{(r.booking_code || "BK-VERIFIED").replace(/^#/, "")}
+                      </span>
+                      {r.unit_number && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700">
+                          <BedDouble className="w-3 h-3" />
+                          {r.unit_number}
+                        </span>
+                      )}
+
+                      {r.ai_sentiment === "positive" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <Smile size={12} /> Pozitiv ({Math.round((r.ai_confidence || 0.95) * 100)}%)
+                        </span>
+                      )}
+                      {r.ai_sentiment === "neutral" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                          <Meh size={12} /> Neutru ({Math.round((r.ai_confidence || 0.75) * 100)}%)
+                        </span>
+                      )}
+                      {r.ai_sentiment === "negative" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          <Frown size={12} /> Reclamație ({Math.round((r.ai_confidence || 0.88) * 100)}%)
+                        </span>
+                      )}
+                      {!r.is_visible && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-200 text-slate-700">
+                          <EyeOff size={11} /> Ascunsă
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
+                      <span className="font-medium text-slate-700 max-w-xs sm:max-w-md truncate">
+                        {r.room_title}
+                      </span>
+                      <span>•</span>
+                      <span>Publicată pe {dateFmt(r.created_at)}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200">
-                  <span className="text-xs font-bold text-amber-900">{r.rating_overall}.0</span>
-                  {Array.from({ length: 5 }).map((_, idx) => (
-                    <Star
-                      key={idx}
-                      className={`w-3.5 h-3.5 ${
-                        idx < r.rating_overall ? "fill-amber-400 text-amber-400" : "text-slate-200"
-                      }`}
-                    />
-                  ))}
+                <div className="flex items-center gap-1.5 bg-amber-50/90 px-3 py-1.5 rounded-xl border border-amber-200/80 shrink-0">
+                  <span className="text-xs font-extrabold text-amber-900">
+                    {formatScore(r.rating_overall)}
+                  </span>
+                  <div className="flex items-center gap-0.5">
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                      <Star
+                        key={idx}
+                        className={`w-3.5 h-3.5 ${
+                          idx < r.rating_overall
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-slate-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* 5 Criterii Detaliate */}
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 mb-3 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200/70">
-                <span>Curățenie: <strong>{r.rating_cleanliness}/5</strong></span>
-                <span>•</span>
-                <span>Personal: <strong>{r.rating_service}/5</strong></span>
-                <span>•</span>
-                <span>Restaurant: <strong>{r.rating_restaurant || 5}/5</strong></span>
-                <span>•</span>
-                <span>Micul dejun: <strong>{r.rating_breakfast || 5}/5</strong></span>
-                <span>•</span>
-                <span>Confort cameră: <strong>{r.rating_comfort}/5</strong></span>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mb-3">
+                {[
+                  { label: "Curățenie", val: r.rating_cleanliness },
+                  { label: "Personal", val: r.rating_service },
+                  { label: "Restaurant", val: r.rating_restaurant ?? 5 },
+                  { label: "Mic dejun", val: r.rating_breakfast ?? 5 },
+                  { label: "Confort cameră", val: r.rating_comfort },
+                ].map((c) => (
+                  <span
+                    key={c.label}
+                    className="inline-flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/80"
+                  >
+                    <span className="text-slate-500">{c.label}:</span>
+                    <strong className="text-[#0d2c5c]">{c.val}/5</strong>
+                  </span>
+                ))}
               </div>
 
               {/* Extracted AI Keywords */}
               {r.ai_keywords && r.ai_keywords.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider inline-flex items-center gap-1 mr-1">
                     <Sparkles size={12} className="text-[#00a896]" /> Aspecte remarcate:
                   </span>
                   {r.ai_keywords.map((kw, i) => (
                     <span
                       key={i}
-                      className={`px-2 py-0.5 rounded-md text-[10.5px] font-semibold ${
+                      className={`px-2 py-0.5 rounded-md text-[11px] font-semibold ${
                         kw.startsWith("Atenție")
                           ? "bg-rose-50 text-rose-700 border border-rose-200"
                           : "bg-teal-50 text-teal-800 border border-teal-200"
@@ -555,10 +712,12 @@ export default function ReviewsTab() {
                 </div>
               )}
 
-              <p className="text-sm text-slate-800 leading-relaxed mb-4">„{r.comment}”</p>
+              <p className="text-sm text-slate-800 leading-relaxed mb-4 bg-slate-50/50 p-3.5 rounded-xl border border-slate-100">
+                „{r.comment}”
+              </p>
 
               {r.admin_reply && (
-                <div className="rounded-xl bg-[#0d2c5c]/5 border-l-4 border-l-[#c69a3f] p-3.5 mb-4">
+                <div className="rounded-xl bg-[#0d2c5c]/[0.04] border border-[#0d2c5c]/10 border-l-4 border-l-[#c69a3f] p-3.5 mb-4">
                   <div className="text-xs font-bold text-[#0d2c5c] mb-1">
                     Răspuns oficial — Vila Casa Esy
                   </div>
