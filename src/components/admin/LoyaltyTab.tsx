@@ -452,14 +452,44 @@ export default function LoyaltyTab() {
       <Modal
         open={Boolean(detailsTarget)}
         onClose={() => setDetailsTarget(null)}
+        width="max-w-3xl"
         title={detailsTarget ? `Istoric VIP · ${detailsTarget.user_name}` : "Istoric VIP"}
         subtitle={detailsTarget?.user_email}
         footer={<GhostButton onClick={() => setDetailsTarget(null)}>Închide</GhostButton>}
       >
         {loadingDetails ? (
-          <p className="text-sm text-slate-500 py-6 text-center">Se încarcă detaliile VIP...</p>
+          <p className="text-sm text-slate-500 py-8 text-center">Se încarcă detaliile VIP...</p>
         ) : detailsData ? (
           <div className="space-y-5">
+            {detailsTarget && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="rounded-2xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-3">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-[#64748b]">
+                    Nivel VIP
+                  </span>
+                  <span className="mt-1 inline-block font-['Outfit',sans-serif] text-[16px] font-bold text-[#0d2c5c]">
+                    {detailsTarget.tier}
+                  </span>
+                </div>
+                <div className="rounded-2xl border border-[#c69a3f]/30 bg-[#fdf8ed] px-4 py-3">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-[#9a7020]">
+                    Sold curent
+                  </span>
+                  <span className="mt-1 inline-block font-['Outfit',sans-serif] text-[16px] font-bold text-[#9a7020]">
+                    {detailsTarget.points_balance} pct
+                  </span>
+                </div>
+                <div className="rounded-2xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-3">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-[#64748b]">
+                    Acumulat / Cheltuit
+                  </span>
+                  <span className="mt-1 inline-block font-['Outfit',sans-serif] text-[16px] font-bold text-[#0d2c5c]">
+                    {detailsTarget.total_points_earned} / {detailsTarget.total_points_spent} pct
+                  </span>
+                </div>
+              </div>
+            )}
+
             {(detailsData.vouchers.coupons.length > 0 || detailsData.vouchers.perks.length > 0) && (
               <div className="space-y-2">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -493,18 +523,20 @@ export default function LoyaltyTab() {
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#64748b]">
                   Ultimele Tranzacții ({detailsData.transactions.length})
                 </p>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-[#94a3b8]">
                   Click pe o tranzacție pentru detalii complete
                 </span>
               </div>
-              <div className="divide-y divide-slate-100 max-h-[380px] overflow-y-auto border border-slate-200 rounded-xl">
+              <div className="max-h-[440px] overflow-y-auto pr-1 space-y-2.5">
                 {detailsData.transactions.length === 0 ? (
-                  <p className="text-xs text-slate-500 p-4 text-center">Nicio tranzacție.</p>
+                  <p className="text-xs text-slate-500 p-6 text-center rounded-2xl border border-[#e1e8f0] bg-[#f8fafd]">
+                    Nicio tranzacție înregistrată.
+                  </p>
                 ) : (
                   detailsData.transactions.map((tx) => {
                     const pos = tx.points > 0;
@@ -524,28 +556,63 @@ export default function LoyaltyTab() {
                         )
                       : [];
 
+                    const fmtShortDate = (iso?: string | null) => {
+                      if (!iso) return "—";
+                      const d = new Date(iso);
+                      if (isNaN(d.getTime())) return iso.slice(0, 10);
+                      return d.toLocaleDateString("ro-RO", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      });
+                    };
+
+                    const formatPlan = (code?: string | null) => {
+                      const c = (code || "flexible").toLowerCase();
+                      if (c === "breakfast") return "Mic dejun inclus";
+                      if (c === "non_refundable") return "Nerambursabil";
+                      if (c === "half_board") return "Demipensiune";
+                      return "Flexibil";
+                    };
+
+                    const formatStatus = (st?: string | null) => {
+                      const s = (st || "").toLowerCase();
+                      if (s === "cancelled") return { label: "Anulată", cls: "bg-rose-50 text-rose-700 border-rose-200" };
+                      if (s === "confirmed") return { label: "Confirmată", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+                      if (s === "checked_in") return { label: "Check-in", cls: "bg-sky-50 text-sky-700 border-sky-200" };
+                      if (s === "completed") return { label: "Finalizată", cls: "bg-slate-100 text-slate-700 border-slate-200" };
+                      return { label: st || "—", cls: "bg-slate-100 text-slate-700 border-slate-200" };
+                    };
+
                     return (
-                      <div key={tx.id} className="bg-white">
+                      <div
+                        key={tx.id}
+                        className={`rounded-2xl border transition overflow-hidden ${
+                          isOpen
+                            ? "border-[#c69a3f]/60 bg-[#fdf8ed]/30 shadow-sm"
+                            : "border-[#e1e8f0] bg-white hover:border-[#0d2c5c]/25"
+                        }`}
+                      >
                         <button
                           type="button"
                           onClick={() => setSelectedTxId(isOpen ? null : tx.id)}
-                          className={`w-full text-left px-4 py-3 flex items-start justify-between text-xs gap-3 transition cursor-pointer ${
-                            isOpen ? "bg-[#fdf8ec]/70" : "hover:bg-slate-50"
-                          }`}
+                          className="w-full text-left px-4 py-3.5 flex items-center justify-between gap-4 cursor-pointer"
                         >
-                          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                          <div className="flex items-start gap-3 min-w-0 flex-1">
                             <span
-                              className={`p-1.5 rounded-full shrink-0 mt-0.5 ${
-                                pos ? "bg-amber-50 text-[#c69a3f]" : "bg-slate-100 text-[#0d2c5c]"
+                              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border ${
+                                pos
+                                  ? "bg-[#fdf8ed] border-[#c69a3f]/30 text-[#c69a3f]"
+                                  : "bg-rose-50 border-rose-200 text-rose-600"
                               }`}
                             >
-                              {pos ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                              {pos ? <ArrowUpRight size={15} /> : <ArrowDownRight size={15} />}
                             </span>
                             <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-[#0d2c5c] whitespace-normal break-words leading-snug">
+                              <p className="text-[13px] font-semibold text-[#0d2c5c] whitespace-normal break-words leading-snug">
                                 {tx.description}
                               </p>
-                              <p className="text-[10.5px] text-slate-400 mt-1">
+                              <p className="text-[11px] text-[#94a3b8] mt-1">
                                 {tx.created_at
                                   ? new Date(tx.created_at).toLocaleDateString("ro-RO", {
                                       day: "2-digit",
@@ -558,65 +625,75 @@ export default function LoyaltyTab() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0 pt-0.5">
+                          <div className="flex items-center gap-2.5 shrink-0">
                             <span
-                              className={`font-bold font-['Outfit'] ${
-                                pos ? "text-[#c69a3f]" : "text-[#0d2c5c]"
+                              className={`px-2.5 py-1 rounded-full text-[12px] font-bold font-['Outfit'] border ${
+                                pos
+                                  ? "bg-[#fdf8ed] border-[#c69a3f]/35 text-[#9a7020]"
+                                  : "bg-rose-50 border-rose-200 text-rose-700"
                               }`}
                             >
                               {pos ? `+${tx.points}` : tx.points} pct
                             </span>
                             {isOpen ? (
-                              <ChevronUp size={14} className="text-slate-400" />
+                              <ChevronUp size={15} className="text-[#64748b]" />
                             ) : (
-                              <ChevronDown size={14} className="text-slate-400" />
+                              <ChevronDown size={15} className="text-[#94a3b8]" />
                             )}
                           </div>
                         </button>
 
                         {isOpen && (
-                          <div className="px-4 pb-4 pt-2 bg-[#f8fafc] border-t border-slate-100 space-y-3 text-xs">
-                            {matchedBooking && (
-                              <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="inline-flex items-center gap-1.5 font-bold text-[#0d2c5c]">
-                                    <BedDouble size={14} className="text-[#c69a3f]" />
-                                    Sejur #{matchedBooking.booking_code} · {matchedBooking.room_title}
-                                    {matchedBooking.unit_number ? ` (Cam ${matchedBooking.unit_number})` : ""}
-                                  </span>
-                                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-[#0d2c5c]">
-                                    {matchedBooking.status}
-                                  </span>
+                          <div className="px-4 pb-4 pt-3 bg-[#f8fafd] border-t border-[#e1e8f0] space-y-3 text-xs">
+                            {matchedBooking && (() => {
+                              const stBadge = formatStatus(matchedBooking.status);
+                              return (
+                                <div className="rounded-xl border border-[#e1e8f0] bg-white p-4 space-y-3">
+                                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#f1f5f9]">
+                                    <span className="inline-flex items-center gap-2 text-[13px] font-bold text-[#0d2c5c]">
+                                      <BedDouble size={15} className="text-[#c69a3f]" />
+                                      Sejur #{matchedBooking.booking_code} · {matchedBooking.room_title}
+                                      {matchedBooking.unit_number ? ` (Cam ${matchedBooking.unit_number})` : ""}
+                                    </span>
+                                    <span className={`rounded-full border px-2.5 py-0.5 text-[10.5px] font-bold uppercase ${stBadge.cls}`}>
+                                      {stBadge.label}
+                                    </span>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[12px]">
+                                    <div>
+                                      <span className="block text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Perioadă</span>
+                                      <span className="mt-0.5 block font-semibold text-[#0d2c5c] whitespace-nowrap">
+                                        {fmtShortDate(matchedBooking.check_in)} → {fmtShortDate(matchedBooking.check_out)}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="block text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Oaspeți</span>
+                                      <span className="mt-0.5 block font-semibold text-[#0d2c5c]">
+                                        {matchedBooking.guests_adults} adulți
+                                        {matchedBooking.guests_children > 0 ? `, ${matchedBooking.guests_children} copii` : ""}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="block text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Total plătit</span>
+                                      <span className="mt-0.5 inline-flex items-center gap-1.5 font-bold text-[#0d2c5c] whitespace-nowrap">
+                                        <span>{matchedBooking.total_price} RON</span>
+                                        {matchedBooking.payment_status === "refunded" && (
+                                          <span className="rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                                            Rambursat
+                                          </span>
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="block text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">Plan tarifar</span>
+                                      <span className="mt-0.5 block font-semibold text-[#0d2c5c]">
+                                        {formatPlan(matchedBooking.rate_plan_code)}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-600">
-                                  <div>
-                                    <span className="block text-[10px] uppercase text-slate-400">Perioadă</span>
-                                    <span className="font-semibold text-[#0d2c5c]">
-                                      {(matchedBooking.check_in || "").slice(0, 10)} → {(matchedBooking.check_out || "").slice(0, 10)}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[10px] uppercase text-slate-400">Oaspeți</span>
-                                    <span className="font-semibold text-[#0d2c5c]">
-                                      {matchedBooking.guests_adults} adulți
-                                      {matchedBooking.guests_children > 0 ? `, ${matchedBooking.guests_children} copii` : ""}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[10px] uppercase text-slate-400">Total plătit</span>
-                                    <span className="font-bold text-[#0d2c5c]">
-                                      {matchedBooking.total_price} RON ({matchedBooking.payment_status || "—"})
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[10px] uppercase text-slate-400">Plan tarifar</span>
-                                    <span className="font-semibold text-[#0d2c5c]">
-                                      {matchedBooking.rate_plan_code || "flexible"}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
+                              );
+                            })()}
 
                             {(matchedOrder ? [matchedOrder] : relatedOrders).length > 0 && (
                               <div className="space-y-2">
