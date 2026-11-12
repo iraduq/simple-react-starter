@@ -348,21 +348,37 @@ export default function BroadcastTab() {
             </div>
 
             {/* Tip & Public Țintă */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
-                <label className="block text-[11px] font-bold tracking-wider uppercase text-[#64748b] mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+                <label className="block text-[11px] font-bold tracking-wider uppercase text-[#64748b] mb-2 font-['Plus_Jakarta_Sans',sans-serif]">
                   Tip Notificare
                 </label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e1e8f0] focus:border-[#c69a3f] focus:outline-none text-[13px] text-[#0d2c5c] font-['Plus_Jakarta_Sans',sans-serif] bg-white transition-colors"
-                >
-                  <option value="offer">✨ Ofertă Specială (Auriu)</option>
-                  <option value="event">🎉 Eveniment Hotel (Bleumarin)</option>
-                  <option value="announcement">ℹ️ Anunț Important (Azur)</option>
-                  <option value="urgent">🚨 Urgență / Mentenanță (Roșu)</option>
-                </select>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { key: "offer", label: "Ofertă", icon: Sparkles, active: "bg-[#fdf8ed] border-[#c69a3f] text-[#9a7020]" },
+                    { key: "event", label: "Eveniment", icon: Calendar, active: "bg-[#f0f4fa] border-[#0d2c5c] text-[#0d2c5c]" },
+                    { key: "announcement", label: "Anunț", icon: Info, active: "bg-sky-50 border-sky-500 text-sky-700" },
+                    { key: "urgent", label: "Urgență", icon: AlertTriangle, active: "bg-rose-50 border-rose-500 text-rose-700" },
+                  ].map((opt) => {
+                    const OptIcon = opt.icon;
+                    const isSelected = type === opt.key;
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setType(opt.key)}
+                        className={`px-3 py-2 rounded-[12px] border text-[12px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                          isSelected
+                            ? opt.active
+                            : "bg-white border-[#e1e8f0] text-[#64748b] hover:border-[#0d2c5c]/30 hover:text-[#0d2c5c]"
+                        }`}
+                      >
+                        <OptIcon size={13} />
+                        <span>{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
@@ -448,103 +464,123 @@ export default function BroadcastTab() {
                 Previzualizare alertă oaspete
               </h3>
             </div>
-            <span className="text-[11px] font-bold text-[#0d2c5c] bg-amber-50 border border-[#c69a3f]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c69a3f] animate-pulse" />
-              <span>Simulare Live</span>
+            <span className="text-[11px] font-bold text-[#0d2c5c] bg-[#fdf8ed] border border-[#c69a3f]/35 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Live Preview</span>
             </span>
           </div>
           <p className="text-[12.5px] text-[#64748b] font-['Plus_Jakarta_Sans',sans-serif]">
-            Așa se afișează notificarea plutitoare pe telefoanele și laptopurile oaspeților cazați:
+            Așa apare notificarea plutitoare pe site pentru oaspeți și vizitatori:
           </p>
 
-          {/* Device Mockup Window */}
-          <div className="rounded-[20px] border border-[#e1e8f0] bg-slate-50 overflow-hidden shadow-sm">
-            {/* Browser top chrome */}
-            <div className="px-4 py-2.5 bg-white border-b border-[#e1e8f0] flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-              </div>
-              <div className="px-3 py-0.5 rounded-full bg-[#f8fafc] border border-[#e1e8f0] text-[11px] text-[#64748b] font-mono flex items-center gap-1.5 shadow-xs">
-                <span className="text-emerald-600 text-[10px]">🔒</span>
-                <span>casaesy.ro/camere</span>
-              </div>
-              <span className="text-[10px] text-[#64748b] font-bold uppercase tracking-wider">
-                Guest UI
-              </span>
-            </div>
+          {/* Coastal Canvas Preview (matches BroadcastAlertBanner 1:1) */}
+          <div className="rounded-[20px] border border-[#e1e8f0] bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#e9eef6] p-5 sm:p-6 min-h-[260px] flex items-center justify-center relative overflow-hidden">
+            <div className="w-full max-w-[380px] relative rounded-[22px] bg-white/95 backdrop-blur-xl p-5 border shadow-[0_20px_50px_rgba(13,44,92,0.14)] overflow-hidden transition-all"
+              style={{
+                borderColor:
+                  type === "urgent"
+                    ? "#fecdd3"
+                    : type === "announcement"
+                      ? "#bae6fd"
+                      : type === "event"
+                        ? "rgba(13,44,92,0.15)"
+                        : "rgba(198,154,63,0.35)",
+              }}
+            >
+              {/* Top accent strip */}
+              <div
+                className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${
+                  type === "urgent"
+                    ? "from-rose-500 to-red-600"
+                    : type === "event"
+                      ? "from-[#0d2c5c] to-[#1d4ed8]"
+                      : type === "announcement"
+                        ? "from-[#0284c7] to-[#38bdf8]"
+                        : "from-[#c69a3f] to-[#e5b95c]"
+                }`}
+              />
 
-            {/* Viewport Canvas */}
-            <div className="p-4 sm:p-5 min-h-[250px] bg-gradient-to-br from-[#f8fafc] via-[#edf2f7] to-[#e2e8f0] flex items-end justify-between gap-4 relative overflow-hidden">
-              {/* Subtle background placeholder elements representing the hotel site */}
-              <div className="absolute top-4 left-4 right-4 opacity-40 pointer-events-none space-y-2">
-                <div className="h-3 w-28 bg-[#0d2c5c]/20 rounded-full" />
-                <div className="h-2 w-48 bg-[#0d2c5c]/10 rounded-full" />
-                <div className="h-20 w-full rounded-xl bg-white/60 border border-white/80" />
-              </div>
+              <div className="flex items-start gap-3.5">
+                <div
+                  className={`w-10 h-10 rounded-[14px] border flex items-center justify-center shrink-0 mt-0.5 ${
+                    type === "urgent"
+                      ? "bg-rose-50 border-rose-200 text-rose-600"
+                      : type === "event"
+                        ? "bg-[#f0f4fa] border-[#0d2c5c]/15 text-[#0d2c5c]"
+                        : type === "announcement"
+                          ? "bg-sky-50 border-sky-200 text-sky-600"
+                          : "bg-[#fdf8ed] border-[#c69a3f]/35 text-[#c69a3f]"
+                  }`}
+                >
+                  {type === "urgent" ? (
+                    <AlertTriangle size={18} />
+                  ) : type === "event" ? (
+                    <Calendar size={18} />
+                  ) : type === "announcement" ? (
+                    <Info size={18} />
+                  ) : (
+                    <Sparkles size={18} />
+                  )}
+                </div>
 
-              {/* THE TOAST NOTIFICATION CARD (PLASAT ELEGANT ÎN STÂNGA JOS) */}
-              <div className="relative max-w-[340px] rounded-[18px] bg-[#0d2c5c]/95 backdrop-blur-md text-white p-4 shadow-[0_15px_40px_rgba(13,44,92,0.35)] border border-[#c69a3f]/50 overflow-hidden z-10 transition-all">
-                {/* Glowing gold top strip */}
-                <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#c69a3f] via-[#f59e0b] to-[#c69a3f]" />
-
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-[#c69a3f]/40 shrink-0 text-[#c69a3f] shadow-sm mt-0.5">
-                    <Sparkles size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0 pr-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2 py-0.5 rounded-full text-[9.5px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase bg-[#c69a3f]/20 border border-[#c69a3f]/40 text-[#f59e0b] flex items-center gap-1 shadow-xs">
-                        <Radio size={10} className="animate-pulse" />
-                        {type === "urgent"
-                          ? "Notificare urgentă"
+                <div className="flex-1 min-w-0 pr-4">
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-[0.12em] uppercase border ${
+                        type === "urgent"
+                          ? "bg-rose-50 border-rose-200 text-rose-700"
                           : type === "event"
-                            ? "Eveniment hotel"
+                            ? "bg-[#f0f4fa] border-[#0d2c5c]/15 text-[#0d2c5c]"
                             : type === "announcement"
-                              ? "Anunț important"
-                              : "Ofertă specială"}
+                              ? "bg-sky-50 border-sky-200 text-sky-700"
+                              : "bg-[#fdf8ed] border-[#c69a3f]/35 text-[#9a7020]"
+                      }`}
+                    >
+                      {type === "urgent"
+                        ? "Notificare urgentă"
+                        : type === "event"
+                          ? "Eveniment resort"
+                          : type === "announcement"
+                            ? "Anunț important"
+                            : "Ofertă specială"}
+                    </span>
+                    <span className="text-[10.5px] font-semibold tracking-wide uppercase text-[#94a3b8]">
+                      Casa Esy
+                    </span>
+                  </div>
+
+                  <h4 className="font-['Outfit',sans-serif] text-[15.5px] font-bold text-[#0d2c5c] leading-snug">
+                    {title.trim() || "Titlul notificării va apărea aici"}
+                  </h4>
+                  <p className="mt-1 text-[12.5px] text-[#5b6e8d] font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
+                    {message.trim() || "Mesajul detaliat cu invitația la restaurant, oferta la bar sau anunțul recepției va fi afișat elegant."}
+                  </p>
+
+                  {ctaText && (
+                    <div className="mt-3.5">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#0d2c5c] text-white text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold shadow-sm">
+                        <span>{ctaText}</span>
+                        <span className="text-[#c69a3f]">→</span>
                       </span>
                     </div>
-                    <h4 className="font-['Outfit',sans-serif] text-[14px] font-bold text-white leading-snug">
-                      {title.trim() || "Titlul notificării va apărea aici"}
-                    </h4>
-                    <p className="mt-1 text-[12px] text-slate-200 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
-                      {message.trim() || "Mesajul detaliat cu invitația la restaurant, oferta la bar sau anunțul recepției va fi afișat elegant."}
-                    </p>
-                    {ctaText && (
-                      <div className="mt-2.5">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[8px] bg-[#c69a3f] text-[#0d2c5c] text-[11px] font-['Plus_Jakarta_Sans',sans-serif] font-bold shadow-sm">
-                          <span>{ctaText}</span>
-                          <span>→</span>
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Auto-dismiss countdown bar indicator */}
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/15 overflow-hidden">
-                  <div className="h-full w-2/3 bg-gradient-to-r from-[#c69a3f] to-[#f59e0b]" />
+                  )}
                 </div>
               </div>
 
-              {/* WIDGETUL DE AI CHAT ÎN DREAPTA JOS (SEPARAT COMPLET) */}
-              <div className="hidden sm:flex flex-col items-center gap-1 z-10 opacity-70 shrink-0">
-                <div className="w-11 h-11 rounded-full bg-[#0d2c5c] text-white flex items-center justify-center shadow-md border-2 border-white">
-                  <span className="text-[13px] font-bold">AI</span>
-                </div>
-                <span className="text-[9.5px] font-semibold text-[#64748b]">Widget chat</span>
+              {/* Progress bar */}
+              <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#f1f5f9] overflow-hidden">
+                <div
+                  className={`h-full w-2/3 bg-gradient-to-r ${
+                    type === "urgent"
+                      ? "from-rose-500 to-red-600"
+                      : type === "event"
+                        ? "from-[#0d2c5c] to-[#1d4ed8]"
+                        : type === "announcement"
+                          ? "from-[#0284c7] to-[#38bdf8]"
+                          : "from-[#c69a3f] to-[#e5b95c]"
+                  }`}
+                />
               </div>
-            </div>
-
-            {/* Bottom status bar */}
-            <div className="px-4 py-2.5 bg-white border-t border-[#e1e8f0] flex items-center justify-between text-[11px] font-['Plus_Jakarta_Sans',sans-serif] text-[#64748b]">
-              <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Conexiune WebSocket live activă
-              </span>
-              <span>Casa Esy Guest Portal</span>
             </div>
           </div>
         </div>

@@ -139,39 +139,43 @@ export default function BroadcastAlertBanner() {
     switch (type) {
       case "urgent":
         return {
-          cardBg: "bg-[#0b1c33]/95 border-red-500/40 shadow-[0_12px_36px_rgba(239,68,68,0.25)]",
-          badgeBg: "bg-red-500/15 border-red-500/30 text-red-400",
+          cardBorder: "border-rose-200",
+          badgeBg: "bg-rose-50 border-rose-200 text-rose-700",
+          iconBg: "bg-rose-50 border-rose-200 text-rose-600",
           icon: AlertTriangle,
-          iconColor: "text-red-400",
-          accentColor: "from-red-500 to-rose-600",
+          accentColor: "from-rose-500 to-red-600",
+          ctaBg: "bg-rose-600 hover:bg-rose-700 text-white",
           label: "Notificare urgentă",
         };
       case "event":
         return {
-          cardBg: "bg-[#071d3d]/95 border-[#00a896]/40 shadow-[0_12px_36px_rgba(0,168,150,0.22)]",
-          badgeBg: "bg-[#00a896]/15 border-[#00a896]/30 text-[#00c9b7]",
+          cardBorder: "border-[#0d2c5c]/15",
+          badgeBg: "bg-[#f0f4fa] border-[#0d2c5c]/15 text-[#0d2c5c]",
+          iconBg: "bg-[#f0f4fa] border-[#0d2c5c]/15 text-[#0d2c5c]",
           icon: Calendar,
-          iconColor: "text-[#00c9b7]",
-          accentColor: "from-[#00a896] to-[#0284c7]",
+          accentColor: "from-[#0d2c5c] to-[#1d4ed8]",
+          ctaBg: "bg-[#0d2c5c] hover:bg-[#163d7a] text-white",
           label: "Eveniment resort",
         };
       case "announcement":
         return {
-          cardBg: "bg-[#0b1b36]/95 border-[#0284c7]/40 shadow-[0_12px_36px_rgba(2,132,199,0.22)]",
-          badgeBg: "bg-[#0284c7]/15 border-[#0284c7]/30 text-sky-400",
+          cardBorder: "border-sky-200",
+          badgeBg: "bg-sky-50 border-sky-200 text-sky-700",
+          iconBg: "bg-sky-50 border-sky-200 text-sky-600",
           icon: Info,
-          iconColor: "text-sky-400",
-          accentColor: "from-[#0284c7] to-[#3b82f6]",
+          accentColor: "from-[#0284c7] to-[#38bdf8]",
+          ctaBg: "bg-[#0284c7] hover:bg-[#0369a1] text-white",
           label: "Anunț important",
         };
       case "offer":
       default:
         return {
-          cardBg: "bg-[#0a1d3a]/95 border-[#c69a3f]/40 shadow-[0_12px_36px_rgba(198,154,63,0.22)]",
-          badgeBg: "bg-[#c69a3f]/15 border-[#c69a3f]/30 text-[#e6be65]",
+          cardBorder: "border-[#c69a3f]/35",
+          badgeBg: "bg-[#fdf8ed] border-[#c69a3f]/35 text-[#9a7020]",
+          iconBg: "bg-[#fdf8ed] border-[#c69a3f]/35 text-[#c69a3f]",
           icon: Sparkles,
-          iconColor: "text-[#e6be65]",
-          accentColor: "from-[#c69a3f] to-[#f59e0b]",
+          accentColor: "from-[#c69a3f] to-[#e5b95c]",
+          ctaBg: "bg-[#0d2c5c] hover:bg-[#163d7a] text-white",
           label: "Ofertă specială",
         };
     }
@@ -186,60 +190,49 @@ export default function BroadcastAlertBanner() {
   return (
     <aside
       aria-label="Notificări și alerte de la hotel"
-      className="fixed bottom-6 left-4 sm:left-6 md:left-8 z-[8000] max-w-sm sm:max-w-md w-[calc(100vw-32px)] sm:w-auto"
+      className="fixed bottom-6 left-4 sm:left-6 md:left-8 z-[8000] max-w-sm sm:max-w-[400px] w-[calc(100vw-32px)] sm:w-auto"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <AnimatePresence mode="wait">
         <motion.div
           key={current.id}
-          initial={{ opacity: 0, x: -40, scale: 0.95 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: -40, scale: 0.95 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          className={`relative rounded-[22px] backdrop-blur-xl p-5 border text-white ${style.cardBg} overflow-hidden`}
+          initial={{ opacity: 0, y: 18, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 18, scale: 0.97 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className={`relative rounded-[22px] bg-white/95 backdrop-blur-xl p-5 border ${style.cardBorder} shadow-[0_20px_50px_rgba(13,44,92,0.16)] overflow-hidden`}
         >
-          {/* Subtle top glowing accent strip */}
+          {/* Subtle top accent strip */}
           <div
             className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${style.accentColor}`}
           />
 
           <div className="flex items-start gap-3.5">
-            {/* Type Icon with pulse circle */}
+            {/* Type Icon */}
             <div className="relative shrink-0 mt-0.5">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/15">
-                <IconComponent size={19} className={style.iconColor} />
+              <div className={`w-10 h-10 rounded-[14px] border flex items-center justify-center ${style.iconBg}`}>
+                <IconComponent size={18} />
               </div>
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#c69a3f]"></span>
-              </span>
             </div>
 
             {/* Content Body */}
-            <div className="flex-1 min-w-0 pr-6">
+            <div className="flex-1 min-w-0 pr-5">
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span
-                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-wider uppercase border ${style.badgeBg} flex items-center gap-1.5`}
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold tracking-[0.12em] uppercase border ${style.badgeBg}`}
                 >
-                  <Radio size={11} className="animate-pulse" />
-                  {current.type === "urgent"
-                    ? "Notificare urgentă"
-                    : current.type === "event"
-                      ? "Eveniment hotel"
-                      : current.type === "announcement"
-                        ? "Anunț important"
-                        : "Ofertă specială"}
+                  {style.label}
                 </span>
-                <span className="text-[11px] text-white/50 font-['Plus_Jakarta_Sans',sans-serif]">
-                  Casa Esy Live
+                <span className="text-[10.5px] font-semibold tracking-wide uppercase text-[#94a3b8] font-['Plus_Jakarta_Sans',sans-serif]">
+                  Casa Esy
                 </span>
               </div>
 
-              <h4 className="font-['Outfit',sans-serif] text-[16px] font-bold text-white leading-snug">
+              <h4 className="font-['Outfit',sans-serif] text-[16px] font-bold !text-[#0d2c5c] leading-snug">
                 {current.title}
               </h4>
-              <p className="mt-1 text-[13px] text-slate-200 font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
+              <p className="mt-1 text-[13px] !text-[#5b6e8d] font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed line-clamp-3">
                 {current.message}
               </p>
 
@@ -250,13 +243,13 @@ export default function BroadcastAlertBanner() {
                     <Link
                       to={current.cta_link}
                       onClick={() => handleDismiss(current.id)}
-                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-[12px] bg-gradient-to-r ${style.accentColor} hover:brightness-110 text-[#0d2c5c] text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold transition shadow-md active:scale-95`}
+                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-[10px] ${style.ctaBg} text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold transition shadow-sm active:scale-[0.98]`}
                     >
                       <span>{current.cta_text}</span>
-                      <ArrowRight size={13} />
+                      <ArrowRight size={13} className="text-[#c69a3f]" />
                     </Link>
                   ) : (
-                    <span className="text-[12px] font-bold text-amber-300">
+                    <span className="text-[12px] font-bold text-[#c69a3f]">
                       {current.cta_text}
                     </span>
                   )}
@@ -268,14 +261,14 @@ export default function BroadcastAlertBanner() {
             <button
               onClick={() => handleDismiss(current.id)}
               title="Închide notificarea"
-              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition"
+              className="absolute top-3.5 right-3.5 w-7 h-7 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0d2c5c] flex items-center justify-center transition cursor-pointer"
             >
-              <X size={15} />
+              <X size={14} />
             </button>
           </div>
 
           {/* Auto-dismiss countdown progress bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-white/10 overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#f1f5f9] overflow-hidden">
             <div
               className={`h-full bg-gradient-to-r ${style.accentColor} transition-all duration-100 ease-linear`}
               style={{ width: `${(remainingMs / AUTO_DISMISS_MS) * 100}%` }}
