@@ -37,6 +37,40 @@ interface ActiveStayRoom {
   location_label: string;
 }
 
+const CART_STORAGE_KEY = "casa_esy_room_service_cart";
+
+function loadStoredCart(): Record<string, CartLine> {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    const valid: Record<string, CartLine> = {};
+    for (const [key, item] of Object.entries(parsed)) {
+      const line = item as Partial<CartLine> | null;
+      if (
+        line &&
+        typeof line.id === "string" &&
+        typeof line.title === "string" &&
+        typeof line.price === "number" &&
+        typeof line.qty === "number" &&
+        line.qty > 0
+      ) {
+        valid[key] = {
+          id: line.id,
+          title: line.title,
+          price: line.price,
+          image_url: line.image_url ?? null,
+          qty: line.qty,
+        };
+      }
+    }
+    return valid;
+  } catch {
+    return {};
+  }
+}
+
 export default function PlaceMenu({
   categories,
   onOrderRedirect,
@@ -51,8 +85,20 @@ export default function PlaceMenu({
   const [active, setActive] = useState<number | null>(null);
   const current = withItems.find((c) => c.id === active) ?? withItems[0];
 
-  const [cart, setCart] = useState<Record<string, CartLine>>({});
+  const [cart, setCart] = useState<Record<string, CartLine>>(() => loadStoredCart());
   const [cartViewOpen, setCartViewOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (Object.keys(cart).length === 0) {
+        localStorage.removeItem(CART_STORAGE_KEY);
+      } else {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+      }
+    } catch {
+      // Ignore storage quota or private-mode errors
+    }
+  }, [cart]);
 
   // Active stay rooms fetched from backend
   const [checkingRooms, setCheckingRooms] = useState(false);
@@ -265,7 +311,7 @@ export default function PlaceMenu({
               <Sparkles size={12} /> Room Service · Vila Casa Esy
             </span>
             <h3 className="mt-0.5 font-['Cormorant_Garamond',serif] text-[28px] sm:text-[32px] font-semibold leading-tight text-[#0d2c5c]">
-              Coșul Tău & Livrare în Cameră
+              Coșul tău — Livrare în cameră
             </h3>
           </div>
 
@@ -274,7 +320,7 @@ export default function PlaceMenu({
             onClick={() => setCartViewOpen(false)}
             className="inline-flex items-center gap-2 rounded-full border border-[#cbd5e1] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#0d2c5c] hover:border-[#0d2c5c] transition cursor-pointer shrink-0"
           >
-            <ArrowLeft size={14} /> Înapoi la Meniu
+            <ArrowLeft size={14} /> Înapoi la meniu
           </button>
         </div>
 
@@ -282,7 +328,7 @@ export default function PlaceMenu({
         <div>
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
-              1. Produsele din Coșul Tău ({totalCount})
+              1. Produsele din coșul tău ({totalCount})
             </span>
             {cartLines.length > 0 && (
               <button
@@ -297,7 +343,7 @@ export default function PlaceMenu({
 
           {cartLines.length === 0 ? (
             <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-6 text-center text-sm text-[#475569]">
-              Coșul tău este gol. Apasă pe „Înapoi la Meniu” pentru a adăuga preparate.
+              Coșul tău este gol. Apasă pe „Înapoi la meniu” pentru a adăuga preparate.
             </div>
           ) : (
             <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] divide-y divide-[#e2e8f0]">
@@ -402,7 +448,7 @@ export default function PlaceMenu({
         {/* 2. Verificare Cameră Activă */}
         <div>
           <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f] mb-3">
-            2. Camera Ta Activă (Cazare Curentă)
+            2. Camera ta activă (cazare curentă)
           </span>
 
           {!hasSession() ? (
@@ -518,13 +564,13 @@ export default function PlaceMenu({
                 {totalAmount > 0 && (
                   <div>
                     <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#475569] mb-2">
-                      Metodă de Plată (Livrare în Cameră)
+                      Metodă de plată (livrare în cameră)
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {[
-                        { id: "room_charge", label: "Contul Camerei", sub: "Room Folio" },
-                        { id: "card", label: "Card la Livrare", sub: "POS în cameră" },
-                        { id: "cash", label: "Numerar la Livrare", sub: "Cash la cameră" },
+                        { id: "room_charge", label: "Contul camerei", sub: "Room Folio" },
+                        { id: "card", label: "Card la livrare", sub: "POS în cameră" },
+                        { id: "cash", label: "Numerar la livrare", sub: "Cash la cameră" },
                       ].map((opt) => {
                         const active = paymentMethod === opt.id;
                         return (
@@ -549,7 +595,7 @@ export default function PlaceMenu({
 
                 <div>
                   <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#475569] mb-1.5">
-                    Mențiuni pt. Bucătărie (opțional)
+                    Mențiuni pentru bucătărie (opțional)
                   </label>
                   <input
                     value={notes}
@@ -570,7 +616,7 @@ export default function PlaceMenu({
             onClick={() => setCartViewOpen(false)}
             className="rounded-full border border-[#cbd5e1] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
           >
-            Continuă Răsfoirea
+            Continuă răsfoirea
           </button>
 
           <button
@@ -581,7 +627,7 @@ export default function PlaceMenu({
           >
             {submitting
               ? "Se trimite comanda..."
-              : `Trimite Comanda la Cameră (${lei(totalAmount)})`}
+              : `Trimite comanda în cameră (${lei(totalAmount)})`}
             <ArrowRight size={14} />
           </button>
         </div>
@@ -790,7 +836,7 @@ export default function PlaceMenu({
               onClick={() => setCartViewOpen(true)}
               className="rounded-full bg-[#c69a3f] hover:bg-[#e6b85c] text-[#0d2c5c] px-5 py-2.5 text-xs font-extrabold uppercase tracking-[0.14em] transition cursor-pointer flex items-center gap-1.5"
             >
-              Vezi Coșul & Comandă
+              Vezi coșul și comandă
               <ArrowRight size={14} />
             </button>
           </div>
