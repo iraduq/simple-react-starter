@@ -7,7 +7,7 @@ import {
   Search,
   CheckCircle2,
   Copy,
-  MoreHorizontal, FileText, RotateCcw, AlertTriangle,
+  MoreHorizontal, FileText, RotateCcw, AlertTriangle, CalendarDays, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Badge, statusTone, TableSkeleton, EmptyState, Modal, SectionHeader } from "./ui";
 import {
@@ -63,8 +63,13 @@ export default function BookingsTab() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [status, setStatus] = useState<string>("all");
-  const [roomId, setRoomId] = useState<string>("all");
+  const [status, setStatus] = useState("all");
+  const [roomId, setRoomId] = useState("all");
+  const [unitId, setUnitId] = useState("all");
+  const [datePreset, setDatePreset] = useState<
+    "all" | "today" | "next7" | "this_month" | "upcoming" | "exact"
+  >("all");
+  const [exactDate, setExactDate] = useState("");
   const [email, setEmail] = useState("");
 
   const [page, setPage] = useState(1);
@@ -99,6 +104,11 @@ export default function BookingsTab() {
   } | null>(null);
   const [editRefundOpen, setEditRefundOpen] = useState(false);
   const [editRefundReason, setEditRefundReason] = useState("");
+  const [calMonth, setCalMonth] = useState<string>(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  });
+  const [calPickPhase, setCalPickPhase] = useState<"start" | "end">("start");
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -129,24 +139,66 @@ export default function BookingsTab() {
 
   useEffect(() => {
     setPage(1);
-  }, [status, roomId, email]);
+  }, [status, roomId, unitId, datePreset, exactDate, email]);
 
-  const filtered = useMemo(
-    () =>
-      bookings.filter((b) => {
-        const userObj = users.find((u) => String(u.id) === String(b.user_id));
-        const searchEmail =
-          b.user_email || b.guest_email || userObj?.email || "";
-
-        return (
-          (status === "all" || b.status === status) &&
-          (roomId === "all" || String(b.room_id) === roomId) &&
-          (!email.trim() ||
-            searchEmail.toLowerCase().includes(email.trim().toLowerCase()))
+  const selectedRoomUnits = useMemo(() => {
+    if (roomId === "all") return [];
+    const r = rooms.find((rm) => String(rm.id) === roomId) as any;
+    if (Array.isArray(r?.units) && r.units.length > 0) {
+      return r.units.map((u: any) => ({
+        id: String(u.id),
+        unit_number: String(u.unit_number || u.id),
+      }));
+    }
+    const map = new Map<string, string>();
+    bookings.forEach((b: any) => {
+      if (String(b.room_id) === roomId && b.room_unit_id) {
+        map.set(
+          String(b.room_unit_id),
+          String(b.room_unit?.unit_number || b.room_unit_number || b.room_unit_id),
         );
-      }),
-    [bookings, status, roomId, email, users],
-  );
+      }
+    });
+    return Array.from(map.entries()).map(([id, unit_number]) => ({ id, unit_number }));
+  }, [roomId, rooms, bookings]);
+
+  const filtered = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const next7Date = new Date();
+    next7Date.setDate(next7Date.getDate() + 7);
+    const next7Str = next7Date.toISOString().slice(0, 10);
+    const monthPrefix = todayStr.slice(0, 7);
+
+    return bookings.filter((b) => {
+      const userObj = users.find((u) => String(u.id) === String(b.user_id));
+      const searchEmail =
+        b.user_email || b.guest_email || userObj?.email || "";
+      const ci = (b.check_in || "").slice(0, 10);
+      const co = (b.check_out || "").slice(0, 10);
+
+      let dateOk = true;
+      if (datePreset === "today") {
+        dateOk = Boolean(ci && co && ci <= todayStr && co >= todayStr);
+      } else if (datePreset === "next7") {
+        dateOk = Boolean(ci && ci >= todayStr && ci <= next7Str);
+      } else if (datePreset === "this_month") {
+        dateOk = Boolean(ci && (ci.startsWith(monthPrefix) || co.startsWith(monthPrefix)));
+      } else if (datePreset === "upcoming") {
+        dateOk = Boolean(co && co >= todayStr);
+      } else if (datePreset === "exact" && exactDate) {
+        dateOk = Boolean(ci && co && ci <= exactDate && co >= exactDate);
+      }
+
+      return (
+        (status === "all" || b.status === status) &&
+        (roomId === "all" || String(b.room_id) === roomId) &&
+        (unitId === "all" || String(b.room_unit_id || "") === unitId) &&
+        dateOk &&
+        (!email.trim() ||
+          searchEmail.toLowerCase().includes(email.trim().toLowerCase()))
+      );
+    });
+  }, [bookings, status, roomId, unitId, datePreset, exactDate, email, users]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
   const paginatedBookings = filtered.slice(
@@ -203,13 +255,91 @@ export default function BookingsTab() {
     const totalGuests =
       (b.guests_adults || 0) + (b.guests_children || 0) || b.guests || 1;
 
+    const ci = (b.check_in || "").slice(0, 10);
+    if (ci.length >= 7) {
+      setCalMonth(ci.slice(0, 7));
+    }
+    setCalPickPhase("start");
+
     setForm({
-      check_in: (b.check_in || "").slice(0, 10),
+      check_in: ci,
       check_out: (b.check_out || "").slice(0, 10),
       guests: Number(totalGuests),
       room_id: String(b.room_id || ""),
       room_unit_id: String((b as any).room_unit_id || ""),
     });
+  };
+
+  const calendarDays = useMemo(() => {
+    if (!editTarget || !calMonth) return [];
+    const [yStr, mStr] = calMonth.split("-");
+    const year = Number(yStr);
+    const month = Number(mStr);
+    if (!year || !month) return [];
+
+    const firstDay = new Date(year, month - 1, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // Monday = 0
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const targetRoomId = form.room_id || String(editTarget.room_id || "");
+    const totalUnits = Math.max(1, availData?.available_units?.length || 1);
+    const activeBookingsForRoom = bookings.filter(
+      (b) =>
+        String(b.id) !== String(editTarget.id) &&
+        String(b.room_id) === targetRoomId &&
+        (b.status === "pending" || b.status === "confirmed"),
+    );
+
+    const cells: Array<{
+      dateStr: string | null;
+      dayNum?: number;
+      isOccupied?: boolean;
+    }> = [];
+    for (let i = 0; i < startOffset; i++) {
+      cells.push({ dateStr: null });
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      let isOccupied = false;
+      if (form.room_unit_id) {
+        isOccupied = activeBookingsForRoom.some((b) => {
+          const ci = (b.check_in || "").slice(0, 10);
+          const co = (b.check_out || "").slice(0, 10);
+          return String(b.room_unit_id || "") === form.room_unit_id && ci <= dateStr && co > dateStr;
+        });
+      } else {
+        const overlappingCount = activeBookingsForRoom.filter((b) => {
+          const ci = (b.check_in || "").slice(0, 10);
+          const co = (b.check_out || "").slice(0, 10);
+          return ci <= dateStr && co > dateStr;
+        }).length;
+        isOccupied = overlappingCount >= totalUnits;
+      }
+      cells.push({ dateStr, dayNum: d, isOccupied });
+    }
+    return cells;
+  }, [editTarget, calMonth, form.room_id, form.room_unit_id, availData, bookings]);
+
+  const shiftCalMonth = (delta: number) => {
+    const [yStr, mStr] = calMonth.split("-");
+    const d = new Date(Number(yStr), Number(mStr) - 1 + delta, 1);
+    setCalMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  };
+
+  const handleCalDayClick = (dateStr: string) => {
+    if (calPickPhase === "start" || !form.check_in || dateStr <= form.check_in) {
+      const nextDay = new Date(`${dateStr}T12:00:00Z`);
+      nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+      setForm((prev) => ({
+        ...prev,
+        check_in: dateStr,
+        check_out: nextDay.toISOString().slice(0, 10),
+      }));
+      setCalPickPhase("end");
+    } else {
+      setForm((prev) => ({ ...prev, check_out: dateStr }));
+      setCalPickPhase("start");
+    }
   };
 
   useEffect(() => {
@@ -345,7 +475,10 @@ export default function BookingsTab() {
             <select
               className={fieldInput}
               value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
+              onChange={(e) => {
+                setRoomId(e.target.value);
+                setUnitId("all");
+              }}
             >
               <option value="all">Toate camerele</option>
               {rooms.map((r) => (
@@ -355,6 +488,48 @@ export default function BookingsTab() {
               ))}
             </select>
           </FormField>
+          {roomId !== "all" && (
+            <FormField label="Unitate disponibilă">
+              <select
+                className={fieldInput}
+                value={unitId}
+                onChange={(e) => setUnitId(e.target.value)}
+              >
+                <option value="all">
+                  Toate unitățile ({selectedRoomUnits.length})
+                </option>
+                {selectedRoomUnits.map((u: { id: string; unit_number: string }) => (
+                  <option key={u.id} value={u.id}>
+                    Cam {u.unit_number}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          )}
+          <FormField label="Perioadă / Dată">
+            <select
+              className={fieldInput}
+              value={datePreset}
+              onChange={(e) => setDatePreset(e.target.value as any)}
+            >
+              <option value="all">Toate datele</option>
+              <option value="today">Astăzi (cazări active)</option>
+              <option value="next7">Următoarele 7 zile</option>
+              <option value="this_month">Luna aceasta</option>
+              <option value="upcoming">Sejururi viitoare</option>
+              <option value="exact">Dată exactă...</option>
+            </select>
+          </FormField>
+          {datePreset === "exact" && (
+            <FormField label="Selectează data">
+              <input
+                type="date"
+                className={fieldInput}
+                value={exactDate}
+                onChange={(e) => setExactDate(e.target.value)}
+              />
+            </FormField>
+          )}
           <div className="flex-1 w-full">
             <FormField label="Căutare email client">
               <div className="relative">
@@ -827,6 +1002,93 @@ export default function BookingsTab() {
               )}
             </div>
 
+            {/* Calendar vizual disponibilitate */}
+            <div className="mt-5 rounded-2xl border border-[#e1e8f0] bg-[#f8fafd] p-4">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <CalendarDays size={15} className="text-[#c69a3f]" />
+                  <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c]">
+                    Calendar disponibilitate
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => shiftCalMonth(-1)}
+                    className="p-1 rounded-lg border border-[#e1e8f0] bg-white text-[#0d2c5c] hover:border-[#c69a3f] cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span className="text-xs font-bold text-[#0d2c5c] min-w-[110px] text-center capitalize">
+                    {new Date(`${calMonth}-01T12:00:00Z`).toLocaleDateString("ro-RO", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => shiftCalMonth(1)}
+                    className="p-1 rounded-lg border border-[#e1e8f0] bg-white text-[#0d2c5c] hover:border-[#c69a3f] cursor-pointer"
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase text-[#6b7c99] mb-1.5">
+                {["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"].map((d) => (
+                  <span key={d}>{d}</span>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {calendarDays.map((cell, idx) => {
+                  if (!cell.dateStr) {
+                    return <div key={`empty-${idx}`} className="h-8" />;
+                  }
+                  const isStart = cell.dateStr === form.check_in;
+                  const isEnd = cell.dateStr === form.check_out;
+                  const inRange =
+                    Boolean(form.check_in && form.check_out) &&
+                    cell.dateStr > form.check_in &&
+                    cell.dateStr < form.check_out;
+                  return (
+                    <button
+                      key={cell.dateStr}
+                      type="button"
+                      disabled={cell.isOccupied && !isStart && !isEnd}
+                      onClick={() => handleCalDayClick(cell.dateStr!)}
+                      title={cell.isOccupied ? "Ocupată" : "Liberă — click pentru selecție"}
+                      className={`h-8 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                        isStart || isEnd
+                          ? "bg-[#0d2c5c] text-white font-bold shadow-sm"
+                          : inRange
+                            ? "bg-[#fdf8ec] border border-[#c69a3f]/60 text-[#0d2c5c]"
+                            : cell.isOccupied
+                              ? "bg-rose-50 text-rose-400 line-through cursor-not-allowed border border-rose-100"
+                              : "bg-white text-[#0d2c5c] border border-emerald-200 hover:border-[#c69a3f] hover:bg-emerald-50"
+                      }`}
+                    >
+                      {cell.dayNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[10.5px] text-[#4f6280]">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded bg-white border border-emerald-300 inline-block" /> Liberă
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded bg-rose-100 border border-rose-200 inline-block" /> Ocupată
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded bg-[#0d2c5c] inline-block" /> Selectată
+                  </span>
+                </div>
+                <span>Click pe ziua de check-in, apoi pe check-out</span>
+              </div>
+            </div>
+
             {availLoading ? (
               <div className="mt-4 rounded-2xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-3 text-xs text-[#4f6280]">
                 Se verifică disponibilitatea în timp real...
@@ -847,6 +1109,34 @@ export default function BookingsTab() {
                 <span>{availData.message}</span>
               </div>
             ) : null}
+
+            {availData && !availData.can_save && (
+              <div className="mt-3 rounded-2xl border border-[#c69a3f]/35 bg-[#fdf8ec] p-3.5">
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#9c7624] mb-2">
+                  Camere libere în această perioadă
+                </p>
+                {availData.rooms.filter((r) => r.free_units > 0 && r.capacity >= form.guests && r.id !== form.room_id).length === 0 ? (
+                  <p className="text-xs text-[#4f6280]">
+                    Nu mai există alte camere disponibile pentru această perioadă și acest număr de oaspeți. Poți folosi butonul <strong>Anulează & Refund</strong> de mai jos.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {availData.rooms
+                      .filter((r) => r.free_units > 0 && r.capacity >= form.guests && r.id !== form.room_id)
+                      .map((r) => (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() => setForm((prev) => ({ ...prev, room_id: r.id, room_unit_id: "" }))}
+                          className="rounded-full border border-[#c69a3f] bg-white px-3 py-1.5 text-xs font-bold text-[#0d2c5c] hover:bg-[#0d2c5c] hover:text-white transition cursor-pointer"
+                        >
+                          Mută în {r.title} ({r.free_units} libere)
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {editRefundOpen && editTarget && (
               <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50/70 p-4 space-y-3">
