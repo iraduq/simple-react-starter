@@ -25,6 +25,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastProvider, useToast } from "./components/Toast";
 import GlobalLiveSync from "./context/GlobalLiveSync";
 import { AdminLiveSyncProvider } from "./context/AdminLiveSyncContext";
+import { CartProvider } from "./context/CartContext";
 import { setSessionExpiredHandler } from "./lib/api";
 import { clearSession } from "./lib/auth";
 import Contact from "./pages/Contact";
@@ -162,8 +163,10 @@ function App() {
 
       <Router>
         <AdminLiveSyncProvider>
-          <ScrollToTop />
-          <AppInner />
+          <CartProvider>
+            <ScrollToTop />
+            <AppInner />
+          </CartProvider>
         </AdminLiveSyncProvider>
       </Router>
     </ToastProvider>

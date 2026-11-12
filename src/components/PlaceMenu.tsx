@@ -17,15 +17,8 @@ import {
 import type { MenuCategory } from "../types/places";
 import { lei } from "../services/placesService";
 import { apiFetch, hasSession } from "../lib/auth";
+import { useCart } from "../context/CartContext";
 import { useToast } from "./Toast";
-
-interface CartLine {
-  id: string;
-  title: string;
-  price: number;
-  image_url?: string | null;
-  qty: number;
-}
 
 interface ActiveStayRoom {
   booking_id: string;
@@ -35,40 +28,6 @@ interface ActiveStayRoom {
   unit_id?: string | null;
   unit_number?: string | null;
   location_label: string;
-}
-
-const CART_STORAGE_KEY = "casa_esy_room_service_cart";
-
-function loadStoredCart(): Record<string, CartLine> {
-  try {
-    const raw = localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    const valid: Record<string, CartLine> = {};
-    for (const [key, item] of Object.entries(parsed)) {
-      const line = item as Partial<CartLine> | null;
-      if (
-        line &&
-        typeof line.id === "string" &&
-        typeof line.title === "string" &&
-        typeof line.price === "number" &&
-        typeof line.qty === "number" &&
-        line.qty > 0
-      ) {
-        valid[key] = {
-          id: line.id,
-          title: line.title,
-          price: line.price,
-          image_url: line.image_url ?? null,
-          qty: line.qty,
-        };
-      }
-    }
-    return valid;
-  } catch {
-    return {};
-  }
 }
 
 export default function PlaceMenu({
@@ -85,20 +44,17 @@ export default function PlaceMenu({
   const [active, setActive] = useState<number | null>(null);
   const current = withItems.find((c) => c.id === active) ?? withItems[0];
 
-  const [cart, setCart] = useState<Record<string, CartLine>>(() => loadStoredCart());
+  const {
+    cart,
+    cartLines,
+    totalCount,
+    subtotalAmount,
+    addItem,
+    decItem,
+    removeItem,
+    clearCart,
+  } = useCart();
   const [cartViewOpen, setCartViewOpen] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (Object.keys(cart).length === 0) {
-        localStorage.removeItem(CART_STORAGE_KEY);
-      } else {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-      }
-    } catch {
-      // Ignore storage quota or private-mode errors
-    }
-  }, [cart]);
 
   // Active stay rooms fetched from backend
   const [checkingRooms, setCheckingRooms] = useState(false);
@@ -191,54 +147,6 @@ export default function PlaceMenu({
       .finally(() => setCheckingRooms(false));
   }, [cartViewOpen]);
 
-  const addItem = (it: {
-    id: number | string;
-    title: string;
-    price: number | string;
-    image_url?: string | null;
-  }) => {
-    const k = String(it.id);
-    setCart((prev) => {
-      const existing = prev[k];
-      return {
-        ...prev,
-        [k]: {
-          id: k,
-          title: it.title,
-          price: Number(it.price || 0),
-          image_url: it.image_url,
-          qty: existing ? existing.qty + 1 : 1,
-        },
-      };
-    });
-  };
-
-  const decItem = (id: number | string) => {
-    const k = String(id);
-    setCart((prev) => {
-      const existing = prev[k];
-      if (!existing) return prev;
-      if (existing.qty <= 1) {
-        const copy = { ...prev };
-        delete copy[k];
-        return copy;
-      }
-      return { ...prev, [k]: { ...existing, qty: existing.qty - 1 } };
-    });
-  };
-
-  const removeItem = (id: number | string) => {
-    const k = String(id);
-    setCart((prev) => {
-      const copy = { ...prev };
-      delete copy[k];
-      return copy;
-    });
-  };
-
-  const cartLines = Object.values(cart);
-  const totalCount = cartLines.reduce((acc, l) => acc + l.qty, 0);
-  const subtotalAmount = Math.round(cartLines.reduce((acc, l) => acc + l.price * l.qty, 0) * 100) / 100;
   const vipDiscountPercent = vipBenefit?.discount_percent ?? 0;
   const vipDiscountAmount =
     vipDiscountPercent > 0
@@ -277,7 +185,7 @@ export default function PlaceMenu({
           })),
         }),
       });
-      setCart({});
+      clearCart({ skipServer: true });
       setNotes("");
       setCartViewOpen(false);
       if (onOrderRedirect) onOrderRedirect();
@@ -333,7 +241,7 @@ export default function PlaceMenu({
             {cartLines.length > 0 && (
               <button
                 type="button"
-                onClick={() => setCart({})}
+                onClick={() => clearCart()}
                 className="text-xs font-semibold text-rose-700 hover:underline cursor-pointer"
               >
                 Golește coșul
