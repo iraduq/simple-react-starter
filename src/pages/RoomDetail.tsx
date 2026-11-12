@@ -291,6 +291,9 @@ export default function RoomDetail() {
     quote?.nightly_breakdown?.[0]?.debug_info?.rate_plan_code === plan;
 
   // Funcție de ajustare pe fiecare noapte dacă backend-ul nu a procesat planul
+  const totalGuestsCount = Math.max(1, adults + children);
+  const breakfastAddonPerNight = 35 * totalGuestsCount;
+
   const adjustNightPrice = useCallback(
     (baseNightPrice: number) => {
       if (backendHandledPlan) return baseNightPrice;
@@ -298,11 +301,11 @@ export default function RoomDetail() {
         return Math.round(baseNightPrice * 0.9 * 100) / 100;
       }
       if (plan === "breakfast") {
-        return Math.round((baseNightPrice + 35) * 100) / 100;
+        return Math.round((baseNightPrice + breakfastAddonPerNight) * 100) / 100;
       }
       return baseNightPrice;
     },
-    [backendHandledPlan, plan],
+    [backendHandledPlan, plan, breakfastAddonPerNight],
   );
 
   // Subtotal calculat dinamic cu pricing engine + planul tarifar activ
@@ -339,18 +342,18 @@ export default function RoomDetail() {
       const raw = quote.subtotal / quote.nights;
       if (backendHandledPlan) {
         if (plan === "non_refundable") return Math.round((raw / 0.9) * 100) / 100;
-        if (plan === "breakfast") return Math.round((raw - 35) * 100) / 100;
+        if (plan === "breakfast") return Math.round((raw - breakfastAddonPerNight) * 100) / 100;
       }
       return raw;
     }
     return todayDynamicRate ?? room?.price_per_night ?? room?.base_price ?? 150;
-  }, [quote, backendHandledPlan, plan, todayDynamicRate, room?.price_per_night, room?.base_price]);
+  }, [quote, backendHandledPlan, plan, breakfastAddonPerNight, todayDynamicRate, room?.price_per_night, room?.base_price]);
 
   const currentBasePrice = useMemo(() => {
     if (plan === "non_refundable") return Math.round(baseRatePerNight * 0.9);
-    if (plan === "breakfast") return Math.round(baseRatePerNight + 35);
+    if (plan === "breakfast") return Math.round(baseRatePerNight + breakfastAddonPerNight);
     return Math.round(baseRatePerNight);
-  }, [plan, baseRatePerNight]);
+  }, [plan, baseRatePerNight, breakfastAddonPerNight]);
   const vipStayDiscount =
     vipStayBenefit && vipStayBenefit.stay_discount_percent > 0 && total != null
       ? Math.round(total * (vipStayBenefit.stay_discount_percent / 100) * 100) / 100
@@ -686,10 +689,10 @@ export default function RoomDetail() {
                 {
                   code: "breakfast" as const,
                   label: "Mic dejun inclus",
-                  badge: "+35 RON",
+                  badge: "+35 RON / pers.",
                   badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
-                  hint: "Bufet suedez · rambursare în 30 zile",
-                  priceVal: ron(Math.round(baseRatePerNight + 35)),
+                  hint: `Bufet suedez (${totalGuestsCount} ${totalGuestsCount === 1 ? "pers." : "pers."} × 35 RON/noapte)`,
+                  priceVal: ron(Math.round(baseRatePerNight + breakfastAddonPerNight)),
                 },
               ].map((p) => {
                 const isSelected = plan === p.code;
@@ -916,7 +919,7 @@ export default function RoomDetail() {
                     {plan === "non_refundable" &&
                       `-${ron(Math.round(baseRatePerNight * quote.nights * 0.1 * 100) / 100)} (-10%)`}
                     {plan === "breakfast" &&
-                      `+${ron(35 * quote.nights)} (+35/noapte)`}
+                      `+${ron(breakfastAddonPerNight * quote.nights)} (${totalGuestsCount} pers. × 35/noapte)`}
                   </span>
                 </div>
                 {plan !== "flexible" && (
