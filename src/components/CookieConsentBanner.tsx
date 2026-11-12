@@ -6,6 +6,14 @@ export const COOKIE_CONSENT_STORAGE_KEY = "casa_esy_cookie_consent_v1";
 export const COOKIE_CONSENT_EVENT = "casa-esy-cookie-consent-updated";
 export const COOKIE_OPEN_MODAL_EVENT = "casa-esy-open-cookie-settings";
 
+export const PREF_LANG_KEY = "casa_esy_pref_lang";
+export const PREF_ROOMS_FILTER_KEY = "casa_esy_room_filters";
+export const PREF_PLACES_FILTER_KEY = "casa_esy_place_filters";
+export const ANALYTICS_STATS_KEY = "casa_esy_analytics_stats";
+export const MARKETING_PROMO_KEY = "casa_esy_marketing_promo";
+
+export type CookieCategory = "necessary" | "preferences" | "analytics" | "marketing";
+
 export interface CookieConsentState {
   version: string;
   updatedAt: string;
@@ -13,6 +21,34 @@ export interface CookieConsentState {
   preferences: boolean;
   analytics: boolean;
   marketing: boolean;
+}
+
+function expireCookie(name: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  if (typeof window !== "undefined" && window.location?.hostname) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
+  }
+}
+
+export function enforceCookieConsent(state: CookieConsentState) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!state.preferences) {
+      localStorage.removeItem(PREF_LANG_KEY);
+      localStorage.removeItem(PREF_ROOMS_FILTER_KEY);
+      localStorage.removeItem(PREF_PLACES_FILTER_KEY);
+      expireCookie("googtrans");
+    }
+    if (!state.analytics) {
+      localStorage.removeItem(ANALYTICS_STATS_KEY);
+    }
+    if (!state.marketing) {
+      localStorage.removeItem(MARKETING_PROMO_KEY);
+    }
+  } catch {
+    // ignore storage errors
+  }
 }
 
 export function getSavedCookieConsent(): CookieConsentState | null {
@@ -35,6 +71,13 @@ export function getSavedCookieConsent(): CookieConsentState | null {
   }
 }
 
+export function hasCookieConsent(category: CookieCategory): boolean {
+  if (category === "necessary") return true;
+  const saved = getSavedCookieConsent();
+  if (!saved) return false;
+  return Boolean(saved[category]);
+}
+
 export function saveCookieConsent(prefs: {
   preferences: boolean;
   analytics: boolean;
@@ -50,11 +93,55 @@ export function saveCookieConsent(prefs: {
   };
   try {
     localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(state));
+    enforceCookieConsent(state);
     window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT, { detail: state }));
   } catch {
     // ignore storage errors
   }
   return state;
+}
+
+export function trackAnalyticsEvent(eventName: string, detail?: Record<string, unknown>) {
+  if (typeof window === "undefined" || !hasCookieConsent("analytics")) return;
+  try {
+    const raw = localStorage.getItem(ANALYTICS_STATS_KEY);
+    const stats = raw ? JSON.parse(raw) : { pageViews: 0, events: {} };
+    const safeStats =
+      stats && typeof stats === "object"
+        ? stats
+        : { pageViews: 0, events: {} };
+    if (eventName === "page_view") {
+      safeStats.pageViews = Number(safeStats.pageViews || 0) + 1;
+      safeStats.lastPath = detail?.path || window.location.pathname;
+    } else {
+      const events = safeStats.events && typeof safeStats.events === "object" ? safeStats.events : {};
+      const key = detail?.slug ? `${eventName}:${String(detail.slug)}` : eventName;
+      events[key] = Number(events[key] || 0) + 1;
+      safeStats.events = events;
+    }
+    safeStats.updatedAt = new Date().toISOString();
+    localStorage.setItem(ANALYTICS_STATS_KEY, JSON.stringify(safeStats));
+  } catch {
+    // ignore analytics storage errors
+  }
+}
+
+export function useCookieConsent(): CookieConsentState | null {
+  const [consent, setConsent] = useState<CookieConsentState | null>(() =>
+    getSavedCookieConsent(),
+  );
+
+  useEffect(() => {
+    const sync = () => setConsent(getSavedCookieConsent());
+    window.addEventListener(COOKIE_CONSENT_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(COOKIE_CONSENT_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  return consent;
 }
 
 export function openCookieSettingsModal() {
@@ -75,6 +162,7 @@ export default function CookieConsentBanner() {
     if (!existing) {
       setVisible(true);
     } else {
+      enforceCookieConsent(existing);
       setPreferences(existing.preferences);
       setAnalytics(existing.analytics);
       setMarketing(existing.marketing);

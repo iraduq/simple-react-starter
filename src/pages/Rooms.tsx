@@ -18,6 +18,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { apiFetch } from "../lib/api";
 import { searchAvailability } from "../services/roomsService";
 import { getRoomPricing } from "../services/pricingService";
+import { hasCookieConsent, PREF_ROOMS_FILTER_KEY } from "../components/CookieConsentBanner";
 import { httpErrorMessage } from "../services/apiClient";
 import { useToast } from "../components/Toast";
 import RoomReviewsModal from "../components/reviews/RoomReviewsModal";
@@ -365,7 +366,21 @@ export default function Rooms() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("Toate");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (hasCookieConsent("preferences")) {
+      return localStorage.getItem(PREF_ROOMS_FILTER_KEY) || "Toate";
+    }
+    return "Toate";
+  });
+
+  useEffect(() => {
+    if (!hasCookieConsent("preferences")) return;
+    try {
+      localStorage.setItem(PREF_ROOMS_FILTER_KEY, activeTab);
+    } catch {
+      // ignore
+    }
+  }, [activeTab]);
   const [selectedRoomForReviews, setSelectedRoomForReviews] = useState<DisplayRoom | null>(null);
   const [selectedRoomForFeedback, setSelectedRoomForFeedback] = useState<DisplayRoom | null>(null);
   const [reviewsSummary, setReviewsSummary] = useState<Record<string, { average: number; count: number }>>({});

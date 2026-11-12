@@ -12,6 +12,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import PlaceMenu from "../components/PlaceMenu";
+import { hasCookieConsent, PREF_PLACES_FILTER_KEY } from "../components/CookieConsentBanner";
 import type { MenuCategory, Place } from "../types/places";
 import {
   getFullMenu,
@@ -63,7 +64,21 @@ export default function Places() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState("toate");
+  const [category, setCategory] = useState(() => {
+    if (hasCookieConsent("preferences")) {
+      return localStorage.getItem(PREF_PLACES_FILTER_KEY) || "toate";
+    }
+    return "toate";
+  });
+
+  useEffect(() => {
+    if (!hasCookieConsent("preferences")) return;
+    try {
+      localStorage.setItem(PREF_PLACES_FILTER_KEY, category);
+    } catch {
+      // ignore
+    }
+  }, [category]);
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState<Place | null>(null);
 

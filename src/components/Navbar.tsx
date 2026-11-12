@@ -11,6 +11,7 @@ import {
   type SessionUser,
 } from "../lib/auth";
 import { useToast } from "../components/Toast";
+import { hasCookieConsent, PREF_LANG_KEY } from "./CookieConsentBanner";
 
 const LANGS = [
   { code: "RO", label: "Română", flagUrl: "https://flagcdn.com/w20/ro.png" },
@@ -111,19 +112,36 @@ export default function Navbar() {
     const match = document.cookie.match(/googtrans=\/ro\/(\w+)/);
     if (match && match[1]) {
       setLang(match[1].toUpperCase());
+      return;
+    }
+    if (hasCookieConsent("preferences")) {
+      const savedLang = localStorage.getItem(PREF_LANG_KEY);
+      if (savedLang && (savedLang === "RO" || savedLang === "EN")) {
+        setLang(savedLang);
+      }
     }
   }, []);
 
   const changeLanguage = (code: string) => {
     setLangOpen(false);
     const targetLang = code.toLowerCase();
+    const canPersist = hasCookieConsent("preferences");
+
+    if (canPersist) {
+      try {
+        localStorage.setItem(PREF_LANG_KEY, code.toUpperCase());
+      } catch {
+        // ignore storage errors
+      }
+    }
 
     if (targetLang === "ro") {
       document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
       document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
     } else {
-      document.cookie = `googtrans=/ro/${targetLang}; path=/;`;
-      document.cookie = `googtrans=/ro/${targetLang}; path=/; domain=${window.location.hostname}`;
+      const maxAge = canPersist ? "; max-age=2592000" : "";
+      document.cookie = `googtrans=/ro/${targetLang}; path=/${maxAge}`;
+      document.cookie = `googtrans=/ro/${targetLang}; path=/; domain=${window.location.hostname}${maxAge}`;
     }
 
     window.location.reload();

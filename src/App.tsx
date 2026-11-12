@@ -39,7 +39,7 @@ import Cookies from "./pages/Cookies";
 import Gdpr from "./pages/Gdpr";
 import ResortFacilities from "./pages/ResortFacilities";
 import OrderProgress from "./pages/OrderProgress";
-import CookieConsentBanner from "./components/CookieConsentBanner";
+import CookieConsentBanner, { trackAnalyticsEvent } from "./components/CookieConsentBanner";
 import Footer from "./components/Footer";
 import ChatWidget from "./components/ChatWidget";
 import BookingSuccess from "./pages/BookingSuccess";
@@ -55,6 +55,13 @@ function AvailabilityRedirect() {
 const MainLayout = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    if (!isAdmin) {
+      trackAnalyticsEvent("page_view", { path: location.pathname });
+    }
+  }, [isAdmin, location.pathname]);
+
   return (
     <>
       <Navbar />

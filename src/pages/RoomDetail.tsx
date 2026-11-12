@@ -22,6 +22,11 @@ import {
 } from "../services/roomsService";
 import DatePicker from "../components/DatePicker";
 import RoomReviewsSection from "../components/RoomReviewsSection";
+import {
+  MARKETING_PROMO_KEY,
+  trackAnalyticsEvent,
+  useCookieConsent,
+} from "../components/CookieConsentBanner";
 import { useToast } from "../components/Toast";
 import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
 import { ron, toISODate, nightsBetween, dayLabel } from "../lib/format";
@@ -164,6 +169,14 @@ export default function RoomDetail() {
       }
     },
   });
+
+  const cookieConsent = useCookieConsent();
+
+  useEffect(() => {
+    if (roomId) {
+      trackAnalyticsEvent("room_view", { slug: roomId });
+    }
+  }, [roomId]);
 
   const nightList = nightsBetween(checkIn, checkOut);
   const nights = nightList.length;
@@ -796,6 +809,28 @@ export default function RoomDetail() {
                     <span>{vc.code} (-{vc.discount_value}%)</span>
                   </button>
                 ))}
+              </div>
+            )}
+            {cookieConsent?.marketing && !appliedCoupon && (
+              <div className="mt-2.5 flex items-center justify-between gap-2 rounded-xl border border-[#c69a3f]/35 bg-[#fdf8ec] px-3 py-2">
+                <span className="text-[11px] font-medium text-[#0d2c5c]">
+                  Ofertă sezonieră activă:{" "}
+                  <strong className="font-mono text-[#9c7624]">VARA2026</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      localStorage.setItem(MARKETING_PROMO_KEY, "VARA2026");
+                    } catch {
+                      // ignore
+                    }
+                    void handleApplyCoupon("VARA2026");
+                  }}
+                  className="shrink-0 rounded-lg bg-[#0d2c5c] px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition cursor-pointer"
+                >
+                  Aplică cupon
+                </button>
               </div>
             )}
             {appliedCoupon && (
