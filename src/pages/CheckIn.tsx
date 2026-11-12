@@ -12,18 +12,25 @@ import {
   RefreshCw,
   Clock,
   Sparkles,
+  RotateCcw,
+  AlertCircle,
 } from "lucide-react";
 import { API_URL } from "../lib/config";
+import { apiFetch } from "../lib/api";
 import { useToast } from "../components/Toast";
 import SmartLockKeypad from "../components/SmartLockKeypad";
 
 interface CheckInInfo {
+  booking_id?: string;
   booking_code: string;
   guest_name: string;
   room_name: string;
   unit_number: string;
   check_in: string;
   check_out: string;
+  created_at?: string | null;
+  rate_plan_code?: string | null;
+  total_price?: number | null;
   status: string;
   payment_status: string;
   is_checked_in: boolean;
@@ -41,6 +48,11 @@ export default function CheckIn() {
   const [notes, setNotes] = useState("");
   const [pinCopied, setPinCopied] = useState(false);
   const [showKeypadSimulator, setShowKeypadSimulator] = useState(false);
+  const [checkinError, setCheckinError] = useState<string | null>(null);
+  const [showRefundConfirm, setShowRefundConfirm] = useState(false);
+  const [refundReason, setRefundReason] = useState("");
+  const [refunding, setRefunding] = useState(false);
+  const [refundError, setRefundError] = useState<string | null>(null);
 
   const fetchInfo = useCallback(async () => {
     if (!bookingCode) return;
@@ -48,7 +60,7 @@ export default function CheckIn() {
     setError(null);
     try {
       let res = await fetch(`${API_URL}/api/checkin/${bookingCode}/info`);
-      if (!res.ok) {
+      if (res.status === 404) {
         res = await fetch(`${API_URL}/checkin/${bookingCode}/info`);
       }
 
@@ -84,6 +96,7 @@ export default function CheckIn() {
     if (!bookingCode) return;
 
     setSubmitting(true);
+    setCheckinError(null);
     try {
       let res = await fetch(`${API_URL}/api/checkin/${bookingCode}`, {
         method: "POST",
@@ -91,7 +104,7 @@ export default function CheckIn() {
         body: JSON.stringify({ guest_notes: notes }),
       });
 
-      if (!res.ok) {
+      if (res.status === 404) {
         res = await fetch(`${API_URL}/checkin/${bookingCode}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -99,9 +112,9 @@ export default function CheckIn() {
         });
       }
 
-      const data = (await res.json()) as Record<string, string>;
+      const data = (await res.json().catch(() => ({}))) as Record<string, string>;
       if (!res.ok) {
-        throw new Error(data.detail || data.message || "Self check-in-ul nu a putut fi efectuat.");
+        throw new Error(data.message || data.detail || "Self check-in-ul nu a putut fi efectuat.");
       }
 
       toast("Self check-in finalizat cu succes! Codul tău PIN este activ.", "success");
@@ -117,11 +130,76 @@ export default function CheckIn() {
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Eroare la finalizarea check-in-ului.";
+      setCheckinError(msg);
       toast(msg, "error");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const handleRequestRefund = async () => {
+    if (!info?.booking_id) return;
+    setRefunding(true);
+    setRefundError(null);
+    try {
+      await apiFetch(`/bookings/${encodeURIComponent(info.booking_id)}/cancel`, {
+        method: "POST",
+        body: JSON.stringify({
+          cancellation_reason: refundReason.trim() || "Anulare solicitată de client în termen de 30 de zile",
+        }),
+      });
+      toast("Rezervarea a fost anulată și rambursarea a fost inițiată automat prin Stripe.", "success");
+      setShowRefundConfirm(false);
+      setInfo((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: "cancelled",
+              payment_status: prev.payment_status === "paid" ? "refunded" : prev.payment_status,
+            }
+          : null
+      );
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Nu am putut procesa anularea și rambursarea. Verifică dacă ești autentificat.";
+      setRefundError(msg);
+      toast(msg, "error");
+    } finally {
+      setRefunding(false);
+    }
+  };
+
+  const refundMeta = (() => {
+    if (!info) return { eligible: false, daysLeft: 0, reason: "" };
+    if (info.status === "cancelled" || info.status === "completed" || info.is_checked_in) {
+      return { eligible: false, daysLeft: 0, reason: "" };
+    }
+    if (info.rate_plan_code === "non_refundable") {
+      return {
+        eligible: false,
+        daysLeft: 0,
+        reason: "Această rezervare a fost efectuată cu planul Nerambursabil.",
+      };
+    }
+    const now = new Date();
+    const checkInDate = new Date(info.check_in);
+    if (checkInDate < now) {
+      return { eligible: false, daysLeft: 0, reason: "Data de check-in a trecut deja." };
+    }
+    const created = info.created_at ? new Date(info.created_at) : now;
+    const daysElapsed = Math.max(0, Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24)));
+    const daysLeft = Math.max(0, 30 - daysElapsed);
+    if (daysElapsed > 30) {
+      return {
+        eligible: false,
+        daysLeft: 0,
+        reason: `Termenul de 30 de zile de la rezervare a expirat (${daysElapsed} zile trecute).`,
+      };
+    }
+    return { eligible: true, daysLeft, reason: "" };
+  })();
 
   const copyPin = (pin: string) => {
     navigator.clipboard.writeText(pin);
@@ -367,9 +445,102 @@ export default function CheckIn() {
                         </>
                       )}
                     </button>
+
+                    {checkinError && (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12.5px] text-amber-900 flex items-start gap-2.5">
+                        <AlertCircle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                        <span>{checkinError}</span>
+                      </div>
+                    )}
                   </div>
                 </form>
               )}
+
+              {info.status === "cancelled" ? (
+                <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50/70 p-5 text-[13px] text-rose-900 flex items-start gap-3">
+                  <RotateCcw size={18} className="text-rose-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold">Rezervare anulată</p>
+                    <p className="text-[12.5px] text-rose-800/90 mt-0.5">
+                      {info.payment_status === "refunded"
+                        ? "Suma achitată a fost rambursată automat prin Stripe pe cardul folosit la plată."
+                        : "Această rezervare a fost anulată."}
+                    </p>
+                  </div>
+                </div>
+              ) : !info.is_checked_in && (refundMeta.eligible || refundMeta.reason) ? (
+                <div className="mt-6 rounded-2xl border border-[#e1e8f0] bg-[#f8fafd] p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <RotateCcw size={18} className="text-[#0d2c5c] shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-[13.5px] font-bold text-[#0d2c5c]">
+                          Anulare & Rambursare Automată (max. 30 zile)
+                        </h4>
+                        <p className="text-[12px] text-[#6b7c99] mt-0.5">
+                          {refundMeta.eligible
+                            ? `Poți anula rezervarea și primi banii înapoi pe card în termen de 30 de zile de la rezervare (mai ai ${refundMeta.daysLeft} ${
+                                refundMeta.daysLeft === 1 ? "zi" : "zile"
+                              }).`
+                            : refundMeta.reason}
+                        </p>
+                      </div>
+                    </div>
+
+                    {refundMeta.eligible && !showRefundConfirm ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRefundError(null);
+                          setShowRefundConfirm(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-4 py-2 text-[12px] font-bold text-rose-700 hover:bg-rose-50 transition-colors"
+                      >
+                        <RotateCcw size={14} />
+                        Solicită Refund
+                      </button>
+                    ) : null}
+                  </div>
+
+                  {refundMeta.eligible && showRefundConfirm ? (
+                    <div className="mt-4 pt-4 border-t border-[#e1e8f0] space-y-3">
+                      <input
+                        type="text"
+                        value={refundReason}
+                        onChange={(e) => setRefundReason(e.target.value)}
+                        placeholder="Motivul anulării (opțional)"
+                        className="w-full rounded-xl border border-[#cbd5e1] bg-white px-3.5 py-2 text-[12.5px] text-[#0d2c5c] placeholder-[#94a3b8] focus:border-[#0d2c5c] focus:outline-none"
+                      />
+                      {refundError ? (
+                        <p className="text-[12px] text-rose-600 font-medium">{refundError}</p>
+                      ) : null}
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <button
+                          type="button"
+                          disabled={refunding}
+                          onClick={() => void handleRequestRefund()}
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-[12px] font-bold text-white hover:bg-rose-700 transition-colors disabled:opacity-60"
+                        >
+                          {refunding ? (
+                            <RefreshCw size={14} className="animate-spin" />
+                          ) : (
+                            <RotateCcw size={14} />
+                          )}
+                          {refunding ? "Se procesează refund-ul..." : "Confirmă anularea & refund 100%"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={refunding}
+                          onClick={() => setShowRefundConfirm(false)}
+                          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-[12px] font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          Renunță
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
 
             {/* NAVIGATION LINKS */}

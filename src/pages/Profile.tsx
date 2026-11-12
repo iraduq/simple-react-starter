@@ -1079,10 +1079,14 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
   const { toast } = useToast();
   const [scope, setScope] = useState<"upcoming" | "past">("upcoming");
   const [copiedPin, setCopiedPin] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
+  const [cancelledIds, setCancelledIds] = useState<Record<string, boolean>>({});
 
   const now = Date.now();
   const items = useMemo(() => {
     return bookings
+      .map((b) => (cancelledIds[b.id] ? { ...b, status: "cancelled" } : b))
       .filter((b) => {
         const isPast =
           new Date(b.check_out).getTime() < now ||
@@ -1091,7 +1095,26 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
         return scope === "past" ? isPast : !isPast;
       })
       .sort((a, b) => new Date(a.check_in).getTime() - new Date(b.check_in).getTime());
-  }, [bookings, scope, now]);
+  }, [bookings, scope, now, cancelledIds]);
+
+  const handleCancelRefund = async (bookingId: string) => {
+    setCancellingId(bookingId);
+    try {
+      await apiFetch(`/bookings/${encodeURIComponent(bookingId)}/cancel`, {
+        method: "POST",
+        body: JSON.stringify({
+          cancellation_reason: "Anulare solicitată de client în termen de 30 de zile",
+        }),
+      });
+      setCancelledIds((prev) => ({ ...prev, [bookingId]: true }));
+      setConfirmCancelId(null);
+      toast("Rezervarea a fost anulată și rambursarea a fost inițiată prin Stripe.", "success");
+    } catch (e: any) {
+      toast(e?.message || "Anularea nu a putut fi procesată.", "error");
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   const fmtDate = (d: string) =>
     new Date(d).toLocaleDateString("ro-RO", {
@@ -1282,6 +1305,54 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
                     <Download size={13} className="text-[#c69a3f]" />
                     <span>Factură și voucher</span>
                   </button>
+
+                  {(() => {
+                    const plan = (r as any).rate_plan_code || "flexible";
+                    const createdRaw = (r as any).created_at || (r as any).booking_date;
+                    const createdMs = createdRaw ? new Date(createdRaw).getTime() : now;
+                    const daysElapsed = Math.max(0, Math.floor((now - createdMs) / 864e5));
+                    const canRefund =
+                      r.status === "confirmed" &&
+                      plan !== "non_refundable" &&
+                      new Date(r.check_in).getTime() >= now &&
+                      daysElapsed <= 30;
+                    if (!canRefund) return null;
+
+                    if (confirmCancelId === r.id) {
+                      return (
+                        <div className="mt-2 flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            disabled={cancellingId === r.id}
+                            onClick={() => void handleCancelRefund(r.id)}
+                            className="flex items-center gap-1 rounded-[10px] bg-rose-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-rose-700 transition-all disabled:opacity-60"
+                          >
+                            <RefreshCcw size={12} className={cancellingId === r.id ? "animate-spin" : ""} />
+                            <span>{cancellingId === r.id ? "Procesare..." : "Confirmă Refund"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={cancellingId === r.id}
+                            onClick={() => setConfirmCancelId(null)}
+                            className="rounded-[10px] border border-[#e1e8f0] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#6b7c99] hover:bg-slate-50"
+                          >
+                            Nu
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmCancelId(r.id)}
+                        className="mt-2 flex items-center gap-1.5 rounded-[10px] border border-rose-200 bg-rose-50/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-rose-700 hover:bg-rose-100 transition-all"
+                      >
+                        <RefreshCcw size={12} />
+                        <span>Anulare & Refund ({30 - daysElapsed}z)</span>
+                      </button>
+                    );
+                  })()}
                 </div>
               </article>
             );

@@ -516,7 +516,7 @@ export default function BookingSuccess() {
                 <div className="space-y-2.5 pt-2">
                   {bookingCode ? (
                     <Link
-                      to={`/check-in?code=${encodeURIComponent(bookingCode)}`}
+                      to={`/checkin/${encodeURIComponent(bookingCode)}`}
                       className="w-full inline-flex items-center justify-center gap-2 bg-[#0d2c5c] text-white py-3.5 px-5 rounded-xl font-semibold hover:bg-[#143d7a] transition-colors shadow-md shadow-[#0d2c5c]/15"
                     >
                       <KeyRound className="w-4 h-4 text-[#f3d48b]" />
