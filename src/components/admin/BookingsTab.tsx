@@ -7,7 +7,7 @@ import {
   Search,
   CheckCircle2,
   Copy,
-  MoreHorizontal, FileText, RotateCcw, AlertTriangle, CalendarDays, ChevronLeft, ChevronRight,
+  MoreHorizontal, FileText, RotateCcw, AlertTriangle, CalendarDays, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown,
 } from "lucide-react";
 import { Badge, statusTone, TableSkeleton, EmptyState, Modal, SectionHeader } from "./ui";
 import {
@@ -73,6 +73,24 @@ export default function BookingsTab() {
   const [email, setEmail] = useState("");
 
   const [page, setPage] = useState(1);
+  const [sortKey, setSortKey] = useState<
+    "client" | "room" | "stay" | "status" | "total" | null
+  >(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  const toggleSort = (key: "client" | "room" | "stay" | "status" | "total") => {
+    if (sortKey === key) {
+      if (sortDir === "asc") {
+        setSortDir("desc");
+      } else {
+        setSortKey(null);
+      }
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+    setPage(1);
+  };
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const [busy, setBusy] = useState<string | null>(null);
@@ -200,8 +218,43 @@ export default function BookingsTab() {
     });
   }, [bookings, status, roomId, unitId, datePreset, exactDate, email, users]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
-  const paginatedBookings = filtered.slice(
+  const sortedFiltered = useMemo(() => {
+    if (!sortKey) return filtered;
+    const copy = [...filtered];
+    const dir = sortDir === "asc" ? 1 : -1;
+    copy.sort((a, b) => {
+      if (sortKey === "client") {
+        const ua = users.find((u) => String(u.id) === String(a.user_id));
+        const ub = users.find((u) => String(u.id) === String(b.user_id));
+        const va = (a.guest_name || a.user_email || a.guest_email || ua?.email || "").toLowerCase();
+        const vb = (b.guest_name || b.user_email || b.guest_email || ub?.email || "").toLowerCase();
+        return va.localeCompare(vb, "ro") * dir;
+      }
+      if (sortKey === "room") {
+        const ra = rooms.find((r) => String(r.id) === String(a.room_id));
+        const rb = rooms.find((r) => String(r.id) === String(b.room_id));
+        const va = (a.room_name || (ra?.name as string) || (ra as any)?.title || "").toLowerCase();
+        const vb = (b.room_name || (rb?.name as string) || (rb as any)?.title || "").toLowerCase();
+        return va.localeCompare(vb, "ro") * dir;
+      }
+      if (sortKey === "stay") {
+        const va = (a.check_in || "").slice(0, 10);
+        const vb = (b.check_in || "").slice(0, 10);
+        return va.localeCompare(vb) * dir;
+      }
+      if (sortKey === "status") {
+        return String(a.status || "").localeCompare(String(b.status || "")) * dir;
+      }
+      if (sortKey === "total") {
+        return (Number(a.total_price || 0) - Number(b.total_price || 0)) * dir;
+      }
+      return 0;
+    });
+    return copy;
+  }, [filtered, sortKey, sortDir, users, rooms]);
+
+  const totalPages = Math.ceil(sortedFiltered.length / PAGE_SIZE) || 1;
+  const paginatedBookings = sortedFiltered.slice(
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
   );
@@ -576,11 +629,39 @@ export default function BookingsTab() {
                   <thead>
                     <tr className="border-b border-[#eef2f7] bg-[#0d2c5c]/[0.02] text-[10px] uppercase tracking-[0.18em] text-[#6b7c99]">
                       <th className="px-6 py-4 font-bold"># ID</th>
-                      <th className="px-6 py-4 font-bold">Client</th>
-                      <th className="px-6 py-4 font-bold">Cameră</th>
-                      <th className="px-6 py-4 font-bold">Sejur</th>
-                      <th className="px-6 py-4 font-bold">Status</th>
-                      <th className="px-6 py-4 font-bold">Total</th>
+                      {(
+                        [
+                          { key: "client", label: "Client" },
+                          { key: "room", label: "Cameră" },
+                          { key: "stay", label: "Sejur" },
+                          { key: "status", label: "Status" },
+                          { key: "total", label: "Total" },
+                        ] as const
+                      ).map((col) => {
+                        const active = sortKey === col.key;
+                        return (
+                          <th key={col.key} className="px-6 py-4 font-bold">
+                            <button
+                              type="button"
+                              onClick={() => toggleSort(col.key)}
+                              className={`inline-flex items-center gap-1.5 uppercase tracking-[0.18em] transition cursor-pointer ${
+                                active ? "text-[#0d2c5c]" : "text-[#6b7c99] hover:text-[#0d2c5c]"
+                              }`}
+                            >
+                              {col.label}
+                              {active ? (
+                                sortDir === "asc" ? (
+                                  <ArrowUp size={12} className="text-[#c69a3f]" />
+                                ) : (
+                                  <ArrowDown size={12} className="text-[#c69a3f]" />
+                                )
+                              ) : (
+                                <ArrowUpDown size={11} className="opacity-50" />
+                              )}
+                            </button>
+                          </th>
+                        );
+                      })}
                       <th className="px-6 py-4 text-right font-bold w-20">
                         Acțiuni
                       </th>
