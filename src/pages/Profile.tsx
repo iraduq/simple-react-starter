@@ -1103,6 +1103,7 @@ function ReservationsTab({ bookings }: { bookings: Booking[] }) {
       await apiFetch(`/bookings/${encodeURIComponent(bookingId)}/cancel`, {
         method: "POST",
         body: JSON.stringify({
+          status: "cancelled",
           cancellation_reason: "Anulare solicitată de client în termen de 30 de zile",
         }),
       });

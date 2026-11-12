@@ -145,6 +145,7 @@ export default function CheckIn() {
       await apiFetch(`/bookings/${encodeURIComponent(info.booking_id)}/cancel`, {
         method: "POST",
         body: JSON.stringify({
+          status: "cancelled",
           cancellation_reason: refundReason.trim() || "Anulare solicitată de client în termen de 30 de zile",
         }),
       });
