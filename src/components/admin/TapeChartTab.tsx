@@ -294,9 +294,6 @@ export default function TapeChartTab() {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>WebSocket live</span>
             </span>
-            <GhostButton onClick={() => void loadAllTimelineData()}>
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#c69a3f]" : "text-[#0d2c5c]"}`} />
-            </GhostButton>
             <GhostButton onClick={prevMonth}>
               <ChevronLeft className="w-4 h-4" />
             </GhostButton>
@@ -306,7 +303,6 @@ export default function TapeChartTab() {
             <GhostButton onClick={nextMonth}>
               <ChevronRight className="w-4 h-4" />
             </GhostButton>
-            <PrimaryButton onClick={goToday}>Astăzi</PrimaryButton>
           </div>
         }
       />

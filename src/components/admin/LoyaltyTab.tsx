@@ -9,10 +9,13 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   TicketPercent,
-  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  BedDouble,
+  UtensilsCrossed,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
-import { useAdminLiveSync } from "../../context/AdminLiveSyncContext";
+import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 import { useToast } from "../Toast";
 import {
   SectionHeader,
@@ -36,6 +39,39 @@ interface AdminLoyaltyAccount {
   active_coupons_count?: number;
   redeemed_perks_count?: number;
   created_at: string | null;
+}
+
+interface AdminBookingDetail {
+  id: string;
+  booking_code: string;
+  room_title: string;
+  unit_number?: string | null;
+  check_in?: string | null;
+  check_out?: string | null;
+  guests_adults: number;
+  guests_children: number;
+  total_price: number;
+  status: string;
+  payment_status?: string | null;
+  rate_plan_code?: string | null;
+  special_requests?: string | null;
+}
+
+interface AdminOrderDetail {
+  id: string;
+  order_code: string;
+  booking_code?: string | null;
+  location_label: string;
+  items: Array<{ id?: string; title: string; price: number; qty: number }>;
+  subtotal_amount: number;
+  discount_percent: number;
+  discount_amount: number;
+  discount_reason?: string | null;
+  total_amount: number;
+  payment_method: string;
+  notes?: string | null;
+  status: string;
+  created_at?: string | null;
 }
 
 interface AdminAccountDetails {
@@ -63,6 +99,8 @@ interface AdminAccountDetails {
       created_at?: string | null;
     }>;
   };
+  bookings?: AdminBookingDetail[];
+  orders?: AdminOrderDetail[];
 }
 
 export default function LoyaltyTab() {
@@ -80,6 +118,7 @@ export default function LoyaltyTab() {
   const [detailsTarget, setDetailsTarget] = useState<AdminLoyaltyAccount | null>(null);
   const [detailsData, setDetailsData] = useState<AdminAccountDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [selectedTxId, setSelectedTxId] = useState<number | null>(null);
 
   const loadAccounts = useCallback(async () => {
     setLoading(true);
@@ -97,28 +136,36 @@ export default function LoyaltyTab() {
     void loadAccounts();
   }, [loadAccounts]);
 
-  useAdminLiveSync({
-    topic: "loyalty",
-    onSync: () => {
-      void loadAccounts();
-    },
-  });
-
-  const openMemberDetails = async (acc: AdminLoyaltyAccount) => {
+  const openMemberDetails = useCallback(async (acc: AdminLoyaltyAccount, silent = false) => {
     setDetailsTarget(acc);
-    setDetailsData(null);
-    setLoadingDetails(true);
+    if (!silent) {
+      setDetailsData(null);
+      setSelectedTxId(null);
+      setLoadingDetails(true);
+    }
     try {
       const data = await apiFetch<AdminAccountDetails>(
         `/loyalty/admin/accounts/${acc.user_id}/transactions`
       );
       setDetailsData(data);
     } catch (err: any) {
-      toast(err?.message || "Nu s-a putut încărca istoricul membrului.", "error");
+      if (!silent) {
+        toast(err?.message || "Nu s-a putut încărca istoricul membrului.", "error");
+      }
     } finally {
-      setLoadingDetails(false);
+      if (!silent) setLoadingDetails(false);
     }
-  };
+  }, [toast]);
+
+  const { isSyncing, connectionStatus } = useAdminLiveSync({
+    topic: "loyalty",
+    onSync: () => {
+      void loadAccounts();
+      if (detailsTarget) {
+        void openMemberDetails(detailsTarget, true);
+      }
+    },
+  });
 
   const stats = useMemo(() => {
     const totalMembers = accounts.length;
@@ -177,12 +224,7 @@ export default function LoyaltyTab() {
         eyebrow="Fidelizare și oaspeți VIP"
         title="Clubul de privilegii Casa Esy și statutul VIP"
         description="Gestionează membrii clubului de fidelitate, nivelurile de loialitate (Bronze, Silver, Gold, Platinum), voucherele revendicate și alocarea punctelor bonus."
-        action={
-          <GhostButton onClick={() => void loadAccounts()}>
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-            <span>Reîmprospătează</span>
-          </GhostButton>
-        }
+        action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -452,47 +494,182 @@ export default function LoyaltyTab() {
             )}
 
             <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Ultimele Tranzacții ({detailsData.transactions.length})
-              </p>
-              <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto border border-slate-200 rounded-xl">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Ultimele Tranzacții ({detailsData.transactions.length})
+                </p>
+                <span className="text-[11px] text-slate-400">
+                  Click pe o tranzacție pentru detalii complete
+                </span>
+              </div>
+              <div className="divide-y divide-slate-100 max-h-[380px] overflow-y-auto border border-slate-200 rounded-xl">
                 {detailsData.transactions.length === 0 ? (
                   <p className="text-xs text-slate-500 p-4 text-center">Nicio tranzacție.</p>
                 ) : (
                   detailsData.transactions.map((tx) => {
                     const pos = tx.points > 0;
+                    const isOpen = selectedTxId === tx.id;
+                    const orderMatch = tx.description.match(/ORD-\d+/i)?.[0]?.toUpperCase();
+                    const bookingMatch = tx.description.match(/#([A-Z0-9-]{4,16})/i)?.[1]?.toUpperCase();
+
+                    const matchedOrder = orderMatch
+                      ? detailsData.orders?.find((o) => o.order_code.toUpperCase() === orderMatch)
+                      : undefined;
+                    const matchedBooking = bookingMatch && !bookingMatch.startsWith("ORD-")
+                      ? detailsData.bookings?.find((b) => b.booking_code.toUpperCase() === bookingMatch)
+                      : undefined;
+                    const relatedOrders = matchedBooking
+                      ? (detailsData.orders || []).filter(
+                          (o) => (o.booking_code || "").toUpperCase() === matchedBooking.booking_code.toUpperCase(),
+                        )
+                      : [];
+
                     return (
-                      <div key={tx.id} className="px-3.5 py-2.5 flex items-center justify-between text-xs gap-3">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span
-                            className={`p-1 rounded-full ${
-                              pos ? "bg-amber-50 text-[#c69a3f]" : "bg-slate-100 text-[#0d2c5c]"
-                            }`}
-                          >
-                            {pos ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                          </span>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-[#0d2c5c] truncate">{tx.description}</p>
-                            <p className="text-[10.5px] text-slate-400">
-                              {tx.created_at
-                                ? new Date(tx.created_at).toLocaleDateString("ro-RO", {
-                                    day: "2-digit",
-                                    month: "short",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : "Recent"}
-                            </p>
-                          </div>
-                        </div>
-                        <span
-                          className={`font-bold font-['Outfit'] shrink-0 ${
-                            pos ? "text-[#c69a3f]" : "text-[#0d2c5c]"
+                      <div key={tx.id} className="bg-white">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTxId(isOpen ? null : tx.id)}
+                          className={`w-full text-left px-4 py-3 flex items-start justify-between text-xs gap-3 transition cursor-pointer ${
+                            isOpen ? "bg-[#fdf8ec]/70" : "hover:bg-slate-50"
                           }`}
                         >
-                          {pos ? `+${tx.points}` : tx.points} pct
-                        </span>
+                          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                            <span
+                              className={`p-1.5 rounded-full shrink-0 mt-0.5 ${
+                                pos ? "bg-amber-50 text-[#c69a3f]" : "bg-slate-100 text-[#0d2c5c]"
+                              }`}
+                            >
+                              {pos ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-semibold text-[#0d2c5c] whitespace-normal break-words leading-snug">
+                                {tx.description}
+                              </p>
+                              <p className="text-[10.5px] text-slate-400 mt-1">
+                                {tx.created_at
+                                  ? new Date(tx.created_at).toLocaleDateString("ro-RO", {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
+                                  : "Recent"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0 pt-0.5">
+                            <span
+                              className={`font-bold font-['Outfit'] ${
+                                pos ? "text-[#c69a3f]" : "text-[#0d2c5c]"
+                              }`}
+                            >
+                              {pos ? `+${tx.points}` : tx.points} pct
+                            </span>
+                            {isOpen ? (
+                              <ChevronUp size={14} className="text-slate-400" />
+                            ) : (
+                              <ChevronDown size={14} className="text-slate-400" />
+                            )}
+                          </div>
+                        </button>
+
+                        {isOpen && (
+                          <div className="px-4 pb-4 pt-2 bg-[#f8fafc] border-t border-slate-100 space-y-3 text-xs">
+                            {matchedBooking && (
+                              <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="inline-flex items-center gap-1.5 font-bold text-[#0d2c5c]">
+                                    <BedDouble size={14} className="text-[#c69a3f]" />
+                                    Sejur #{matchedBooking.booking_code} · {matchedBooking.room_title}
+                                    {matchedBooking.unit_number ? ` (Cam ${matchedBooking.unit_number})` : ""}
+                                  </span>
+                                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-[#0d2c5c]">
+                                    {matchedBooking.status}
+                                  </span>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-600">
+                                  <div>
+                                    <span className="block text-[10px] uppercase text-slate-400">Perioadă</span>
+                                    <span className="font-semibold text-[#0d2c5c]">
+                                      {(matchedBooking.check_in || "").slice(0, 10)} → {(matchedBooking.check_out || "").slice(0, 10)}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="block text-[10px] uppercase text-slate-400">Oaspeți</span>
+                                    <span className="font-semibold text-[#0d2c5c]">
+                                      {matchedBooking.guests_adults} adulți
+                                      {matchedBooking.guests_children > 0 ? `, ${matchedBooking.guests_children} copii` : ""}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="block text-[10px] uppercase text-slate-400">Total plătit</span>
+                                    <span className="font-bold text-[#0d2c5c]">
+                                      {matchedBooking.total_price} RON ({matchedBooking.payment_status || "—"})
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="block text-[10px] uppercase text-slate-400">Plan tarifar</span>
+                                    <span className="font-semibold text-[#0d2c5c]">
+                                      {matchedBooking.rate_plan_code || "flexible"}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {(matchedOrder ? [matchedOrder] : relatedOrders).length > 0 && (
+                              <div className="space-y-2">
+                                {(matchedOrder ? [matchedOrder] : relatedOrders).map((ord) => (
+                                  <div key={ord.id} className="rounded-xl border border-amber-200/70 bg-white p-3 space-y-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="inline-flex items-center gap-1.5 font-bold text-[#0d2c5c]">
+                                        <UtensilsCrossed size={14} className="text-[#c69a3f]" />
+                                        Comandă {ord.order_code} · {ord.location_label}
+                                      </span>
+                                      <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold uppercase text-[#9c7624]">
+                                        {ord.status}
+                                      </span>
+                                    </div>
+                                    <div className="divide-y divide-slate-100 rounded-lg border border-slate-100 bg-slate-50/70 px-2.5 py-1">
+                                      {ord.items.map((it, i) => (
+                                        <div key={i} className="py-1 flex items-center justify-between text-[11px]">
+                                          <span className="text-[#0d2c5c] font-medium">
+                                            {it.qty}x {it.title}
+                                          </span>
+                                          <span className="font-semibold text-slate-700">
+                                            {(Number(it.price || 0) * Number(it.qty || 1)).toFixed(2)} RON
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-600 pt-1">
+                                      <span>
+                                        Plată: <strong className="text-[#0d2c5c]">{ord.payment_method}</strong>
+                                        {ord.discount_amount > 0 ? ` · Reducere: -${ord.discount_amount} RON` : ""}
+                                        {ord.notes ? ` · Mențiuni: "${ord.notes}"` : ""}
+                                      </span>
+                                      <span className="font-bold text-[#0d2c5c]">
+                                        Total achitat: {ord.total_amount} RON
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {!matchedBooking && !matchedOrder && relatedOrders.length === 0 && (
+                              <div className="rounded-xl border border-slate-200 bg-white p-3 text-[11px] text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                                <span>
+                                  Tip operațiune: <strong className="text-[#0d2c5c] uppercase">{tx.type}</strong>
+                                </span>
+                                <span>
+                                  Impact sold: <strong className="text-[#0d2c5c]">{pos ? `+${tx.points}` : tx.points} puncte VIP</strong>
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })
