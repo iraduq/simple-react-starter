@@ -94,9 +94,9 @@ const COLUMNS: {
     subtitle: "Așteaptă preluarea",
     emptyTitle: "Nicio comandă în așteptare",
     emptyHint: "Comenzile noi ale oaspeților apar instant aici.",
-    iconBg: "bg-amber-50 text-[#c69a3f] border-amber-200/80",
-    countBadge: "bg-amber-50 text-[#946c1d] border-[#c69a3f]/35",
-    accentBar: "from-[#c69a3f] to-[#e6b85c]",
+    iconBg: "bg-[#0d2c5c]/5 text-[#0d2c5c] border-[#0d2c5c]/10",
+    countBadge: "bg-[#0d2c5c]/10 text-[#0d2c5c] border-[#0d2c5c]/20",
+    accentBar: "bg-[#0d2c5c]",
     icon: Sparkles,
   },
   {
@@ -105,9 +105,9 @@ const COLUMNS: {
     subtitle: "Bucătărie room service",
     emptyTitle: "Bucătăria este liberă",
     emptyHint: "Preia o comandă nouă pentru a începe prepararea.",
-    iconBg: "bg-[#0d2c5c]/8 text-[#0d2c5c] border-[#0d2c5c]/15",
-    countBadge: "bg-[#f0f4fa] text-[#0d2c5c] border-[#0d2c5c]/20",
-    accentBar: "from-[#0d2c5c] to-[#1e4b8f]",
+    iconBg: "bg-[#c69a3f]/10 text-[#8a6420] border-[#c69a3f]/25",
+    countBadge: "bg-[#fdf8ec] text-[#8a6420] border-[#c69a3f]/30",
+    accentBar: "bg-[#c69a3f]",
     icon: ChefHat,
   },
   {
@@ -116,9 +116,9 @@ const COLUMNS: {
     subtitle: "În drum spre cameră",
     emptyTitle: "Nicio livrare activă",
     emptyHint: "Comenzile gata de servire vor apărea aici.",
-    iconBg: "bg-sky-50 text-sky-700 border-sky-200",
-    countBadge: "bg-sky-50 text-sky-800 border-sky-200",
-    accentBar: "from-sky-600 to-[#0d2c5c]",
+    iconBg: "bg-[#0d2c5c]/5 text-[#0d2c5c] border-[#0d2c5c]/10",
+    countBadge: "bg-[#0d2c5c]/10 text-[#0d2c5c] border-[#0d2c5c]/20",
+    accentBar: "bg-[#1a3a6e]",
     icon: Bike,
   },
   {
@@ -129,7 +129,7 @@ const COLUMNS: {
     emptyHint: "Comenzile mai vechi de 24h se mută automat în «Istoric comenzi».",
     iconBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
     countBadge: "bg-emerald-50 text-emerald-800 border-emerald-200",
-    accentBar: "from-emerald-500 to-teal-600",
+    accentBar: "bg-emerald-600",
     icon: CheckCircle2,
   },
 ];
@@ -370,7 +370,7 @@ export default function OrdersKdsTab() {
               {kpi.active}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/70 text-[#c69a3f] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#0d2c5c]/5 border border-[#0d2c5c]/10 text-[#0d2c5c] flex items-center justify-center">
             <Clock className="w-5 h-5" />
           </div>
         </div>
@@ -384,7 +384,7 @@ export default function OrdersKdsTab() {
               {kpi.kitchen}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#f0f4fa] border border-[#0d2c5c]/15 text-[#0d2c5c] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#0d2c5c]/5 border border-[#0d2c5c]/10 text-[#0d2c5c] flex items-center justify-center">
             <UtensilsCrossed className="w-5 h-5" />
           </div>
         </div>
@@ -394,7 +394,7 @@ export default function OrdersKdsTab() {
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
               Livrate în cameră
             </p>
-            <p className="font-['Outfit',sans-serif] text-2xl font-extrabold text-emerald-700 mt-0.5">
+            <p className="font-['Outfit',sans-serif] text-2xl font-extrabold text-[#0d2c5c] mt-0.5">
               {kpi.delivered}
             </p>
           </div>
@@ -403,16 +403,16 @@ export default function OrdersKdsTab() {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-gradient-to-br from-[#0d2c5c] to-[#133b7a] border border-[#0d2c5c] p-4 shadow-[0_10px_28px_rgba(13,44,92,0.16)] flex items-center justify-between text-white">
+        <div className="rounded-2xl bg-white border border-[#e1e8f0] p-4 shadow-[0_6px_24px_rgba(13,44,92,0.04)] flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#e6b85c]">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">
               Volum Room Service
             </p>
-            <p className="font-['Outfit',sans-serif] text-2xl font-extrabold mt-0.5">
-              {kpi.revenue.toLocaleString("ro-RO")} <span className="text-xs font-bold text-[#e6b85c]">RON</span>
+            <p className="font-['Outfit',sans-serif] text-2xl font-extrabold text-[#0d2c5c] mt-0.5">
+              {kpi.revenue.toLocaleString("ro-RO")} <span className="text-xs font-bold text-[#c69a3f]">RON</span>
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 text-[#e6b85c] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#fdf8ec] border border-[#c69a3f]/30 text-[#c69a3f] flex items-center justify-center">
             <Wallet className="w-5 h-5" />
           </div>
         </div>
@@ -637,8 +637,8 @@ export default function OrdersKdsTab() {
                 key={col.key}
                 className="rounded-[24px] bg-[#f8fafc]/90 border border-[#e1e8f0] shadow-[0_10px_34px_rgba(13,44,92,0.05)] overflow-hidden flex flex-col min-h-[540px]"
               >
-                {/* Clean Top Gradient Accent Strip */}
-                <div className={`h-1.5 w-full bg-gradient-to-r ${col.accentBar}`} />
+                {/* Clean Top Accent Strip */}
+                <div className={`h-1.5 w-full ${col.accentBar}`} />
 
                 {/* Column Header */}
                 <div className="bg-white px-4 py-3.5 border-b border-[#e1e8f0] flex items-center justify-between gap-2">
@@ -805,9 +805,9 @@ export default function OrdersKdsTab() {
                               <button
                                 disabled={busyId === order.id}
                                 onClick={() => handleStatusChange(order.id, "preparing")}
-                                className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-[#0d2c5c] to-[#153e7e] hover:brightness-110 text-white text-xs font-bold transition-all cursor-pointer shadow-[0_6px_16px_rgba(13,44,92,0.18)] flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="w-full py-2.5 px-3.5 rounded-xl bg-[#0d2c5c] hover:bg-[#07203f] text-white text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
                               >
-                                <ChefHat className="w-3.5 h-3.5 text-[#e6b85c]" />
+                                <ChefHat className="w-3.5 h-3.5 text-[#c69a3f]" />
                                 <span>Preia în bucătărie</span>
                                 <ArrowRight className="w-3.5 h-3.5" />
                               </button>
@@ -816,9 +816,9 @@ export default function OrdersKdsTab() {
                               <button
                                 disabled={busyId === order.id}
                                 onClick={() => handleStatusChange(order.id, "delivering")}
-                                className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-[#0d2c5c] via-[#133b7a] to-[#9b7626] hover:brightness-110 text-white text-xs font-bold transition-all cursor-pointer shadow-[0_6px_16px_rgba(13,44,92,0.18)] flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="w-full py-2.5 px-3.5 rounded-xl bg-[#0d2c5c] hover:bg-[#07203f] text-white text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
                               >
-                                <Bike className="w-3.5 h-3.5 text-[#f6d892]" />
+                                <Bike className="w-3.5 h-3.5 text-[#c69a3f]" />
                                 <span>Trimite spre cameră</span>
                                 <ArrowRight className="w-3.5 h-3.5" />
                               </button>
@@ -827,14 +827,14 @@ export default function OrdersKdsTab() {
                               <button
                                 disabled={busyId === order.id}
                                 onClick={() => handleStatusChange(order.id, "delivered")}
-                                className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white text-xs font-bold transition-all cursor-pointer shadow-[0_6px_16px_rgba(5,150,105,0.2)] flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="w-full py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                 <span>Marchează livrată în cameră</span>
                               </button>
                             )}
                             {order.status === "delivered" && (
-                              <div className="w-full py-2 px-3 rounded-xl bg-emerald-50/90 border border-emerald-200/80 text-emerald-800 text-[11.5px] font-bold flex items-center justify-center gap-1.5">
+                              <div className="w-full py-2 px-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11.5px] font-bold flex items-center justify-center gap-1.5">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                                 <span>Predată cu succes oaspetelui</span>
                               </div>
