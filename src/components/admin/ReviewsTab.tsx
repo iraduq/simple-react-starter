@@ -576,192 +576,213 @@ export default function ReviewsTab() {
 
       {/* Reviews List */}
       {loading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((n) => (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          {[1, 2, 3, 4].map((n) => (
             <div
               key={n}
-              className="h-44 rounded-2xl bg-white/60 border border-slate-200 animate-pulse"
+              className="h-48 rounded-2xl bg-white border border-slate-200 animate-pulse"
             />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl bg-white border border-slate-200 p-10 text-center text-sm text-slate-500">
+        <div className="rounded-2xl bg-white border border-slate-200 p-12 text-center text-sm text-slate-500 shadow-xs">
           Nu există recenzii care să corespundă filtrului curent.
         </div>
       ) : (
-        <div className="space-y-4">
-          {filtered.map((r) => (
-            <div
-              key={r.id}
-              className={`rounded-2xl bg-white border p-5 shadow-xs transition-all ${
-                r.is_visible
-                  ? "border-slate-200 hover:border-slate-300"
-                  : "border-slate-200 bg-slate-50/60 opacity-75"
-              }`}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3 mb-3.5">
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-[#0d2c5c]/10 text-[#0d2c5c] font-['Outfit'] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                    {getInitials(r.guest_name)}
-                  </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4.5">
+          {filtered.map((r) => {
+            const cleanRoomTitle =
+              !r.room_title || /^([a-zA-Z0-9])\1{5,}$/.test(r.room_title.trim())
+                ? "Cameră Vila Casa Esy"
+                : r.room_title;
 
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-['Outfit'] font-bold text-base text-[#0d2c5c]">
-                        {r.guest_name}
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
-                        Sejur confirmat #{(r.booking_code || "BK-VERIFIED").replace(/^#/, "")}
-                      </span>
-                      {r.unit_number && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700">
-                          <BedDouble className="w-3 h-3" />
-                          {r.unit_number}
+            return (
+              <div
+                key={r.id}
+                className={`rounded-2xl bg-white border p-5 shadow-xs transition-all flex flex-col justify-between ${
+                  r.is_visible
+                    ? "border-slate-200 hover:border-slate-300 hover:shadow-sm"
+                    : "border-slate-200 bg-slate-50/60 opacity-75"
+                }`}
+              >
+                <div>
+                  {/* Header: Guest Info & Rating */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0d2c5c] to-[#1e4b8a] text-white font-['Outfit'] font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                        {getInitials(r.guest_name)}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-['Outfit'] font-bold text-[15px] text-[#0d2c5c]">
+                            {r.guest_name}
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#fdf8ec] text-[#8a6420] border border-[#c69a3f]/30">
+                            <CheckCircle2 className="w-3 h-3 text-[#c69a3f]" />
+                            Sejur #{ (r.booking_code || "BK-VERIFIED").replace(/^#/, "") }
+                          </span>
+                          {r.unit_number && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-slate-100 text-slate-700">
+                              <BedDouble className="w-3 h-3" />
+                              {r.unit_number}
+                            </span>
+                          )}
+                          {!r.is_visible && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700">
+                              <EyeOff size={10} /> Ascunsă
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-1.5">
+                          <span className="font-medium text-slate-600 truncate max-w-[200px] sm:max-w-[260px]">
+                            {cleanRoomTitle}
+                          </span>
+                          <span>•</span>
+                          <span>{dateFmt(r.created_at)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Overall Score + Sentiment Badge */}
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <div className="flex items-center gap-1 bg-amber-50/90 px-2.5 py-1 rounded-xl border border-amber-200/80">
+                        <span className="text-xs font-extrabold text-amber-900">
+                          {formatScore(r.rating_overall)}
                         </span>
-                      )}
+                        <div className="flex items-center gap-0.5">
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <Star
+                              key={idx}
+                              className={`w-3 h-3 ${
+                                idx < r.rating_overall
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-slate-200"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
 
                       {r.ai_sentiment === "positive" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <Smile size={12} /> Pozitiv ({Math.round((r.ai_confidence || 0.95) * 100)}%)
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <Smile size={10} /> Pozitiv ({Math.round((r.ai_confidence || 0.95) * 100)}%)
                         </span>
                       )}
                       {r.ai_sentiment === "neutral" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                          <Meh size={12} /> Neutru ({Math.round((r.ai_confidence || 0.75) * 100)}%)
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                          <Meh size={10} /> Neutru ({Math.round((r.ai_confidence || 0.75) * 100)}%)
                         </span>
                       )}
                       {r.ai_sentiment === "negative" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                          <Frown size={12} /> Reclamație ({Math.round((r.ai_confidence || 0.88) * 100)}%)
-                        </span>
-                      )}
-                      {!r.is_visible && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-200 text-slate-700">
-                          <EyeOff size={11} /> Ascunsă
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          <Frown size={10} /> Reclamație ({Math.round((r.ai_confidence || 0.88) * 100)}%)
                         </span>
                       )}
                     </div>
+                  </div>
 
-                    <div className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
-                      <span className="font-medium text-slate-700 max-w-xs sm:max-w-md truncate">
-                        {r.room_title}
+                  {/* Compact Criteria Bar */}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 px-3 rounded-xl bg-slate-50/80 border border-slate-100 text-[11px] text-slate-600 mb-3">
+                    <span>Curățenie: <strong className="text-[#0d2c5c]">{r.rating_cleanliness}/5</strong></span>
+                    <span className="text-slate-300">•</span>
+                    <span>Personal: <strong className="text-[#0d2c5c]">{r.rating_service}/5</strong></span>
+                    <span className="text-slate-300">•</span>
+                    <span>Restaurant: <strong className="text-[#0d2c5c]">{r.rating_restaurant ?? 5}/5</strong></span>
+                    <span className="text-slate-300">•</span>
+                    <span>Mic dejun: <strong className="text-[#0d2c5c]">{r.rating_breakfast ?? 5}/5</strong></span>
+                    <span className="text-slate-300">•</span>
+                    <span>Confort: <strong className="text-[#0d2c5c]">{r.rating_comfort}/5</strong></span>
+                  </div>
+
+                  {/* Extracted AI Keywords */}
+                  {r.ai_keywords && r.ai_keywords.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider inline-flex items-center gap-1 mr-1">
+                        <Sparkles size={11} className="text-[#00a896]" /> Aspecte remarcate:
                       </span>
-                      <span>•</span>
-                      <span>Publicată pe {dateFmt(r.created_at)}</span>
+                      {r.ai_keywords.map((kw, i) => (
+                        <span
+                          key={i}
+                          className={`px-2 py-0.5 rounded-md text-[10.5px] font-semibold ${
+                            kw.startsWith("Atenție")
+                              ? "bg-rose-50 text-rose-700 border border-rose-200"
+                              : "bg-teal-50 text-teal-800 border border-teal-200"
+                          }`}
+                        >
+                          {kw}
+                        </span>
+                      ))}
                     </div>
-                  </div>
+                  )}
+
+                  {/* Guest Comment Text */}
+                  <p className="text-[13.5px] text-[#1e293b] leading-relaxed mb-3 pl-1 border-l-2 border-[#c69a3f]/40 italic">
+                    „{r.comment}”
+                  </p>
+
+                  {/* Host Official Reply Block */}
+                  {r.admin_reply && (
+                    <div className="mt-2.5 rounded-xl bg-[#f8fafd] border border-[#e1eaf5] p-3 flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-[#0d2c5c] text-[#e6b85c] font-serif font-bold text-[10.5px] flex items-center justify-center shrink-0 shadow-2xs">
+                        CE
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-xs font-bold text-[#0d2c5c]">
+                            Răspuns oficial · Vila Casa Esy
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
+                            <CheckCircle2 size={9} /> Publicat
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed">{r.admin_reply}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-amber-50/90 px-3 py-1.5 rounded-xl border border-amber-200/80 shrink-0">
-                  <span className="text-xs font-extrabold text-amber-900">
-                    {formatScore(r.rating_overall)}
-                  </span>
-                  <div className="flex items-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className={`w-3.5 h-3.5 ${
-                          idx < r.rating_overall
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-slate-200"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* 5 Criterii Detaliate */}
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mb-3">
-                {[
-                  { label: "Curățenie", val: r.rating_cleanliness },
-                  { label: "Personal", val: r.rating_service },
-                  { label: "Restaurant", val: r.rating_restaurant ?? 5 },
-                  { label: "Mic dejun", val: r.rating_breakfast ?? 5 },
-                  { label: "Confort cameră", val: r.rating_comfort },
-                ].map((c) => (
-                  <span
-                    key={c.label}
-                    className="inline-flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/80"
+                {/* Bottom Actions Bar */}
+                <div className="flex items-center justify-between pt-3.5 mt-3.5 border-t border-slate-100">
+                  <button
+                    onClick={() => {
+                      setReplyTarget(r);
+                      setReplyText(r.admin_reply || "");
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0d2c5c] hover:bg-[#07203f] text-white text-xs font-semibold transition cursor-pointer shadow-2xs"
                   >
-                    <span className="text-slate-500">{c.label}:</span>
-                    <strong className="text-[#0d2c5c]">{c.val}/5</strong>
-                  </span>
-                ))}
-              </div>
+                    <MessageSquareReply size={13} className="text-[#e6b85c]" />
+                    <span>{r.admin_reply ? "Editează răspunsul" : "Răspunde oficial"}</span>
+                  </button>
 
-              {/* Extracted AI Keywords */}
-              {r.ai_keywords && r.ai_keywords.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider inline-flex items-center gap-1 mr-1">
-                    <Sparkles size={12} className="text-[#00a896]" /> Aspecte remarcate:
-                  </span>
-                  {r.ai_keywords.map((kw, i) => (
-                    <span
-                      key={i}
-                      className={`px-2 py-0.5 rounded-md text-[11px] font-semibold ${
-                        kw.startsWith("Atenție")
-                          ? "bg-rose-50 text-rose-700 border border-rose-200"
-                          : "bg-teal-50 text-teal-800 border border-teal-200"
-                      }`}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleToggleVisible(r)}
+                      className="px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 inline-flex items-center gap-1 cursor-pointer transition"
                     >
-                      {kw}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <p className="text-sm text-slate-800 leading-relaxed mb-4 bg-slate-50/50 p-3.5 rounded-xl border border-slate-100">
-                „{r.comment}”
-              </p>
-
-              {r.admin_reply && (
-                <div className="rounded-xl bg-[#0d2c5c]/[0.04] border border-[#0d2c5c]/10 border-l-4 border-l-[#c69a3f] p-3.5 mb-4">
-                  <div className="text-xs font-bold text-[#0d2c5c] mb-1">
-                    Răspuns oficial — Vila Casa Esy
+                      {r.is_visible ? (
+                        <>
+                          <EyeOff size={13} /> <span>Ascunde</span>
+                        </>
+                      ) : (
+                        <>
+                          <Eye size={13} /> <span>Afișează</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(r)}
+                      className="p-1.5 rounded-xl border border-rose-200/80 text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer"
+                      title="Șterge recenzia"
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </div>
-                  <p className="text-xs text-slate-700 leading-relaxed">{r.admin_reply}</p>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                <PrimaryButton
-                  onClick={() => {
-                    setReplyTarget(r);
-                    setReplyText(r.admin_reply || "");
-                  }}
-                >
-                  <MessageSquareReply className="w-4 h-4" />
-                  {r.admin_reply ? "Editează răspunsul" : "Răspunde oficial"}
-                </PrimaryButton>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleToggleVisible(r)}
-                    className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 inline-flex items-center gap-1.5 cursor-pointer"
-                  >
-                    {r.is_visible ? (
-                      <>
-                        <EyeOff className="w-3.5 h-3.5" /> Ascunde
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="w-3.5 h-3.5" /> Afișează
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(r)}
-                    className="p-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 cursor-pointer"
-                    title="Șterge recenzia"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
