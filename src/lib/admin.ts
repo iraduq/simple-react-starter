@@ -37,6 +37,8 @@ export type RoomUnit = {
   status?: string | null;
   is_active?: boolean | null;
   room_id?: string | number | null;
+  room_title?: string | null;
+  room_name?: string | null;
 };
 
 export type RoomBooking = {
@@ -54,6 +56,8 @@ export type RoomBooking = {
   user_email?: string | null;
   user_name?: string | null;
   room_id?: string | number | null;
+  room_title?: string | null;
+  room_name?: string | null;
   created_at?: string | null;
   access_pin?: string | null;
   self_checkin_completed_at?: string | null;
@@ -79,6 +83,8 @@ export type Room = {
   room_type_id?: number | string | null;
   is_active?: boolean | null;
   room_id?: string | number | null;
+  room_title?: string | null;
+  room_name?: string | null;
   images?: RoomImage[];
   units?: RoomUnit[];
   facilities?: Array<{ id: number | string; name?: string; icon?: string | null }>;
@@ -116,6 +122,8 @@ export type AdminUser = {
   roles?: string[] | null;
   is_active?: boolean | null;
   room_id?: string | number | null;
+  room_title?: string | null;
+  room_name?: string | null;
   provider?: string | null;
   created_at?: string | null;
   access_pin?: string | null;

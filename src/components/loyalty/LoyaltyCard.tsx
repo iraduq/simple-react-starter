@@ -81,7 +81,10 @@ const TIER_ICONS = {
   Platinum: Sparkles,
 };
 
-export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyCardProps) {
+export default function LoyaltyCard({
+  bookings = [],
+  onAccountChange,
+}: LoyaltyCardProps) {
   const { toast } = useToast();
   const [account, setAccount] = useState<LoyaltyAccountData | null>(null);
   const [rewards, setRewards] = useState<LoyaltyRewardItem[]>([]);
@@ -146,7 +149,9 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
     return (
       <div className="rounded-[26px] bg-white p-6 border border-[#e1e8f0] flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-bold text-[#0d2c5c]">Casa Esy Privilege Club</p>
+          <p className="text-sm font-bold text-[#0d2c5c]">
+            Casa Esy Privilege Club
+          </p>
           <p className="text-xs text-[#64748b] mt-0.5">
             Nu am putut încărca datele VIP momentan.
           </p>
@@ -191,7 +196,8 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
             </h3>
             <p className="text-[13px] text-[#64748b] mt-1 max-w-xl leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
               Primești automat <strong>100 pct / noapte</strong> la sejururi și{" "}
-              <strong>1 pct / 10 RON</strong> la comenzi Room Service, înmulțite cu multiplicatorul statutului tău.
+              <strong>1 pct / 10 RON</strong> la comenzi Room Service, înmulțite
+              cu multiplicatorul statutului tău.
             </p>
           </div>
 
@@ -208,7 +214,9 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
               </div>
             </div>
             <div className="pl-4 border-l border-[#e1e8f0] text-right hidden sm:block">
-              <span className="text-[10px] text-[#64748b] block font-medium">Total Acumulat</span>
+              <span className="text-[10px] text-[#64748b] block font-medium">
+                Total Acumulat
+              </span>
               <span className="text-sm font-bold text-[#0d2c5c]">
                 {account?.total_points_earned ?? 0} pct
               </span>
@@ -221,7 +229,10 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
             <span className="text-[#64748b] font-medium">
               {account?.next_tier ? (
                 <>
-                  Progres către nivelul <strong className="text-[#0d2c5c]">{account.next_tier}</strong>
+                  Progres către nivelul{" "}
+                  <strong className="text-[#0d2c5c]">
+                    {account.next_tier}
+                  </strong>
                 </>
               ) : (
                 <span className="text-[#c69a3f] font-bold flex items-center gap-1">
@@ -239,7 +250,9 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
           <div className="h-2.5 w-full bg-[#f1f5f9] rounded-full overflow-hidden p-0.5 border border-[#e1e8f0]">
             <div
               className="h-full bg-gradient-to-r from-[#0d2c5c] via-[#c69a3f] to-[#e6b85c] rounded-full transition-all duration-700 shadow-xs"
-              style={{ width: `${Math.max(4, account?.tier_progress_percent || 0)}%` }}
+              style={{
+                width: `${Math.max(4, account?.tier_progress_percent || 0)}%`,
+              }}
             />
           </div>
         </div>
@@ -247,7 +260,8 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
         <div className="mt-6 pt-5 border-t border-[#e1e8f0] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 font-['Plus_Jakarta_Sans',sans-serif]">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-xs font-bold text-[#0d2c5c] mr-1 flex items-center gap-1">
-              <Sparkles size={13} className="text-[#c69a3f]" /> Privilegii {tier}:
+              <Sparkles size={13} className="text-[#c69a3f]" /> Privilegii{" "}
+              {tier}:
             </span>
             {(account?.tier_perks || []).map((perk, idx) => (
               <span
@@ -261,23 +275,6 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto shrink-0">
-            <Link
-              to="/places"
-              className="px-4 py-2.5 rounded-[14px] bg-[#0d2c5c] hover:bg-[#133b7a] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
-            >
-              <Gift size={14} className="text-[#c69a3f]" />
-              <span>Comandă cu puncte în /places</span>
-              <ArrowUpRight size={13} className="text-[#c69a3f]" />
-            </Link>
-
-            <button
-              onClick={() => setRewardsModalOpen(true)}
-              className="px-3.5 py-2.5 rounded-[14px] bg-[#fdf8ec] hover:bg-[#faefd6] text-[#0d2c5c] font-bold text-xs flex items-center gap-1.5 border border-[#c69a3f]/40 transition-colors cursor-pointer"
-            >
-              <TicketPercent size={14} className="text-[#9c7624]" />
-              <span>Vouchere ({rewards.length})</span>
-            </button>
-
             <button
               onClick={() => setShowHistory(!showHistory)}
               className="px-3.5 py-2.5 rounded-[14px] bg-white hover:bg-[#f8fafc] text-[#0d2c5c] font-semibold text-xs flex items-center gap-1.5 border border-[#e1e8f0] transition-colors cursor-pointer"
@@ -289,8 +286,12 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
         </div>
 
         <p className="mt-3 text-[12px] text-[#6b7c99] font-['Plus_Jakarta_Sans',sans-serif]">
-          Pentru a comanda gratuit sau cu reducere folosind punctele tale VIP, intră pe pagina{" "}
-          <Link to="/places" className="font-bold text-[#0d2c5c] underline decoration-[#c69a3f]">
+          Pentru a comanda gratuit sau cu reducere folosind punctele tale VIP,
+          intră pe pagina{" "}
+          <Link
+            to="/places"
+            className="font-bold text-[#0d2c5c] underline decoration-[#c69a3f]"
+          >
             /places (Restaurant, Bar & SPA)
           </Link>{" "}
           și activează opțiunea „Folosește punctele VIP” direct în coș.
@@ -301,7 +302,10 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c] flex items-center gap-1.5">
                 <TicketPercent size={14} className="text-[#c69a3f]" />
-                <span>Vouchere & Beneficii Revendicate ({availableCoupons.length} active)</span>
+                <span>
+                  Vouchere & Beneficii Revendicate ({availableCoupons.length}{" "}
+                  active)
+                </span>
               </p>
               {availableCoupons.length > 0 && (
                 <Link
@@ -335,11 +339,15 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
                             isActive
                               ? "bg-emerald-100 text-emerald-800"
                               : cp.status === "used"
-                              ? "bg-slate-200 text-slate-600"
-                              : "bg-rose-100 text-rose-700"
+                                ? "bg-slate-200 text-slate-600"
+                                : "bg-rose-100 text-rose-700"
                           }`}
                         >
-                          {isActive ? "Activ" : cp.status === "used" ? "Utilizat" : "Expirat"}
+                          {isActive
+                            ? "Activ"
+                            : cp.status === "used"
+                              ? "Utilizat"
+                              : "Expirat"}
                         </span>
                       </div>
                       <p className="text-[11.5px] text-[#64748b] truncate mt-0.5">
@@ -361,7 +369,9 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
                         ) : (
                           <Copy size={13} className="text-[#c69a3f]" />
                         )}
-                        <span>{copiedCode === cp.code ? "Copiat" : "Copiază"}</span>
+                        <span>
+                          {copiedCode === cp.code ? "Copiat" : "Copiază"}
+                        </span>
                       </button>
                     )}
                   </div>
@@ -374,7 +384,9 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
                   className="rounded-2xl border border-[#e1e8f0] bg-[#f8fafc] p-3.5 flex items-center justify-between gap-3"
                 >
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#0d2c5c] truncate">{pk.title}</p>
+                    <p className="text-xs font-bold text-[#0d2c5c] truncate">
+                      {pk.title}
+                    </p>
                     <p className="text-[11px] text-[#64748b] mt-0.5">
                       {pk.booking_code
                         ? `Asociat sejurului #${pk.booking_code}`
@@ -402,35 +414,53 @@ export default function LoyaltyCard({ bookings = [], onAccountChange }: LoyaltyC
                 Jurnal Tranzacții & Recompense Puncte
               </h4>
             </div>
-            <span className="text-xs text-[#64748b]">{transactions.length} înregistrări</span>
+            <span className="text-xs text-[#64748b]">
+              {transactions.length} înregistrări
+            </span>
           </div>
 
           {transactions.length === 0 ? (
-            <p className="text-xs text-[#64748b] py-3 text-center">Nicio tranzacție înregistrată încă.</p>
+            <p className="text-xs text-[#64748b] py-3 text-center">
+              Nicio tranzacție înregistrată încă.
+            </p>
           ) : (
             <div className="divide-y divide-[#e1e8f0] max-h-60 overflow-y-auto">
               {transactions.map((tx) => {
                 const isPositive = tx.points > 0;
                 return (
-                  <div key={tx.id} className="py-2.5 flex items-center justify-between text-xs gap-3">
+                  <div
+                    key={tx.id}
+                    className="py-2.5 flex items-center justify-between text-xs gap-3"
+                  >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
                         className={`p-1.5 rounded-full shrink-0 ${
-                          isPositive ? "bg-amber-50 text-[#c69a3f]" : "bg-slate-100 text-[#0d2c5c]"
+                          isPositive
+                            ? "bg-amber-50 text-[#c69a3f]"
+                            : "bg-slate-100 text-[#0d2c5c]"
                         }`}
                       >
-                        {isPositive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                        {isPositive ? (
+                          <ArrowUpRight size={13} />
+                        ) : (
+                          <ArrowDownRight size={13} />
+                        )}
                       </span>
                       <div className="min-w-0">
-                        <p className="font-semibold text-[#0d2c5c] truncate">{tx.description}</p>
+                        <p className="font-semibold text-[#0d2c5c] truncate">
+                          {tx.description}
+                        </p>
                         <p className="text-[10.5px] text-[#64748b]">
                           {tx.created_at
-                            ? new Date(tx.created_at).toLocaleDateString("ro-RO", {
-                                day: "numeric",
-                                month: "short",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
+                            ? new Date(tx.created_at).toLocaleDateString(
+                                "ro-RO",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                },
+                              )
                             : "Recent"}
                         </p>
                       </div>
