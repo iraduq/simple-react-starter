@@ -47,7 +47,6 @@ import CheckIn from "./pages/CheckIn";
 import Housekeeping from "./pages/Housekeeping";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 import BroadcastAlertBanner from "./components/notifications/BroadcastAlertBanner";
-import ActiveOrderFloatingTracker from "./components/orders/ActiveOrderFloatingTracker";
 
 function AvailabilityRedirect() {
   return <Navigate to={`/camere${window.location.search}`} replace />;
@@ -73,7 +72,6 @@ const MainLayout = () => {
       {!isAdmin && <ChatWidget />}
       {!isAdmin && <CookieConsentBanner />}
       {!isAdmin && <BroadcastAlertBanner />}
-      {!isAdmin && <ActiveOrderFloatingTracker />}
     </>
   );
 };

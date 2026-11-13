@@ -12,6 +12,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import PlaceMenu from "../components/PlaceMenu";
+import ActiveOrderBanner from "../components/orders/ActiveOrderBanner";
 import { hasCookieConsent, PREF_PLACES_FILTER_KEY } from "../components/CookieConsentBanner";
 import type { MenuCategory, Place } from "../types/places";
 import {
@@ -262,6 +263,9 @@ export default function Places() {
               </div>
             </div>
           </div>
+
+          {/* Banner Comandă Activă Room Service */}
+          <ActiveOrderBanner />
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-28 text-[#c69a3f]">

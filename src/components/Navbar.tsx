@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, CircleUser, X, LogOut, Menu } from "lucide-react";
+import { ChevronDown, CircleUser, X, LogOut, Menu, ChefHat } from "lucide-react";
 
 import {
   clearSession,
@@ -12,6 +12,7 @@ import {
 } from "../lib/auth";
 import { useToast } from "../components/Toast";
 import { hasCookieConsent, PREF_LANG_KEY } from "./CookieConsentBanner";
+import { useActiveRoomServiceOrder } from "../hooks/useActiveRoomServiceOrder";
 
 const LANGS = [
   { code: "RO", label: "Română", flagUrl: "https://flagcdn.com/w20/ro.png" },
@@ -39,6 +40,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
   const [currentUser, setCurrentUser] = useState<SessionUser>(getCachedUser());
+  const { activeOrder } = useActiveRoomServiceOrder();
 
   const headerRef = useRef<HTMLElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
@@ -224,6 +226,35 @@ export default function Navbar() {
 
           {/* TOOLS + CTA */}
           <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4 -mt-0.5">
+            {/* ACTIVE ROOM SERVICE ORDER LIVE PILL */}
+            {activeOrder && (
+              <Link
+                to={`/comanda/${activeOrder.order_code}`}
+                className={`hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                  solid
+                    ? "bg-[#fdf8ec] text-[#8a6420] border-[#c69a3f]/40 hover:bg-[#c69a3f]/15"
+                    : "bg-[#0d2c5c]/85 text-[#f6d892] border-[#c69a3f]/40 backdrop-blur-md hover:bg-[#0d2c5c]"
+                }`}
+                title={`Vezi comanda #${activeOrder.order_code}`}
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <ChefHat size={14} className="text-[#c69a3f]" />
+                <span className="font-['Outfit',sans-serif]">
+                  #{activeOrder.order_code}:{" "}
+                  {activeOrder.status === "delivered"
+                    ? "Livrată"
+                    : activeOrder.status === "delivering"
+                      ? "În livrare"
+                      : activeOrder.status === "preparing"
+                        ? "În preparare"
+                        : "Recepționată"}
+                </span>
+              </Link>
+            )}
+
             {/* LANG SELECTOR */}
             <div className="relative" ref={langRef}>
               <button
@@ -418,6 +449,32 @@ export default function Navbar() {
         {/* MOBILE PANEL */}
         {mobileOpen && (
           <div className="lg:hidden border-t border-[#e1e8f0] bg-white px-4 pb-5 pt-2 shadow-[0_18px_40px_-24px_rgba(13,44,92,0.35)]">
+            {activeOrder && (
+              <Link
+                to={`/comanda/${activeOrder.order_code}`}
+                onClick={() => setMobileOpen(false)}
+                className="mb-3 flex items-center justify-between p-3 rounded-xl bg-[#fdf8ec] border border-[#c69a3f]/40 text-[#8a6420] text-xs font-bold no-underline"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  <ChefHat size={16} className="text-[#c69a3f]" />
+                  <span>Comandă #{activeOrder.order_code}:</span>
+                </div>
+                <span className="text-[#0d2c5c]">
+                  {activeOrder.status === "delivered"
+                    ? "Livrată"
+                    : activeOrder.status === "delivering"
+                      ? "În livrare"
+                      : activeOrder.status === "preparing"
+                        ? "În preparare"
+                        : "Recepționată"}{" "}
+                  →
+                </span>
+              </Link>
+            )}
             <nav className="flex flex-col">
               {NAV_ITEMS.map((item) => (
                 <NavLink
