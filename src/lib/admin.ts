@@ -81,6 +81,7 @@ export type Room = {
   room_id?: string | number | null;
   images?: RoomImage[];
   units?: RoomUnit[];
+  facilities?: Array<{ id: number | string; name?: string; icon?: string | null }>;
 };
 
 export type Nomenclature = {

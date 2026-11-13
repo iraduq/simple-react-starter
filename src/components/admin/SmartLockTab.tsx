@@ -15,6 +15,8 @@ import {
   ChevronRight,
   X,
   Filter,
+  ShieldAlert,
+  Power,
 } from "lucide-react";
 import { Card, SectionHeader, Button, Badge } from "./ui";
 import SmartLockKeypad from "../SmartLockKeypad";
@@ -23,6 +25,7 @@ import { useAdminLiveSync, LiveSyncBadge, type WebSocketEvent } from "../../cont
 import { WS_URL } from "../../lib/config";
 import {
   get,
+  patch,
   list,
   type RoomUnit,
   type RoomBooking,
@@ -75,6 +78,9 @@ export default function SmartLockTab() {
 
   // Copied PIN indicator
   const [copiedPin, setCopiedPin] = useState<string | null>(null);
+
+  // Unit lock status toggle in-progress state
+  const [togglingUnitId, setTogglingUnitId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -207,6 +213,40 @@ export default function SmartLockTab() {
     setTimeout(() => setCopiedPin(null), 2500);
   };
 
+  const handleToggleLockStatus = async (unit: RoomUnit) => {
+    const isCurrentlyActive = (unit.status || "active") === "active";
+    const newStatus = isCurrentlyActive ? "maintenance" : "active";
+    const uId = String(unit.id);
+    const uNum = unit.unit_number || uId;
+
+    setTogglingUnitId(uId);
+
+    // Optimistic UI update
+    setUnits((prev) =>
+      prev.map((u) => (String(u.id) === uId ? { ...u, status: newStatus } : u))
+    );
+
+    try {
+      if (unit.room_id) {
+        await patch(`/rooms/${unit.room_id}/units/${unit.id}`, { status: newStatus });
+      }
+      toast(
+        newStatus === "active"
+          ? `Clanța camerei ${uNum} este acum ACTIVATĂ (ON / În funcțiune).`
+          : `Clanța camerei ${uNum} a fost OPRITĂ (OFF / În mentenanță). Codul PIN este temporar inactiv.`,
+        newStatus === "active" ? "success" : "warning"
+      );
+    } catch {
+      // Revert optimistic update on failure
+      setUnits((prev) =>
+        prev.map((u) => (String(u.id) === uId ? { ...u, status: unit.status } : u))
+      );
+      toast(`Nu am putut actualiza starea clanței pentru camera ${uNum}.`, "error");
+    } finally {
+      setTogglingUnitId(null);
+    }
+  };
+
   // Occupancy calculations for today
   const todayIso = new Date().toISOString().split("T")[0];
   const now = Date.now();
@@ -333,6 +373,11 @@ export default function SmartLockTab() {
     let occupied = 0;
     let arriving = 0;
     let vacant = 0;
+    let activeLocks = 0;
+
+    units.forEach((u) => {
+      if ((u.status || "active") === "active") activeLocks++;
+    });
 
     unitOccupancy.forEach((item) => {
       if (item.status === "occupied") occupied++;
@@ -340,8 +385,10 @@ export default function SmartLockTab() {
       else vacant++;
     });
 
-    return { total: units.length, occupied, arriving, vacant };
-  }, [unitOccupancy, units.length]);
+    const offlineLocks = units.length - activeLocks;
+
+    return { total: units.length, occupied, arriving, vacant, activeLocks, offlineLocks };
+  }, [unitOccupancy, units]);
 
   return (
     <div className="space-y-8">
@@ -354,52 +401,65 @@ export default function SmartLockTab() {
       />
 
       {/* TOP KPI CARDS */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Card className="p-4 sm:p-5">
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#6b7c99]">
-            Total Unități Fizice
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <Card className="p-4">
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6b7c99]">
+            Total Unități
           </span>
-          <p className="mt-2 text-2xl sm:text-3xl font-bold font-sans tracking-tight tabular-nums text-[#0d2c5c]">
+          <p className="mt-1.5 text-2xl font-bold font-sans tracking-tight tabular-nums text-[#0d2c5c]">
             {stats.total}
           </p>
-          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#6b7c99]">
-            <DoorOpen size={13} className="text-[#c69a3f]" /> Unități în baza de date
+          <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-[#6b7c99]">
+            <DoorOpen size={12} className="text-[#c69a3f]" /> Uși în administrare
           </div>
         </Card>
 
-        <Card className="p-4 sm:p-5">
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-emerald-700">
-            Ocupate Acum (Live)
+        <Card className="p-4">
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700">
+            Clanțe Active (ON)
           </span>
-          <p className="mt-2 text-2xl sm:text-3xl font-bold font-sans tracking-tight tabular-nums text-emerald-700">
+          <p className="mt-1.5 text-2xl font-bold font-sans tracking-tight tabular-nums text-emerald-700">
+            {stats.activeLocks} <span className="text-xs font-normal text-emerald-600">/ {stats.total}</span>
+          </p>
+          <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-emerald-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            {stats.offlineLocks > 0 ? `${stats.offlineLocks} oprite (OFF)` : "Toate funcționale"}
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-sky-700">
+            Ocupate Acum
+          </span>
+          <p className="mt-1.5 text-2xl font-bold font-sans tracking-tight tabular-nums text-sky-700">
             {stats.occupied}
           </p>
-          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-emerald-600">
-            <CheckCircle2 size={13} /> Check-in finalizat & PIN generat
+          <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-sky-600">
+            <CheckCircle2 size={12} /> Check-in & PIN activ
           </div>
         </Card>
 
-        <Card className="p-4 sm:p-5">
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-amber-700">
+        <Card className="p-4">
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700">
             Sosiri Azi
           </span>
-          <p className="mt-2 text-2xl sm:text-3xl font-bold font-sans tracking-tight tabular-nums text-amber-700">
+          <p className="mt-1.5 text-2xl font-bold font-sans tracking-tight tabular-nums text-amber-700">
             {stats.arriving}
           </p>
-          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-amber-600">
-            <Clock size={13} /> În așteptare self check-in
+          <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-amber-600">
+            <Clock size={12} /> Așteaptă check-in
           </div>
         </Card>
 
-        <Card className="p-4 sm:p-5">
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#0d2c5c]">
+        <Card className="p-4">
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#0d2c5c]">
             Camere Libere
           </span>
-          <p className="mt-2 text-2xl sm:text-3xl font-bold font-sans tracking-tight tabular-nums text-[#0d2c5c]">
+          <p className="mt-1.5 text-2xl font-bold font-sans tracking-tight tabular-nums text-[#0d2c5c]">
             {stats.vacant}
           </p>
-          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#6b7c99]">
-            <Wifi size={13} className="text-[#0d2c5c]" /> Clanțe pregătite pentru oaspeți
+          <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-[#6b7c99]">
+            <Wifi size={12} className="text-[#0d2c5c]" /> Disponibile azi
           </div>
         </Card>
       </div>
@@ -463,6 +523,10 @@ export default function SmartLockTab() {
                 {paginatedDoors.length > 0 ? (
                   paginatedDoors.map((uNum) => {
                     const isSelected = selectedUnit === uNum;
+                    const unitObj = units.find(
+                      (u) => (u.unit_number || "").trim() === uNum
+                    );
+                    const isLockOnline = (unitObj?.status || "active") === "active";
                     const matching = unitOccupancy.filter(
                       (item) => (item.unit.unit_number || "").trim() === uNum
                     );
@@ -473,7 +537,7 @@ export default function SmartLockTab() {
                       <button
                         key={uNum}
                         onClick={() => setSelectedUnit(uNum)}
-                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-[12px] font-bold transition-all ${
+                        className={`relative inline-flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-[12px] font-bold transition-all ${
                           isSelected
                             ? "bg-[#0d2c5c] text-white shadow-md ring-2 ring-[#c69a3f]"
                             : "border border-[#e1e8f0] bg-[#f8fafd] text-[#0d2c5c] hover:bg-white"
@@ -481,7 +545,9 @@ export default function SmartLockTab() {
                       >
                         <span
                           className={`h-2 w-2 shrink-0 rounded-full ${
-                            isOccupied
+                            !isLockOnline
+                              ? "bg-rose-500 ring-2 ring-rose-200"
+                              : isOccupied
                               ? "bg-emerald-400"
                               : isArriving
                               ? "bg-amber-400"
@@ -489,6 +555,11 @@ export default function SmartLockTab() {
                           }`}
                         />
                         {uNum}
+                        {!isLockOnline && (
+                          <span className="text-[9px] font-black uppercase text-rose-500 tracking-tighter">
+                            OFF
+                          </span>
+                        )}
                       </button>
                     );
                   })
@@ -525,11 +596,54 @@ export default function SmartLockTab() {
               )}
             </div>
 
+            {/* SELECTED UNIT OFFLINE WARNING BANNER */}
+            {(() => {
+              const selectedUnitObj = units.find(
+                (u) => (u.unit_number || "").trim() === selectedUnit
+              );
+              const isSelectedOnline = (selectedUnitObj?.status || "active") === "active";
+
+              if (isSelectedOnline) return null;
+
+              return (
+                <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50/90 p-3.5 text-rose-800 shadow-xs">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert size={18} className="text-rose-600 shrink-0" />
+                      <div>
+                        <div className="text-[12px] font-bold text-rose-900">
+                          Clanța Ușii {selectedUnit} este OPRITĂ (OFF / Mentenanță)
+                        </div>
+                        <div className="text-[11px] text-rose-700">
+                          Codurile PIN tastate nu vor deschide ușa până la reactivare.
+                        </div>
+                      </div>
+                    </div>
+                    {selectedUnitObj && (
+                      <button
+                        onClick={() => void handleToggleLockStatus(selectedUnitObj)}
+                        disabled={togglingUnitId === String(selectedUnitObj.id)}
+                        className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700 transition-colors shadow-xs"
+                      >
+                        Activează (ON)
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* EMBEDDED KEYPAD */}
             <div className="mt-6 flex justify-center">
               <SmartLockKeypad
                 initialUnitNumber={selectedUnit}
                 units={uniqueDoorNumbers}
+                isLockActive={
+                  (() => {
+                    const u = units.find((x) => (x.unit_number || "").trim() === selectedUnit);
+                    return (u?.status || "active") === "active";
+                  })()
+                }
                 onUnlocked={(data) => {
                   setLiveEvents((prev) => [
                     {
@@ -707,6 +821,7 @@ export default function SmartLockTab() {
                   <tr className="border-b border-[#e1e8f0] text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#6b7c99]">
                     <th className="pb-3">Unitate</th>
                     <th className="pb-3">Tip Cameră</th>
+                    <th className="pb-3">Funcționare Clanță (ON / OFF)</th>
                     <th className="pb-3">Status Ocupare</th>
                     <th className="pb-3">Oaspete Curent</th>
                     <th className="pb-3">Cod PIN Smart Lock</th>
@@ -719,6 +834,8 @@ export default function SmartLockTab() {
                       const uNum = item.unit.unit_number || "—";
                       const b = item.booking;
                       const hasPin = Boolean(b?.access_pin);
+                      const isLockActive = (item.unit.status || "active") === "active";
+                      const isToggling = togglingUnitId === String(item.unit.id);
 
                       return (
                         <tr key={item.id} className="hover:bg-[#f8fafd] transition-colors">
@@ -730,6 +847,49 @@ export default function SmartLockTab() {
                           </td>
                           <td className="py-3.5 font-medium text-[#2a3b52]">
                             {item.roomTitle}
+                          </td>
+                          <td className="py-3.5">
+                            <div className="flex items-center gap-2.5">
+                              <button
+                                type="button"
+                                role="switch"
+                                aria-checked={isLockActive}
+                                disabled={isToggling}
+                                onClick={() => void handleToggleLockStatus(item.unit)}
+                                title={
+                                  isLockActive
+                                    ? `Apasă pentru a opri clanța ${uNum} (OFF / Mentenanță)`
+                                    : `Apasă pentru a activa clanța ${uNum} (ON / Funcțională)`
+                                }
+                                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#0d2c5c] focus:ring-offset-1 disabled:opacity-50 ${
+                                  isLockActive ? "bg-emerald-600" : "bg-slate-300"
+                                }`}
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                    isLockActive ? "translate-x-5" : "translate-x-0"
+                                  }`}
+                                />
+                              </button>
+                              <div className="flex flex-col">
+                                <span
+                                  className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider ${
+                                    isLockActive ? "text-emerald-700" : "text-rose-700"
+                                  }`}
+                                >
+                                  <span
+                                    className={`h-1.5 w-1.5 rounded-full ${
+                                      isLockActive ? "bg-emerald-500 animate-pulse" : "bg-rose-500"
+                                    }`}
+                                  />
+                                  {isLockActive ? "ON · Activă" : "OFF · Oprită"}
+                                </span>
+                                <span className="text-[10px] text-[#6b7c99]">
+                                  {isLockActive ? "Permite PIN" : "În mentenanță"}
+                                </span>
+                              </div>
+                            </div>
                           </td>
                           <td className="py-3.5">
                             {item.status === "occupied" ? (
@@ -806,7 +966,7 @@ export default function SmartLockTab() {
                     })
                   ) : (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-[#6b7c99]">
+                      <td colSpan={7} className="py-8 text-center text-[#6b7c99]">
                         <DoorOpen size={24} className="mx-auto text-[#94a3b8] mb-2" />
                         <p className="font-semibold text-[#0d2c5c]">Nicio ușă găsită</p>
                         <p className="text-[12px] text-[#94a3b8] mt-1">

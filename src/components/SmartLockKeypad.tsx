@@ -7,12 +7,14 @@ interface SmartLockKeypadProps {
   initialUnitNumber?: string;
   onUnlocked?: (data: Record<string, unknown>) => void;
   units?: string[];
+  isLockActive?: boolean;
 }
 
 export default function SmartLockKeypad({
   initialUnitNumber = "101",
   onUnlocked,
   units = ["101", "102", "201", "202"],
+  isLockActive = true,
 }: SmartLockKeypadProps) {
   const { toast } = useToast();
   const [unitNumber, setUnitNumber] = useState(initialUnitNumber);
@@ -38,6 +40,12 @@ export default function SmartLockKeypad({
   }, [units]);
 
   const handleKeyPress = (char: string) => {
+    if (!isLockActive) {
+      toast(`Clanța unității ${unitNumber} este OPRITĂ (OFF / Mentenanță).`, "warning");
+      setStatusMessage("Clanță offline / în mentenanță (OFF)");
+      return;
+    }
+
     if (lockStatus === "unlocked") return;
 
     if (char === "C") {
@@ -106,13 +114,18 @@ export default function SmartLockKeypad({
         }, 8000);
       } else {
         setLockStatus("error");
-        const errMsg = typeof data.message === "string" ? data.message : "Codul PIN este incorect sau nu există cazare activă.";
+        const errMsg =
+          typeof data.detail === "string"
+            ? data.detail
+            : typeof data.message === "string"
+            ? data.message
+            : "Codul PIN este incorect sau nu există cazare activă.";
         setStatusMessage(errMsg);
         toast(errMsg, "error");
 
         setTimeout(() => {
           setLockStatus("locked");
-        }, 3000);
+        }, 3500);
       }
     } catch {
       setLockStatus("error");
@@ -132,25 +145,31 @@ export default function SmartLockKeypad({
             Camera / Unitatea
           </span>
           <div className="flex items-center gap-2 rounded-lg bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-semibold text-white">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#c69a3f] animate-pulse" />
+            <span className={`h-1.5 w-1.5 rounded-full ${isLockActive ? "bg-[#c69a3f] animate-pulse" : "bg-rose-400"}`} />
             <span>Unitatea {unitNumber}</span>
           </div>
         </div>
 
         <div
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-colors ${
-            lockStatus === "unlocked"
+            !isLockActive
+              ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+              : lockStatus === "unlocked"
               ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
               : "bg-red-500/20 text-red-400 border border-red-500/40"
           }`}
         >
-          {lockStatus === "unlocked" ? (
+          {!isLockActive ? (
+            <>
+              <ShieldAlert size={14} className="text-rose-400" /> OFFLINE / OFF
+            </>
+          ) : lockStatus === "unlocked" ? (
             <>
               <Unlock size={14} /> DESCHIS
             </>
           ) : (
             <>
-              <Lock size={14} /> ÎNCUIAT
+              <Lock size={14} /> ÎNCUIAT (ON)
             </>
           )}
         </div>
