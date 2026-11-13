@@ -83,6 +83,10 @@ export default function GlobalLiveSync() {
       ) {
         window.dispatchEvent(new CustomEvent("live-bookings-sync", { detail: payload }));
       }
+
+      if (ev === "orders_updated" || ev === "new_room_service_order") {
+        window.dispatchEvent(new CustomEvent("live-orders-sync", { detail: payload }));
+      }
     },
   });
 

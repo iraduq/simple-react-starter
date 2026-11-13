@@ -188,6 +188,12 @@ export default function PlaceMenu({
       clearCart({ skipServer: true });
       setNotes("");
       setCartViewOpen(false);
+      try {
+        localStorage.setItem("casa_esy_active_order_code", res.order_code);
+        window.dispatchEvent(
+          new CustomEvent("casa-esy-active-order-changed", { detail: { order_code: res.order_code } })
+        );
+      } catch {}
       if (onOrderRedirect) onOrderRedirect();
       toast(`Comanda ${res.order_code} a fost trimisă!`, "success");
       navigate(`/comanda/${res.order_code}`);

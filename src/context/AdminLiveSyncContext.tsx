@@ -102,6 +102,12 @@ const TOPIC_EVENT_MAP: Record<SyncTopic, string[]> = {
     "menu_updated",
     "places_updated",
   ],
+  orders: [
+    "orders_updated",
+    "order_created",
+    "order_status_updated",
+    "new_room_service_order",
+  ],
   users: [
     "users_updated",
     "user_updated",

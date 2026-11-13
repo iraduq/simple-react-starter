@@ -16,6 +16,7 @@ export type SyncTopic =
   | "nomenclature"
   | "places"
   | "menu"
+  | "orders"
   | "users"
   | "audit"
   | "lost_found"
@@ -133,6 +134,9 @@ export function detectTopicsFromPath(path: string): SyncTopic[] {
   }
   if (p.includes("/menu")) {
     return ["menu", "places"];
+  }
+  if (p.includes("/orders")) {
+    return ["orders", "loyalty"];
   }
   if (p.includes("/users")) {
     return ["users", "audit"];

@@ -95,6 +95,22 @@ export default function OrderProgress() {
     onSync: () => loadOrder(true),
   });
 
+  useEffect(() => {
+    const handleLiveOrder = (e: Event) => {
+      const custom = e as CustomEvent;
+      const data = custom.detail;
+      if (!data) return;
+      if (
+        !data.order_code ||
+        data.order_code.toUpperCase() === orderCode.toUpperCase()
+      ) {
+        void loadOrder(true);
+      }
+    };
+    window.addEventListener("live-orders-sync", handleLiveOrder);
+    return () => window.removeEventListener("live-orders-sync", handleLiveOrder);
+  }, [orderCode, loadOrder]);
+
   const currentStepIdx = order
     ? Math.max(
         0,
@@ -129,6 +145,13 @@ export default function OrderProgress() {
           <p className="mt-3 text-sm sm:text-base text-white/80 max-w-xl mx-auto font-light">
             Statusul comenzii tale se actualizează automat în timp real pe măsură ce bucătăria pregătește și trimite preparatele spre camera ta.
           </p>
+
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 border border-white/20 px-3.5 py-1 text-[11px] font-semibold text-emerald-300 backdrop-blur-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Sincronizat live prin WebSockets
+            </span>
+          </div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-[1px]">
