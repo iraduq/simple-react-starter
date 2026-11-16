@@ -741,7 +741,7 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
 
   // Modals
   const [testModalOpen, setTestModalOpen] = useState(false);
-  const [testEmail, setTestEmail] = useState("");
+  const [testEmail, setTestEmail] = useState("raduivan2003@gmail.com");
   const [sendingTest, setSendingTest] = useState(false);
 
   const [campaignModalOpen, setCampaignModalOpen] = useState(false);
@@ -1447,14 +1447,27 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
               type="email"
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
-              placeholder="ex: adresa_ta@gmail.com"
+              placeholder="ex: raduivan2003@gmail.com"
               className={inputCls}
             />
           </Field>
 
+          <div className="rounded-xl bg-amber-50 border border-amber-200/80 p-3.5 text-xs text-[#8a6420] space-y-1.5">
+            <div className="font-bold flex items-center gap-1.5 text-[#0d2c5c]">
+              <Sparkles size={14} className="text-[#c69a3f]" />
+              Politica Resend Sandbox (Domeniu Test):
+            </div>
+            <p className="leading-relaxed text-[#475569]">
+              Cu domeniul gratuit <strong>onboarding@resend.dev</strong>, Resend permite expedierea emailurilor de test <strong>doar către adresa asociată contului tău Resend (<code className="font-bold text-[#0d2c5c]">raduivan2003@gmail.com</code>)</strong>. Trimiterile către adrese străine sunt blocate de API.
+            </p>
+            <p className="text-[11px] text-[#64748b] pt-1 border-t border-amber-200/60">
+              Pentru a trimite către orice client sau adresă externă, adaugă și verifică domeniul tău pe <strong>resend.com/domains</strong>.
+            </p>
+          </div>
+
           <div className="rounded-xl bg-[#f8fafc] border border-[#e1e8f0] p-3 text-xs text-[#64748b] space-y-1">
             <span className="font-bold text-[#0d2c5c] block">Expediere prin:</span>
-            <span>API Resend &middot; Expeditor: Vila Casa Esy</span>
+            <span>API Resend &middot; Expeditor: Vila Casa Esy &lt;onboarding@resend.dev&gt;</span>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
