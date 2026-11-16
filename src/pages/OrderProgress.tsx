@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   CheckCircle2,
   ChefHat,
@@ -16,6 +16,7 @@ import {
 import { apiFetch } from "../lib/api";
 import { lei } from "../services/placesService";
 import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
+import { useToast } from "../components/Toast";
 
 interface TrackedOrder {
   id: string;
@@ -30,6 +31,8 @@ interface TrackedOrder {
   discount_reason?: string | null;
   total_amount: number;
   payment_method: string;
+  payment_status?: string | null;
+  stripe_session_id?: string | null;
   notes?: string | null;
   status: "new" | "preparing" | "delivering" | "delivered" | "cancelled";
   created_at?: string | null;
@@ -51,8 +54,8 @@ const STEPS = [
   },
   {
     key: "delivering",
-    title: "În Drum spre Cameră",
-    subtitle: "Room Service în curs de livrare",
+    title: "În Livrare",
+    subtitle: "Ospătarul este pe drum spre cameră",
     icon: BellRing,
   },
   {
@@ -65,9 +68,12 @@ const STEPS = [
 
 export default function OrderProgress() {
   const { orderCode = "" } = useParams();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const [order, setOrder] = useState<TrackedOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [payingWithCard, setPayingWithCard] = useState(false);
 
   const loadOrder = useCallback(
     async (silent = false) => {
@@ -111,12 +117,59 @@ export default function OrderProgress() {
     return () => window.removeEventListener("live-orders-sync", handleLiveOrder);
   }, [orderCode, loadOrder]);
 
+  // Handle return from Stripe payment
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const sessionId = searchParams.get("session_id");
+    if (payment === "success") {
+      if (sessionId) {
+        void apiFetch("/orders/confirm-payment", {
+          method: "POST",
+          body: JSON.stringify({ session_id: sessionId }),
+        })
+          .then(() => {
+            toast("Plata cu cardul prin Stripe a fost confirmată cu succes!", "success");
+            void loadOrder(true);
+          })
+          .catch(() => {
+            void loadOrder(true);
+          });
+      } else {
+        toast("Plata cu cardul prin Stripe a fost finalizată!", "success");
+        void loadOrder(true);
+      }
+    } else if (payment === "cancelled") {
+      toast("Plata cu cardul a fost anulată. Comanda rămâne activă.", "info");
+    }
+  }, [searchParams, loadOrder, toast]);
+
+  const handlePayWithCard = async () => {
+    if (!order) return;
+    setPayingWithCard(true);
+    try {
+      const res = await apiFetch<{ checkout_url: string }>(
+        `/orders/${encodeURIComponent(order.id || order.order_code)}/checkout-card`,
+        { method: "POST" }
+      );
+      if (res.checkout_url) {
+        window.location.href = res.checkout_url;
+      }
+    } catch (err: any) {
+      toast(err?.message || "Eroare la inițierea plății cu cardul prin Stripe.", "error");
+      setPayingWithCard(false);
+    }
+  };
+
   const currentStepIdx = order
     ? Math.max(
         0,
         STEPS.findIndex((s) => s.key === order.status),
       )
     : 0;
+
+  const isCardPaid =
+    order?.payment_status === "paid" ||
+    (order?.payment_method === "card" && order?.notes?.includes("Stripe"));
 
   return (
     <div className="min-h-screen bg-white text-[#0d2c5c]">
@@ -310,9 +363,44 @@ export default function OrderProgress() {
                 </div>
               )}
 
+              {/* Opțiune Plată Directă cu Cardul (Stripe) dacă a fost pusă pe cameră */}
+              {order.payment_method === "room_charge" && !isCardPaid && (
+                <div className="mt-5 rounded-2xl border-2 border-[#c69a3f]/40 bg-[#fdf8ec] p-5 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d2c5c] text-[#e6b85c]">
+                          <CreditCard size={13} />
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">
+                          Opțiune: Plătește direct cu Cardul (Stripe)
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#6b7c99]">
+                        Comanda este pusă pe contul camerei. O poți achita oricând online prin card bancar, cu detalierea completă a produselor și reducerilor în Stripe.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={payingWithCard}
+                      onClick={handlePayWithCard}
+                      className="inline-flex items-center justify-center gap-2.5 rounded-full bg-[#0d2c5c] px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#c69a3f] hover:text-[#0d2c5c] hover:shadow-lg disabled:opacity-60 cursor-pointer shrink-0"
+                    >
+                      <CreditCard size={15} />
+                      {payingWithCard ? "Se redirecționează spre Stripe..." : `Plătește ${lei(order.total_amount)} cu Cardul`}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="mt-6 pt-5 border-t border-[#e2e8f0] flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-xs font-semibold text-[#475569]">
-                  {order.payment_method === "card" ? (
+                  {isCardPaid ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold text-emerald-800">
+                      <CheckCircle2 size={14} className="text-emerald-600" />
+                      Plătit Online cu Cardul (Stripe) · Confirmat
+                    </span>
+                  ) : order.payment_method === "card" ? (
                     <>
                       <CreditCard size={15} className="text-[#c69a3f]" /> Plată cu Cardul la livrare (POS Mobil)
                     </>

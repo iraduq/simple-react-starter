@@ -62,7 +62,7 @@ export default function PlaceMenu({
   const [selectedBookingId, setSelectedBookingId] = useState<string>("");
   const [eligibilityMsg, setEligibilityMsg] = useState<string | null>(null);
 
-  const [paymentMethod, setPaymentMethod] = useState<"room_charge" | "card" | "cash">("room_charge");
+  const [paymentMethod, setPaymentMethod] = useState<"room_charge" | "card_online" | "card" | "cash">("room_charge");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -194,6 +194,21 @@ export default function PlaceMenu({
           new CustomEvent("casa-esy-active-order-changed", { detail: { order_code: res.order_code } })
         );
       } catch {}
+      if (paymentMethod === "card_online") {
+        try {
+          const stripeRes = await apiFetch<{ checkout_url: string }>(
+            `/orders/${encodeURIComponent(res.order_code)}/checkout-card`,
+            { method: "POST" }
+          );
+          if (stripeRes.checkout_url) {
+            window.location.href = stripeRes.checkout_url;
+            return;
+          }
+        } catch (err: any) {
+          toast(err?.message || "Eroare inițiere plată Stripe.", "error");
+        }
+      }
+
       if (onOrderRedirect) onOrderRedirect();
       toast(`Comanda ${res.order_code} a fost trimisă!`, "success");
       navigate(`/comanda/${res.order_code}`);
@@ -480,11 +495,12 @@ export default function PlaceMenu({
                     <label className="block text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#475569] mb-2">
                       Metodă de plată (livrare în cameră)
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {[
-                        { id: "room_charge", label: "Contul camerei", sub: "Room Folio" },
-                        { id: "card", label: "Card la livrare", sub: "POS în cameră" },
-                        { id: "cash", label: "Numerar la livrare", sub: "Cash la cameră" },
+                        { id: "room_charge", label: "Contul camerei", sub: "Room Folio (sau Card)" },
+                        { id: "card_online", label: "Card Online (Stripe)", sub: "Plătește direct online" },
+                        { id: "card", label: "Card la livrare", sub: "POS Mobil în cameră" },
+                        { id: "cash", label: "Numerar la livrare", sub: "Cash la recepționare" },
                       ].map((opt) => {
                         const active = paymentMethod === opt.id;
                         return (
