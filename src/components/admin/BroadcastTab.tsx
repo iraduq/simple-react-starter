@@ -18,6 +18,7 @@ import {
   Flame,
   Wine,
   Waves,
+  Mail,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../Toast";
@@ -87,7 +88,11 @@ const PRESET_TEMPLATES = [
   },
 ];
 
-export default function BroadcastTab() {
+interface BroadcastTabProps {
+  onNavigateToEmailStudio?: () => void;
+}
+
+export default function BroadcastTab({ onNavigateToEmailStudio }: BroadcastTabProps = {}) {
   const { toast } = useToast();
   const [broadcasts, setBroadcasts] = useState<BroadcastItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -325,7 +330,17 @@ export default function BroadcastTab() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+          {onNavigateToEmailStudio && (
+            <button
+              type="button"
+              onClick={onNavigateToEmailStudio}
+              className="px-3.5 py-1.5 rounded-full bg-[#0d2c5c] text-white hover:bg-[#123a75] text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            >
+              <Mail size={13} className="text-[#c69a3f]" />
+              <span>Deschide Modele Email &rarr;</span>
+            </button>
+          )}
           <div className="px-3.5 py-1.5 rounded-full bg-amber-50 border border-[#c69a3f]/30 text-[#0d2c5c] text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-2 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-[#c69a3f] animate-pulse"></span>
             <span>{activeCount} alerte active live</span>

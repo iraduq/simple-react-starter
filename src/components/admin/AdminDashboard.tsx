@@ -80,7 +80,8 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
   { key: "tape_chart", label: "Diagramă ocupare", icon: CalendarRange },
   { key: "channel_manager", label: "Channel manager", icon: Globe },
-  { key: "broadcast", label: "Alerte și notificări", icon: Radio },
+  { key: "broadcast", label: "Alerte și notificări (Live)", icon: Radio },
+  { key: "email_studio", label: "Modele email & Tranzacții", icon: Mail },
   { key: "maintenance", label: "Mentenanță și tichete", icon: Wrench },
   { key: "loyalty", label: "Program VIP și puncte", icon: Crown },
   { key: "breakfast", label: "Mic dejun și bucătărie", icon: Coffee },
@@ -97,7 +98,6 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "menu", label: "Meniu și bar", icon: UtensilsCrossed },
   { key: "analytics", label: "Rapoarte și indicatori", icon: TrendingUp },
   { key: "conversations", label: "Interogare DB și chat", icon: MessageSquare },
-  { key: "email_studio", label: "Email studio", icon: Mail },
   { key: "qr_studio", label: "Coduri QR și Wi-Fi", icon: QrCode },
   { key: "env_config", label: "Variabile și Cloud", icon: SlidersHorizontal },
   { key: "users", label: "Utilizatori", icon: Users },
@@ -363,7 +363,9 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "users" && <UsersTab />}
             {tab === "audit" && <AuditLogsTab />}
             {tab === "lost_found" && <LostFoundTab />}
-            {tab === "email_studio" && <EmailStudioTab />}
+            {tab === "email_studio" && (
+              <EmailStudioTab onNavigateToBroadcast={() => setTab("broadcast")} />
+            )}
             {tab === "qr_studio" && <QrStudioTab />}
             {tab === "conversations" && <ConversationsTab />}
             {tab === "tape_chart" && <TapeChartTab />}
@@ -371,7 +373,9 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "orders_kds" && <OrdersKdsTab />}
             {tab === "coupons" && <CouponsTab />}
             {tab === "reviews" && <ReviewsTab />}
-            {tab === "broadcast" && <BroadcastTab />}
+            {tab === "broadcast" && (
+              <BroadcastTab onNavigateToEmailStudio={() => setTab("email_studio")} />
+            )}
             {tab === "maintenance" && <MaintenanceTab />}
             {tab === "loyalty" && <LoyaltyTab />}
             {tab === "env_config" && <EnvConfigTab />}

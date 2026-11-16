@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Mail,
+  Radio,
   Sparkles,
   Send,
   RotateCcw,
@@ -617,7 +618,11 @@ const CATEGORIES = [
   { id: "marketing", label: "✨ Oferte & Noutăți (1)" },
 ];
 
-export default function EmailStudioTab() {
+interface EmailStudioTabProps {
+  onNavigateToBroadcast?: () => void;
+}
+
+export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTabProps = {}) {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<EmailTemplateItem[]>([]);
   const [selectedSlug, setSelectedSlug] = useState<string>("booking_confirmation");
@@ -800,7 +805,17 @@ export default function EmailStudioTab() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+          {onNavigateToBroadcast && (
+            <button
+              type="button"
+              onClick={onNavigateToBroadcast}
+              className="px-3.5 py-1.5 rounded-full bg-white hover:bg-[#f8fafc] text-[#0d2c5c] border border-[#e1e8f0] hover:border-[#c69a3f] text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+            >
+              <Radio size={13} className="text-[#c69a3f]" />
+              <span>Alerte Live & Push &rarr;</span>
+            </button>
+          )}
           <div className="px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#0d2c5c] text-[12px] font-bold flex items-center gap-2 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>{templates.length || 10} modele active Resend</span>
