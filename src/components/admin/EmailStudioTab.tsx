@@ -101,13 +101,107 @@ const MERGE_TAGS = [
   { tag: "{{wifi_qr_code_url}}", label: "URL imagine QR Wi-Fi", sample: "https://api.qrserver.com/..." },
 ];
 
-function renderPreviewHtml(rawHtml: string): string {
-  let out = rawHtml || "";
+function replaceVars(text: string): string {
+  let out = text || "";
   for (const [k, v] of Object.entries(SAMPLE_PREVIEW_VARS)) {
     out = out.split(`{{${k}}}`).join(v);
     out = out.split(`{{ ${k} }}`).join(v);
     out = out.split(`{${k}}`).join(v);
   }
+  return out;
+}
+
+function renderPreviewHtml(rawHtml: string, isMobile: boolean = false): string {
+  let out = rawHtml || "";
+
+  // 1. Sanitize any malformed HTML prefix (e.g. if raw string starts with p://www.w3 or missing doctype)
+  if (out.trim().startsWith("p://www.w3.org") || out.trim().startsWith("//www.w3.org")) {
+    out = `<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml">\n${out.substring(out.indexOf(">") + 1)}`;
+  } else if (!out.includes("<!DOCTYPE") && out.includes("<html")) {
+    out = `<!DOCTYPE html>\n${out}`;
+  }
+
+  // 2. Replace variables with sample preview data
+  out = replaceVars(out);
+
+  // 3. Inject responsive styles & viewport into <head>
+  const responsiveStyles = `
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <style type="text/css">
+      * { box-sizing: border-box !important; }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        -webkit-text-size-adjust: 100%;
+      }
+      img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+      ${
+        isMobile
+          ? `
+        /* Mobile Preview Mode (375px simulation) */
+        table[width="560"], table.container-table, table {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        td[style*="padding: 44px 16px"], td[style*="padding: 48px 15px"], td[style*="padding: 48px"] {
+          padding: 12px 6px !important;
+        }
+        td[style*="padding: 40px"], td[style*="padding: 38px 40px"], td[style*="padding: 34px 36px"], td[style*="padding: 38px 36px"] {
+          padding: 18px 12px !important;
+        }
+        td[width="48%"] {
+          display: block !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          margin-bottom: 12px !important;
+          box-sizing: border-box !important;
+        }
+        td[width="4%"] {
+          display: none !important;
+          width: 0 !important;
+        }
+        /* Ensure table text wraps cleanly on narrow screens */
+        table table td {
+          word-break: break-word !important;
+        }
+      `
+          : `
+        /* Standard Screen Fallbacks */
+        @media only screen and (max-width: 580px) {
+          table[width="560"], table.container-table {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          td[style*="padding: 40px"], td[style*="padding: 38px 40px"] {
+            padding: 18px 12px !important;
+          }
+          td[width="48%"] {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 12px !important;
+          }
+          td[width="4%"] {
+            display: none !important;
+          }
+        }
+      `
+      }
+    </style>
+  `;
+
+  if (out.includes("</head>")) {
+    out = out.replace("</head>", `${responsiveStyles}\n</head>`);
+  } else if (out.includes("<body")) {
+    out = `<head>${responsiveStyles}</head>\n${out}`;
+  } else {
+    out = `<head>${responsiveStyles}</head>\n<body>${out}</body>`;
+  }
+
   return out;
 }
 
@@ -786,7 +880,8 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
     return meta?.category === selectedCategory;
   });
 
-  const renderedPreview = renderPreviewHtml(htmlContent);
+  const activeMeta = activeTemplate ? TEMPLATE_METAS[activeTemplate.slug] : null;
+  const renderedPreview = renderPreviewHtml(htmlContent, device === "mobile");
 
   return (
     <div className="space-y-8 font-sans">
@@ -857,7 +952,7 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
         <p className="text-[11px] font-bold tracking-[0.16em] uppercase text-[#64748b] mb-3">
           Alege un scenariu de email pentru a-i vedea și modifica modelul:
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
           {filteredTemplates.map((t) => {
             const isSelected = t.slug === selectedSlug;
             const meta = TEMPLATE_METAS[t.slug] || {
@@ -894,12 +989,16 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
                     </span>
                   </div>
 
-                  <h4 className="text-[13.5px] font-bold text-[#0d2c5c] leading-snug line-clamp-1">
+                  <h4 className="text-[13px] sm:text-[13.5px] font-bold text-[#0d2c5c] leading-snug line-clamp-2 min-h-[38px] flex items-center">
                     {t.name}
                   </h4>
-                  <p className="text-[11px] text-[#64748b] mt-1 line-clamp-2 leading-relaxed">
-                    <strong>Când primește oaspetele:</strong> {meta.triggerWhen}
-                  </p>
+
+                  <div className="mt-2 text-[11px] text-[#556987] leading-relaxed min-h-[46px]">
+                    <div className="inline-flex items-center gap-1 font-bold text-[#c69a3f] uppercase text-[9.5px] tracking-wider mb-0.5">
+                      <Sparkles size={11} className="text-[#c69a3f]" /> Când primește:
+                    </div>
+                    <p className="line-clamp-2 text-[#475569]">{meta.triggerWhen}</p>
+                  </div>
                 </div>
 
                 <div className="mt-3 pt-2.5 border-t border-[#e2e8f0]/60 flex items-center justify-between text-[11px]">
@@ -923,17 +1022,28 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
         <div className="space-y-6">
           {/* Top Bar for Selected Template: Action Buttons & Mode Switcher */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#0d2c5c] text-white shadow-md">
-            <div className="flex items-center gap-3">
-              <span className="w-10 h-10 rounded-xl bg-[#e6b85c] text-[#0d2c5c] flex items-center justify-center font-bold">
+            <div className="flex items-start sm:items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-[#e6b85c] text-[#0d2c5c] flex items-center justify-center font-bold shrink-0 mt-0.5 sm:mt-0">
                 <Mail size={20} />
               </span>
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#e6b85c] block">
-                  Model Email Selectat
-                </span>
-                <h3 className="text-base sm:text-lg font-bold leading-tight">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#e6b85c]">
+                    Model Email Selectat
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-slate-200">
+                    {activeTemplate.slug}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold leading-tight mt-0.5">
                   {activeTemplate.name}
                 </h3>
+                {/* PROMINENT TRIGGER NOTICE */}
+                <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-300/30 text-amber-200 text-[11.5px] font-medium">
+                  <Sparkles size={12} className="text-[#e6b85c] shrink-0" />
+                  <strong className="text-white">Când primește clientul:</strong>
+                  <span>{activeMeta?.triggerWhen || activeTemplate.description}</span>
+                </div>
               </div>
             </div>
 
@@ -1266,31 +1376,50 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
                 {/* Email Client Window Shell */}
                 <div className="rounded-2xl border border-[#e2e8f0] bg-white overflow-hidden shadow-md">
                   {/* Simulated Mail Header */}
-                  <div className="bg-[#f1f5f9] px-4 py-2.5 border-b border-[#e2e8f0] text-[11.5px] space-y-1">
+                  <div className="bg-[#f1f5f9] px-4 py-3 border-b border-[#e2e8f0] text-[11.5px] space-y-1.5">
                     <div className="flex items-center gap-2 text-[#64748b]">
-                      <span className="font-bold text-[#0d2c5c] w-12">De la:</span>
-                      <span>Vila Casa Esy &lt;contact@casaesy.ro&gt; (via Resend)</span>
+                      <span className="font-bold text-[#0d2c5c] w-12 shrink-0">De la:</span>
+                      <span className="truncate">Vila Casa Esy &lt;contact@casaesy.ro&gt; (via Resend)</span>
                     </div>
                     <div className="flex items-center gap-2 text-[#64748b]">
-                      <span className="font-bold text-[#0d2c5c] w-12">Către:</span>
-                      <span>alexandru.ionescu@email.ro</span>
+                      <span className="font-bold text-[#0d2c5c] w-12 shrink-0">Către:</span>
+                      <span className="truncate">alexandru.ionescu@email.ro</span>
                     </div>
                     <div className="flex items-center gap-2 text-[#64748b]">
-                      <span className="font-bold text-[#0d2c5c] w-12">Subiect:</span>
-                      <span className="font-semibold text-[#0d2c5c]">{renderPreviewHtml(subject)}</span>
+                      <span className="font-bold text-[#0d2c5c] w-12 shrink-0">Subiect:</span>
+                      <span className="font-semibold text-[#0d2c5c] truncate">{replaceVars(subject)}</span>
+                    </div>
+                    {/* Explicit Trigger Info Bar inside Envelope */}
+                    <div className="flex items-start sm:items-center gap-2 pt-1.5 border-t border-[#e2e8f0]/80">
+                      <span className="font-bold text-[#c69a3f] shrink-0 flex items-center gap-1 text-[11px]">
+                        <Sparkles size={12} className="text-[#c69a3f]" /> Când primește clientul:
+                      </span>
+                      <span className="text-[#0d2c5c] font-semibold bg-amber-50/90 text-[11px] px-2.5 py-0.5 rounded border border-amber-200/60 leading-normal">
+                        {activeMeta?.triggerWhen || activeTemplate.description || "Trimis automat la eveniment"}
+                      </span>
                     </div>
                   </div>
 
                   {/* Rendered Frame */}
-                  <div className="p-4 bg-[#eaedf2] flex justify-center min-h-[460px] max-h-[640px] overflow-y-auto">
+                  <div className="p-4 sm:p-6 bg-[#eaedf2] flex justify-center min-h-[460px] max-h-[660px] overflow-y-auto overflow-x-hidden">
                     <div
-                      style={{ width: device === "mobile" ? "375px" : "100%", maxWidth: "560px" }}
-                      className="transition-all duration-300"
+                      style={{ width: device === "mobile" ? "375px" : "100%", maxWidth: device === "mobile" ? "375px" : "560px" }}
+                      className={`transition-all duration-300 ${
+                        device === "mobile"
+                          ? "p-3 bg-[#0d2c5c] rounded-[38px] shadow-2xl border-4 border-[#334155]"
+                          : ""
+                      }`}
                     >
+                      {device === "mobile" && (
+                        <div className="w-20 h-3.5 bg-[#1e293b] rounded-full mx-auto mb-2 flex items-center justify-center">
+                          <div className="w-2.5 h-2.5 rounded-full bg-black/40"></div>
+                        </div>
+                      )}
                       <iframe
                         title="Previzualizare Email"
                         srcDoc={renderedPreview}
                         className="w-full min-h-[580px] rounded-xl border border-[#cbd5e1] bg-white shadow-sm"
+                        style={{ overflowX: "hidden" }}
                         sandbox="allow-same-origin"
                       />
                     </div>
