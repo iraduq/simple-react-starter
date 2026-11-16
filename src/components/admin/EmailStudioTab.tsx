@@ -857,7 +857,8 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
     try {
       await post(`/email-templates/${selectedSlug}/test`, {
         to_email: testEmail.trim(),
-        variables: SAMPLE_PREVIEW_VARS,
+        subject: subject,
+        html_content: htmlContent,
       });
 
       toast(`Emailul de test a fost expediat prin Resend către ${testEmail}!`, "success");
