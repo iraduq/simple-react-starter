@@ -20,6 +20,14 @@ import {
   QrCode,
   AlertTriangle,
   RefreshCw,
+  ShieldCheck,
+  CreditCard,
+  Utensils,
+  KeyRound,
+  Wifi,
+  Compass,
+  Check,
+  HelpCircle,
 } from "lucide-react";
 import { useToast } from "../Toast";
 import { get, put, post, errMsg } from "../../lib/admin";
@@ -39,39 +47,57 @@ export interface EmailTemplateItem {
   updated_at?: string | null;
 }
 
-declare global {
-  interface Window {
-    unlayer?: {
-      init: (options: Record<string, unknown>) => void;
-      loadDesign: (design: Record<string, unknown>) => void;
-      exportHtml: (cb: (data: { design: Record<string, unknown>; html: string }) => void) => void;
-      addEventListener: (event: string, cb: () => void) => void;
-    };
-  }
-}
-
 const SAMPLE_PREVIEW_VARS: Record<string, string> = {
   code: "849201",
   guest_name: "Alexandru Ionescu",
   booking_code: "BK-90421",
   room_title: "Suită Deluxe cu Vedere la Mare",
   room_unit_number: "204",
+  room_label: "Camera 204 (Suită Deluxe)",
   check_in: "15.07.2026",
   check_out: "20.07.2026",
   total_price: "2.450,00",
+  amount: "420,00",
+  total_amount: "145,00",
+  subtotal: "165,00",
+  discount_amount: "20,00",
+  items_list: "&bull; 2x Aperol Spritz (76 lei)<br>&bull; 1x Platou Fructe de Mare (89 lei)",
+  estimated_time: "20-25 minute",
+  login_time: "16 nov. 2026, 18:30",
+  device_info: "Chrome 122 &middot; Windows 11 PC",
+  ip_address: "86.124.95.12",
+  location: "București, România",
+  secure_account_url: "https://casaesy.ro/profile",
+  portal_url: "https://casaesy.ro/profile",
+  receipt_url: "https://casaesy.ro/places",
+  order_url: "https://casaesy.ro/comanda/ORD-7783",
+  wifi_ssid: "CasaEsy_Guests_5G",
+  wifi_password: "VacantaLaMare2026",
+  reception_phone: "+40 700 000 000",
+  payment_intent_id: "pi_3Mtwx2LkdIwHu7ix28aEEac1",
+  payment_date: "16 nov. 2026, 18:32",
+  description: "Cazare Suită Deluxe & Room Service",
   qr_code_url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CASA-ESY-BK-90421",
+  wifi_qr_code_url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=WIFI:S:CasaEsy_Guests_5G;T:WPA;P:VacantaLaMare2026;;",
 };
 
 const MERGE_TAGS = [
-  { tag: "{{code}}", label: "Cod OTP sau promoție", sample: "849201" },
   { tag: "{{guest_name}}", label: "Nume oaspete", sample: "Alexandru Ionescu" },
+  { tag: "{{code}}", label: "Cod OTP / promoțional", sample: "849201" },
+  { tag: "{{amount}}", label: "Sumă plată Stripe (RON)", sample: "420,00" },
   { tag: "{{booking_code}}", label: "Cod rezervare", sample: "BK-90421" },
   { tag: "{{room_title}}", label: "Denumire cameră", sample: "Suită Deluxe" },
   { tag: "{{room_unit_number}}", label: "Număr cameră", sample: "204" },
   { tag: "{{check_in}}", label: "Data check-in", sample: "15.07.2026" },
   { tag: "{{check_out}}", label: "Data check-out", sample: "20.07.2026" },
-  { tag: "{{total_price}}", label: "Total factură (RON)", sample: "2.450,00" },
-  { tag: "{{qr_code_url}}", label: "URL imagine QR", sample: "https://api.qrserver.com/..." },
+  { tag: "{{total_price}}", label: "Total rezervare (RON)", sample: "2.450,00" },
+  { tag: "{{login_time}}", label: "Ora și data logării", sample: "16 nov., 18:30" },
+  { tag: "{{device_info}}", label: "Dispozitiv & Browser", sample: "Chrome · Windows" },
+  { tag: "{{ip_address}}", label: "Adresă IP", sample: "86.124.95.12" },
+  { tag: "{{wifi_ssid}}", label: "Nume rețea Wi-Fi", sample: "CasaEsy_Guests_5G" },
+  { tag: "{{wifi_password}}", label: "Parolă Wi-Fi", sample: "VacantaLaMare2026" },
+  { tag: "{{qr_code_url}}", label: "URL imagine QR check-in", sample: "https://api.qrserver.com/..." },
+  { tag: "{{wifi_qr_code_url}}", label: "URL imagine QR Wi-Fi", sample: "https://api.qrserver.com/..." },
 ];
 
 function renderPreviewHtml(rawHtml: string): string {
@@ -107,6 +133,156 @@ interface VisualConfig {
 }
 
 function getDefaultVisualConfig(slug: string): VisualConfig {
+  if (slug === "new_login") {
+    return {
+      headerTitle: "Casa Esy",
+      headerSubtitle: "Vila · Eforie Nord",
+      badgeText: "Securitate Cont",
+      headerBg: "#0d2c5c",
+      headline: "Logare nouă detectată",
+      bodyText:
+        "Bună ziua, {{guest_name}}!\nAm înregistrat o autentificare recentă în contul tău Vila Casa Esy.\nDispozitiv: {{device_info}}\nData și ora: {{login_time}}\nAdresă IP: {{ip_address}} &middot; {{location}}.\nDacă ai fost chiar tu, ignoră acest mesaj.",
+      hasCodeBox: false,
+      codeBoxLabel: "Adresă IP",
+      codeBoxValue: "{{ip_address}}",
+      codeBoxNote: "Dacă nu recunoști această activitate, schimbă parola imediat.",
+      hasBookingTable: false,
+      hasCtaButton: true,
+      ctaButtonText: "Securizează Contul",
+      ctaButtonUrl: "https://casaesy.ro/profile",
+      ctaButtonColor: "#0d2c5c",
+      hasQrCode: false,
+      qrInstruction: "",
+      footerContact: "Casa Esy · Securitate și protecție cont",
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
+  if (slug === "login_success") {
+    return {
+      headerTitle: "Casa Esy",
+      headerSubtitle: "Vila · Eforie Nord",
+      badgeText: "Autentificare Reușită",
+      headerBg: "#123a75",
+      headline: "Bine ai revenit, {{guest_name}}!",
+      bodyText:
+        "Te-ai conectat cu succes în contul tău de oaspete Vila Casa Esy la data de {{login_time}}.\nAi acces la rezervările tale active, cheia PIN de la cameră și comenzi de Room Service.",
+      hasCodeBox: false,
+      codeBoxLabel: "",
+      codeBoxValue: "",
+      codeBoxNote: "",
+      hasBookingTable: false,
+      hasCtaButton: true,
+      ctaButtonText: "Accesează Portalul Oaspetelui",
+      ctaButtonUrl: "https://casaesy.ro/profile",
+      ctaButtonColor: "#c69a3f",
+      hasQrCode: false,
+      qrInstruction: "",
+      footerContact: "Casa Esy · Sejururi și cazare la Marea Neagră",
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
+  if (slug === "payment_success") {
+    return {
+      headerTitle: "Casa Esy",
+      headerSubtitle: "Vila · Eforie Nord",
+      badgeText: "Plată Confirmată Stripe",
+      headerBg: "#0d2c5c",
+      headline: "Plata a fost procesată cu succes!",
+      bodyText:
+        "Mulțumim, {{guest_name}}!\nConfirmăm plata în valoare de {{amount}} RON procesată securizat prin Stripe pentru comanda sau rezervarea #{{booking_code}}.\nServiciile tale au fost confirmate instant.",
+      hasCodeBox: true,
+      codeBoxLabel: "Sumă Totală Achitată",
+      codeBoxValue: "{{amount}} RON",
+      codeBoxNote: "Tranzacție securizată Stripe · ID: {{payment_intent_id}}",
+      hasBookingTable: false,
+      hasCtaButton: true,
+      ctaButtonText: "Vezi Chitanța Online",
+      ctaButtonUrl: "https://casaesy.ro/places",
+      ctaButtonColor: "#16a34a",
+      hasQrCode: false,
+      qrInstruction: "",
+      footerContact: "Plată procesată prin Stripe conform standardului PCI-DSS",
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
+  if (slug === "order_room_service") {
+    return {
+      headerTitle: "Casa Esy",
+      headerSubtitle: "Gastronomie · Room Service",
+      badgeText: "Room Service Live",
+      headerBg: "#0d2c5c",
+      headline: "Comanda ta este în preparare",
+      bodyText:
+        "Bucătăria noastră a preluat comanda #{{order_code}} pentru {{room_label}}.\nPreparatele tale sunt gătite proaspăt și vor fi livrate în aproximativ {{estimated_time}}.",
+      hasCodeBox: true,
+      codeBoxLabel: "Total de Plată",
+      codeBoxValue: "{{total_amount}} RON",
+      codeBoxNote: "Preparate: {{items_list}}",
+      hasBookingTable: false,
+      hasCtaButton: true,
+      ctaButtonText: "Urmărește Comanda Live pe Site",
+      ctaButtonUrl: "https://casaesy.ro/comanda/{{order_code}}",
+      ctaButtonColor: "#c69a3f",
+      hasQrCode: false,
+      qrInstruction: "",
+      footerContact: "Bucătărie și Room Service Vila Casa Esy",
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
+  if (slug === "welcome_guest") {
+    return {
+      headerTitle: "Casa Esy",
+      headerSubtitle: "Vila · Eforie Nord",
+      badgeText: "Ghidul Sejurului Tău",
+      headerBg: "#0d2c5c",
+      headline: "Bun venit la Vila Casa Esy!",
+      bodyText:
+        "Dragă {{guest_name}},\nSuntem încântați să te avem oaspete începând cu data de {{check_in}} pentru camera {{room_title}}.\nCheck-in-ul este disponibil de la ora 14:00, parcarea privată este gratuită, iar plaja este la 3 minute de mers pe jos.",
+      hasCodeBox: false,
+      codeBoxLabel: "Rețea Wi-Fi Oaspeți",
+      codeBoxValue: "{{wifi_ssid}}",
+      codeBoxNote: "Parolă Wi-Fi: {{wifi_password}}",
+      hasBookingTable: false,
+      hasCtaButton: true,
+      ctaButtonText: "Descoperă Facilitățile & Meniul",
+      ctaButtonUrl: "https://casaesy.ro/places",
+      ctaButtonColor: "#0d2c5c",
+      hasQrCode: false,
+      qrInstruction: "",
+      footerContact: "Recepție deschisă · Telefon: {{reception_phone}}",
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
+  if (slug === "wifi_access") {
+    return {
+      headerTitle: "Casa Esy",
+      headerSubtitle: "Vila · Eforie Nord",
+      badgeText: "Conectare Wi-Fi Gratuită",
+      headerBg: "#0d2c5c",
+      headline: "Conectare Automată Wi-Fi",
+      bodyText:
+        "Bună ziua, {{guest_name}}!\nScanează codul QR de mai jos sau conectează-te manual la rețeaua Wi-Fi dedicată oaspeților noștri.",
+      hasCodeBox: true,
+      codeBoxLabel: "Nume Rețea (SSID)",
+      codeBoxValue: "{{wifi_ssid}}",
+      codeBoxNote: "Parolă conexiune: {{wifi_password}}",
+      hasBookingTable: false,
+      hasCtaButton: false,
+      ctaButtonText: "",
+      ctaButtonUrl: "",
+      ctaButtonColor: "#c69a3f",
+      hasQrCode: true,
+      qrInstruction: "Scanează cu camera telefonului pentru conectare automată fără tastarea parolei.",
+      footerContact: "Internet de mare viteză gratuit pe toată proprietatea",
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
   if (slug === "verification_otp") {
     return {
       headerTitle: "Casa Esy",
@@ -115,7 +291,7 @@ function getDefaultVisualConfig(slug: string): VisualConfig {
       headerBg: "#123a75",
       headline: "Confirmă adresa ta de email",
       bodyText:
-        "Am primit o solicitare de înregistrare pentru contul tău Casa Esy.\nIntrodu codul de securitate de mai jos pentru a finaliza activarea:",
+        "Am primit o solicitare de înregistrare pentru contul tău Casa Esy.\nIntrodu codul de securitate de mai jos pentru a finaliza activarea contului:",
       hasCodeBox: true,
       codeBoxLabel: "Codul tău de securitate",
       codeBoxValue: "{{code}}",
@@ -124,7 +300,7 @@ function getDefaultVisualConfig(slug: string): VisualConfig {
       hasBookingTable: false,
       hasCtaButton: false,
       ctaButtonText: "Autentifică-te în cont",
-      ctaButtonUrl: "https://casaesy.ro/autentificare",
+      ctaButtonUrl: "https://casaesy.ro/login",
       ctaButtonColor: "#c69a3f",
       hasQrCode: false,
       qrInstruction: "",
@@ -150,7 +326,7 @@ function getDefaultVisualConfig(slug: string): VisualConfig {
       hasBookingTable: false,
       hasCtaButton: false,
       ctaButtonText: "Resetează parola",
-      ctaButtonUrl: "https://casaesy.ro/resetare-parola",
+      ctaButtonUrl: "https://casaesy.ro/login",
       ctaButtonColor: "#c69a3f",
       hasQrCode: false,
       qrInstruction: "",
@@ -200,7 +376,7 @@ function getDefaultVisualConfig(slug: string): VisualConfig {
     hasBookingTable: true,
     hasCtaButton: true,
     ctaButtonText: "Descarcă voucherul de cazare",
-    ctaButtonUrl: "https://casaesy.ro/rezervari",
+    ctaButtonUrl: "https://casaesy.ro/profile",
     ctaButtonColor: "#c69a3f",
     hasQrCode: true,
     qrInstruction: "Prezintă acest cod QR la recepție la sosire pentru check-in rapid fără timp de așteptare.",
@@ -223,7 +399,7 @@ function generateHtmlFromVisualConfig(cfg: VisualConfig): string {
         <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 2.5px; color: #C69A3F; text-transform: uppercase; margin-bottom: 8px;">
           ${cfg.codeBoxLabel}
         </div>
-        <span style="font-size: 32px; font-weight: 800; color: #0D2C5C; letter-spacing: 6px; font-family: 'Courier New', Courier, monospace; display: block;">
+        <span style="font-size: 32px; font-weight: 800; color: #0D2C5C; letter-spacing: 4px; font-family: 'Courier New', Courier, monospace; display: block;">
           ${cfg.codeBoxValue}
         </span>
       </div>
@@ -264,7 +440,7 @@ function generateHtmlFromVisualConfig(cfg: VisualConfig): string {
     qrCodeHtml = `
       <div style="background-color: #F8FAFD; border-radius: 16px; padding: 24px; margin: 20px 0; text-align: center; border: 1px dashed #CBD5E1;">
         <div style="font-size: 12px; font-weight: 700; color: #0D2C5C; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;">
-          Cod QR check-in rapid la recepție
+          Cod QR check-in & conectare Wi-Fi
         </div>
         <img src="{{qr_code_url}}" alt="Cod QR Rezervare" width="140" height="140" style="border-radius: 12px; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
         ${
@@ -340,14 +516,14 @@ function generateHtmlFromVisualConfig(cfg: VisualConfig): string {
                           </div>
                         </td>
                       </tr>
+                      <tr>
+                        <td bgcolor="#F8FAFD" style="background-color: #F8FAFD; border-top: 1px solid #EEF2F7; padding: 22px 32px; text-align: center; color: #8A93A3; font-size: 12px; line-height: 160%;">
+                          ${cfg.footerContact}<br>
+                          ${cfg.footerCopyright}
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 24px 0 10px; text-align: center; font-size: 11.5px; color: #9CA3AF; line-height: 160%;">
-                  ${cfg.footerContact}<br/>
-                  ${cfg.footerCopyright}
                 </td>
               </tr>
             </tbody>
@@ -360,10 +536,92 @@ function generateHtmlFromVisualConfig(cfg: VisualConfig): string {
 </html>`;
 }
 
+// Preset card icon mapper
+const TEMPLATE_METAS: Record<
+  string,
+  {
+    category: "security" | "payments" | "stay" | "dining" | "marketing";
+    categoryLabel: string;
+    icon: any;
+    triggerWhen: string;
+  }
+> = {
+  new_login: {
+    category: "security",
+    categoryLabel: "Autentificare & Securitate",
+    icon: ShieldCheck,
+    triggerWhen: "La logarea de pe un dispozitiv nou, browser nou sau IP necunoscut.",
+  },
+  login_success: {
+    category: "security",
+    categoryLabel: "Autentificare & Securitate",
+    icon: ShieldCheck,
+    triggerWhen: "La fiecare autentificare reușită a oaspetelui în contul web.",
+  },
+  verification_otp: {
+    category: "security",
+    categoryLabel: "Autentificare & Securitate",
+    icon: KeyRound,
+    triggerWhen: "La înregistrarea unui cont nou sau retrimiterea codului OTP de 6 cifre.",
+  },
+  password_reset: {
+    category: "security",
+    categoryLabel: "Autentificare & Securitate",
+    icon: KeyRound,
+    triggerWhen: "Când un oaspete solicită recuperarea sau resetarea parolei.",
+  },
+  payment_success: {
+    category: "payments",
+    categoryLabel: "Plăți & Tranzacții Stripe",
+    icon: CreditCard,
+    triggerWhen: "Imediat după ce plata prin card (rezervare sau room service) este confirmată în Stripe.",
+  },
+  booking_confirmation: {
+    category: "stay",
+    categoryLabel: "Sejur & Cazare",
+    icon: Compass,
+    triggerWhen: "La confirmarea rezervării cu detaliile camerei, PIN clanță smart lock și QR Wi-Fi.",
+  },
+  welcome_guest: {
+    category: "stay",
+    categoryLabel: "Sejur & Cazare",
+    icon: Compass,
+    triggerWhen: "Cu 24h înainte de sosire cu instrucțiuni de check-in, parcare și plajă.",
+  },
+  wifi_access: {
+    category: "stay",
+    categoryLabel: "Sejur & Cazare",
+    icon: Wifi,
+    triggerWhen: "La trimiterea manuală din recepție sau solicitarea accesului Wi-Fi cu cod QR.",
+  },
+  order_room_service: {
+    category: "dining",
+    categoryLabel: "Gastronomie & Room Service",
+    icon: Utensils,
+    triggerWhen: "La plasarea sau achitarea unei comenzi de mâncare/băutură la cameră.",
+  },
+  seasonal_campaign: {
+    category: "marketing",
+    categoryLabel: "Marketing & Oferte",
+    icon: Sparkles,
+    triggerWhen: "La transmiterea unei campanii promoționale din panoul de administrare.",
+  },
+};
+
+const CATEGORIES = [
+  { id: "all", label: "Toate Modelele (10)" },
+  { id: "security", label: "🔐 Securitate & Logare (4)" },
+  { id: "payments", label: "💳 Plăți Stripe (1)" },
+  { id: "stay", label: "🏖️ Sejur & Wi-Fi (3)" },
+  { id: "dining", label: "🍽️ Room Service (1)" },
+  { id: "marketing", label: "✨ Oferte & Noutăți (1)" },
+];
+
 export default function EmailStudioTab() {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<EmailTemplateItem[]>([]);
   const [selectedSlug, setSelectedSlug] = useState<string>("booking_confirmation");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -378,15 +636,9 @@ export default function EmailStudioTab() {
     getDefaultVisualConfig("booking_confirmation"),
   );
 
-  // Studio mode: "visual" (default & always working) | "split" | "preview" | "unlayer"
-  const [mode, setMode] = useState<"visual" | "split" | "preview" | "unlayer">("visual");
+  // Mode: "visual" | "html" | "preview"
+  const [mode, setMode] = useState<"visual" | "html" | "preview">("visual");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-
-  // Unlayer engine state & watchdog
-  const [unlayerLoading, setUnlayerLoading] = useState(false);
-  const [unlayerFailed, setUnlayerFailed] = useState(false);
-  const [unlayerReady, setUnlayerReady] = useState(false);
-  const unlayerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Modals
   const [testModalOpen, setTestModalOpen] = useState(false);
@@ -425,7 +677,7 @@ export default function EmailStudioTab() {
 
   const activeTemplate = templates.find((t) => t.slug === selectedSlug) || templates[0] || null;
 
-  // On template change: update subject, html, and visual configuration
+  // Sync on template switch
   useEffect(() => {
     if (!activeTemplate) return;
     setSubject(activeTemplate.subject);
@@ -435,146 +687,40 @@ export default function EmailStudioTab() {
 
     const defaultConfig = getDefaultVisualConfig(activeTemplate.slug);
     setVisualConfig(defaultConfig);
-
-    if (mode === "unlayer" && unlayerReady && window.unlayer && activeTemplate.design_json) {
-      try {
-        const parsed = JSON.parse(activeTemplate.design_json);
-        window.unlayer.loadDesign(parsed);
-      } catch {
-        /* ignore invalid design json */
-      }
-    }
   }, [activeTemplate?.slug, activeTemplate?.updated_at]);
 
-  // Update visual config helper and regenerate HTML live
   const updateVisualField = <K extends keyof VisualConfig>(key: K, value: VisualConfig[K]) => {
     setVisualConfig((prev) => {
       const next = { ...prev, [key]: value };
-      const newHtml = generateHtmlFromVisualConfig(next);
-      setHtmlContent(newHtml);
+      const generated = generateHtmlFromVisualConfig(next);
+      setHtmlContent(generated);
       return next;
-    });
-  };
-
-  // Watchdog & loader for Unlayer (only runs when user explicitly selects "unlayer")
-  useEffect(() => {
-    if (mode !== "unlayer") {
-      if (unlayerTimeoutRef.current) clearTimeout(unlayerTimeoutRef.current);
-      return;
-    }
-
-    setUnlayerLoading(true);
-    setUnlayerFailed(false);
-
-    const initEditor = () => {
-      if (!window.unlayer) {
-        setUnlayerFailed(true);
-        setUnlayerLoading(false);
-        return;
-      }
-      const container = document.getElementById("unlayer-editor-box");
-      if (!container) return;
-      container.innerHTML = "";
-
-      const mergeTagsConfig: Record<string, { name: string; value: string }> = {};
-      MERGE_TAGS.forEach((m, idx) => {
-        mergeTagsConfig[`tag_${idx}`] = { name: m.label, value: m.tag };
-      });
-
-      try {
-        window.unlayer.init({
-          id: "unlayer-editor-box",
-          displayMode: "email",
-          appearance: {
-            theme: "modern_light",
-            panels: { tools: { dock: "right" } },
-          },
-          mergeTags: mergeTagsConfig,
-        });
-
-        window.unlayer.addEventListener("editor:ready", () => {
-          setUnlayerReady(true);
-          setUnlayerLoading(false);
-          setUnlayerFailed(false);
-          if (designJson) {
-            try {
-              window.unlayer?.loadDesign(JSON.parse(designJson));
-            } catch {
-              /* ignore */
-            }
-          }
-        });
-      } catch {
-        setUnlayerFailed(true);
-        setUnlayerLoading(false);
-      }
-    };
-
-    // Watchdog: If Unlayer takes longer than 3.5 seconds or fails due to adblocker/CORS, show friendly alert
-    unlayerTimeoutRef.current = setTimeout(() => {
-      if (!unlayerReady) {
-        setUnlayerLoading(false);
-        setUnlayerFailed(true);
-      }
-    }, 3500);
-
-    const existingScript = document.getElementById("unlayer-embed-script") as HTMLScriptElement | null;
-    if (existingScript && window.unlayer) {
-      initEditor();
-      return;
-    }
-
-    if (!existingScript) {
-      const script = document.createElement("script");
-      script.id = "unlayer-embed-script";
-      script.src = "https://editor.unlayer.com/embed.js";
-      script.async = true;
-      script.onload = () => {
-        initEditor();
-      };
-      script.onerror = () => {
-        setUnlayerLoading(false);
-        setUnlayerFailed(true);
-      };
-      document.body.appendChild(script);
-    }
-  }, [mode]);
-
-  const syncFromUnlayer = (): Promise<{ html: string; design: string | null }> => {
-    return new Promise((resolve) => {
-      if (mode === "unlayer" && unlayerReady && window.unlayer) {
-        try {
-          window.unlayer.exportHtml((data) => {
-            const exportedHtml = data?.html || htmlContent;
-            const exportedDesign = data?.design ? JSON.stringify(data.design) : designJson;
-            setHtmlContent(exportedHtml);
-            setDesignJson(exportedDesign);
-            resolve({ html: exportedHtml, design: exportedDesign });
-          });
-        } catch {
-          resolve({ html: htmlContent, design: designJson });
-        }
-      } else {
-        resolve({ html: htmlContent, design: designJson });
-      }
     });
   };
 
   const handleSave = async () => {
     if (!activeTemplate) return;
+    if (!subject.trim()) {
+      toast("Subiectul emailului nu poate fi gol.", "error");
+      return;
+    }
+
     setSaving(true);
     try {
-      const synced = await syncFromUnlayer();
-      await put(`/email-templates/${activeTemplate.slug}`, {
+      const payload = {
         name: activeTemplate.name,
-        description: activeTemplate.description,
-        subject,
-        html_content: synced.html,
-        design_json: synced.design,
+        subject: subject.trim(),
+        html_content: htmlContent,
+        design_json: designJson,
         is_active: isActive,
-      });
-      toast(`Șablonul „${activeTemplate.name}” a fost salvat și este activ!`, "success");
-      await loadTemplates(true);
+      };
+
+      const updated = await put<EmailTemplateItem>(`/email-templates/${activeTemplate.slug}`, payload);
+      toast(`Modelul de email '${updated.name}' a fost salvat cu succes în baza de date!`, "success");
+
+      setTemplates((prev) =>
+        prev.map((t) => (t.slug === updated.slug ? updated : t)),
+      );
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
@@ -582,53 +728,41 @@ export default function EmailStudioTab() {
     }
   };
 
-  const handleReset = async () => {
+  const handleResetToDefault = async () => {
     if (!activeTemplate) return;
-    if (
-      !window.confirm(
-        `Sigur vrei să resetezi șablonul „${activeTemplate.name}” la designul oficial Casa Esy?`,
-      )
-    ) {
-      return;
-    }
-    setSaving(true);
+    const ok = window.confirm(
+      `Sigur dorești să resetezi modelul '${activeTemplate.name}' la versiunea originală din fabrică?`,
+    );
+    if (!ok) return;
+
     try {
-      const updated = await post<EmailTemplateItem>(`/email-templates/${activeTemplate.slug}/reset`);
-      setSubject(updated.subject);
-      setHtmlContent(updated.html_content);
-      setDesignJson(updated.design_json || null);
-      setVisualConfig(getDefaultVisualConfig(activeTemplate.slug));
-      if (unlayerReady && window.unlayer && updated.design_json) {
-        try {
-          window.unlayer.loadDesign(JSON.parse(updated.design_json));
-        } catch {
-          /* ignore */
-        }
-      }
-      toast("Șablonul a fost readus la forma inițială.", "success");
-      await loadTemplates(true);
+      const reset = await post<EmailTemplateItem>(`/email-templates/${activeTemplate.slug}/reset`, {});
+      toast("Modelul a fost resetat la setările de fabrică.", "success");
+      setSubject(reset.subject);
+      setHtmlContent(reset.html_content);
+      const def = getDefaultVisualConfig(reset.slug);
+      setVisualConfig(def);
+      setTemplates((prev) => prev.map((t) => (t.slug === reset.slug ? reset : t)));
     } catch (e) {
       toast(errMsg(e), "error");
-    } finally {
-      setSaving(false);
     }
   };
 
   const handleSendTest = async () => {
-    if (!activeTemplate || !testEmail.trim()) return;
+    if (!testEmail.trim() || !testEmail.includes("@")) {
+      toast("Te rugăm să introduci o adresă de email validă.", "error");
+      return;
+    }
+
     setSendingTest(true);
     try {
-      const synced = await syncFromUnlayer();
-      const res = await post<{ sent: boolean; message: string }>(
-        `/email-templates/${activeTemplate.slug}/test`,
-        {
-          to_email: testEmail.trim(),
-          subject,
-          html_content: synced.html,
-        },
-      );
-      toast(res.message, res.sent ? "success" : "error");
-      if (res.sent) setTestModalOpen(false);
+      await post(`/email-templates/${selectedSlug}/test`, {
+        to_email: testEmail.trim(),
+        variables: SAMPLE_PREVIEW_VARS,
+      });
+
+      toast(`Emailul de test a fost expediat prin Resend către ${testEmail}!`, "success");
+      setTestModalOpen(false);
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
@@ -636,787 +770,556 @@ export default function EmailStudioTab() {
     }
   };
 
-  const handleSendCampaign = async () => {
-    if (!activeTemplate) return;
-    setSendingCampaign(true);
-    try {
-      const synced = await syncFromUnlayer();
-      const recipientsList = customRecipients
-        .split(/[,;\n]+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const res = await post<{ sent_count: number; total_targets: number }>(
-        `/email-templates/${activeTemplate.slug}/broadcast`,
-        {
-          subject,
-          html_content: synced.html,
-          promo_code: promoCode.trim() || "ESY2026",
-          recipients: recipientsList.length > 0 ? recipientsList : null,
-        },
-      );
-      toast(
-        `Campanie expediată cu succes către ${res.sent_count} din ${res.total_targets} destinatari!`,
-        "success",
-      );
-      setCampaignModalOpen(false);
-    } catch (e) {
-      toast(errMsg(e), "error");
-    } finally {
-      setSendingCampaign(false);
-    }
-  };
-
   const insertMergeTag = (tag: string) => {
-    setHtmlContent((prev) => prev + `\n${tag}`);
-    navigator.clipboard?.writeText(tag);
-    toast(`Variabila ${tag} a fost copiată în clipboard!`, "success");
+    setSubject((prev) => `${prev} ${tag}`);
+    toast(`Variabila ${tag} a fost adăugată la subiect.`, "info");
   };
 
-  if (loading) return <TableSkeleton rows={6} />;
+  const filteredTemplates = templates.filter((t) => {
+    if (selectedCategory === "all") return true;
+    const meta = TEMPLATE_METAS[t.slug];
+    return meta?.category === selectedCategory;
+  });
+
+  const renderedPreview = renderPreviewHtml(htmlContent);
 
   return (
-    <div className="space-y-6">
-      <SectionHeader
-        eyebrow="Design și comunicare automată"
-        title="Email studio și editor vizual de șabloane"
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="ghost" onClick={handleReset} disabled={saving}>
-              <RotateCcw size={14} /> Resetează șablonul
-            </Button>
-            <Button variant="ghost" onClick={() => setTestModalOpen(true)}>
-              <Send size={14} /> Trimite email de test
-            </Button>
-            <Button variant="gold" onClick={() => setCampaignModalOpen(true)}>
-              <Megaphone size={14} /> Trimite campanie către oaspeți
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              <Save size={14} /> {saving ? "Se salvează..." : "Salvează șablonul"}
-            </Button>
+    <div className="space-y-8 font-sans">
+      {/* ── HEADER (Identic ca structură și prestigiu cu BroadcastTab) ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#0d2c5c]/10">
+        <div>
+          <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-[#c69a3f] mb-1">
+            <Mail size={14} className="text-[#c69a3f] animate-pulse" />
+            <span>Corespondență automată & Notificări tranzacționale</span>
           </div>
-        }
-      />
+          <h2 className="font-['Outfit',sans-serif] text-[28px] sm:text-[34px] font-bold text-[#0d2c5c] leading-tight">
+            Centru de Șabloane Email și Mesaje Tranzacționale
+          </h2>
+          <p className="text-[13.5px] text-[#64748b] mt-0.5 max-w-3xl font-['Plus_Jakarta_Sans',sans-serif]">
+            Vizualizează și modifică exact toate modelele de email trimise oaspeților prin <strong>Resend</strong>: la logare în cont, logare de pe dispozitiv nou, plăți efectuate prin Stripe, comenzi de room service, coduri QR Wi-Fi și confirmări de rezervare.
+          </p>
+        </div>
 
-      {/* Selector șabloane email */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {templates.map((tpl) => {
-          const selected = tpl.slug === activeTemplate?.slug;
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#0d2c5c] text-[12px] font-bold flex items-center gap-2 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>{templates.length || 10} modele active Resend</span>
+          </div>
+          <button
+            onClick={() => void loadTemplates()}
+            disabled={loading}
+            className="w-10 h-10 rounded-full border border-[#e1e8f0] hover:border-[#c69a3f] flex items-center justify-center text-[#0d2c5c] hover:bg-[#f8fafc] transition cursor-pointer"
+            title="Reîmprospătează"
+          >
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── CATEGORY FILTER CHIPS ── */}
+      <div className="flex flex-wrap items-center gap-2">
+        {CATEGORIES.map((cat) => {
+          const active = selectedCategory === cat.id;
           return (
             <button
-              key={tpl.slug}
+              key={cat.id}
               type="button"
-              onClick={async () => {
-                await syncFromUnlayer();
-                setSelectedSlug(tpl.slug);
-              }}
-              className={`flex flex-col justify-between rounded-2xl border p-4 text-left transition-all cursor-pointer ${
-                selected
-                  ? "border-[#0d2c5c] bg-[#0d2c5c] text-white shadow-md ring-2 ring-[#c69a3f]/40"
-                  : "border-[#e1e8f0] bg-white text-[#0d2c5c] hover:border-[#c69a3f]"
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`rounded-full px-4 py-2 text-[12px] font-bold transition-all cursor-pointer ${
+                active
+                  ? "bg-[#0d2c5c] text-white shadow-sm ring-2 ring-[#0d2c5c]/20"
+                  : "bg-white border border-[#e1e8f0] text-[#556987] hover:border-[#c69a3f] hover:text-[#0d2c5c]"
               }`}
             >
-              <div>
-                <div className="flex items-center justify-between gap-2">
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-xl ${
-                      selected ? "bg-white/15 text-[#e6b85c]" : "bg-[#c69a3f]/20 text-[#c69a3f]"
-                    }`}
-                  >
-                    <Mail size={16} />
-                  </span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                      selected ? "bg-white/20 text-[#e6b85c]" : "bg-emerald-50 text-emerald-700"
-                    }`}
-                  >
-                    {tpl.is_active ? "Activ" : "Inactiv"}
-                  </span>
-                </div>
-                <h4
-                  className={`mt-3 text-[14px] font-bold leading-snug ${
-                    selected ? "text-white" : "text-[#0d2c5c]"
-                  }`}
-                >
-                  {tpl.name}
-                </h4>
-                <p
-                  className={`mt-1 text-[11.5px] line-clamp-2 ${
-                    selected ? "text-white/80" : "text-[#6b7c99]"
-                  }`}
-                >
-                  {tpl.description}
-                </p>
-              </div>
-              <div
-                className={`mt-3 pt-2 border-t text-[10px] font-mono truncate ${
-                  selected ? "border-white/15 text-[#e6b85c]" : "border-[#eef2f7] text-[#6b7c99]"
-                }`}
-              >
-                {tpl.variables_hint}
-              </div>
+              {cat.label}
             </button>
           );
         })}
       </div>
 
-      {/* Bară subiect și variabile dinamice */}
-      {activeTemplate && (
-        <Card className="p-5 space-y-4">
-          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <label className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] mb-1.5">
-                Subiectul emailului (suportă variabile dinamice)
-              </label>
-              <input
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className={inputCls}
-                placeholder="Ex: Confirmare rezervare #{{booking_code}} — Casa Esy"
-              />
-            </div>
+      {/* ── PRESET TEMPLATE CARDS (Grid stil BroadcastTab) ── */}
+      <div>
+        <p className="text-[11px] font-bold tracking-[0.16em] uppercase text-[#64748b] mb-3">
+          Alege un scenariu de email pentru a-i vedea și modifica modelul:
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+          {filteredTemplates.map((t) => {
+            const isSelected = t.slug === selectedSlug;
+            const meta = TEMPLATE_METAS[t.slug] || {
+              category: "stay",
+              categoryLabel: "General",
+              icon: Mail,
+              triggerWhen: t.description || "Trimis la eveniment",
+            };
+            const IconComponent = meta.icon;
 
-            <div className="flex flex-col justify-end">
-              <div className="flex items-center justify-between rounded-xl border border-[#e1e8f0] bg-[#f8fafd] px-4 py-2.5">
+            return (
+              <div
+                key={t.slug}
+                onClick={() => setSelectedSlug(t.slug)}
+                className={`group rounded-2xl border p-4 text-left transition-all cursor-pointer flex flex-col justify-between ${
+                  isSelected
+                    ? "border-[#c69a3f] bg-[#fdf8ec] shadow-md ring-2 ring-[#c69a3f]/30"
+                    : "border-[#e1e8f0] bg-white hover:border-[#c69a3f]/60 hover:shadow-sm"
+                }`}
+              >
                 <div>
-                  <div className="text-[12px] font-bold text-[#0d2c5c]">Șablon personalizat activ</div>
-                  <div className="text-[11px] text-[#6b7c99]">Folosit automat de server la trimitere</div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={isActive}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                  className="h-4 w-4 accent-[#0d2c5c] cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-[#eef2f7]">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles size={13} className="text-[#c69a3f]" />
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#4f6280]">
-                Variabile dinamice (apasă pentru copiere sau inserare în șablon):
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {MERGE_TAGS.map((m) => (
-                <button
-                  key={m.tag}
-                  type="button"
-                  onClick={() => insertMergeTag(m.tag)}
-                  className="group inline-flex items-center gap-1.5 rounded-lg border border-[#e1e8f0] bg-[#f8fafd] px-2.5 py-1 text-[11.5px] font-medium text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#c69a3f]/10 transition-colors cursor-pointer"
-                  title={`Exemplu valoare: ${m.sample}`}
-                >
-                  <code className="font-bold text-[#c69a3f]">{m.tag}</code>
-                  <span className="text-[#6b7c99] text-[11px]">({m.label})</span>
-                  <Copy size={11} className="text-[#94a3b8] group-hover:text-[#0d2c5c]" />
-                </button>
-              ))}
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Selector mod studio */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex rounded-xl border border-[#e1e8f0] bg-white p-1 shadow-sm">
-          <button
-            type="button"
-            onClick={async () => {
-              await syncFromUnlayer();
-              setMode("visual");
-            }}
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[12px] font-bold transition-colors cursor-pointer ${
-              mode === "visual" ? "bg-[#0d2c5c] text-white" : "text-[#4f6280] hover:text-[#0d2c5c]"
-            }`}
-          >
-            <LayoutTemplate size={15} /> Editor vizual de secțiuni
-          </button>
-          <button
-            type="button"
-            onClick={async () => {
-              await syncFromUnlayer();
-              setMode("split");
-            }}
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[12px] font-bold transition-colors cursor-pointer ${
-              mode === "split" ? "bg-[#0d2c5c] text-white" : "text-[#4f6280] hover:text-[#0d2c5c]"
-            }`}
-          >
-            <Code2 size={15} /> Editor HTML și previzualizare dublă
-          </button>
-          <button
-            type="button"
-            onClick={async () => {
-              await syncFromUnlayer();
-              setMode("preview");
-            }}
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[12px] font-bold transition-colors cursor-pointer ${
-              mode === "preview" ? "bg-[#0d2c5c] text-white" : "text-[#4f6280] hover:text-[#0d2c5c]"
-            }`}
-          >
-            <Eye size={15} /> Previzualizare oaspete
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("unlayer")}
-            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[12px] font-medium transition-colors cursor-pointer ${
-              mode === "unlayer"
-                ? "bg-[#0d2c5c] text-white font-bold"
-                : "text-[#64748b] hover:text-[#0d2c5c]"
-            }`}
-            title="Motor de editare extern Unlayer"
-          >
-            <Layers size={14} /> Motor Unlayer Cloud
-          </button>
-        </div>
-
-        {(mode === "preview" || mode === "split" || mode === "visual") && (
-          <div className="inline-flex rounded-xl border border-[#e1e8f0] bg-white p-1">
-            <button
-              type="button"
-              onClick={() => setDevice("desktop")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold cursor-pointer ${
-                device === "desktop" ? "bg-[#0d2c5c] text-white" : "text-[#6b7c99]"
-              }`}
-            >
-              <Monitor size={14} /> Desktop (600px)
-            </button>
-            <button
-              type="button"
-              onClick={() => setDevice("mobile")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold cursor-pointer ${
-                device === "mobile" ? "bg-[#0d2c5c] text-white" : "text-[#6b7c99]"
-              }`}
-            >
-              <Smartphone size={14} /> Mobil (375px)
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* ── MOD 1: EDITOR VIZUAL DE SECȚIUNI (CASA ESY STUDIO) ── */}
-      {mode === "visual" && (
-        <div className="grid gap-6 lg:grid-cols-12">
-          {/* Panou stânga: Personalizare vizuală blocuri */}
-          <div className="lg:col-span-6 space-y-4">
-            {/* Secțiunea 1: Antet și identitate */}
-            <Card className="p-4 space-y-3 border-l-4 border-l-[#0d2c5c]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#0d2c5c] font-bold text-[13px]">
-                  <Palette size={16} className="text-[#c69a3f]" /> Antet și identitate vizuală
-                </div>
-                <Badge tone="navy">Branding</Badge>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Titlu resort
-                  </label>
-                  <input
-                    value={visualConfig.headerTitle}
-                    onChange={(e) => updateVisualField("headerTitle", e.target.value)}
-                    className={inputCls}
-                    placeholder="Casa Esy"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Sub-etichetă locație
-                  </label>
-                  <input
-                    value={visualConfig.headerSubtitle}
-                    onChange={(e) => updateVisualField("headerSubtitle", e.target.value)}
-                    className={inputCls}
-                    placeholder="Vila · Eforie Nord"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Etichetă insignă (badge)
-                  </label>
-                  <input
-                    value={visualConfig.badgeText}
-                    onChange={(e) => updateVisualField("badgeText", e.target.value)}
-                    className={inputCls}
-                    placeholder="Confirmare rezervare"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Culoare fundal antet
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={visualConfig.headerBg}
-                      onChange={(e) => updateVisualField("headerBg", e.target.value)}
-                      className="h-9 w-12 rounded border border-[#e1e8f0] p-1 cursor-pointer bg-white"
-                    />
-                    <span className="text-[12px] font-mono font-medium text-[#0d2c5c]">
-                      {visualConfig.headerBg}
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <span
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                        isSelected
+                          ? "bg-[#0d2c5c] text-[#e6b85c]"
+                          : "bg-[#f8fafc] text-[#0d2c5c] border border-[#e1e8f0]"
+                      }`}
+                    >
+                      <IconComponent size={16} />
+                    </span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/80 border border-[#e1e8f0] text-[#6b7c99]">
+                      {t.slug}
                     </span>
                   </div>
-                </div>
-              </div>
-            </Card>
 
-            {/* Secțiunea 2: Mesaj principal */}
-            <Card className="p-4 space-y-3 border-l-4 border-l-[#c69a3f]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#0d2c5c] font-bold text-[13px]">
-                  <Type size={16} className="text-[#c69a3f]" /> Mesaj principal și conținut
-                </div>
-                <Badge tone="gold">Text</Badge>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                  Titlu întâmpinare
-                </label>
-                <input
-                  value={visualConfig.headline}
-                  onChange={(e) => updateVisualField("headline", e.target.value)}
-                  className={inputCls}
-                  placeholder="Plata a fost confirmată cu succes!"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                  Paragraf explicativ (suportă variabile dinamice)
-                </label>
-                <textarea
-                  rows={4}
-                  value={visualConfig.bodyText}
-                  onChange={(e) => updateVisualField("bodyText", e.target.value)}
-                  className={inputCls}
-                  placeholder="Îți mulțumim pentru sejur!..."
-                />
-              </div>
-            </Card>
-
-            {/* Secțiunea 3: Casetă cod securitate sau detalii rezervare */}
-            {visualConfig.hasCodeBox && (
-              <Card className="p-4 space-y-3 border-l-4 border-l-emerald-600">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#0d2c5c] font-bold text-[13px]">
-                    <Sparkles size={16} className="text-emerald-600" /> Caseta cod de securitate / promoție
-                  </div>
-                  <Badge tone="green">Cod dinamic</Badge>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                      Etichetă deasupra codului
-                    </label>
-                    <input
-                      value={visualConfig.codeBoxLabel}
-                      onChange={(e) => updateVisualField("codeBoxLabel", e.target.value)}
-                      className={inputCls}
-                      placeholder="Codul tău de securitate"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                      Variabilă afișată
-                    </label>
-                    <input
-                      value={visualConfig.codeBoxValue}
-                      onChange={(e) => updateVisualField("codeBoxValue", e.target.value)}
-                      className={inputCls}
-                      placeholder="{{code}}"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Notă valabilitate / instrucțiune
-                  </label>
-                  <input
-                    value={visualConfig.codeBoxNote}
-                    onChange={(e) => updateVisualField("codeBoxNote", e.target.value)}
-                    className={inputCls}
-                    placeholder="Codul este valabil timp de 10 minute..."
-                  />
-                </div>
-              </Card>
-            )}
-
-            {visualConfig.hasBookingTable && (
-              <Card className="p-4 space-y-2 border-l-4 border-l-emerald-600 bg-[#f8fafd]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#0d2c5c] font-bold text-[13px]">
-                    <CheckCircle2 size={16} className="text-emerald-600" /> Detalii sejur incluse automat
-                  </div>
-                  <Badge tone="green">Tabel rezervare</Badge>
-                </div>
-                <p className="text-[12px] text-[#5b6474] leading-relaxed">
-                  Emailul include automat tabelul lux cu Cameră (<code>{"{{room_title}}"}</code>), Unitate (<code>{"{{room_unit_number}}"}</code>), Perioadă (<code>{"{{check_in}} &mdash; {{check_out}}"}</code>) și Total achitat (<code>{"{{total_price}} RON"}</code>).
-                </p>
-              </Card>
-            )}
-
-            {/* Secțiunea 4: Buton principal de acțiune (CTA) */}
-            <Card className="p-4 space-y-3 border-l-4 border-l-[#c69a3f]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#0d2c5c] font-bold text-[13px]">
-                  <ExternalLink size={16} className="text-[#c69a3f]" /> Buton principal de acțiune (CTA)
-                </div>
-                <label className="flex items-center gap-2 text-[12px] text-[#4f6280] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={visualConfig.hasCtaButton}
-                    onChange={(e) => updateVisualField("hasCtaButton", e.target.checked)}
-                    className="h-4 w-4 accent-[#0d2c5c] cursor-pointer"
-                  />
-                  Activ
-                </label>
-              </div>
-
-              {visualConfig.hasCtaButton && (
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                      Text buton
-                    </label>
-                    <input
-                      value={visualConfig.ctaButtonText}
-                      onChange={(e) => updateVisualField("ctaButtonText", e.target.value)}
-                      className={inputCls}
-                      placeholder="Descarcă voucherul"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                      Link destinație (URL)
-                    </label>
-                    <input
-                      value={visualConfig.ctaButtonUrl}
-                      onChange={(e) => updateVisualField("ctaButtonUrl", e.target.value)}
-                      className={inputCls}
-                      placeholder="https://casaesy.ro/rezervari"
-                    />
-                  </div>
-                </div>
-              )}
-            </Card>
-
-            {/* Secțiunea 5: Cod QR check-in */}
-            <Card className="p-4 space-y-3 border-l-4 border-l-[#0d2c5c]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#0d2c5c] font-bold text-[13px]">
-                  <QrCode size={16} className="text-[#0d2c5c]" /> Cod QR check-in rapid la recepție
-                </div>
-                <label className="flex items-center gap-2 text-[12px] text-[#4f6280] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={visualConfig.hasQrCode}
-                    onChange={(e) => updateVisualField("hasQrCode", e.target.checked)}
-                    className="h-4 w-4 accent-[#0d2c5c] cursor-pointer"
-                  />
-                  Afișează cod QR
-                </label>
-              </div>
-
-              {visualConfig.hasQrCode && (
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Instrucțiuni sosire recepție
-                  </label>
-                  <input
-                    value={visualConfig.qrInstruction}
-                    onChange={(e) => updateVisualField("qrInstruction", e.target.value)}
-                    className={inputCls}
-                    placeholder="Prezintă acest cod la recepție la sosire..."
-                  />
-                </div>
-              )}
-            </Card>
-
-            {/* Secțiunea 6: Subsol și contact */}
-            <Card className="p-4 space-y-3 border-l-4 border-l-[#94a3b8]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#0d2c5c] font-bold text-[13px]">
-                  <Mail size={16} className="text-[#94a3b8]" /> Subsol și date de contact
-                </div>
-                <Badge tone="muted">Subsol</Badge>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Informații contact
-                  </label>
-                  <input
-                    value={visualConfig.footerContact}
-                    onChange={(e) => updateVisualField("footerContact", e.target.value)}
-                    className={inputCls}
-                    placeholder="Casa Esy · Sejururi la Marea Neagră"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-[#64748b] mb-1">
-                    Notă drepturi de autor
-                  </label>
-                  <input
-                    value={visualConfig.footerCopyright}
-                    onChange={(e) => updateVisualField("footerCopyright", e.target.value)}
-                    className={inputCls}
-                    placeholder="© 2026 Casa Esy. Toate drepturile rezervate."
-                  />
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Panou dreapta: Previzualizare live cu date reale */}
-          <div className="lg:col-span-6 flex flex-col items-center">
-            <Card className="w-full p-4 flex flex-col items-center bg-[#eaeef5] sticky top-6">
-              <div className="mb-3 w-full flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge tone="gold">Previzualizare în timp real</Badge>
-                  <span className="text-[12px] text-[#4f6280] font-medium">
-                    Actualizare instantanee la orice modificare
-                  </span>
-                </div>
-                <Button size="sm" onClick={handleSave} disabled={saving}>
-                  <Save size={13} /> {saving ? "Se salvează..." : "Salvează șablonul"}
-                </Button>
-              </div>
-
-              <div
-                className="overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 border border-[#dce3ee]"
-                style={{
-                  width: device === "mobile" ? "375px" : "100%",
-                  maxWidth: "580px",
-                  height: "760px",
-                }}
-              >
-                <iframe
-                  title="Previzualizare Live Șablon"
-                  srcDoc={renderPreviewHtml(htmlContent)}
-                  className="h-full w-full border-0"
-                />
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
-
-      {/* ── MOD 2: MOTOR UNLAYER CLOUD (CU WATCHDOG ȘI FALLBACK AUTOMAT) ── */}
-      {mode === "unlayer" && (
-        <Card className="overflow-hidden border border-[#e1e8f0]">
-          <div className="flex flex-wrap items-center justify-between border-b border-[#eef2f7] bg-[#f8fafd] px-5 py-3 gap-3">
-            <div className="flex items-center gap-2">
-              <Badge tone="gold">Unlayer Studio</Badge>
-              <span className="text-[12px] font-medium text-[#4f6280]">
-                Editor drag and drop bazat pe componente cloud.
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMode("visual")}
-                className="text-[#0d2c5c]"
-              >
-                <LayoutTemplate size={14} /> Comută pe editorul vizual integrat
-              </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                <Save size={14} /> Salvează designul
-              </Button>
-            </div>
-          </div>
-
-          {unlayerLoading && (
-            <div className="flex flex-col items-center justify-center p-12 text-center bg-white min-h-[300px]">
-              <RefreshCw size={32} className="text-[#c69a3f] animate-spin mb-3" />
-              <div className="text-[15px] font-bold text-[#0d2c5c]">
-                Se inițializează editorul Unlayer Cloud...
-              </div>
-              <p className="text-[12.5px] text-[#64748b] mt-1 max-w-md">
-                Descărcăm componentele grafice de la editor.unlayer.com. Dacă durează mai mult de câteva secunde, poți comuta oricând pe editorul vizual integrat.
-              </p>
-            </div>
-          )}
-
-          {unlayerFailed && (
-            <div className="m-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-6 text-[#92400e]">
-              <div className="flex items-start gap-3">
-                <AlertTriangle size={22} className="text-amber-600 shrink-0 mt-0.5" />
-                <div className="space-y-2">
-                  <div className="font-bold text-[14.5px] text-amber-900">
-                    Motorul Unlayer Cloud nu a putut fi încărcat de la editor.unlayer.com
-                  </div>
-                  <p className="text-[13px] leading-relaxed text-amber-800">
-                    Browserul tău sau o extensie de confidențialitate (Brave Shields, uBlock Origin sau AdBlock) a blocat scriptul extern Unlayer.
-                    Poți utiliza în continuare <strong>Editorul vizual integrat Casa Esy</strong>, care funcționează 100% offline și local, fără nicio dependență externă.
+                  <h4 className="text-[13.5px] font-bold text-[#0d2c5c] leading-snug line-clamp-1">
+                    {t.name}
+                  </h4>
+                  <p className="text-[11px] text-[#64748b] mt-1 line-clamp-2 leading-relaxed">
+                    <strong>Când primește oaspetele:</strong> {meta.triggerWhen}
                   </p>
-                  <div className="pt-2 flex flex-wrap gap-2">
-                    <Button variant="gold" onClick={() => setMode("visual")}>
-                      <LayoutTemplate size={14} /> Deschide editorul vizual integrat Casa Esy
-                    </Button>
-                    <Button variant="ghost" onClick={() => setMode("split")}>
-                      <Code2 size={14} /> Deschide editorul HTML
-                    </Button>
-                  </div>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-[#e2e8f0]/60 flex items-center justify-between text-[11px]">
+                  <span className="text-[#8a6420] font-semibold truncate max-w-[130px]">
+                    {t.subject}
+                  </span>
+                  {isSelected && (
+                    <span className="flex items-center gap-1 text-[11px] font-extrabold text-[#0d2c5c]">
+                      <Check size={12} className="text-[#c69a3f]" /> Selectat
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })}
+        </div>
+      </div>
 
-          <div
-            id="unlayer-editor-box"
-            style={{
-              height: unlayerFailed ? "0px" : "720px",
-              width: "100%",
-              backgroundColor: "#f4f6f9",
-              display: unlayerFailed ? "none" : "block",
-            }}
-          />
-        </Card>
-      )}
-
-      {/* ── MOD 3: EDITOR HTML ȘI PREVIZUALIZARE DUBLĂ ── */}
-      {mode === "split" && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="p-5 flex flex-col">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[#0d2c5c]">
-                Cod sursă HTML șablon
+      {/* ── STUDIO DE EDITARE & PREVIZUALIZARE SPLIT ── */}
+      {activeTemplate && (
+        <div className="space-y-6">
+          {/* Top Bar for Selected Template: Action Buttons & Mode Switcher */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#0d2c5c] text-white shadow-md">
+            <div className="flex items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-[#e6b85c] text-[#0d2c5c] flex items-center justify-center font-bold">
+                <Mail size={20} />
               </span>
-              <Badge tone="navy">Editare directă</Badge>
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#e6b85c] block">
+                  Model Email Selectat
+                </span>
+                <h3 className="text-base sm:text-lg font-bold leading-tight">
+                  {activeTemplate.name}
+                </h3>
+              </div>
             </div>
-            <textarea
-              value={htmlContent}
-              onChange={(e) => setHtmlContent(e.target.value)}
-              className="w-full flex-1 min-h-[620px] rounded-xl border border-[#e1e8f0] bg-[#0b192c] p-4 font-mono text-[12.5px] leading-relaxed text-[#e2e8f0] focus:outline-none focus:ring-2 focus:ring-[#c69a3f]"
-              spellCheck={false}
-            />
-          </Card>
 
-          <Card className="p-5 flex flex-col items-center bg-[#eaeef5]">
-            <div className="mb-3 w-full flex items-center justify-between">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[#0d2c5c]">
-                Previzualizare live cu date reale
-              </span>
-              <Badge tone="green">Randare instantanee</Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Mode switch */}
+              <div className="inline-flex rounded-xl bg-white/10 p-1 backdrop-blur-xs">
+                <button
+                  type="button"
+                  onClick={() => setMode("visual")}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                    mode === "visual"
+                      ? "bg-white text-[#0d2c5c] shadow-xs"
+                      : "text-white/80 hover:text-white"
+                  }`}
+                >
+                  <LayoutTemplate size={14} /> Designer Vizual
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("html")}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                    mode === "html"
+                      ? "bg-white text-[#0d2c5c] shadow-xs"
+                      : "text-white/80 hover:text-white"
+                  }`}
+                >
+                  <Code2 size={14} /> Cod HTML Direct
+                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <button
+                type="button"
+                onClick={() => setTestModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 px-3.5 py-2 text-xs font-bold text-white transition cursor-pointer"
+              >
+                <Send size={13} className="text-[#e6b85c]" /> Trimite Test
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetToDefault}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 px-3 py-2 text-xs font-medium text-white/90 transition cursor-pointer"
+                title="Resetează la modelul original din fabrică"
+              >
+                <RotateCcw size={13} /> Reset
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-full bg-[#c69a3f] hover:bg-[#b0862f] px-5 py-2 text-xs font-bold uppercase tracking-wider text-[#0d2c5c] shadow-md transition cursor-pointer disabled:opacity-60"
+              >
+                <Save size={14} />
+                {saving ? "Se salvează..." : "Salvează Modelul"}
+              </button>
             </div>
-            <div
-              className="overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 border border-[#dce3ee]"
-              style={{ width: device === "mobile" ? "375px" : "100%", height: "620px" }}
-            >
-              <iframe
-                title="Previzualizare Email"
-                srcDoc={renderPreviewHtml(htmlContent)}
-                className="h-full w-full border-0"
-              />
+          </div>
+
+          {/* SPLIT SCREEN: LEFT EDITOR & RIGHT PREVIEW */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* ── PANOU STÂNGA: FORMULAR DE PERSONALIZARE ── */}
+            <div className="lg:col-span-6 space-y-5">
+              {/* Subiect Email & Merge Tags */}
+              <Card className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] flex items-center gap-2">
+                    <Type size={14} className="text-[#c69a3f]" /> Subiect Email
+                  </label>
+                  <Badge tone="navy">Linie vizibilă în Inbox</Badge>
+                </div>
+
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className={inputCls}
+                  placeholder="ex: Confirmare rezervare #{{booking_code}} — Casa Esy"
+                />
+
+                <div>
+                  <span className="block text-[10.5px] font-bold uppercase tracking-wider text-[#64748b] mb-1.5">
+                    Apasă pentru a insera o variabilă dinamică în subiect:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {MERGE_TAGS.map((mt) => (
+                      <button
+                        key={mt.tag}
+                        type="button"
+                        onClick={() => insertMergeTag(mt.tag)}
+                        className="rounded-lg border border-[#e1e8f0] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-semibold text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#fdf8ec] transition cursor-pointer"
+                        title={mt.label}
+                      >
+                        {mt.tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+
+              {/* MOD VIZUAL */}
+              {mode === "visual" && (
+                <div className="space-y-4">
+                  {/* Card Antet & Identitate */}
+                  <Card className="p-5 space-y-4 border-l-4 border-l-[#0d2c5c]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[12px] font-bold text-[#0d2c5c] uppercase tracking-wider flex items-center gap-2">
+                        <Palette size={15} className="text-[#c69a3f]" /> Antet și Titlu Email
+                      </span>
+                      <Badge tone="gold">Design Luxury</Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                          Insignă / Badge
+                        </label>
+                        <input
+                          value={visualConfig.badgeText}
+                          onChange={(e) => updateVisualField("badgeText", e.target.value)}
+                          className={inputCls}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                          Culoare Fundal Antet
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={visualConfig.headerBg}
+                            onChange={(e) => updateVisualField("headerBg", e.target.value)}
+                            className="h-10 w-12 rounded-lg border border-[#e1e8f0] cursor-pointer"
+                          />
+                          <input
+                            value={visualConfig.headerBg}
+                            onChange={(e) => updateVisualField("headerBg", e.target.value)}
+                            className={inputCls}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                        Titlu Principal (Headline)
+                      </label>
+                      <input
+                        value={visualConfig.headline}
+                        onChange={(e) => updateVisualField("headline", e.target.value)}
+                        className={inputCls}
+                      />
+                    </div>
+                  </Card>
+
+                  {/* Card Mesaj Principal */}
+                  <Card className="p-5 space-y-3">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c]">
+                      Mesaj Principal (Conținut Email)
+                    </label>
+                    <textarea
+                      rows={5}
+                      value={visualConfig.bodyText}
+                      onChange={(e) => updateVisualField("bodyText", e.target.value)}
+                      className={`${inputCls} resize-y leading-relaxed`}
+                      placeholder="Scrie textul mesajului trimis oaspetelui..."
+                    />
+                    <span className="text-[11px] text-[#64748b]">
+                      * Poți folosi variabile precum <code>{'{{guest_name}}'}</code>, <code>{'{{amount}}'}</code>, <code>{'{{login_time}}'}</code>.
+                    </span>
+                  </Card>
+
+                  {/* Card Box Evidențiat (Cod / Sumă / Parolă) */}
+                  <Card className="p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[12px] font-bold uppercase tracking-wider text-[#0d2c5c]">
+                        Casă Evidențiată (Cod / Sumă / Date Acces)
+                      </label>
+                      <label className="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={visualConfig.hasCodeBox}
+                          onChange={(e) => updateVisualField("hasCodeBox", e.target.checked)}
+                          className="rounded text-[#0d2c5c]"
+                        />
+                        <span>Activează caseta</span>
+                      </label>
+                    </div>
+
+                    {visualConfig.hasCodeBox && (
+                      <div className="space-y-3 pt-2 border-t border-[#e2e8f0]">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                              Etichetă Sus
+                            </label>
+                            <input
+                              value={visualConfig.codeBoxLabel}
+                              onChange={(e) => updateVisualField("codeBoxLabel", e.target.value)}
+                              className={inputCls}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                              Valoare Evidențiată
+                            </label>
+                            <input
+                              value={visualConfig.codeBoxValue}
+                              onChange={(e) => updateVisualField("codeBoxValue", e.target.value)}
+                              className={inputCls}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                            Notă Sub Casă
+                          </label>
+                          <input
+                            value={visualConfig.codeBoxNote}
+                            onChange={(e) => updateVisualField("codeBoxNote", e.target.value)}
+                            className={inputCls}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+
+                  {/* Card Buton Acțiune (CTA) */}
+                  <Card className="p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[12px] font-bold uppercase tracking-wider text-[#0d2c5c]">
+                        Buton Principal de Acțiune (CTA)
+                      </label>
+                      <label className="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={visualConfig.hasCtaButton}
+                          onChange={(e) => updateVisualField("hasCtaButton", e.target.checked)}
+                          className="rounded text-[#0d2c5c]"
+                        />
+                        <span>Activează butonul</span>
+                      </label>
+                    </div>
+
+                    {visualConfig.hasCtaButton && (
+                      <div className="space-y-3 pt-2 border-t border-[#e2e8f0]">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                              Text Buton
+                            </label>
+                            <input
+                              value={visualConfig.ctaButtonText}
+                              onChange={(e) => updateVisualField("ctaButtonText", e.target.value)}
+                              className={inputCls}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#64748b] mb-1">
+                              Link Destinație (URL)
+                            </label>
+                            <input
+                              value={visualConfig.ctaButtonUrl}
+                              onChange={(e) => updateVisualField("ctaButtonUrl", e.target.value)}
+                              className={inputCls}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                </div>
+              )}
+
+              {/* MOD COD HTML DIRECT */}
+              {mode === "html" && (
+                <Card className="p-5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] flex items-center gap-2">
+                      <Code2 size={15} className="text-[#c69a3f]" /> Cod HTML Complet
+                    </label>
+                    <Badge tone="muted">Mod Dezvoltator</Badge>
+                  </div>
+
+                  <textarea
+                    rows={18}
+                    value={htmlContent}
+                    onChange={(e) => setHtmlContent(e.target.value)}
+                    className="w-full font-mono text-[12px] rounded-xl border border-[#e1e8f0] bg-[#1e293b] text-[#f1f5f9] p-4 outline-none focus:border-[#c69a3f] leading-relaxed"
+                  />
+                </Card>
+              )}
             </div>
-          </Card>
+
+            {/* ── PANOU DREAPTA: PREVIZUALIZARE LIVE FIDELĂ ── */}
+            <div className="lg:col-span-6 space-y-4 sticky top-6">
+              <Card className="p-5 shadow-lg border border-[#e1e8f0] bg-[#f8fafc]">
+                {/* Preview Toolbar */}
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#e2e8f0]">
+                  <div className="flex items-center gap-2">
+                    <Eye size={15} className="text-[#c69a3f]" />
+                    <span className="text-[12px] font-bold text-[#0d2c5c] uppercase tracking-wider">
+                      Previzualizare Live Oaspete
+                    </span>
+                  </div>
+
+                  <div className="inline-flex rounded-xl border border-[#e1e8f0] bg-white p-1">
+                    <button
+                      type="button"
+                      onClick={() => setDevice("desktop")}
+                      className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-[11px] font-bold cursor-pointer transition ${
+                        device === "desktop" ? "bg-[#0d2c5c] text-white" : "text-[#6b7c99]"
+                      }`}
+                    >
+                      <Monitor size={13} /> Desktop (560px)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDevice("mobile")}
+                      className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-[11px] font-bold cursor-pointer transition ${
+                        device === "mobile" ? "bg-[#0d2c5c] text-white" : "text-[#6b7c99]"
+                      }`}
+                    >
+                      <Smartphone size={13} /> Mobil (375px)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Email Client Window Shell */}
+                <div className="rounded-2xl border border-[#e2e8f0] bg-white overflow-hidden shadow-md">
+                  {/* Simulated Mail Header */}
+                  <div className="bg-[#f1f5f9] px-4 py-2.5 border-b border-[#e2e8f0] text-[11.5px] space-y-1">
+                    <div className="flex items-center gap-2 text-[#64748b]">
+                      <span className="font-bold text-[#0d2c5c] w-12">De la:</span>
+                      <span>Vila Casa Esy &lt;contact@casaesy.ro&gt; (via Resend)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[#64748b]">
+                      <span className="font-bold text-[#0d2c5c] w-12">Către:</span>
+                      <span>alexandru.ionescu@email.ro</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[#64748b]">
+                      <span className="font-bold text-[#0d2c5c] w-12">Subiect:</span>
+                      <span className="font-semibold text-[#0d2c5c]">{renderPreviewHtml(subject)}</span>
+                    </div>
+                  </div>
+
+                  {/* Rendered Frame */}
+                  <div className="p-4 bg-[#eaedf2] flex justify-center min-h-[460px] max-h-[640px] overflow-y-auto">
+                    <div
+                      style={{ width: device === "mobile" ? "375px" : "100%", maxWidth: "560px" }}
+                      className="transition-all duration-300"
+                    >
+                      <iframe
+                        title="Previzualizare Email"
+                        srcDoc={renderedPreview}
+                        className="w-full min-h-[580px] rounded-xl border border-[#cbd5e1] bg-white shadow-sm"
+                        sandbox="allow-same-origin"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* ── MOD 4: PREVIZUALIZARE FINALĂ CLIENT ── */}
-      {mode === "preview" && (
-        <Card className="p-6 flex flex-col items-center bg-[#eaeef5]">
-          <div className="mb-4 w-full max-w-2xl rounded-xl bg-white p-4 shadow-sm border border-[#e1e8f0]">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-[#6b7c99]">
-              Subiect randat pentru oaspete:
-            </div>
-            <div className="mt-0.5 text-[15px] font-bold text-[#0d2c5c]">
-              {renderPreviewHtml(subject)}
-            </div>
-          </div>
-
-          <div
-            className="overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 border border-[#dce3ee]"
-            style={{ width: device === "mobile" ? "375px" : "640px", height: "720px" }}
-          >
-            <iframe
-              title="Previzualizare Email Final"
-              srcDoc={renderPreviewHtml(htmlContent)}
-              className="h-full w-full border-0"
-            />
-          </div>
-        </Card>
-      )}
-
-      {/* Modal: Trimite email de test */}
+      {/* ── MODAL TRIMITE TEST PE EMAIL ── */}
       <Modal
         open={testModalOpen}
-        title="Trimite email de test"
         onClose={() => setTestModalOpen(false)}
+        title="Trimite Email de Test prin Resend"
       >
         <div className="space-y-4">
-          <p className="text-[13px] text-[#4f6280]">
-            Vom trimite șablonul curent (cu variabilele înlocuite cu date demonstrative de rezervare) către adresa de mai jos:
+          <p className="text-xs text-[#556987]">
+            Vei primi o copie exactă a modelului <strong>{activeTemplate?.name}</strong> generată live cu date simulate pe adresa ta de email.
           </p>
-          <Field label="Adresa de email destinatar">
+
+          <Field label="Adresă Email Destinatar">
             <input
               type="email"
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
-              placeholder="exemplu@domeniu.ro"
+              placeholder="ex: adresa_ta@gmail.com"
               className={inputCls}
             />
           </Field>
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#eef2f7]">
+
+          <div className="rounded-xl bg-[#f8fafc] border border-[#e1e8f0] p-3 text-xs text-[#64748b] space-y-1">
+            <span className="font-bold text-[#0d2c5c] block">Expediere prin:</span>
+            <span>API Resend &middot; Expeditor: Vila Casa Esy</span>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setTestModalOpen(false)}>
               Anulează
             </Button>
-            <Button onClick={handleSendTest} disabled={sendingTest || !testEmail.trim()}>
-              <Send size={14} /> {sendingTest ? "Se trimite..." : "Trimite testul acum"}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Modal: Campanie de noutăți către oaspeți */}
-      <Modal
-        open={campaignModalOpen}
-        title="Trimite campanie de noutăți către oaspeți"
-        onClose={() => setCampaignModalOpen(false)}
-      >
-        <div className="space-y-4">
-          <div className="rounded-xl bg-[#f8fafd] border border-[#e1e8f0] p-3.5 text-[12.5px] text-[#2a3b52]">
-            <div className="font-bold text-[#0d2c5c] flex items-center gap-1.5 mb-1">
-              <CheckCircle2 size={15} className="text-emerald-600" />
-              Personalizare automată per oaspete
-            </div>
-            Fiecare destinatar va primi emailul personalizat cu numele său (<code>{"{{guest_name}}"}</code>) și codul promoțional de mai jos (<code>{"{{code}}"}</code>).
-          </div>
-
-          <Field label="Cod promoțional sau cupon ({{code}})">
-            <input
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-              placeholder="Ex: VARA2026"
-              className={inputCls}
-            />
-          </Field>
-
-          <Field label="Destinatari (lasă gol pentru toți oaspeții activi)">
-            <textarea
-              rows={3}
-              value={customRecipients}
-              onChange={(e) => setCustomRecipients(e.target.value)}
-              placeholder="client1@email.ro, client2@email.ro (sau lasă gol pentru toți oaspeții)"
-              className={inputCls}
-            />
-          </Field>
-
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#eef2f7]">
-            <Button variant="ghost" onClick={() => setCampaignModalOpen(false)}>
-              Renunță
-            </Button>
-            <Button variant="gold" onClick={handleSendCampaign} disabled={sendingCampaign}>
-              <Megaphone size={14} /> {sendingCampaign ? "Se expediază..." : "Lansează campania"}
+            <Button onClick={handleSendTest} disabled={sendingTest}>
+              <Send size={14} />
+              {sendingTest ? "Se trimite..." : "Trimite Test Acum"}
             </Button>
           </div>
         </div>
