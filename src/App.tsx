@@ -54,13 +54,15 @@ function AvailabilityRedirect() {
 
 const MainLayout = () => {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
+  const isStaffShell =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/housekeeping");
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (!isStaffShell) {
       trackAnalyticsEvent("page_view", { path: location.pathname });
     }
-  }, [isAdmin, location.pathname]);
+  }, [isStaffShell, location.pathname]);
 
   return (
     <>
@@ -68,10 +70,10 @@ const MainLayout = () => {
       <main>
         <Outlet />
       </main>
-      {!isAdmin && <Footer />}
-      {!isAdmin && <ChatWidget />}
-      {!isAdmin && <CookieConsentBanner />}
-      {!isAdmin && <BroadcastAlertBanner />}
+      {!isStaffShell && <Footer />}
+      {!isStaffShell && <ChatWidget />}
+      {!isStaffShell && <CookieConsentBanner />}
+      {!isStaffShell && <BroadcastAlertBanner />}
     </>
   );
 };

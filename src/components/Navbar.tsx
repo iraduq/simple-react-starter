@@ -160,6 +160,20 @@ export default function Navbar() {
 
   const solid = !isHome || scrolled || mobileOpen;
 
+  const staffRole = (currentUser?.role || "").toLowerCase().trim();
+  const staffPortalLink =
+    staffRole === "admin"
+      ? { to: "/admin", label: "Administrează" }
+      : staffRole === "menajera" || staffRole === "manajera"
+        ? { to: "/housekeeping", label: "Portal Housekeeping" }
+        : staffRole === "intretinere"
+          ? { to: "/admin?tab=maintenance", label: "Portal Întreținere" }
+          : staffRole === "receptionist"
+            ? { to: "/admin?tab=bookings", label: "Panou Recepție" }
+            : staffRole === "bucatar"
+              ? { to: "/admin?tab=orders_kds", label: "Panou Bucătărie" }
+              : null;
+
   return (
     <>
       {/* ── HEADER — fixat sus ── */}
@@ -362,22 +376,22 @@ export default function Navbar() {
                       >
                         Vezi profilul
                       </Link>
-                      {currentUser?.role === "menajera" && (
+                      {staffPortalLink && (
                         <Link
-                          to="/housekeeping"
+                          to={staffPortalLink.to}
                           onClick={() => setAcctOpen(false)}
-                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#c69a3f] text-white hover:bg-[#b58933] transition-colors duration-200"
+                          className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase bg-[#c69a3f] text-white hover:bg-[#b58933] transition-colors duration-200 shadow-sm"
                         >
-                          Housekeeping
+                          {staffPortalLink.label}
                         </Link>
                       )}
-                      {currentUser?.role === "admin" && (
+                      {(staffRole === "menajera" || staffRole === "manajera") && (
                         <Link
-                          to="/admin"
+                          to="/admin?tab=housekeeping"
                           onClick={() => setAcctOpen(false)}
                           className="flex items-center justify-center px-4 py-[11px] rounded text-xs font-bold tracking-wide uppercase border border-[#0d2c5c] text-[#0d2c5c] hover:bg-[#0d2c5c] hover:text-white transition-colors duration-200"
                         >
-                          Administrează
+                          Panou Operațional
                         </Link>
                       )}
                       <button

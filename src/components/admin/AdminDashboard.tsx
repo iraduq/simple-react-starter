@@ -17,14 +17,14 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, Coffee, TicketPercent, Star, Radio, Globe, Wrench, Crown, SlidersHorizontal,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, Coffee, TicketPercent, Star, Radio, Globe, Wrench, Crown, SlidersHorizontal, Sparkles,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
-import { AdminLiveSyncProvider } from "../../context/AdminLiveSyncContext";
 
 import BookingsTab from "./BookingsTab";
 import RoomsTab from "./RoomsTab";
+import Housekeeping from "../../pages/Housekeeping";
 import NomenclatureTab from "./NomenclatureTab";
 import PricingTab from "./PricingTab";
 import AdminPlacesTab from "./AdminPlacesTab";
@@ -51,6 +51,7 @@ import BreakfastTab from "./BreakfastTab";
 
 export type TabKey =
   | "bookings"
+  | "housekeeping"
   | "rooms"
   | "units"
   | "smartlocks"
@@ -88,6 +89,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "orders_kds", label: "Comenzi room service", icon: ChefHat },
   { key: "coupons", label: "Cupoane și reduceri", icon: TicketPercent },
   { key: "reviews", label: "Recenzii oaspeți", icon: Star },
+  { key: "housekeeping", label: "Housekeeping & Camere", icon: Sparkles },
   { key: "rooms", label: "Camere", icon: BedDouble },
   { key: "units", label: "Unități fizice", icon: DoorOpen },
   { key: "smartlocks", label: "Smart lock și clanțe", icon: KeyRound },
@@ -206,22 +208,102 @@ const float = (duration: number, y: number, rotate: number, delay = 0) => ({
   },
 });
 
+const ALL_TABS: TabKey[] = NAV.map((n) => n.key);
+
+const STAFF_ROLE_CONFIG: Record<
+  string,
+  { label: string; eyebrow: string; defaultTab: TabKey; allowedTabs: TabKey[] }
+> = {
+  admin: {
+    label: "Administrator",
+    eyebrow: "Control Complet",
+    defaultTab: "bookings",
+    allowedTabs: ALL_TABS,
+  },
+  receptionist: {
+    label: "Recepție & Front Desk",
+    eyebrow: "Operare Zilnică",
+    defaultTab: "bookings",
+    allowedTabs: [
+      "bookings",
+      "tape_chart",
+      "housekeeping",
+      "units",
+      "smartlocks",
+      "breakfast",
+      "orders_kds",
+      "maintenance",
+      "lost_found",
+      "qr_studio",
+      "reviews",
+    ],
+  },
+  menajera: {
+    label: "Housekeeping & Cameriste",
+    eyebrow: "Igienizare Camere",
+    defaultTab: "housekeeping",
+    allowedTabs: [
+      "housekeeping",
+      "units",
+      "maintenance",
+      "lost_found",
+      "breakfast",
+    ],
+  },
+  manajera: {
+    label: "Housekeeping & Cameriste",
+    eyebrow: "Igienizare Camere",
+    defaultTab: "housekeeping",
+    allowedTabs: [
+      "housekeeping",
+      "units",
+      "maintenance",
+      "lost_found",
+      "breakfast",
+    ],
+  },
+  intretinere: {
+    label: "Mentenanță & Tehnic",
+    eyebrow: "Tichete & Smart Lock",
+    defaultTab: "maintenance",
+    allowedTabs: [
+      "maintenance",
+      "smartlocks",
+      "units",
+      "housekeeping",
+      "lost_found",
+    ],
+  },
+  bucatar: {
+    label: "Bucătărie & Room Service",
+    eyebrow: "KDS & Mic Dejun",
+    defaultTab: "orders_kds",
+    allowedTabs: ["orders_kds", "breakfast", "menu"],
+  },
+};
+
 export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(!getCachedUser());
+  const [userRole, setUserRole] = useState<string>(() =>
+    (getCachedUser()?.role || "").toLowerCase().trim(),
+  );
+
+  const roleConfig = STAFF_ROLE_CONFIG[userRole] || STAFF_ROLE_CONFIG.admin;
+  const visibleNav = NAV.filter((n) => roleConfig.allowedTabs.includes(n.key));
 
   const queryTab = searchParams.get("tab") as TabKey | null;
   const [tab, setTab] = useState<TabKey>(
-    initialTab || (queryTab && NAV.some((n) => n.key === queryTab) ? queryTab : "bookings")
+    initialTab || (queryTab && NAV.some((n) => n.key === queryTab) ? queryTab : roleConfig.defaultTab)
   );
   // Sync queryTab with state when search params change
   useEffect(() => {
-    if (queryTab && NAV.some((n) => n.key === queryTab) && queryTab !== tab) {
+    if (queryTab && visibleNav.some((n) => n.key === queryTab) && queryTab !== tab) {
       setTab(queryTab);
     }
-  }, [queryTab, tab]);
+  }, [queryTab, visibleNav, tab]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const mainScrollRef = useRef<HTMLElement>(null);
@@ -231,10 +313,16 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
     (async () => {
       const s = await fetchSession(true);
       if (!active) return;
-      if (!s || s.role !== "admin") {
+      const roleKey = (s?.role || "").toLowerCase().trim();
+      const cfg = STAFF_ROLE_CONFIG[roleKey];
+      if (!s || !cfg) {
         navigate("/", { replace: true });
         return;
       }
+      setUserRole(roleKey);
+      setTab((prev) =>
+        cfg.allowedTabs.includes(prev) ? prev : cfg.defaultTab,
+      );
       setLoading(false);
     })();
     return () => {
@@ -307,7 +395,14 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
       <div className="relative z-10 flex h-full w-full overflow-hidden">
         {/* Sidebar — desktop */}
         <aside className="hidden h-full w-64 shrink-0 overflow-y-auto border-r border-[#e1e8f0] bg-white lg:block">
-          <SidebarContent tab={tab} setTab={handleSelectTab} onLogout={handleLogout} />
+          <SidebarContent
+            navItems={visibleNav}
+            roleLabel={roleConfig.label}
+            roleEyebrow={roleConfig.eyebrow}
+            tab={tab}
+            setTab={handleSelectTab}
+            onLogout={handleLogout}
+          />
         </aside>
 
         {/* Sidebar — mobile drawer */}
@@ -320,7 +415,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             <aside className="absolute left-0 top-0 h-full w-72 max-w-[85vw] overflow-y-auto border-r border-[#e1e8f0] bg-white">
               <div className="flex h-14 items-center justify-between border-b border-[#eef2f7] px-4">
                 <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#0d2c5c]">
-                  Meniu
+                  {roleConfig.label}
                 </span>
                 <button
                   onClick={() => setSidebarOpen(false)}
@@ -331,6 +426,9 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
                 </button>
               </div>
               <SidebarContent
+                navItems={visibleNav}
+                roleLabel={roleConfig.label}
+                roleEyebrow={roleConfig.eyebrow}
                 tab={tab}
                 setTab={(t) => {
                   handleSelectTab(t);
@@ -352,6 +450,7 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
               <Menu size={15} /> Meniu
             </button>
             {tab === "bookings" && <BookingsTab />}
+            {tab === "housekeeping" && <Housekeeping embedded />}
             {tab === "rooms" && <RoomsTab />}
             {tab === "units" && <UnitsTab />}
             {tab === "smartlocks" && <SmartLockTab />}
@@ -389,19 +488,33 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
   );
 }
 
-/* ─────────────── SIDEBAR EXACT ORIGINAL STYLE ─────────────── */
+/* ─────────────── SIDEBAR EXACT ORIGINAL STYLE + ROLE BADGE ─────────────── */
 function SidebarContent({
+  navItems,
+  roleLabel,
+  roleEyebrow,
   tab,
   setTab,
   onLogout,
 }: {
+  navItems: { key: TabKey; label: string; icon: typeof LayoutDashboard }[];
+  roleLabel: string;
+  roleEyebrow: string;
   tab: TabKey;
   setTab: (t: TabKey) => void;
   onLogout: () => void | Promise<void>;
 }) {
   return (
     <nav className="flex flex-col gap-1 px-3 pt-2.5 pb-4 sm:px-4 sm:pt-3 sm:pb-4">
-      {NAV.map((item) => {
+      <div className="mb-2 rounded-xl border border-[#c69a3f]/30 bg-gradient-to-br from-[#0d2c5c] to-[#123a72] px-3.5 py-2.5 text-white shadow-sm">
+        <span className="block text-[9px] font-bold uppercase tracking-[0.22em] text-[#e6b85c]">
+          {roleEyebrow}
+        </span>
+        <span className="mt-0.5 block truncate text-[12.5px] font-bold">
+          {roleLabel}
+        </span>
+      </div>
+      {navItems.map((item) => {
         const Icon = item.icon;
         const active = tab === item.key;
         return (

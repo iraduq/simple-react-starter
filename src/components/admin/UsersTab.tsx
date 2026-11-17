@@ -2,10 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Pencil,
   Trash2,
-  Shield,
   ShieldCheck,
   ShieldX,
   Copy,
+  Sparkles,
+  Wrench,
+  ChefHat,
+  ConciergeBell,
 } from "lucide-react";
 import {
   Card,
@@ -36,19 +39,75 @@ import {
 import { useToast } from "../Toast";
 import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
-const ROLES = ["user", "admin", "menajera"];
+const ROLES = [
+  "user",
+  "admin",
+  "receptionist",
+  "menajera",
+  "intretinere",
+  "bucatar",
+] as const;
+
+const ROLE_META: Record<
+  string,
+  { label: string; desc: string; tone: "gold" | "navy" | "green" | "muted" }
+> = {
+  user: {
+    label: "Oaspete / Client",
+    desc: "Acces profil personal, rezervări și comenzi proprii",
+    tone: "muted",
+  },
+  admin: {
+    label: "Administrator",
+    desc: "Acces complet la toate modulele și setările Vila Casa Esy",
+    tone: "gold",
+  },
+  receptionist: {
+    label: "Recepție",
+    desc: "Rezervări, ocupare, smart lock, check-in, housekeeping și facturi",
+    tone: "navy",
+  },
+  menajera: {
+    label: "Housekeeping / Menajeră",
+    desc: "Portal curățenie camere, inspecție, defecțiuni și obiecte găsite",
+    tone: "green",
+  },
+  intretinere: {
+    label: "Întreținere & Tehnic",
+    desc: "Tichete mentenanță SLA, clanțe Smart Lock, unități și status tehnic",
+    tone: "navy",
+  },
+  bucatar: {
+    label: "Bucătărie & Room Service",
+    desc: "KDS comenzi room service, plan mic dejun și meniu & bar",
+    tone: "gold",
+  },
+};
 
 export const resolveRole = (u: any): string => {
-  if (u.role_name) {
-    return String(u.role_name).toLowerCase().trim();
-  }
+  const raw = String(
+    u?.role_name || u?.role || u?.role_rel?.name || "",
+  )
+    .toLowerCase()
+    .trim();
 
-  if (u.role_id === 1) return "admin";
-  if (u.role_id === 3) return "user";
-  if (u.role_id === 4) return "menajera";
+  if (raw === "manajera" || raw === "menajera") return "menajera";
+  if (raw === "customer" || raw === "user") return "user";
+  if (raw && ROLE_META[raw]) return raw;
 
-  return "user";
+  if (u?.role_id === 1) return "admin";
+  if (u?.role_id === 2) return "receptionist";
+  if (u?.role_id === 4) return "menajera";
+  if (u?.role_id === 3) return "user";
+
+  return raw || "user";
 };
+
+const roleLabel = (role?: string | null) =>
+  ROLE_META[role || "user"]?.label || role || "Oaspete";
+
+const roleTone = (role?: string | null) =>
+  ROLE_META[role || "user"]?.tone || ("muted" as const);
 
 export default function UsersTab() {
   const { toast } = useToast();
@@ -131,16 +190,12 @@ export default function UsersTab() {
     if (!editTarget) return;
     setSaving(true);
     try {
-      let newRoleId = 3;
-      if (form.role === "admin") newRoleId = 1;
-      else if (form.role === "menajera") newRoleId = 4;
-
       await patch(`/users/admin/${editTarget.id}`, {
-        role_id: newRoleId,
+        role_name: form.role === "user" ? "customer" : form.role,
         is_active: form.is_active,
       });
 
-      toast("Utilizator actualizat.", "success");
+      toast("Rolul și statusul utilizatorului au fost actualizate.", "success");
       setEditTarget(null);
       await load();
     } catch (e) {
@@ -160,13 +215,6 @@ export default function UsersTab() {
       toast(errMsg(e), "error");
     }
   };
-
-  const roleTone = (role?: string | null) =>
-    role === "admin"
-      ? "gold"
-      : role === "menajera"
-        ? "navy"
-        : ("muted" as const);
 
   return (
     <div>
@@ -225,7 +273,7 @@ export default function UsersTab() {
                     </td>
                     <td className="px-5 py-3.5">
                       <Badge tone={roleTone(resolveRole(u))}>
-                        {resolveRole(u)}
+                        {roleLabel(resolveRole(u))}
                       </Badge>
                     </td>
                     <td className="px-5 py-3.5">
@@ -290,7 +338,7 @@ export default function UsersTab() {
             <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#e1e8f0] bg-[#f9f7f2] p-4 sm:grid-cols-3">
               {[
                 { l: "Email", v: detail.email },
-                { l: "Rol", v: resolveRole(detail) },
+                { l: "Rol", v: roleLabel(resolveRole(detail)) },
                 {
                   l: "Status",
                   v: detail.is_active === false ? "Inactiv" : "Activ",
@@ -396,31 +444,57 @@ export default function UsersTab() {
         open={!!editTarget}
         title={`Editare: ${editTarget?.email ?? ""}`}
         onClose={() => setEditTarget(null)}
-        width="max-w-md"
+        width="max-w-lg"
       >
         <div className="space-y-4">
-          <Field label="Rol">
-            <div className="flex gap-2">
-              {ROLES.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setForm({ ...form, role: r })}
-                  className={`flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-[12px] font-semibold capitalize transition-colors ${
-                    form.role === r
-                      ? "border-[#0d2c5c] bg-[#0d2c5c] text-white"
-                      : "border-[#e1e8f0] text-[#2a3b52] hover:border-[#0d2c5c]"
-                  }`}
-                >
-                  {r === "admin" ? (
-                    <ShieldCheck size={13} />
-                  ) : r === "menajera" ? (
-                    <Shield size={13} />
-                  ) : (
-                    <ShieldX size={13} />
-                  )}
-                  <span>{r === "menajera" ? "menajeră" : r}</span>
-                </button>
-              ))}
+          <Field label="Rol & Acces Operațional">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {ROLES.map((r) => {
+                const selected = form.role === r;
+                const Icon =
+                  r === "admin"
+                    ? ShieldCheck
+                    : r === "receptionist"
+                      ? ConciergeBell
+                      : r === "menajera"
+                        ? Sparkles
+                        : r === "intretinere"
+                          ? Wrench
+                          : r === "bucatar"
+                            ? ChefHat
+                            : ShieldX;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setForm({ ...form, role: r })}
+                    className={`flex items-start gap-2.5 rounded-xl border p-3 text-left transition-all cursor-pointer ${
+                      selected
+                        ? "border-[#0d2c5c] bg-[#0d2c5c] text-white shadow-sm"
+                        : "border-[#e1e8f0] bg-white text-[#2a3b52] hover:border-[#c69a3f] hover:bg-[#f9f7f2]"
+                    }`}
+                  >
+                    <Icon
+                      size={16}
+                      className={`mt-0.5 shrink-0 ${
+                        selected ? "text-[#e6b85c]" : "text-[#0d2c5c]"
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <span className="block text-[12px] font-bold leading-tight">
+                        {roleLabel(r)}
+                      </span>
+                      <span
+                        className={`mt-1 block text-[10.5px] leading-snug ${
+                          selected ? "text-white/80" : "text-[#6b7c99]"
+                        }`}
+                      >
+                        {ROLE_META[r]?.desc}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </Field>
           <label className="flex items-center gap-3">

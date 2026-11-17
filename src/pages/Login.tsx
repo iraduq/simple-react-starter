@@ -55,6 +55,15 @@ export default function Login() {
   const DEACTIVATED_MSG =
     "Contul tău a fost dezactivat. Nu te poți autentifica momentan — te rugăm să contactezi echipa Casa Esy pentru reactivare.";
 
+  const resolvePostLoginRoute = (role?: string | null) => {
+    const r = (role || "").toLowerCase().trim();
+    if (r === "menajera" || r === "manajera") return "/housekeeping";
+    if (["admin", "intretinere", "receptionist", "bucatar"].includes(r)) {
+      return "/admin";
+    }
+    return "/profile";
+  };
+
   const handleAuthFailure = (status: number, detail?: string) => {
     if (isDeactivated(status, detail)) {
       setLoginError({ message: DEACTIVATED_MSG, deactivated: true });
@@ -109,16 +118,9 @@ export default function Login() {
         }
 
         // 🌟 Forțăm preluarea sesiunii pentru a popula cache-ul global de utilizator instant
-        await fetchSession(true);
+        const session = await fetchSession(true);
         notifySessionChange();
-
-        if (userRole === "admin") {
-          navigate("/admin");
-        } else if (userRole === "menajera") {
-          navigate("/housekeeping");
-        } else {
-          navigate("/profile");
-        }
+        navigate(resolvePostLoginRoute(session?.role || userRole));
       } else {
         const detail =
           data &&
@@ -197,9 +199,9 @@ export default function Login() {
         }
 
         // 🌟 Forțăm preluarea sesiunii și la Google Login
-        await fetchSession(true);
+        const session = await fetchSession(true);
         notifySessionChange();
-        navigate(userRole === "admin" ? "/admin" : "/profile");
+        navigate(resolvePostLoginRoute(session?.role || userRole));
         return;
       }
 
