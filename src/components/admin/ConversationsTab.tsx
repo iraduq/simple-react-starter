@@ -20,6 +20,8 @@ import {
   VolumeX,
   DoorOpen,
   CheckCircle2,
+  Trophy,
+  Crown,
 } from "lucide-react";
 import { useToast } from "../Toast";
 import { get, post, put, fetchBlob, dateTimeFmt, errMsg } from "../../lib/admin";
@@ -90,6 +92,61 @@ interface SimResult {
   cta?: { label: string; url: string } | null;
 }
 
+interface ExecutiveSummary {
+  today_date: string;
+  most_expensive_booking?: {
+    booking_code: string;
+    guest_name: string;
+    guest_email: string;
+    guest_phone?: string;
+    room_title: string;
+    unit_number: string;
+    total_price_ron: number;
+    nights: number;
+    check_in: string | null;
+    check_out: string | null;
+  } | null;
+  top_room_type?: {
+    room_title: string;
+    total_revenue_ron: number;
+    bookings_count: number;
+    total_nights: number;
+  } | null;
+  top_unit?: {
+    unit_number: string;
+    room_title: string;
+    total_revenue_ron: number;
+    bookings_count: number;
+  } | null;
+  top_vip_guest?: {
+    guest_name: string;
+    guest_email: string;
+    bookings_count: number;
+    total_spent_ron: number;
+    favorite_room: string;
+  } | null;
+  revenue_accommodation_total_ron: number;
+  revenue_room_service_total_ron: number;
+  room_service_orders_count: number;
+  total_combined_revenue_ron: number;
+  occupancy: {
+    occupied: number;
+    vacant: number;
+    total: number;
+  };
+  telegram_configured: boolean;
+}
+
+interface DbTurn {
+  id: string;
+  question: string;
+  responseHtml: string;
+  plainSummary: string;
+  intent: string;
+  bookingCode?: string | null;
+  telegramSent?: boolean;
+}
+
 const SIMULATOR_PRESETS = [
   "Ce paste și fructe de mare aveți la restaurant și cât costă?",
   "Ce pot face și ce nu am voie în cameră? Care este parola Wi-Fi?",
@@ -99,26 +156,35 @@ const SIMULATOR_PRESETS = [
 ];
 
 const QUICK_DB_QUESTIONS = [
-  "Care a fost rezervarea de azi care a adus cei mai mulți bani?",
-  "Ce camere sunt libere în acest moment?",
-  "Cine sosește azi la check-in și în ce camere?",
-  "Care sunt încasările lunare și câți bani am făcut azi?",
-  "Ce comenzi de room service avem în bucătărie sau livrare?",
+  "Care a fost cea mai scumpă cameră care s-a închiriat, cât mi-a adus și cine a făcut rezervarea?",
+  "Care tip de cameră mi-a adus cei mai mulți bani în total și câte rezervări are?",
+  "Cine este clientul care a cheltuit cei mai mulți bani la hotel (Top VIP)?",
+  "Ce camere sunt libere în acest moment și ce camere sunt ocupate?",
+  "Cine sosește azi la check-in și cine eliberează camera?",
+  "Ce încasări și ce comenzi avem la Room Service?",
   "Avem vreo problemă sau tichet de mentenanță nerezolvat?",
-  "Care este rezervarea cu cea mai mare valoare din hotel?",
-  "Ce recenzii recente au lăsat oaspeții noștri?",
 ];
 
 export default function ConversationsTab() {
   const { toast } = useToast();
   const [subTab, setSubTab] = useState<"ask_db" | "ai_concierge" | "conversations" | "escalations">("ask_db");
 
-  // Natural Language DB Query state
+  // Natural Language DB Query & Executive AI state
+  const [dbSessionId, setDbSessionId] = useState<string>(() => `admin-web-${Date.now()}`);
   const [dbQuestion, setDbQuestion] = useState(
-    "Care a fost rezervarea de azi care a adus cei mai mulți bani?",
+    "Care a fost cea mai scumpă cameră care s-a închiriat, cât mi-a adus și cine a făcut-o?",
   );
-  const [dbAnswer, setDbAnswer] = useState<string | null>(null);
+  const [dbTurns, setDbTurns] = useState<DbTurn[]>([]);
   const [askingDb, setAskingDb] = useState(false);
+  const [execSummary, setExecSummary] = useState<ExecutiveSummary | null>(null);
+  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [sendToTelegram, setSendToTelegram] = useState(false);
+  const [dbVoiceEnabled, setDbVoiceEnabled] = useState(true);
+  const [dbSpeaking, setDbSpeaking] = useState(false);
+  const [dbListening, setDbListening] = useState(false);
+  const dbVoiceRef = useRef(true);
+  const dbVoicePlayerRef = useRef<VoicePlayer | null>(null);
+  const dbRecRef = useRef<any>(null);
 
   // Smart Concierge Config & Simulator state
   const [conciergeCfg, setConciergeCfg] = useState<ConciergeConfig>({
@@ -193,10 +259,23 @@ export default function ConversationsTab() {
     }
   }, []);
 
+  const loadExecutiveSummary = useCallback(async () => {
+    setLoadingSummary(true);
+    try {
+      const data = await get<ExecutiveSummary>("/api/telegram/executive-summary");
+      if (data) setExecSummary(data);
+    } catch {
+      // ignore transient errors if not configured
+    } finally {
+      setLoadingSummary(false);
+    }
+  }, []);
+
   useEffect(() => {
     void loadOverview();
     void loadConciergeConfig();
-  }, [loadOverview, loadConciergeConfig]);
+    void loadExecutiveSummary();
+  }, [loadOverview, loadConciergeConfig, loadExecutiveSummary]);
 
   const handleSaveConciergeConfig = async () => {
     setSavingCfg(true);
@@ -278,12 +357,40 @@ export default function ConversationsTab() {
     void simVoicePlayerRef.current?.speak(text, lang);
   };
 
-  const toggleSimVoice = () => {
+  useEffect(() => {
+    dbVoicePlayerRef.current = createVoicePlayer(setDbSpeaking);
+    return () => {
+      dbVoicePlayerRef.current?.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    dbVoiceRef.current = dbVoiceEnabled;
+    if (!dbVoiceEnabled) {
+      dbVoicePlayerRef.current?.stop();
+    }
+  }, [dbVoiceEnabled]);
+
+  const startSpeechDictation = ({
+    isListening,
+    recRef,
+    onStopVoice,
+    onListeningChange,
+    onTextUpdate,
+    onSubmitFinal,
+  }: {
+    isListening: boolean;
+    recRef: { current: any };
+    onStopVoice: () => void;
+    onListeningChange: (v: boolean) => void;
+    onTextUpdate: (txt: string) => void;
+    onSubmitFinal: (txt: string) => void;
+  }) => {
     if (typeof window === "undefined") return;
-    simVoicePlayerRef.current?.stop();
-    if (simListening && simRecRef.current) {
-      simRecRef.current.stop();
-      setSimListening(false);
+    onStopVoice();
+    if (isListening && recRef.current) {
+      recRef.current.stop();
+      onListeningChange(false);
       return;
     }
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -296,7 +403,7 @@ export default function ConversationsTab() {
       rec.lang = "ro-RO";
       rec.interimResults = true;
       let finalTxt = "";
-      rec.onstart = () => setSimListening(true);
+      rec.onstart = () => onListeningChange(true);
       rec.onresult = (ev: any) => {
         let interim = "";
         for (let i = ev.resultIndex; i < ev.results.length; i++) {
@@ -304,18 +411,40 @@ export default function ConversationsTab() {
           if (ev.results[i].isFinal) finalTxt += t + " ";
           else interim += t;
         }
-        setSimInput((finalTxt + interim).trim());
+        onTextUpdate((finalTxt + interim).trim());
       };
-      rec.onerror = () => setSimListening(false);
+      rec.onerror = () => onListeningChange(false);
       rec.onend = () => {
-        setSimListening(false);
-        if (finalTxt.trim()) void handleRunSimulator(finalTxt.trim());
+        onListeningChange(false);
+        if (finalTxt.trim()) onSubmitFinal(finalTxt.trim());
       };
-      simRecRef.current = rec;
+      recRef.current = rec;
       rec.start();
     } catch {
-      setSimListening(false);
+      onListeningChange(false);
     }
+  };
+
+  const toggleSimVoice = () => {
+    startSpeechDictation({
+      isListening: simListening,
+      recRef: simRecRef,
+      onStopVoice: () => simVoicePlayerRef.current?.stop(),
+      onListeningChange: setSimListening,
+      onTextUpdate: setSimInput,
+      onSubmitFinal: (t) => void handleRunSimulator(t),
+    });
+  };
+
+  const toggleDbVoice = () => {
+    startSpeechDictation({
+      isListening: dbListening,
+      recRef: dbRecRef,
+      onStopVoice: () => dbVoicePlayerRef.current?.stop(),
+      onListeningChange: setDbListening,
+      onTextUpdate: setDbQuestion,
+      onSubmitFinal: (t) => void handleAskDatabase(t),
+    });
   };
 
   useEffect(() => {
@@ -342,19 +471,71 @@ export default function ConversationsTab() {
 
   const handleAskDatabase = async (qOverride?: string) => {
     const q = (qOverride ?? dbQuestion).trim();
-    if (!q) return;
+    if (!q || askingDb) return;
     if (qOverride) setDbQuestion(qOverride);
+    dbVoicePlayerRef.current?.stop();
     setAskingDb(true);
     try {
-      const res = await post<{ response: string; intent: string }>("/api/telegram/ask-db", {
+      const res = await post<{
+        response: string;
+        plain_summary?: string;
+        intent: string;
+        booking_code?: string | null;
+        telegram_sent?: boolean;
+      }>("/api/telegram/ask-db", {
         question: q,
+        session_id: dbSessionId,
+        send_to_telegram: sendToTelegram,
       });
-      setDbAnswer(res.response || "Nu a fost returnat niciun răspuns.");
+      const htmlResp = res.response || "Nu a fost returnat niciun răspuns.";
+      const plainResp =
+        res.plain_summary || htmlResp.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      setDbTurns((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          question: q,
+          responseHtml: htmlResp,
+          plainSummary: plainResp,
+          intent: res.intent || "db_query",
+          bookingCode: res.booking_code ?? null,
+          telegramSent: Boolean(res.telegram_sent),
+        },
+      ]);
+      setDbQuestion("");
+      if (res.telegram_sent) {
+        toast("Raportul a fost trimis și pe Telegram!", "success");
+      }
+      if (dbVoiceRef.current && plainResp) {
+        void dbVoicePlayerRef.current?.speak(plainResp, "ro");
+      }
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
       setAskingDb(false);
     }
+  };
+
+  const handleResetDbChat = async () => {
+    dbVoicePlayerRef.current?.stop();
+    try {
+      await post("/api/telegram/ask-db/reset", { session_id: dbSessionId });
+    } catch {
+      // ignore
+    }
+    setDbSessionId(`admin-web-${Date.now()}`);
+    setDbTurns([]);
+    setDbQuestion("Care a fost cea mai scumpă cameră care s-a închiriat, cât mi-a adus și cine a făcut-o?");
+    toast("Conversația executivă a fost resetată.", "info");
+  };
+
+  const speakDbReply = (plainText: string) => {
+    if (!plainText) return;
+    if (dbSpeaking) {
+      dbVoicePlayerRef.current?.stop();
+      return;
+    }
+    void dbVoicePlayerRef.current?.speak(plainText, "ro");
   };
 
   const handleExportCsv = async () => {
@@ -389,6 +570,7 @@ export default function ConversationsTab() {
               onClick={() => {
                 void loadOverview();
                 void loadConciergeConfig();
+                void loadExecutiveSummary();
               }}
             >
               <RefreshCw size={14} /> Reîmprospătează
@@ -733,45 +915,229 @@ export default function ConversationsTab() {
       {/* ── SUB-TAB 1: ÎNTREABĂ BAZA DE DATE ÎN LIMBAJ NATURAL ── */}
       {subTab === "ask_db" && (
         <div className="space-y-6">
+          {/* Carduri Executive Live */}
+          {loadingSummary && !execSummary ? (
+            <TableSkeleton rows={2} />
+          ) : (
+            execSummary && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleAskDatabase(
+                      "Care a fost cea mai scumpă cameră care s-a închiriat, cât mi-a adus și cine a făcut rezervarea?",
+                    )
+                  }
+                  className="text-left rounded-2xl border border-[#e5dcc3] bg-gradient-to-br from-[#fffdf7] to-[#fdf6e2] p-4 shadow-xs hover:border-[#c69a3f] transition cursor-pointer"
+                >
+                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#9a7222] flex items-center gap-1.5">
+                    <Trophy size={13} className="text-[#c69a3f]" /> Cea Mai Scumpă Închiriere
+                  </span>
+                  {execSummary.most_expensive_booking ? (
+                    <>
+                      <span className="text-xl font-bold text-[#0d2c5c] mt-1.5 block">
+                        {execSummary.most_expensive_booking.total_price_ron.toLocaleString("ro-RO", {
+                          minimumFractionDigits: 2,
+                        })}{" "}
+                        RON
+                      </span>
+                      <span className="text-[12px] font-semibold text-[#0d2c5c] block truncate mt-0.5">
+                        {execSummary.most_expensive_booking.room_title} · Cam.{" "}
+                        {execSummary.most_expensive_booking.unit_number}
+                      </span>
+                      <span className="text-[11px] text-[#6b7c99] block truncate">
+                        Oaspete: {execSummary.most_expensive_booking.guest_name} (
+                        {execSummary.most_expensive_booking.booking_code})
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-[#6b7c99] mt-2 block">Fără rezervări încă</span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleAskDatabase(
+                      "Care este clasamentul camerelor după încasări și câte rezervări are fiecare cameră?",
+                    )
+                  }
+                  className="text-left rounded-2xl border border-[#e1e8f0] bg-white p-4 shadow-xs hover:border-[#c69a3f] transition cursor-pointer"
+                >
+                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] flex items-center gap-1.5">
+                    <DoorOpen size={13} className="text-[#2f6fd6]" /> Top Cameră (Venit Cumulat)
+                  </span>
+                  {execSummary.top_room_type ? (
+                    <>
+                      <span className="text-xl font-bold text-[#0d2c5c] mt-1.5 block">
+                        {execSummary.top_room_type.total_revenue_ron.toLocaleString("ro-RO", {
+                          minimumFractionDigits: 2,
+                        })}{" "}
+                        RON
+                      </span>
+                      <span className="text-[12px] font-semibold text-[#0d2c5c] block truncate mt-0.5">
+                        {execSummary.top_room_type.room_title}
+                      </span>
+                      <span className="text-[11px] text-[#6b7c99] block">
+                        {execSummary.top_room_type.bookings_count} rezervări ·{" "}
+                        {execSummary.top_room_type.total_nights} nopți
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-[#6b7c99] mt-2 block">Fără date încă</span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleAskDatabase(
+                      "Cine sunt top clienții VIP care au cheltuit cei mai mulți bani la hotel?",
+                    )
+                  }
+                  className="text-left rounded-2xl border border-[#e1e8f0] bg-white p-4 shadow-xs hover:border-[#c69a3f] transition cursor-pointer"
+                >
+                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] flex items-center gap-1.5">
+                    <Crown size={13} className="text-[#c69a3f]" /> Top Oaspete VIP
+                  </span>
+                  {execSummary.top_vip_guest ? (
+                    <>
+                      <span className="text-xl font-bold text-[#0d2c5c] mt-1.5 block">
+                        {execSummary.top_vip_guest.total_spent_ron.toLocaleString("ro-RO", {
+                          minimumFractionDigits: 2,
+                        })}{" "}
+                        RON
+                      </span>
+                      <span className="text-[12px] font-semibold text-[#0d2c5c] block truncate mt-0.5">
+                        {execSummary.top_vip_guest.guest_name}
+                      </span>
+                      <span className="text-[11px] text-[#6b7c99] block truncate">
+                        {execSummary.top_vip_guest.bookings_count} rezervări ·{" "}
+                        {execSummary.top_vip_guest.favorite_room}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-[#6b7c99] mt-2 block">Fără oaspeți încă</span>
+                  )}
+                </button>
+
+                <div className="rounded-2xl border border-[#e1e8f0] bg-white p-4 shadow-xs">
+                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-emerald-600" /> Venit Total & Bot Telegram
+                  </span>
+                  <span className="text-xl font-bold text-[#0d2c5c] mt-1.5 block">
+                    {execSummary.total_combined_revenue_ron.toLocaleString("ro-RO", {
+                      minimumFractionDigits: 2,
+                    })}{" "}
+                    RON
+                  </span>
+                  <span className="text-[11.5px] text-[#4f6280] block mt-0.5">
+                    Ocupare acum: <b>{execSummary.occupancy.occupied}</b>/{execSummary.occupancy.total} camere ·{" "}
+                    {execSummary.room_service_orders_count} comenzi RS
+                  </span>
+                  <span
+                    className={`mt-1 inline-flex items-center gap-1 text-[10.5px] font-bold ${
+                      execSummary.telegram_configured ? "text-emerald-700" : "text-amber-700"
+                    }`}
+                  >
+                    ●{" "}
+                    {execSummary.telegram_configured
+                      ? "Telegram Bot conectat (sync live)"
+                      : "Telegram Webhook neconfigurat"}
+                  </span>
+                </div>
+              </div>
+            )
+          )}
+
           <Card className="p-6 space-y-5">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h3
                   className="text-[22px] font-bold text-[#0d2c5c] flex items-center gap-2 font-['Outfit',sans-serif]"
                 >
                   <Sparkles size={20} className="text-[#c69a3f]" />
-                  Interogare directă în baza de date (web și Telegram)
+                  Asistent Executiv AI · Bază de Date & Telegram
                 </h3>
                 <p className="text-[13px] text-[#6b7c99] mt-1">
-                  Scrie orice întrebare despre rezervări, încasări, camere, oaspeți sau produse — sistemul interoghează tabelele SQL în timp real și îți răspunde exact. Aceeași logică funcționează acum și pe botul tău de Telegram!
+                  Întreabă orice în limbaj natural, cu memorie conversațională (poți continua cu <i>„Cine a făcut-o?”</i> sau <i>„Ce telefon are?”</i>). Același creier inteligent răspunde instant și pe botul tău de Telegram.
                 </p>
               </div>
-              <Badge tone="gold">Bază de date live</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant={dbVoiceEnabled ? "gold" : "ghost"}
+                  onClick={() => setDbVoiceEnabled((v) => !v)}
+                >
+                  {dbVoiceEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+                  {dbVoiceEnabled ? "Auto-Voce ON" : "Auto-Voce OFF"}
+                </Button>
+                {dbTurns.length > 0 && (
+                  <Button variant="ghost" onClick={() => void handleResetDbChat()}>
+                    <RotateCcw size={13} /> Conversație nouă
+                  </Button>
+                )}
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <input
                 value={dbQuestion}
                 onChange={(e) => setDbQuestion(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") void handleAskDatabase();
                 }}
-                placeholder="Ex: Care a fost rezervarea de azi care a adus cei mai mulți bani?"
+                placeholder={
+                  dbListening
+                    ? "Te ascult... rostește întrebarea"
+                    : "Ex: Care a fost cea mai scumpă cameră închiriată, cât a adus și cine a făcut-o?"
+                }
                 className={`${inputCls} flex-1 text-[14px]`}
               />
+              <Button
+                variant={dbListening ? "danger" : "ghost"}
+                onClick={toggleDbVoice}
+              >
+                {dbListening ? <MicOff size={14} /> : <Mic size={14} />}
+                {dbListening ? "Ascult..." : "Voce"}
+              </Button>
               <Button
                 onClick={() => void handleAskDatabase()}
                 disabled={askingDb || !dbQuestion.trim()}
                 className="shrink-0"
               >
                 <Send size={14} />
-                {askingDb ? "Se interoghează DB..." : " Caută în baza de date"}
+                {askingDb ? "Analizez..." : "Întreabă AI"}
               </Button>
             </div>
 
+            <label className="inline-flex items-center gap-2 text-[12.5px] font-medium text-[#4f6280] cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={sendToTelegram}
+                onChange={(e) => setSendToTelegram(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-[#c69a3f] focus:ring-[#c69a3f]"
+              />
+              Trimite automat răspunsul și pe Telegram (raport rapid pe telefon)
+            </label>
+
+            <AiVoiceWave
+              active={dbSpeaking || dbListening}
+              mode={dbListening ? "listening" : "speaking"}
+              label={
+                dbListening
+                  ? "Te ascult... rostește întrebarea"
+                  : "Esy Executiv AI citește analiza..."
+              }
+              onStop={() => {
+                if (dbListening) toggleDbVoice();
+                else dbVoicePlayerRef.current?.stop();
+              }}
+              compact
+            />
+
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#4f6280] mb-2">
-                Întrebări frecvente (apasă pentru rulare directă):
+                Comenzi & analize rapide:
               </div>
               <div className="flex flex-wrap gap-2">
                 {QUICK_DB_QUESTIONS.map((q) => (
@@ -789,18 +1155,33 @@ export default function ConversationsTab() {
 
             {askingDb && <TableSkeleton rows={3} />}
 
-            {!askingDb && dbAnswer && (
-              <div className="rounded-2xl border border-[#e5dcc3] bg-gradient-to-br from-[#fcfdff] to-[#f4f7fb] p-6 shadow-sm">
-                <div className="mb-3 flex items-center justify-between border-b border-[#e1e8f0] pb-2.5">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c69a3f]">
-                    Răspuns extras din baza de date
-                  </span>
-                  <Badge tone="green">Date verificate în timp real</Badge>
-                </div>
-                <div
-                  className="text-[14px] leading-relaxed text-[#0d2c5c] whitespace-pre-line space-y-1"
-                  dangerouslySetInnerHTML={{ __html: dbAnswer }}
-                />
+            {dbTurns.length > 0 && (
+              <div className="space-y-4">
+                {[...dbTurns].reverse().map((turn) => (
+                  <div
+                    key={turn.id}
+                    className="rounded-2xl border border-[#e5dcc3] bg-gradient-to-br from-[#fcfdff] to-[#f4f7fb] p-5 shadow-sm space-y-3"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e1e8f0] pb-2.5">
+                      <div className="text-[13px] font-bold text-[#0d2c5c] flex items-center gap-2">
+                        <User size={14} className="text-[#2f6fd6] shrink-0" />
+                        <span>{turn.question}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Button variant="ghost" onClick={() => speakDbReply(turn.plainSummary)}>
+                          {dbSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} />}
+                          {dbSpeaking ? "Oprește" : "Ascultă Vocal"}
+                        </Button>
+                        {turn.bookingCode && <Badge tone="navy">#{turn.bookingCode}</Badge>}
+                        {turn.telegramSent && <Badge tone="green">Trimis pe Telegram</Badge>}
+                      </div>
+                    </div>
+                    <div
+                      className="text-[14px] leading-relaxed text-[#0d2c5c] whitespace-pre-line space-y-1"
+                      dangerouslySetInnerHTML={{ __html: turn.responseHtml }}
+                    />
+                  </div>
+                ))}
               </div>
             )}
           </Card>
