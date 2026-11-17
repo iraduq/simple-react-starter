@@ -5,8 +5,13 @@ import {
   ArrowUpRight,
   BedDouble,
   Clock,
+  DoorOpen,
+  Mic,
+  MicOff,
   Send,
   Users,
+  Volume2,
+  VolumeX,
   X,
   ChevronRight,
 } from "lucide-react";
@@ -16,6 +21,20 @@ import { API_URL } from "../lib/config";
 const API_BASE = API_URL.replace(/\/$/, "");
 const CHAT_URL = `${API_BASE}/api/chat/`;
 const SESSION_KEY = "casaesy_chat_session";
+const ROOM_KEY = "casaesy_chat_room";
+
+const ROOM_OPTIONS = [
+  { value: "", label: "🌐 Vizitator Public (Web)" },
+  { value: "101", label: "🔑 Camera 101 · Standard Twin" },
+  { value: "102", label: "🔑 Camera 102 · Standard Twin" },
+  { value: "103", label: "🔑 Camera 103 · Standard Twin" },
+  { value: "201", label: "🔑 Camera 201 · Deluxe Double" },
+  { value: "202", label: "🔑 Camera 202 · Deluxe Double" },
+  { value: "301", label: "🔑 Camera 301 · Luxury Suite" },
+  { value: "302", label: "🔑 Camera 302 · Luxury Suite" },
+  { value: "401", label: "🔑 Camera 401 · Family Room" },
+  { value: "402", label: "🔑 Camera 402 · Family Room" },
+];
 
 type RoomImg = { image_url?: string; url?: string } | string;
 type RoomCard = {
@@ -45,32 +64,39 @@ type Msg = {
   rooms?: RoomCard[];
   cards?: RoomCard[];
   ctas?: Cta[];
+  suggestions?: string[];
   error?: boolean;
 };
 
 const QUICK = [
   {
-    label: "Camere libere",
-    sub: "Vezi disponibilitatea",
-    text: "Ce camere aveți disponibile?",
+    label: "Camere & Disponibilitate",
+    sub: "Vezi tarifele și camerele libere",
+    text: "Ce camere aveți disponibile și care sunt prețurile?",
     img: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=300&q=80",
   },
   {
-    label: "Prețuri",
-    sub: "Tarife pe noapte",
-    text: "Care sunt prețurile?",
-    img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=300&q=80",
+    label: "Restaurant, Bar & Meniu",
+    sub: "Paste, fructe de mare, cocktailuri și prețuri",
+    text: "Ce preparate și băuturi aveți la restaurant și bar și cât costă?",
+    img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=300&q=80",
   },
   {
-    label: "Facilități",
-    sub: "Ce include sejurul",
-    text: "Ce facilități oferiți?",
+    label: "Comandă în Cameră (Room Service)",
+    sub: "Comandă mâncare sau băuturi prin AI",
+    text: "Vreau să comand mâncare sau băutură în cameră",
+    img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    label: "Reguli Cameră, Wi-Fi & PIN",
+    sub: "Ce e permis, parola Wi-Fi și Smart Lock",
+    text: "Ce pot face și ce nu am voie în cameră, care este parola Wi-Fi și cum funcționează PIN-ul?",
     img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=300&q=80",
   },
   {
-    label: "Locație",
-    sub: "Cum ajungi la noi",
-    text: "Cum ajung la vilă?",
+    label: "Plajă, Piscină, SPA & Reduceri",
+    sub: "Șezlonguri, masaj, VIP și coduri promo",
+    text: "Ce facilități aveți la plajă și SPA și ce coduri de reducere sunt active?",
     img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80",
   },
 ];
@@ -270,14 +296,34 @@ function EsyTeaser({ onOpen }: { onOpen: () => void }) {
   );
 }
 
+function speakReply(text: string, lang: string = "ro") {
+  if (typeof window === "undefined" || !("speechSynthesis" in window) || !text) return;
+  try {
+    window.speechSynthesis.cancel();
+    const clean = text.replace(/\*\*/g, "").replace(/[#*`]/g, "");
+    const utter = new SpeechSynthesisUtterance(clean);
+    const voices = window.speechSynthesis.getVoices();
+    const langPrefix = lang.toLowerCase().slice(0, 2);
+    const matched = voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix));
+    if (matched) utter.voice = matched;
+    utter.lang = langPrefix === "ro" ? "ro-RO" : lang;
+    utter.rate = 1.02;
+    window.speechSynthesis.speak(utter);
+  } catch {
+    // ignore speech synthesis errors
+  }
+}
+
 function WelcomeBlock({
   onPick,
   disabled,
   showTopics,
+  roomNumber,
 }: {
   onPick: (t: string) => void;
   disabled: boolean;
   showTopics: boolean;
+  roomNumber: string;
 }) {
   return (
     <motion.div
@@ -291,26 +337,27 @@ function WelcomeBlock({
           className="text-[10px] font-bold uppercase tracking-[0.2em]"
           style={{ color: "var(--navy)", opacity: 0.6 }}
         >
-          Vila Casa Esy · Mamaia
+          Vila Casa Esy · Eforie Nord {roomNumber ? `· Camera ${roomNumber}` : ""}
         </span>
         <h3
-          className="text-[24px] font-bold tracking-tight text-[#07203f]"
+          className="text-[22px] font-bold tracking-tight text-[#07203f]"
           style={{ fontFamily: "inherit" }}
         >
-          Bun venit la malul mării! 🌊
+          {roomNumber ? `Bun venit în Camera ${roomNumber}! 🔑` : "Bun venit la malul mării! 🌊"}
         </h3>
-        <p className="text-[13.5px] leading-relaxed text-slate-600 font-medium">
-          Sunt Esy, asistentul tău digital. Îți stau la dispoziție pentru
-          detalii despre camere, tarife și rezervări rapide.
+        <p className="text-[13px] leading-relaxed text-slate-600 font-medium">
+          {roomNumber
+            ? `Sunt Esy, concierge-ul personal al Camerei ${roomNumber}. Îmi poți scrie sau dicta vocal pentru comenzi Room Service, parola Wi-Fi, reguli, prosoape sau meniu.`
+            : "Sunt Esy, asistentul tău inteligent. Îți răspund la orice despre camere, restaurant, bar, plajă, SPA, comenzi în cameră și oferte."}
         </p>
       </div>
 
       {showTopics && (
         <div className="space-y-2.5 pt-1">
           <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Alege o opțiune frecventă:
+            Alege un subiect sau întreabă prin voce/text:
           </p>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-2">
             {QUICK.map(({ label, sub, text, img }, i) => (
               <motion.button
                 key={label}
@@ -322,14 +369,14 @@ function WelcomeBlock({
                 transition={{ delay: 0.08 + i * 0.04, duration: 0.25 }}
                 whileHover={{ x: 3, backgroundColor: "#f8fbff" }}
                 whileTap={{ scale: 0.98 }}
-                className="group flex w-full items-center justify-between rounded-2xl bg-white p-3 text-left transition-all disabled:opacity-50"
+                className="group flex w-full items-center justify-between rounded-2xl bg-white p-2.5 text-left transition-all disabled:opacity-50"
                 style={{
                   border: "1px solid rgba(29,82,156,0.12)",
                   boxShadow: "0 3px 10px -4px rgba(7,32,63,0.07)",
                 }}
               >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-xs">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl shadow-xs">
                     <img
                       src={img}
                       alt={label}
@@ -340,10 +387,10 @@ function WelcomeBlock({
                   </div>
 
                   <div className="min-w-0 leading-tight">
-                    <span className="block truncate text-[14px] font-bold text-[#07203f] group-hover:text-[#1d529c] transition-colors">
+                    <span className="block truncate text-[13.5px] font-bold text-[#07203f] group-hover:text-[#1d529c] transition-colors">
                       {label}
                     </span>
-                    <span className="mt-1 block truncate text-[11.5px] font-medium text-slate-500">
+                    <span className="mt-0.5 block truncate text-[11px] font-medium text-slate-500">
                       {sub}
                     </span>
                   </div>
@@ -372,6 +419,20 @@ export default function ChatWidget() {
       typeof document !== "undefined" &&
       document.body.dataset.placeModalOpen === "true",
   );
+  const [roomNumber, setRoomNumber] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    const params = new URLSearchParams(window.location.search);
+    const urlRoom = params.get("room");
+    if (urlRoom) {
+      localStorage.setItem(ROOM_KEY, urlRoom);
+      return urlRoom;
+    }
+    return localStorage.getItem(ROOM_KEY) || "";
+  });
+  const [voiceReplies, setVoiceReplies] = useState(false);
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
   const [messages, setMessages] = useState<Msg[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -400,6 +461,20 @@ export default function ChatWidget() {
     if (open && !loading) setTimeout(() => inputRef.current?.focus(), 250);
   }, [open, loading]);
 
+  useEffect(() => {
+    if (!voiceReplies && typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  }, [voiceReplies]);
+
+  const handleRoomChange = (val: string) => {
+    setRoomNumber(val);
+    if (typeof window !== "undefined") {
+      if (val) localStorage.setItem(ROOM_KEY, val);
+      else localStorage.removeItem(ROOM_KEY);
+    }
+  };
+
   async function send(text: string) {
     const msg = text.trim();
     if (!msg || loading) return;
@@ -417,6 +492,7 @@ export default function ChatWidget() {
           message: msg,
           history,
           session_id: getSessionId(),
+          context: { room_number: roomNumber },
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
@@ -430,15 +506,23 @@ export default function ChatWidget() {
           : data.cta
             ? [data.cta]
             : undefined;
+      const suggestions = Array.isArray(data.suggested_actions)
+        ? data.suggested_actions
+        : undefined;
+      const finalText = reply || "Îmi pare rău, nu am un răspuns acum.";
+      if (voiceReplies) {
+        speakReply(finalText, data.language || "ro");
+      }
       setMessages((p) => [
         ...p,
         {
           id: uid(),
           role: "model",
-          text: reply || "Îmi pare rău, nu am un răspuns acum.",
+          text: finalText,
           rooms: Array.isArray(data.rooms) ? data.rooms : undefined,
           cards: Array.isArray(data.cards) ? data.cards : undefined,
           ctas,
+          suggestions,
         },
       ]);
     } catch {
@@ -456,6 +540,57 @@ export default function ChatWidget() {
       setLoading(false);
     }
   }
+
+  const toggleVoiceInput = () => {
+    if (typeof window === "undefined") return;
+    if (listening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+      return;
+    }
+    const SpeechRec =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRec) {
+      setMessages((p) => [
+        ...p,
+        {
+          id: uid(),
+          role: "model",
+          text: "Browserul tău nu suportă recunoașterea vocală nativă. Folosește Chrome, Edge sau Safari ori tastează întrebarea.",
+        },
+      ]);
+      return;
+    }
+    try {
+      const rec = new SpeechRec();
+      rec.lang = "ro-RO";
+      rec.interimResults = true;
+      rec.maxAlternatives = 1;
+      let finalTranscript = "";
+      rec.onstart = () => setListening(true);
+      rec.onresult = (event: any) => {
+        let interim = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const t = event.results[i][0].transcript;
+          if (event.results[i].isFinal) finalTranscript += t + " ";
+          else interim += t;
+        }
+        setInput((finalTranscript + interim).trim());
+      };
+      rec.onerror = () => setListening(false);
+      rec.onend = () => {
+        setListening(false);
+        const textToSend = finalTranscript.trim();
+        if (textToSend) {
+          void send(textToSend);
+        }
+      };
+      recognitionRef.current = rec;
+      rec.start();
+    } catch {
+      setListening(false);
+    }
+  };
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -484,7 +619,7 @@ export default function ChatWidget() {
           >
             {/* Header */}
             <div
-              className="relative flex items-center gap-3.5 px-5 pt-5 pb-4.5"
+              className="relative flex flex-col gap-2.5 px-5 pt-4 pb-3.5"
               style={{
                 background:
                   "linear-gradient(155deg, #1d529c 0%, var(--navy) 60%, var(--navy-deep) 100%)",
@@ -498,70 +633,94 @@ export default function ChatWidget() {
                     "radial-gradient(160px 80px at 85% 10%, rgba(100,165,255,0.32), transparent 75%)",
                 }}
               />
-              <div className="relative">
-                <motion.span
-                  className="absolute -inset-1.5 rounded-[20px]"
-                  style={{ background: "rgba(46,204,113,0.28)" }}
-                  animate={{ opacity: [0.2, 0.55, 0.2], scale: [1, 1.08, 1] }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                <BotAvatar size={44} />
-                <span
-                  className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2"
-                  style={{ background: "#2ecc71", borderColor: "var(--navy)" }}
-                />
-              </div>
-              <div className="relative flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p
-                    className="truncate text-[15px] font-bold tracking-tight text-white"
-                    style={{ fontFamily: "var(--font-body)" }}
-                  >
-                    Vila Casa Esy · Asistent Virtual
-                  </p>
-                  <span
-                    className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                    style={{
-                      background: "rgba(46,204,113,0.18)",
-                      color: "#7bed9f",
-                      border: "1px solid rgba(46,204,113,0.45)",
+              <div className="relative flex items-center gap-3">
+                <div className="relative">
+                  <motion.span
+                    className="absolute -inset-1.5 rounded-[20px]"
+                    style={{ background: "rgba(46,204,113,0.28)" }}
+                    animate={{ opacity: [0.2, 0.55, 0.2], scale: [1, 1.08, 1] }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
                     }}
-                  >
-                    <motion.span
-                      className="h-1.5 w-1.5 rounded-full"
-                      style={{ background: "#2ecc71" }}
-                      animate={{ opacity: [1, 0.3, 1] }}
-                      transition={{ duration: 1.6, repeat: Infinity }}
-                    />
-                    Live
-                  </span>
-                </div>
-                <div className="mt-1 flex items-center gap-2">
+                  />
+                  <BotAvatar size={42} />
                   <span
-                    className="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-                    style={{
-                      background: "rgba(255,255,255,0.12)",
-                      color: "rgba(255,255,255,0.92)",
-                      border: "1px solid rgba(255,255,255,0.18)",
-                    }}
-                  >
-                    <Clock size={11} className="text-[#a6cafd]" /> Luni–Duminică
-                    · 08:00–18:00
-                  </span>
+                    className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2"
+                    style={{ background: "#2ecc71", borderColor: "var(--navy)" }}
+                  />
                 </div>
+                <div className="relative flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p
+                      className="truncate text-[14.5px] font-bold tracking-tight text-white"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      Esy · Smart Concierge
+                    </p>
+                    <span
+                      className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                      style={{
+                        background: "rgba(46,204,113,0.18)",
+                        color: "#7bed9f",
+                        border: "1px solid rgba(46,204,113,0.45)",
+                      }}
+                    >
+                      <motion.span
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{ background: "#2ecc71" }}
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1.6, repeat: Infinity }}
+                      />
+                      AI
+                    </span>
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-1.5">
+                    <span className="flex items-center gap-1 text-[11px] font-medium text-white/80">
+                      <Clock size={10} className="text-[#a6cafd]" /> 24/7 Voce & Text
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setVoiceReplies((v) => !v)}
+                  title={voiceReplies ? "Oprește citirea vocală" : "Activează răspuns vocal (stil Alexa)"}
+                  className={`relative grid h-8 w-8 place-items-center rounded-full transition-colors cursor-pointer ${
+                    voiceReplies
+                      ? "bg-[#c69a3f] text-white"
+                      : "text-white/80 hover:bg-white/10"
+                  }`}
+                >
+                  {voiceReplies ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                </button>
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="Închide chatul"
+                  className="relative grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/10 active:scale-95 cursor-pointer"
+                  style={{ color: "rgba(255,255,255,0.85)" }}
+                >
+                  <X size={18} strokeWidth={2} />
+                </button>
               </div>
-              <button
-                onClick={() => setOpen(false)}
-                aria-label="Închide chatul"
-                className="relative grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-white/10 active:scale-95"
-                style={{ color: "rgba(255,255,255,0.85)" }}
-              >
-                <X size={18} strokeWidth={2} />
-              </button>
+
+              {/* Room / Mode Switcher */}
+              <div className="relative flex items-center gap-2 rounded-xl bg-white/10 px-2.5 py-1.5 border border-white/15">
+                <DoorOpen size={13} className="text-[#e6b85c] shrink-0" />
+                <select
+                  value={roomNumber}
+                  onChange={(e) => handleRoomChange(e.target.value)}
+                  aria-label="Mod Cameră / Vizitator"
+                  className="flex-1 bg-transparent text-[11.5px] font-semibold text-white outline-none cursor-pointer [&>option]:text-[#0d2c5c]"
+                >
+                  {ROOM_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div
                 className="absolute inset-x-0 bottom-0 h-px"
                 style={{ background: "rgba(255,255,255,0.15)" }}
@@ -582,6 +741,7 @@ export default function ChatWidget() {
                       onPick={send}
                       disabled={loading}
                       showTopics={messages.length === 1}
+                      roomNumber={roomNumber}
                     />
                   );
                 }
@@ -676,6 +836,25 @@ export default function ChatWidget() {
                           ))}
                         </div>
                       )}
+
+                      {m.role === "model" &&
+                        m.suggestions &&
+                        m.suggestions.length > 0 &&
+                        messages[messages.length - 1]?.id === m.id && (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {m.suggestions.map((sug) => (
+                              <button
+                                key={sug}
+                                type="button"
+                                disabled={loading}
+                                onClick={() => send(sug)}
+                                className="rounded-full border border-[#c69a3f]/40 bg-amber-50/70 px-3 py-1 text-[11px] font-semibold text-[#0d2c5c] hover:bg-[#c69a3f]/15 transition cursor-pointer"
+                              >
+                                {sug}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                     </div>
                   </motion.div>
                 );
@@ -718,23 +897,43 @@ export default function ChatWidget() {
               style={{ background: "#ffffff" }}
             >
               <div
-                className="flex items-center gap-2 rounded-full py-2 pl-4 pr-1.5 transition-all focus-within:shadow-[0_0_0_3px_rgba(47,111,214,0.15)] focus-within:border-[#2f6fd6]"
+                className="flex items-center gap-1.5 rounded-full py-1.5 pl-4 pr-1.5 transition-all focus-within:shadow-[0_0_0_3px_rgba(47,111,214,0.15)] focus-within:border-[#2f6fd6]"
                 style={{ background: "#f8fafc", border: "1px solid #cbd5e1" }}
               >
                 <input
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Scrie un mesaj sau întreabă ceva..."
+                  placeholder={
+                    listening
+                      ? "Te ascult... vorbește acum"
+                      : roomNumber
+                        ? `Întreabă sau comandă în Camera ${roomNumber}...`
+                        : "Scrie sau apasă microfonul și întreabă..."
+                  }
                   maxLength={1000}
-                  className="flex-1 bg-transparent text-[14px] font-medium outline-none placeholder:text-slate-400"
+                  className="flex-1 min-w-0 bg-transparent text-[13.5px] font-medium outline-none placeholder:text-slate-400"
                   style={{ color: "var(--text-primary)" }}
                 />
+                <button
+                  type="button"
+                  onClick={toggleVoiceInput}
+                  disabled={loading}
+                  title={listening ? "Oprește dictarea vocală" : "Vorbește cu asistentul (stil Alexa)"}
+                  aria-label={listening ? "Oprește dictarea" : "Dictare vocală"}
+                  className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all cursor-pointer ${
+                    listening
+                      ? "bg-red-500 text-white animate-pulse shadow-md"
+                      : "bg-slate-200/80 text-[#0d2c5c] hover:bg-[#c69a3f]/20"
+                  }`}
+                >
+                  {listening ? <MicOff size={15} /> : <Mic size={15} />}
+                </button>
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
                   aria-label="Trimite"
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all hover:opacity-95 active:scale-95 disabled:opacity-40"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all hover:opacity-95 active:scale-95 disabled:opacity-40 cursor-pointer"
                   style={{
                     background: "linear-gradient(135deg, #2f6fd6, var(--navy))",
                     color: "#fff",

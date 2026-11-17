@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MessageSquare,
   AlertTriangle,
@@ -11,10 +11,18 @@ import {
   User,
   Bot,
   RefreshCw,
+  Cpu,
+  Save,
+  RotateCcw,
+  Mic,
+  MicOff,
+  Volume2,
+  DoorOpen,
+  CheckCircle2,
 } from "lucide-react";
 import { useToast } from "../Toast";
-import { get, post, fetchBlob, dateTimeFmt, errMsg } from "../../lib/admin";
-import { Badge, Button, Card, EmptyState, SectionHeader, TableSkeleton, inputCls } from "./ui";
+import { get, post, put, fetchBlob, dateTimeFmt, errMsg } from "../../lib/admin";
+import { Badge, Button, Card, EmptyState, Field, SectionHeader, TableSkeleton, inputCls } from "./ui";
 
 interface ConversationSummary {
   session_id: string;
@@ -45,6 +53,48 @@ interface EscalationItem {
   kb_miss?: boolean | null;
 }
 
+interface ConciergeConfig {
+  custom_rules: string;
+  house_rules: string;
+  breakfast_and_dining_info: string;
+  local_area_tips: string;
+}
+
+interface ConciergeStats {
+  rooms_count: number;
+  units_count: number;
+  places_count: number;
+  menu_items_count: number;
+  facilities_count: number;
+  coupons_count: number;
+  knowledge_docs_count: number;
+  tools_count: number;
+}
+
+interface UnitChoice {
+  unit_number: string;
+  room_title: string;
+  base_price: number;
+}
+
+interface SimResult {
+  reply: string;
+  intent: string;
+  language: string;
+  tools_used: string[];
+  retrieved_docs: string[];
+  latency_ms: number;
+  cta?: { label: string; url: string } | null;
+}
+
+const SIMULATOR_PRESETS = [
+  "Ce paste și fructe de mare aveți la restaurant și cât costă?",
+  "Ce pot face și ce nu am voie în cameră? Care este parola Wi-Fi?",
+  "Trimite-mi în camera 201 un Aperol Spritz și un Tiramisu pe nota camerei.",
+  "Avem nevoie de încă 2 prosoape mari în camera 201.",
+  "Ce oferte, cupoane de reducere și atracții turistice aveți în zonă?",
+];
+
 const QUICK_DB_QUESTIONS = [
   "Care a fost rezervarea de azi care a adus cei mai mulți bani?",
   "Ce camere sunt libere în acest moment?",
@@ -58,7 +108,7 @@ const QUICK_DB_QUESTIONS = [
 
 export default function ConversationsTab() {
   const { toast } = useToast();
-  const [subTab, setSubTab] = useState<"ask_db" | "conversations" | "escalations">("ask_db");
+  const [subTab, setSubTab] = useState<"ask_db" | "ai_concierge" | "conversations" | "escalations">("ask_db");
 
   // Natural Language DB Query state
   const [dbQuestion, setDbQuestion] = useState(
@@ -66,6 +116,26 @@ export default function ConversationsTab() {
   );
   const [dbAnswer, setDbAnswer] = useState<string | null>(null);
   const [askingDb, setAskingDb] = useState(false);
+
+  // Smart Concierge Config & Simulator state
+  const [conciergeCfg, setConciergeCfg] = useState<ConciergeConfig>({
+    custom_rules: "",
+    house_rules: "",
+    breakfast_and_dining_info: "",
+    local_area_tips: "",
+  });
+  const [conciergeDefaults, setConciergeDefaults] = useState<ConciergeConfig | null>(null);
+  const [conciergeStats, setConciergeStats] = useState<ConciergeStats | null>(null);
+  const [conciergeUnits, setConciergeUnits] = useState<UnitChoice[]>([]);
+  const [loadingCfg, setLoadingCfg] = useState(false);
+  const [savingCfg, setSavingCfg] = useState(false);
+
+  const [simRoom, setSimRoom] = useState<string>("201");
+  const [simInput, setSimInput] = useState<string>(SIMULATOR_PRESETS[0]);
+  const [simLoading, setSimLoading] = useState(false);
+  const [simResult, setSimResult] = useState<SimResult | null>(null);
+  const [simListening, setSimListening] = useState(false);
+  const simRecRef = useRef<any>(null);
 
   // Conversations & Escalations state
   const [sessions, setSessions] = useState<ConversationSummary[]>([]);
@@ -96,9 +166,131 @@ export default function ConversationsTab() {
     }
   }, [selectedSessionId, toast]);
 
+  const loadConciergeConfig = useCallback(async () => {
+    setLoadingCfg(true);
+    try {
+      const res = await get<{
+        config: ConciergeConfig;
+        defaults: ConciergeConfig;
+        stats: ConciergeStats;
+        units: UnitChoice[];
+      }>("/api/chat/admin/concierge-config");
+      if (res?.config) setConciergeCfg(res.config);
+      if (res?.defaults) setConciergeDefaults(res.defaults);
+      if (res?.stats) setConciergeStats(res.stats);
+      if (Array.isArray(res?.units)) setConciergeUnits(res.units);
+    } catch {
+      // ignore if backend restarts
+    } finally {
+      setLoadingCfg(false);
+    }
+  }, []);
+
   useEffect(() => {
     void loadOverview();
-  }, [loadOverview]);
+    void loadConciergeConfig();
+  }, [loadOverview, loadConciergeConfig]);
+
+  const handleSaveConciergeConfig = async () => {
+    setSavingCfg(true);
+    try {
+      const res = await put<{ config: ConciergeConfig; stats: ConciergeStats }>(
+        "/api/chat/admin/concierge-config",
+        conciergeCfg,
+      );
+      if (res?.config) setConciergeCfg(res.config);
+      if (res?.stats) setConciergeStats(res.stats);
+      toast("Regulile și contextul AI Concierge au fost salvate live!", "success");
+    } catch (e) {
+      toast(errMsg(e), "error");
+    } finally {
+      setSavingCfg(false);
+    }
+  };
+
+  const handleResetConciergeDefaults = () => {
+    if (!conciergeDefaults) return;
+    setConciergeCfg(conciergeDefaults);
+    toast("Câmpurile au fost completate cu șablonul implicit. Apasă Salvează pentru a aplica.", "info");
+  };
+
+  const handleRunSimulator = async (qOverride?: string) => {
+    const q = (qOverride ?? simInput).trim();
+    if (!q || simLoading) return;
+    if (qOverride) setSimInput(qOverride);
+    setSimLoading(true);
+    try {
+      const res = await post<any>("/api/chat/", {
+        message: q,
+        history: [],
+        session_id: `admin-sim-${simRoom || "public"}`,
+        context: { room_number: simRoom },
+      });
+      setSimResult({
+        reply: res.reply || "Fără răspuns.",
+        intent: res.intent || "other",
+        language: res.language || "ro",
+        tools_used: res.meta?.tools_used || [],
+        retrieved_docs: res.meta?.retrieved_docs || [],
+        latency_ms: res.meta?.latency_ms || 0,
+        cta: res.cta || null,
+      });
+    } catch (e) {
+      toast(errMsg(e), "error");
+    } finally {
+      setSimLoading(false);
+    }
+  };
+
+  const speakSimulatorReply = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window) || !text) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text.replace(/\*\*/g, ""));
+    const voices = window.speechSynthesis.getVoices();
+    const roVoice = voices.find((v) => v.lang.toLowerCase().startsWith("ro"));
+    if (roVoice) utter.voice = roVoice;
+    utter.lang = "ro-RO";
+    window.speechSynthesis.speak(utter);
+  };
+
+  const toggleSimVoice = () => {
+    if (typeof window === "undefined") return;
+    if (simListening && simRecRef.current) {
+      simRecRef.current.stop();
+      setSimListening(false);
+      return;
+    }
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRec) {
+      toast("Browserul tău nu suportă recunoașterea vocală nativă (folosește Chrome/Edge).", "error");
+      return;
+    }
+    try {
+      const rec = new SpeechRec();
+      rec.lang = "ro-RO";
+      rec.interimResults = true;
+      let finalTxt = "";
+      rec.onstart = () => setSimListening(true);
+      rec.onresult = (ev: any) => {
+        let interim = "";
+        for (let i = ev.resultIndex; i < ev.results.length; i++) {
+          const t = ev.results[i][0].transcript;
+          if (ev.results[i].isFinal) finalTxt += t + " ";
+          else interim += t;
+        }
+        setSimInput((finalTxt + interim).trim());
+      };
+      rec.onerror = () => setSimListening(false);
+      rec.onend = () => {
+        setSimListening(false);
+        if (finalTxt.trim()) void handleRunSimulator(finalTxt.trim());
+      };
+      simRecRef.current = rec;
+      rec.start();
+    } catch {
+      setSimListening(false);
+    }
+  };
 
   useEffect(() => {
     if (!selectedSessionId) {
@@ -166,7 +358,13 @@ export default function ConversationsTab() {
         title="Asistent pentru baza de date și conversații"
         action={
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => void loadOverview()}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                void loadOverview();
+                void loadConciergeConfig();
+              }}
+            >
               <RefreshCw size={14} /> Reîmprospătează
             </Button>
             <Button variant="gold" onClick={handleExportCsv} disabled={exporting}>
@@ -189,6 +387,19 @@ export default function ConversationsTab() {
         >
           <Database size={15} className="text-[#c69a3f]" />
           Întreabă baza de date
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSubTab("ai_concierge")}
+          className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-[12px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer ${
+            subTab === "ai_concierge"
+              ? "border-[#c69a3f] text-[#0d2c5c]"
+              : "border-transparent text-[#6b7c99] hover:text-[#0d2c5c]"
+          }`}
+        >
+          <Cpu size={15} className="text-[#c69a3f]" />
+          Configurare & Simulator AI
         </button>
 
         <button
@@ -217,6 +428,255 @@ export default function ConversationsTab() {
           Alerte și escaladări ({escalations.length})
         </button>
       </div>
+
+      {/* ── SUB-TAB: CONFIGURARE & SIMULATOR SMART AI CONCIERGE ── */}
+      {subTab === "ai_concierge" && (
+        <div className="space-y-6">
+          {/* Statistici live creier AI */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+            <Card className="p-4 border-[#e1e8f0]">
+              <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block">
+                Camere & Unități Live
+              </span>
+              <span className="text-2xl font-bold text-[#0d2c5c] mt-1 block">
+                {conciergeStats?.rooms_count ?? "—"} tipuri · {conciergeStats?.units_count ?? "—"} uși
+              </span>
+            </Card>
+            <Card className="p-4 border-[#e1e8f0]">
+              <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block">
+                Meniu Restaurant, Bar & SPA
+              </span>
+              <span className="text-2xl font-bold text-[#0d2c5c] mt-1 block">
+                {conciergeStats?.menu_items_count ?? "—"} produse
+              </span>
+            </Card>
+            <Card className="p-4 border-[#e1e8f0]">
+              <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#6b7c99] block">
+                Locații & Cupoane
+              </span>
+              <span className="text-2xl font-bold text-[#0d2c5c] mt-1 block">
+                {conciergeStats?.places_count ?? "—"} locuri · {conciergeStats?.coupons_count ?? "—"} coduri
+              </span>
+            </Card>
+            <Card className="p-4 border-[#c69a3f]/40 bg-[#fdf8ec]">
+              <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#8a6420] block">
+                Unelte Gemini Active
+              </span>
+              <span className="text-2xl font-bold text-[#0d2c5c] mt-1 block">
+                {conciergeStats?.tools_count ?? 9} funcții + {conciergeStats?.knowledge_docs_count ?? 15} RAG
+              </span>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Coloana Stângă: Editor Reguli & Context Hotel */}
+            <Card className="lg:col-span-6 p-6 space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e1e8f0]">
+                <div>
+                  <h3 className="text-[19px] font-bold text-[#0d2c5c] flex items-center gap-2 font-['Outfit',sans-serif]">
+                    <Sparkles size={18} className="text-[#c69a3f]" />
+                    Reguli Cameră, Program & Creier AI
+                  </h3>
+                  <p className="text-[12.5px] text-[#6b7c99] mt-0.5">
+                    Orice modifici și salvezi aici devine instant adevărul oficial folosit de Esy pentru oaspeții din camere și vizitatorii publici.
+                  </p>
+                </div>
+                <Badge tone="green">Gratuit · Gemini + DB</Badge>
+              </div>
+
+              {loadingCfg ? (
+                <TableSkeleton rows={4} />
+              ) : (
+                <div className="space-y-4">
+                  <Field label="Reguli în Cameră (Ce are voie și ce NU are voie oaspetele)">
+                    <textarea
+                      rows={4}
+                      value={conciergeCfg.house_rules}
+                      onChange={(e) => setConciergeCfg((p) => ({ ...p, house_rules: e.target.value }))}
+                      className={`${inputCls} resize-y text-[13px]`}
+                      placeholder="Ex: Fumatul interzis în interior, permis pe balcon..."
+                    />
+                  </Field>
+
+                  <Field label="Program Mese, Mic Dejun, Restaurant, Bar & Room Service">
+                    <textarea
+                      rows={4}
+                      value={conciergeCfg.breakfast_and_dining_info}
+                      onChange={(e) =>
+                        setConciergeCfg((p) => ({ ...p, breakfast_and_dining_info: e.target.value }))
+                      }
+                      className={`${inputCls} resize-y text-[13px]`}
+                    />
+                  </Field>
+
+                  <Field label="Recomandări Locale & Atracții Eforie Nord / Constanța">
+                    <textarea
+                      rows={3}
+                      value={conciergeCfg.local_area_tips}
+                      onChange={(e) =>
+                        setConciergeCfg((p) => ({ ...p, local_area_tips: e.target.value }))
+                      }
+                      className={`${inputCls} resize-y text-[13px]`}
+                    />
+                  </Field>
+
+                  <Field label="Instrucțiuni Suplimentare Personalizate (Parcare, Animale, Smart Lock)">
+                    <textarea
+                      rows={3}
+                      value={conciergeCfg.custom_rules}
+                      onChange={(e) => setConciergeCfg((p) => ({ ...p, custom_rules: e.target.value }))}
+                      className={`${inputCls} resize-y text-[13px]`}
+                    />
+                  </Field>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                    <Button variant="ghost" onClick={handleResetConciergeDefaults} disabled={!conciergeDefaults}>
+                      <RotateCcw size={14} /> Resetează la șablon
+                    </Button>
+                    <Button variant="gold" onClick={() => void handleSaveConciergeConfig()} disabled={savingCfg}>
+                      <Save size={14} />
+                      {savingCfg ? "Se salvează..." : "Salvează în Creierul AI"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Card>
+
+            {/* Coloana Dreaptă: Simulator Interactiv Live Stil Alexa / In-Room */}
+            <Card className="lg:col-span-6 p-6 space-y-5 border-[#0d2c5c]/15 bg-gradient-to-b from-white to-[#f8fafd]">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e1e8f0]">
+                <div>
+                  <h3 className="text-[19px] font-bold text-[#0d2c5c] flex items-center gap-2 font-['Outfit',sans-serif]">
+                    <Bot size={19} className="text-[#c69a3f]" />
+                    Simulator Live (Voce & Mod Cameră)
+                  </h3>
+                  <p className="text-[12.5px] text-[#6b7c99] mt-0.5">
+                    Testează orice întrebare imposibilă sau comandă de Room Service ca și cum ai fi în cameră.
+                  </p>
+                </div>
+                <Badge tone="navy">Funcții Reale Active</Badge>
+              </div>
+
+              <div className="rounded-xl bg-[#0d2c5c]/5 border border-[#0d2c5c]/15 p-3 flex flex-col sm:flex-row sm:items-center gap-2.5">
+                <span className="text-[12px] font-bold text-[#0d2c5c] flex items-center gap-1.5 shrink-0">
+                  <DoorOpen size={15} className="text-[#c69a3f]" /> Simulează din:
+                </span>
+                <select
+                  value={simRoom}
+                  onChange={(e) => setSimRoom(e.target.value)}
+                  className={`${inputCls} flex-1 text-[13px] py-1.5`}
+                >
+                  <option value="">🌐 Vizitator Public (fără cameră)</option>
+                  {conciergeUnits.length > 0 ? (
+                    conciergeUnits.map((u) => (
+                      <option key={u.unit_number} value={u.unit_number}>
+                        🔑 Camera {u.unit_number} — {u.room_title} ({u.base_price} RON)
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="101">🔑 Camera 101 — Standard Twin Room</option>
+                      <option value="201">🔑 Camera 201 — Deluxe Double Room</option>
+                      <option value="301">🔑 Camera 301 — Luxury Suite</option>
+                      <option value="401">🔑 Camera 401 — Family Room</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  value={simInput}
+                  onChange={(e) => setSimInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void handleRunSimulator();
+                  }}
+                  placeholder={simListening ? "Vorbește acum..." : "Întreabă sau comandă în cameră..."}
+                  className={`${inputCls} flex-1 text-[13.5px]`}
+                />
+                <Button
+                  variant={simListening ? "danger" : "ghost"}
+                  onClick={toggleSimVoice}
+                >
+                  {simListening ? <MicOff size={15} /> : <Mic size={15} />}
+                  {simListening ? "Ascult..." : "Voce"}
+                </Button>
+                <Button onClick={() => void handleRunSimulator()} disabled={simLoading || !simInput.trim()}>
+                  <Send size={14} /> {simLoading ? "Gândește..." : "Testează"}
+                </Button>
+              </div>
+
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#6b7c99] block mb-2">
+                  Scenarii de test rapide:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {SIMULATOR_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => void handleRunSimulator(preset)}
+                      className="text-left rounded-xl border border-[#e1e8f0] bg-white px-2.5 py-1.5 text-[11.5px] font-medium text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-amber-50/50 transition cursor-pointer"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {simLoading && <TableSkeleton rows={3} />}
+
+              {!simLoading && simResult && (
+                <div className="rounded-2xl border border-[#e5dcc3] bg-white p-5 shadow-sm space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#eef2f7]">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#c69a3f] flex items-center gap-1.5">
+                      <CheckCircle2 size={14} className="text-emerald-600" /> Răspuns Concierge AI
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Button variant="ghost" onClick={() => speakSimulatorReply(simResult.reply)}>
+                        <Volume2 size={13} /> Ascultă Vocal
+                      </Button>
+                      <Badge tone="navy">{simResult.latency_ms} ms</Badge>
+                    </div>
+                  </div>
+
+                  <p className="text-[13.5px] leading-relaxed text-[#0d2c5c] whitespace-pre-line">
+                    {simResult.reply}
+                  </p>
+
+                  <div className="pt-2.5 border-t border-[#eef2f7] flex flex-wrap gap-1.5 text-[10.5px]">
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
+                      Intent: {simResult.intent}
+                    </span>
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
+                      Limbă: {simResult.language.toUpperCase()}
+                    </span>
+                    {simResult.tools_used.length > 0 ? (
+                      simResult.tools_used.map((tl, idx) => (
+                        <span
+                          key={`${tl}-${idx}`}
+                          className="rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 font-bold text-emerald-700"
+                        >
+                          ⚡ Tool: {tl}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="rounded-md bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">
+                        Context direct din System Prompt
+                      </span>
+                    )}
+                    {simResult.cta && (
+                      <span className="rounded-md bg-[#0d2c5c] px-2 py-0.5 font-bold text-[#e6b85c]">
+                        CTA: {simResult.cta.label} ({simResult.cta.url})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </Card>
+          </div>
+        </div>
+      )}
 
       {/* ── SUB-TAB 1: ÎNTREABĂ BAZA DE DATE ÎN LIMBAJ NATURAL ── */}
       {subTab === "ask_db" && (
