@@ -24,6 +24,7 @@ import {
 import { useToast } from "../Toast";
 import { get, post, put, fetchBlob, dateTimeFmt, errMsg } from "../../lib/admin";
 import { createVoicePlayer, type VoicePlayer } from "../../lib/voicePlayer";
+import AiVoiceWave from "../AiVoiceWave";
 import { Badge, Button, Card, EmptyState, Field, SectionHeader, TableSkeleton, inputCls } from "./ui";
 
 interface ConversationSummary {
@@ -648,6 +649,21 @@ export default function ConversationsTab() {
                   ))}
                 </div>
               </div>
+
+              <AiVoiceWave
+                active={simSpeaking || simListening}
+                mode={simListening ? "listening" : "speaking"}
+                label={
+                  simListening
+                    ? "Simulatorul ascultă vocea ta..."
+                    : "Concierge AI redă răspunsul vocal..."
+                }
+                onStop={() => {
+                  if (simListening) toggleSimVoice();
+                  else simVoicePlayerRef.current?.stop();
+                }}
+                compact
+              />
 
               {simLoading && <TableSkeleton rows={3} />}
 

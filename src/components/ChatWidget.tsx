@@ -18,6 +18,7 @@ import { ron } from "../lib/format";
 import { API_URL } from "../lib/config";
 import { getAccessToken } from "../lib/token";
 import { createVoicePlayer, type VoicePlayer } from "../lib/voicePlayer";
+import AiVoiceWave from "./AiVoiceWave";
 
 const API_BASE = API_URL.replace(/\/$/, "");
 const CHAT_URL = `${API_BASE}/api/chat/`;
@@ -902,6 +903,22 @@ export default function ChatWidget() {
               )}
             </div>
 
+            {/* Siri-style Voice Wave Visualizer */}
+            <AiVoiceWave
+              active={speaking || listening}
+              mode={listening ? "listening" : "speaking"}
+              label={
+                listening
+                  ? "Te ascult... vorbește acum"
+                  : "Esy · Concierge AI vorbește"
+              }
+              wrapperClassName="px-4 py-2 border-t border-slate-100 bg-white"
+              onStop={() => {
+                if (listening) toggleVoiceInput();
+                else voicePlayerRef.current?.stop();
+              }}
+            />
+
             {/* Input Form */}
             <form
               onSubmit={onSubmit}
@@ -935,9 +952,16 @@ export default function ChatWidget() {
                   aria-label={listening ? "Oprește dictarea" : "Dictare vocală"}
                   className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all cursor-pointer ${
                     listening
-                      ? "bg-red-500 text-white animate-pulse shadow-md"
-                      : "bg-slate-200/80 text-[#0d2c5c] hover:bg-[#c69a3f]/20"
+                      ? "text-white animate-pulse shadow-md"
+                      : speaking
+                        ? "text-white shadow-sm"
+                        : "bg-slate-200/80 text-[#0d2c5c] hover:bg-[#6366f1]/15 hover:text-[#4f46e5]"
                   }`}
+                  style={
+                    listening || speaking
+                      ? { background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #38bdf8 100%)" }
+                      : undefined
+                  }
                 >
                   {listening ? <MicOff size={15} /> : <Mic size={15} />}
                 </button>
