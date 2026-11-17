@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   PackageSearch,
@@ -124,7 +125,30 @@ export default function LostFoundTab() {
   const [claimModalItem, setClaimModalItem] = useState<LostFoundItem | null>(null);
   const [labelModalItem, setLabelModalItem] = useState<LostFoundItem | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [brokenPhotos, setBrokenPhotos] = useState<Record<string, boolean>>({});
+  const [menuAnchor, setMenuAnchor] = useState<{
+    item: LostFoundItem;
+    top: number;
+    bottom: number;
+    right: number;
+    openUp: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!menuAnchor) return;
+    const closeMenu = () => setMenuAnchor(null);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+    };
+    window.addEventListener("scroll", closeMenu, true);
+    window.addEventListener("resize", closeMenu);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("scroll", closeMenu, true);
+      window.removeEventListener("resize", closeMenu);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuAnchor]);
 
   // Create Form State
   const [form, setForm] = useState({
@@ -259,7 +283,14 @@ export default function LostFoundTab() {
 
       if (!res.ok) throw new Error("Upload-ul imaginii a eșuat");
       const data = await res.json();
-      setForm((prev) => ({ ...prev, photo_url: `${apiBase}${data.photo_url}` }));
+      const rawUrl = String(data?.url || data?.photo_url || "").trim();
+      const finalUrl =
+        !rawUrl || rawUrl.endsWith("undefined")
+          ? ""
+          : rawUrl.startsWith("http") || rawUrl.startsWith("data:")
+            ? rawUrl
+            : `${apiBase}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
+      setForm((prev) => ({ ...prev, photo_url: finalUrl }));
       toast("Fotografia a fost optimizată și încărcată.", "success");
     } catch (err) {
       toast(errMsg(err), "error");
@@ -587,7 +618,9 @@ export default function LostFoundTab() {
                     {/* Item Details & Thumbnail */}
                     <td className="py-4 pl-6 pr-3">
                       <div className="flex items-center gap-3">
-                        {item.photo_url ? (
+                        {item.photo_url &&
+                        !item.photo_url.endsWith("undefined") &&
+                        !brokenPhotos[item.id] ? (
                           <button
                             onClick={() => setPhotoPreview(item.photo_url || null)}
                             className="group relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#e1e8f0] bg-slate-100 cursor-pointer"
@@ -595,6 +628,9 @@ export default function LostFoundTab() {
                             <img
                               src={item.photo_url}
                               alt={item.item_name}
+                              onError={() =>
+                                setBrokenPhotos((prev) => ({ ...prev, [item.id]: true }))
+                              }
                               className="h-full w-full object-cover transition-transform group-hover:scale-110"
                             />
                             <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -688,69 +724,31 @@ export default function LostFoundTab() {
                     <td className="py-4 pl-3 pr-6 text-right">
                       <div className="relative inline-block text-left">
                         <button
-                          onClick={() => setActiveMenuId(activeMenuId === item.id ? null : item.id)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] bg-white text-[#6b7c99] hover:bg-[#f8fafd] hover:text-[#0d2c5c] transition-colors cursor-pointer"
+                          type="button"
+                          onClick={(e) => {
+                            if (menuAnchor?.item.id === item.id) {
+                              setMenuAnchor(null);
+                              return;
+                            }
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const openUp = rect.bottom + 240 > window.innerHeight;
+                            setMenuAnchor({
+                              item,
+                              top: rect.bottom + 6,
+                              bottom: window.innerHeight - rect.top + 6,
+                              right: Math.max(12, window.innerWidth - rect.right),
+                              openUp,
+                            });
+                          }}
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors cursor-pointer ${
+                            menuAnchor?.item.id === item.id
+                              ? "border-[#0d2c5c] bg-[#0d2c5c] text-white"
+                              : "border-[#e1e8f0] bg-white text-[#6b7c99] hover:bg-[#f8fafd] hover:text-[#0d2c5c]"
+                          }`}
+                          aria-label="Acțiuni obiect"
                         >
                           <MoreVertical size={14} />
                         </button>
-
-                        {activeMenuId === item.id && (
-                          <div className="absolute right-0 z-20 mt-1 w-52 rounded-xl border border-[#e1e8f0] bg-white p-1.5 shadow-xl">
-                            {item.status === "in_custody" && (
-                              <>
-                                <button
-                                  onClick={() => {
-                                    setClaimModalItem(item);
-                                    setActiveMenuId(null);
-                                  }}
-                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-emerald-700 hover:bg-emerald-50 cursor-pointer"
-                                >
-                                  <CheckCircle2 size={13} /> Predat la Recepție
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setShipModalItem(item);
-                                    setActiveMenuId(null);
-                                  }}
-                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-sky-700 hover:bg-sky-50 cursor-pointer"
-                                >
-                                  <Truck size={13} /> Expediază prin Curier
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    void handleMarkDisposed(item);
-                                    setActiveMenuId(null);
-                                  }}
-                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-                                >
-                                  <Archive size={13} /> Casează / Donează
-                                </button>
-                              </>
-                            )}
-
-                            <button
-                              onClick={() => {
-                                setLabelModalItem(item);
-                                setActiveMenuId(null);
-                              }}
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#0d2c5c] hover:bg-[#f4f6f9] cursor-pointer"
-                            >
-                              <Printer size={13} /> Etichetă Cutie Depozit
-                            </button>
-
-                            <div className="my-1 border-t border-[#eef2f7]" />
-
-                            <button
-                              onClick={() => {
-                                void handleDeleteItem(item);
-                                setActiveMenuId(null);
-                              }}
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 cursor-pointer"
-                            >
-                              <Trash2 size={13} /> Șterge Înregistrarea
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -1107,6 +1105,89 @@ export default function LostFoundTab() {
           </div>
         </Modal>
       )}
+
+      {/* ── PORTAL MENIU ACȚIUNI PLUTITOR ── */}
+      {menuAnchor &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 z-[9998]"
+              onClick={() => setMenuAnchor(null)}
+              aria-hidden="true"
+            />
+            <div
+              style={{
+                right: `${menuAnchor.right}px`,
+                ...(menuAnchor.openUp
+                  ? { bottom: `${menuAnchor.bottom}px` }
+                  : { top: `${menuAnchor.top}px` }),
+              }}
+              className="fixed z-[9999] w-56 rounded-xl border border-[#e1e8f0] bg-white p-1.5 shadow-[0_14px_40px_rgba(13,44,92,0.18)]"
+            >
+              {menuAnchor.item.status === "in_custody" && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClaimModalItem(menuAnchor.item);
+                      setMenuAnchor(null);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-emerald-700 hover:bg-emerald-50 cursor-pointer"
+                  >
+                    <CheckCircle2 size={13} /> Predat la Recepție
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShipModalItem(menuAnchor.item);
+                      setMenuAnchor(null);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-sky-700 hover:bg-sky-50 cursor-pointer"
+                  >
+                    <Truck size={13} /> Expediază prin Curier
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const target = menuAnchor.item;
+                      setMenuAnchor(null);
+                      void handleMarkDisposed(target);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  >
+                    <Archive size={13} /> Casează / Donează
+                  </button>
+                </>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setLabelModalItem(menuAnchor.item);
+                  setMenuAnchor(null);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#0d2c5c] hover:bg-[#f4f6f9] cursor-pointer"
+              >
+                <Printer size={13} /> Etichetă Cutie Depozit
+              </button>
+
+              <div className="my-1 border-t border-[#eef2f7]" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  const target = menuAnchor.item;
+                  setMenuAnchor(null);
+                  void handleDeleteItem(target);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 cursor-pointer"
+              >
+                <Trash2 size={13} /> Șterge Înregistrarea
+              </button>
+            </div>
+          </>,
+          document.body,
+        )}
 
       {/* ── MODAL: PREVIEW ZOOM FOTOGRAFIE ── */}
       {photoPreview && (
