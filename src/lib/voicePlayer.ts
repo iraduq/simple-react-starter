@@ -8,61 +8,69 @@ export interface VoicePlayer {
   stop: () => void;
 }
 
-function cleanTextForBrowserSpeech(text: string): string {
-  return text
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/https?:\/\/\S+/g, "")
-    .replace(/[*_`#>~]/g, " ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+let sharedAudioCtx: AudioContext | null = null;
+let sharedAudioEl: HTMLAudioElement | null = null;
+let unlockerInstalled = false;
+
+function getAudioContext(): AudioContext | null {
+  if (typeof window === "undefined") return null;
+  const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctx) return null;
+  if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
+    sharedAudioCtx = new Ctx();
+  }
+  return sharedAudioCtx;
 }
 
-function speakBrowserFallback(
-  text: string,
-  lang: string,
-  onDone: () => void,
-): void {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-    onDone();
-    return;
+function getSharedAudioEl(): HTMLAudioElement | null {
+  if (typeof window === "undefined") return null;
+  if (!sharedAudioEl) {
+    sharedAudioEl = new Audio();
   }
-  const clean = cleanTextForBrowserSpeech(text);
-  if (!clean) {
-    onDone();
-    return;
-  }
-  try {
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(clean);
-    const voices = window.speechSynthesis.getVoices();
-    const prefix = (lang || "ro").toLowerCase().slice(0, 2);
-    const matched = voices.find((v) => v.lang.toLowerCase().startsWith(prefix));
-    if (matched) utter.voice = matched;
-    utter.lang = prefix === "ro" ? "ro-RO" : lang || "en-US";
-    utter.rate = 1.02;
-    utter.onend = onDone;
-    utter.onerror = onDone;
-    window.speechSynthesis.speak(utter);
-  } catch {
-    onDone();
+  return sharedAudioEl;
+}
+
+export function unlockAudioPlayback(): void {
+  const ctx = getAudioContext();
+  if (ctx && ctx.state === "suspended") {
+    void ctx.resume().catch(() => {
+      // ignore resume before user gesture
+    });
   }
 }
+
+function installGlobalAudioUnlocker(): void {
+  if (typeof window === "undefined" || unlockerInstalled) return;
+  unlockerInstalled = true;
+  const onGesture = () => {
+    unlockAudioPlayback();
+  };
+  window.addEventListener("pointerdown", onGesture, { passive: true });
+  window.addEventListener("keydown", onGesture, { passive: true });
+  window.addEventListener("touchstart", onGesture, { passive: true });
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+installGlobalAudioUnlocker();
 
 export function createVoicePlayer(onSpeakingChange?: (speaking: boolean) => void): VoicePlayer {
   let seqId = 0;
-  let audioEl: HTMLAudioElement | null = null;
-  let objectUrl: string | null = null;
+  let bufferSource: AudioBufferSourceNode | null = null;
+  let activeAudioEl: HTMLAudioElement | null = null;
   let abortCtrl: AbortController | null = null;
 
   const notify = (speaking: boolean) => {
     onSpeakingChange?.(speaking);
-  };
-
-  const revokeUrl = () => {
-    if (objectUrl) {
-      URL.revokeObjectURL(objectUrl);
-      objectUrl = null;
-    }
   };
 
   const stop = () => {
@@ -71,22 +79,52 @@ export function createVoicePlayer(onSpeakingChange?: (speaking: boolean) => void
       abortCtrl.abort();
       abortCtrl = null;
     }
-    if (audioEl) {
-      audioEl.onended = null;
-      audioEl.onerror = null;
-      audioEl.pause();
-      audioEl.src = "";
-      audioEl = null;
+    if (bufferSource) {
+      try {
+        bufferSource.onended = null;
+        bufferSource.stop();
+        bufferSource.disconnect();
+      } catch {
+        // ignore stop if already stopped
+      }
+      bufferSource = null;
     }
-    revokeUrl();
+    if (activeAudioEl) {
+      activeAudioEl.onended = null;
+      activeAudioEl.onerror = null;
+      activeAudioEl.pause();
+      activeAudioEl.removeAttribute("src");
+      activeAudioEl = null;
+    }
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       try {
         window.speechSynthesis.cancel();
       } catch {
-        // ignore speechSynthesis cancel errors
+        // ignore
       }
     }
     notify(false);
+  };
+
+  const playViaDataUri = async (arrayBuffer: ArrayBuffer, mySeq: number): Promise<void> => {
+    const audio = getSharedAudioEl();
+    if (!audio || mySeq !== seqId) {
+      notify(false);
+      return;
+    }
+    const base64 = arrayBufferToBase64(arrayBuffer);
+    activeAudioEl = audio;
+
+    const cleanup = () => {
+      if (mySeq === seqId) {
+        activeAudioEl = null;
+        notify(false);
+      }
+    };
+    audio.onended = cleanup;
+    audio.onerror = cleanup;
+    audio.src = `data:audio/mpeg;base64,${base64}`;
+    await audio.play();
   };
 
   const speak = async (
@@ -95,6 +133,7 @@ export function createVoicePlayer(onSpeakingChange?: (speaking: boolean) => void
     voice: "female" | "male" = "female",
   ): Promise<void> => {
     stop();
+    unlockAudioPlayback();
     const trimmed = text?.trim();
     if (!trimmed) return;
 
@@ -112,38 +151,42 @@ export function createVoicePlayer(onSpeakingChange?: (speaking: boolean) => void
       });
       if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
 
-      const blob = await res.blob();
-      if (mySeq !== seqId) return;
-      if (!blob || blob.size < 64) throw new Error("Empty TTS audio");
-
-      const url = URL.createObjectURL(blob);
-      objectUrl = url;
-      const audio = new Audio(url);
-      audioEl = audio;
-
-      const cleanup = () => {
-        if (mySeq === seqId) {
-          audioEl = null;
-          revokeUrl();
-          notify(false);
-        }
-      };
-      audio.onended = cleanup;
-      audio.onerror = () => {
-        cleanup();
-        if (mySeq === seqId) {
-          speakBrowserFallback(trimmed, lang, () => {
-            if (mySeq === seqId) notify(false);
-          });
-        }
-      };
-
-      await audio.play();
-    } catch (err: any) {
-      if (err?.name === "AbortError" || mySeq !== seqId) return;
-      speakBrowserFallback(trimmed, lang, () => {
+      const arrayBuffer = await res.arrayBuffer();
+      if (mySeq !== seqId || arrayBuffer.byteLength < 64) {
         if (mySeq === seqId) notify(false);
-      });
+        return;
+      }
+
+      const ctx = getAudioContext();
+      if (ctx) {
+        try {
+          if (ctx.state === "suspended") {
+            await ctx.resume();
+          }
+          const decoded = await ctx.decodeAudioData(arrayBuffer.slice(0));
+          if (mySeq !== seqId) return;
+
+          const src = ctx.createBufferSource();
+          src.buffer = decoded;
+          src.connect(ctx.destination);
+          bufferSource = src;
+          src.onended = () => {
+            if (mySeq === seqId) {
+              bufferSource = null;
+              notify(false);
+            }
+          };
+          src.start(0);
+          return;
+        } catch {
+          // If Web Audio decode or resume fails, fall back cleanly to data: URI audio element (never speechSynthesis)
+        }
+      }
+
+      await playViaDataUri(arrayBuffer, mySeq);
+    } catch (err: unknown) {
+      if ((err as { name?: string })?.name === "AbortError" || mySeq !== seqId) return;
+      notify(false);
     }
   };
 
