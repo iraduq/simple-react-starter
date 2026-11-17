@@ -10,7 +10,7 @@ import {
   Sparkles,
   Store,
   Layers,
-  Search,
+  ChevronRight,
 } from "lucide-react";
 import { useToast } from "../Toast";
 import { get, post, patch, del, upload, list, errMsg } from "../../lib/admin";
@@ -76,6 +76,7 @@ export default function AdminMenuTab() {
   const [catFilter, setCatFilter] = useState<number | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [stockFilter, setStockFilter] = useState<"all" | "in_stock" | "out_of_stock">("all");
+  const [showEmptyPlaces, setShowEmptyPlaces] = useState(false);
 
   const [itemForm, setItemForm] = useState<typeof EMPTY_ITEM | null>(null);
   const [itemEditing, setItemEditing] = useState<MenuItem | null>(null);
@@ -104,11 +105,76 @@ export default function AdminMenuTab() {
   const placeName = (id?: number | string | null) =>
     places.find((p) => String(p.id) === String(id))?.title;
 
+  // Locații ordonate descrescător după numărul de preparate / categorii
+  const placeStats = useMemo(() => {
+    const mapped = places.map((p) => {
+      const pCats = cats.filter((c) => String(c.place_id) === String(p.id));
+      const itemsCount = pCats.reduce((acc, c) => acc + (c.items?.length || 0), 0);
+      return {
+        place: p,
+        catsCount: pCats.length,
+        itemsCount,
+      };
+    });
+    return mapped.sort((a, b) => {
+      if (b.itemsCount !== a.itemsCount) return b.itemsCount - a.itemsCount;
+      if (b.catsCount !== a.catsCount) return b.catsCount - a.catsCount;
+      return String(a.place.title || "").localeCompare(String(b.place.title || ""), "ro");
+    });
+  }, [places, cats]);
+
+  const activePlaceStats = useMemo(
+    () => placeStats.filter((s) => s.itemsCount > 0 || s.catsCount > 0),
+    [placeStats],
+  );
+  const emptyPlacesCount = placeStats.length - activePlaceStats.length;
+  const displayedPlaceStats =
+    showEmptyPlaces || activePlaceStats.length === 0 ? placeStats : activePlaceStats;
+
   // Categoriile vizibile în funcție de locația selectată
   const visibleCats = useMemo(() => {
     if (placeFilter === "all") return cats;
     return cats.filter((c) => String(c.place_id) === String(placeFilter));
   }, [cats, placeFilter]);
+
+  // Gruparea categoriilor pe locație pentru afișare curată în panoul din stânga
+  const groupedVisibleCats = useMemo(() => {
+    const groups: Array<{ key: string; title: string; items: MenuCategory[] }> = [];
+    const byKey = new Map<string, { key: string; title: string; items: MenuCategory[] }>();
+
+    for (const stat of placeStats) {
+      const key = String(stat.place.id);
+      const grp = { key, title: stat.place.title || "Locație", items: [] as MenuCategory[] };
+      byKey.set(key, grp);
+    }
+
+    for (const c of visibleCats) {
+      const key = c.place_id ? String(c.place_id) : "general";
+      let grp = byKey.get(key);
+      if (!grp) {
+        grp = {
+          key,
+          title: c.place_id ? placeName(c.place_id) || "Altă locație" : "General / Fără locație",
+          items: [],
+        };
+        byKey.set(key, grp);
+      }
+      grp.items.push(c);
+    }
+
+    for (const stat of placeStats) {
+      const grp = byKey.get(String(stat.place.id));
+      if (grp && grp.items.length > 0) groups.push(grp);
+    }
+    const generalGrp = byKey.get("general");
+    if (generalGrp && generalGrp.items.length > 0) groups.push(generalGrp);
+    for (const [k, grp] of byKey.entries()) {
+      if (grp.items.length > 0 && !groups.some((g) => g.key === k)) {
+        groups.push(grp);
+      }
+    }
+    return groups;
+  }, [visibleCats, placeStats, places]);
 
   // Lista tuturor produselor filtrate conform locației, categoriei, stocului și căutării
   const allFilteredItems = useMemo(() => {
@@ -150,6 +216,16 @@ export default function AdminMenuTab() {
   }, [cats, placeFilter, catFilter, stockFilter, searchQuery, places]);
 
   const paged = usePaged(allFilteredItems, 12);
+  const { setPage } = paged;
+
+  useEffect(() => {
+    setPage(1);
+  }, [placeFilter, catFilter, stockFilter, searchQuery, setPage]);
+
+  const activeCategoryObj = useMemo(
+    () => (catFilter === "all" ? null : cats.find((c) => c.id === catFilter) || null),
+    [catFilter, cats],
+  );
 
   // Contorizări pentru stoc
   const { totalInScope, inStockCount, outOfStockCount } = useMemo(() => {
@@ -292,25 +368,39 @@ export default function AdminMenuTab() {
         }
       />
 
-      {/* ── 1. SELECTOR PRINCIPAL: DUPĂ TIP / LOCAȚIE (Restaurant / Plajă / Bar etc.) ── */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between">
+      {/* ── 1. SELECTOR PRINCIPAL: LOCAȚIE GASTRONOMICĂ ── */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c] flex items-center gap-2">
-            <Store size={14} className="text-[#c69a3f]" /> Selectează Tipul / Locația:
+            <Store size={14} className="text-[#c69a3f]" /> Locații gastronomice & bar
           </p>
-          <span className="text-xs text-[#6b7c99]">
-            {places.length} {places.length === 1 ? "locație definită" : "locații definite"}
-          </span>
+          <div className="flex items-center gap-3">
+            {emptyPlacesCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowEmptyPlaces((v) => !v)}
+                className="text-[11px] font-semibold text-[#6b7c99] hover:text-[#0d2c5c] underline decoration-dotted underline-offset-4 transition-colors cursor-pointer"
+              >
+                {showEmptyPlaces
+                  ? "Ascunde locațiile fără meniu"
+                  : `Vezi și locațiile fără meniu (${emptyPlacesCount})`}
+              </button>
+            )}
+            <span className="text-[11px] font-semibold text-[#6b7c99]">
+              {activePlaceStats.length} active cu meniu
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5">
-          {/* Buton Toate Locațiile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+          {/* Card Toate Locațiile */}
           <button
+            type="button"
             onClick={() => {
               setPlaceFilter("all");
               setCatFilter("all");
             }}
-            className={`flex items-center gap-3 p-3 rounded-2xl border text-left transition-all ${
+            className={`flex items-center gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer ${
               placeFilter === "all"
                 ? "border-[#0d2c5c] bg-[#0d2c5c] text-white shadow-md shadow-[#0d2c5c]/10"
                 : "border-[#e1e8f0] bg-white text-[#2a3b52] hover:border-[#c69a3f]/50 hover:bg-[#f8fafd]"
@@ -318,38 +408,37 @@ export default function AdminMenuTab() {
           >
             <div
               className={`p-2 rounded-xl shrink-0 ${
-                placeFilter === "all" ? "bg-white/15 text-white" : "bg-[#0d2c5c]/5 text-[#0d2c5c]"
+                placeFilter === "all" ? "bg-white/15 text-[#e6b85c]" : "bg-[#0d2c5c]/5 text-[#0d2c5c]"
               }`}
             >
               <Layers size={18} />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="block text-xs font-bold leading-tight truncate">Toate tipurile</span>
+              <span className="block text-xs font-bold leading-tight truncate">Toate locațiile</span>
               <span
                 className={`block text-[10px] mt-0.5 truncate ${
-                  placeFilter === "all" ? "text-white/70" : "text-[#6b7c99]"
+                  placeFilter === "all" ? "text-white/75" : "text-[#6b7c99]"
                 }`}
               >
-                {cats.length} categorii
+                {cats.length} categorii · {cats.reduce((a, c) => a + (c.items?.length || 0), 0)} prep.
               </span>
             </div>
           </button>
 
-          {/* Butoane pentru fiecare Locație (Restaurant, Plajă, Bar, etc.) */}
-          {places.map((p) => {
+          {/* Locații ordonate descrescător după produse */}
+          {displayedPlaceStats.map(({ place: p, itemsCount }) => {
             const isSelected = String(placeFilter) === String(p.id);
-            const pCats = cats.filter((c) => String(c.place_id) === String(p.id));
-            const pItemsCount = pCats.reduce((acc, c) => acc + (c.items?.length || 0), 0);
             const Icon = getPlaceIcon(p.category);
 
             return (
               <button
                 key={p.id}
+                type="button"
                 onClick={() => {
                   setPlaceFilter(isSelected ? "all" : p.id);
                   setCatFilter("all");
                 }}
-                className={`flex items-center gap-3 p-3 rounded-2xl border text-left transition-all ${
+                className={`flex items-center gap-3 p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                   isSelected
                     ? "border-[#0d2c5c] bg-[#0d2c5c] text-white shadow-md shadow-[#0d2c5c]/10 ring-2 ring-[#c69a3f]/40"
                     : "border-[#e1e8f0] bg-white text-[#2a3b52] hover:border-[#c69a3f]/50 hover:bg-[#f8fafd]"
@@ -357,7 +446,7 @@ export default function AdminMenuTab() {
               >
                 <div
                   className={`p-2 rounded-xl shrink-0 ${
-                    isSelected ? "bg-white/15 text-white" : "bg-[#0d2c5c]/5 text-[#0d2c5c]"
+                    isSelected ? "bg-white/15 text-[#e6b85c]" : "bg-[#0d2c5c]/5 text-[#0d2c5c]"
                   }`}
                 >
                   <Icon size={18} />
@@ -366,10 +455,10 @@ export default function AdminMenuTab() {
                   <span className="block text-xs font-bold leading-tight truncate">{p.title}</span>
                   <span
                     className={`block text-[10px] mt-0.5 truncate uppercase tracking-wider font-semibold ${
-                      isSelected ? "text-amber-300" : "text-[#c69a3f]"
+                      isSelected ? "text-[#e6b85c]" : "text-[#c69a3f]"
                     }`}
                   >
-                    {p.category} · {pItemsCount} prep.
+                    {p.category} · {itemsCount} prep.
                   </span>
                 </div>
               </button>
@@ -378,286 +467,368 @@ export default function AdminMenuTab() {
         </div>
       </div>
 
-      {/* ── 2. SELECTOR SECUNDAR: CATEGORII DE PREPARATE ── */}
-      <Card className="p-4 bg-white border border-[#e1e8f0]">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6b7c99] flex items-center gap-1.5">
-            <UtensilsCrossed size={12} className="text-[#0d2c5c]" />
-            Categorii {placeFilter !== "all" ? `pentru: ${placeName(placeFilter)}` : "(Toate locațiile)"}:
-          </p>
+      {/* ── 2. LAYOUT MASTER-DETAIL: CATEGORII (STÂNGA) + PRODUSE & FILTRE (DREAPTA) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* COLOANA STÂNGĂ: PANOU VERTICAL CATEGORII */}
+        <Card className="lg:col-span-4 xl:col-span-3 p-4 bg-white border border-[#e1e8f0]">
+          <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-[#eef2f7]">
+            <div>
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#0d2c5c]">
+                Categorii meniu
+              </p>
+              <p className="text-[11px] text-[#6b7c99] mt-0.5">
+                {placeFilter !== "all" ? placeName(placeFilter) : "Toate locațiile"}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={openNewCat}
+              className="inline-flex items-center gap-1 rounded-lg border border-[#e1e8f0] bg-[#f8fafd] px-2.5 py-1.5 text-[11px] font-bold text-[#0d2c5c] hover:border-[#c69a3f] hover:text-[#8a6420] transition-colors cursor-pointer"
+            >
+              <Plus size={12} /> Adaugă
+            </button>
+          </div>
 
+          {/* Opțiune Toate Categoriile */}
           <button
-            onClick={openNewCat}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0d2c5c] hover:text-[#c69a3f] transition-colors"
-          >
-            <Plus size={12} /> Adaugă categorie
-          </button>
-        </div>
-
-        <div className="flex flex-wrap gap-2 items-center">
-          <button
+            type="button"
             onClick={() => setCatFilter("all")}
-            className={`rounded-full px-3.5 py-1.5 text-[11px] font-bold transition-all ${
+            className={`w-full flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-bold transition-all cursor-pointer mb-3 ${
               catFilter === "all"
                 ? "bg-[#0d2c5c] text-white shadow-sm"
-                : "bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]"
+                : "bg-[#f8fafd] text-[#0d2c5c] hover:bg-[#eef2f7]"
             }`}
           >
-            Toate categoriile ({visibleCats.reduce((acc, c) => acc + (c.items?.length || 0), 0)})
+            <span className="truncate">Toate categoriile</span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                catFilter === "all"
+                  ? "bg-white/20 text-[#e6b85c]"
+                  : "bg-white text-[#4f6280] border border-[#e1e8f0]"
+              }`}
+            >
+              {visibleCats.reduce((acc, c) => acc + (c.items?.length || 0), 0)}
+            </span>
           </button>
 
-          {visibleCats.map((c) => {
-            const isCatActive = catFilter === c.id;
-            const count = c.items?.length || 0;
-            return (
-              <span
-                key={c.id}
-                className={`inline-flex items-center gap-1.5 rounded-full pl-3 pr-1.5 py-1 text-[11px] font-bold transition-all border ${
-                  isCatActive
-                    ? "bg-[#0d2c5c] border-[#0d2c5c] text-white shadow-sm"
-                    : "bg-[#f8fafd] border-[#e1e8f0] text-[#334155] hover:border-[#c69a3f]/40 hover:bg-white"
-                }`}
-              >
-                <button
-                  onClick={() => setCatFilter(isCatActive ? "all" : c.id)}
-                  className="hover:underline flex items-center gap-1.5"
-                >
-                  <span>{c.name}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                      isCatActive ? "bg-white/20 text-white" : "bg-[#e2e8f0] text-[#64748b]"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                  {placeFilter === "all" && c.place_id && (
-                    <span
-                      className={`text-[9px] uppercase px-1.5 py-0.2 rounded ${
-                        isCatActive ? "bg-amber-400 text-[#0d2c5c]" : "bg-[#0d2c5c]/10 text-[#0d2c5c]"
-                      }`}
-                    >
-                      {placeName(c.place_id)}
-                    </span>
+          {/* Listă verticală grupată pe locații */}
+          <div className="space-y-4 max-h-[560px] overflow-y-auto pr-0.5">
+            {groupedVisibleCats.length === 0 ? (
+              <p className="text-xs text-[#6b7c99] text-center py-6">
+                Nu există categorii definite pentru această locație.
+              </p>
+            ) : (
+              groupedVisibleCats.map((group) => (
+                <div key={group.key} className="space-y-1">
+                  {placeFilter === "all" && (
+                    <div className="px-2 pt-1 pb-1 text-[9.5px] font-extrabold uppercase tracking-[0.16em] text-[#c69a3f]">
+                      {group.title}
+                    </div>
                   )}
-                </button>
-                <button
-                  aria-label="Editează categoria"
-                  className={`p-1 rounded-full transition-opacity ${
-                    isCatActive
-                      ? "text-white/80 hover:text-white hover:bg-white/20"
-                      : "text-[#64748b] hover:text-[#0d2c5c] hover:bg-[#e2e8f0]"
-                  }`}
-                  onClick={() => {
-                    setCatEditing(c);
-                    setCatForm({
-                      name: c.name,
-                      description: c.description ?? "",
-                      display_order: c.display_order ?? 0,
-                      is_active: c.is_active,
-                      place_id: c.place_id ? String(c.place_id) : "",
-                    });
-                  }}
-                  title="Editează categoria"
-                >
-                  <Pencil size={11} />
-                </button>
-                <button
-                  aria-label="Șterge categoria"
-                  className={`p-1 rounded-full transition-opacity ${
-                    isCatActive
-                      ? "text-red-300 hover:text-red-100 hover:bg-red-500/30"
-                      : "text-red-500/70 hover:text-red-600 hover:bg-red-50"
-                  }`}
-                  onClick={() => void remove(`/menu/categories/${c.id}`)}
-                  title="Șterge categoria"
-                >
-                  <Trash2 size={11} />
-                </button>
-              </span>
-            );
-          })}
-        </div>
-      </Card>
-
-      {/* ── 3. BARA DE CĂUTARE & FILTRARE STOC ── */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="flex-1 max-w-md">
-          <SearchBox
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Caută preparat, ingredient, categorie..."
-          />
-        </div>
-
-        <div className="flex items-center gap-1.5 bg-[#f1f5f9] p-1 rounded-xl self-start sm:self-auto border border-[#e1e8f0]">
-          <button
-            onClick={() => setStockFilter("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              stockFilter === "all" ? "bg-white text-[#0d2c5c] shadow-sm" : "text-[#64748b] hover:text-[#0d2c5c]"
-            }`}
-          >
-            Toate ({totalInScope})
-          </button>
-          <button
-            onClick={() => setStockFilter("in_stock")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              stockFilter === "in_stock" ? "bg-white text-emerald-700 shadow-sm" : "text-[#64748b] hover:text-emerald-700"
-            }`}
-          >
-            În stoc ({inStockCount})
-          </button>
-          <button
-            onClick={() => setStockFilter("out_of_stock")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              stockFilter === "out_of_stock" ? "bg-white text-red-700 shadow-sm" : "text-[#64748b] hover:text-red-700"
-            }`}
-          >
-            Epuizat ({outOfStockCount})
-          </button>
-        </div>
-      </div>
-
-      {/* ── 4. TABELUL DE PRODUSE CU PAGINARE ── */}
-      <Card className="overflow-hidden bg-white border border-[#e1e8f0]">
-        {loading ? (
-          <div className="p-5">
-            <TableSkeleton rows={6} />
-          </div>
-        ) : allFilteredItems.length === 0 ? (
-          <EmptyState
-            title="Niciun preparat găsit"
-            hint={
-              searchQuery
-                ? "Niciun preparat nu corespunde căutării tale. Încearcă alți termeni."
-                : "Nu există preparate în această selecție. Apasă pe 'Produs nou' pentru a adăuga unul."
-            }
-          />
-        ) : (
-          <div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#f7f9fc] text-[10px] uppercase tracking-[0.14em] text-[#4f6280] border-b border-[#eef2f7]">
-                  <tr>
-                    <th className="px-5 py-3.5">Produs</th>
-                    <th className="px-5 py-3.5">Locație & Categorie</th>
-                    <th className="px-5 py-3.5">Gramaj / Volum</th>
-                    <th className="px-5 py-3.5">Preț</th>
-                    <th className="px-5 py-3.5">Stoc</th>
-                    <th className="px-5 py-3.5 text-right">Acțiuni</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paged.slice.map((it) => (
-                    <tr
-                      key={it.id}
-                      className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#0d2c5c]/[0.015] transition-colors"
-                    >
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          {it.image_url ? (
-                            <img
-                              src={it.image_url}
-                              alt=""
-                              className="h-11 w-11 rounded-xl object-cover border border-[#e1e8f0]"
-                            />
-                          ) : (
-                            <div className="h-11 w-11 rounded-xl bg-[#f1f5f9] flex items-center justify-center text-[#94a3b8] border border-[#e1e8f0]">
-                              <UtensilsCrossed size={18} strokeWidth={1.5} />
-                            </div>
-                          )}
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-[#0d2c5c] text-[13.5px]">{it.title}</span>
-                              {it.is_featured && (
-                                <Badge tone="gold">Top Recomandat</Badge>
-                              )}
-                            </div>
-                            {it.description && (
-                              <p className="text-[11.5px] text-[#6b7c99] line-clamp-1 mt-0.5">
-                                {it.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex flex-col gap-1 items-start">
-                          <span className="text-[12px] font-bold text-[#0d2c5c]">{it._cat}</span>
-                          {it._placeName ? (
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#c69a3f] bg-[#fdf8ec] border border-[#f4e5c8] px-2 py-0.5 rounded-md">
-                              {it._placeName}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-[#94a3b8]">General</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-5 py-3.5 text-[#4f6280] font-medium text-[12.5px]">
-                        {it.volume_or_weight || "—"}
-                      </td>
-                      <td className="px-5 py-3.5 font-bold text-[#0d2c5c] text-[13.5px]">
-                        {lei(it.price)}
-                      </td>
-                      <td className="px-5 py-3.5">
+                  {group.items.map((c) => {
+                    const isCatActive = catFilter === c.id;
+                    const count = c.items?.length || 0;
+                    return (
+                      <div
+                        key={c.id}
+                        className={`group flex items-center justify-between gap-1.5 rounded-xl px-2.5 py-2 transition-all border ${
+                          isCatActive
+                            ? "bg-[#0d2c5c] border-[#0d2c5c] text-white shadow-xs"
+                            : "bg-white border-transparent hover:border-[#e1e8f0] hover:bg-[#f8fafd] text-[#2a3b52]"
+                        }`}
+                      >
                         <button
-                          onClick={() => void toggleStock(it)}
-                          title="Click pentru a comuta stocul"
-                          className="cursor-pointer transition-transform hover:scale-105"
+                          type="button"
+                          onClick={() => setCatFilter(isCatActive ? "all" : c.id)}
+                          className="flex-1 min-w-0 flex items-center gap-2 text-left cursor-pointer"
                         >
-                          {it.is_available ? (
-                            <Badge tone="green">În stoc</Badge>
-                          ) : (
-                            <Badge tone="red">Epuizat</Badge>
-                          )}
+                          <ChevronRight
+                            size={12}
+                            className={`shrink-0 transition-transform ${
+                              isCatActive ? "text-[#e6b85c] rotate-90" : "text-[#94a3b8]"
+                            }`}
+                          />
+                          <span className="truncate text-[12.5px] font-semibold">
+                            {c.name}
+                          </span>
                         </button>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex justify-end gap-1.5">
-                          <Button
-                            size="sm"
-                            variant="ghost"
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                              isCatActive
+                                ? "bg-white/15 text-white"
+                                : "bg-[#f1f5f9] text-[#64748b]"
+                            }`}
+                          >
+                            {count}
+                          </span>
+                          <button
+                            type="button"
+                            aria-label="Editează categoria"
+                            title="Editează categoria"
                             onClick={() => {
-                              setItemEditing(it);
-                              setItemFile(null);
-                              setItemForm({
-                                category_id: it.category_id,
-                                title: it.title,
-                                description: it.description ?? "",
-                                ingredients: it.ingredients ?? "",
-                                volume_or_weight: it.volume_or_weight ?? "",
-                                price: String(it.price),
-                                is_available: it.is_available,
-                                is_featured: !!it.is_featured,
+                              setCatEditing(c);
+                              setCatForm({
+                                name: c.name,
+                                description: c.description ?? "",
+                                display_order: c.display_order ?? 0,
+                                is_active: c.is_active,
+                                place_id: c.place_id ? String(c.place_id) : "",
                               });
                             }}
+                            className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                              isCatActive
+                                ? "text-white/80 hover:text-white hover:bg-white/15"
+                                : "text-[#94a3b8] hover:text-[#0d2c5c] hover:bg-[#eef2f7]"
+                            }`}
                           >
-                            <Pencil size={12} /> Editează
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => void remove(`/menu/items/${it.id}`)}
+                            <Pencil size={12} />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Șterge categoria"
+                            title="Șterge categoria"
+                            onClick={() => void remove(`/menu/categories/${c.id}`)}
+                            className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                              isCatActive
+                                ? "text-red-300 hover:text-red-100 hover:bg-red-500/25"
+                                : "text-[#94a3b8] hover:text-red-600 hover:bg-red-50"
+                            }`}
                           >
                             <Trash2 size={12} />
-                          </Button>
+                          </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+
+        {/* COLOANA DREAPTĂ: TOOLBAR INTEGRAT + TABEL PRODUSE CU PAGINARE */}
+        <Card className="lg:col-span-8 xl:col-span-9 overflow-hidden bg-white border border-[#e1e8f0]">
+          {/* Header & Toolbar integrat */}
+          <div className="p-4 sm:p-5 border-b border-[#eef2f7] bg-[#fbfcfe] space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-[15px] font-bold text-[#0d2c5c]">
+                  {activeCategoryObj
+                    ? activeCategoryObj.name
+                    : placeFilter !== "all"
+                      ? `Meniu ${placeName(placeFilter)}`
+                      : "Toate preparatele"}
+                </h3>
+                <Badge tone="navy">{allFilteredItems.length} afișate</Badge>
+                {activeCategoryObj?.place_id && (
+                  <Badge tone="gold">{placeName(activeCategoryObj.place_id)}</Badge>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-[#e1e8f0]">
+                <button
+                  type="button"
+                  onClick={() => setStockFilter("all")}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    stockFilter === "all"
+                      ? "bg-[#0d2c5c] text-white shadow-2xs"
+                      : "text-[#64748b] hover:text-[#0d2c5c]"
+                  }`}
+                >
+                  Toate ({totalInScope})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStockFilter("in_stock")}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    stockFilter === "in_stock"
+                      ? "bg-emerald-600 text-white shadow-2xs"
+                      : "text-[#64748b] hover:text-emerald-700"
+                  }`}
+                >
+                  În stoc ({inStockCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStockFilter("out_of_stock")}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    stockFilter === "out_of_stock"
+                      ? "bg-[#8c2f39] text-white shadow-2xs"
+                      : "text-[#64748b] hover:text-red-700"
+                  }`}
+                >
+                  Epuizat ({outOfStockCount})
+                </button>
+              </div>
             </div>
 
-            <Pagination
-              page={paged.page}
-              pages={paged.pages}
-              total={paged.total}
-              perPage={paged.perPage}
-              onPage={paged.setPage}
-            />
+            <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+              <div className="flex-1 max-w-md">
+                <SearchBox
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Caută preparat, ingredient, categorie..."
+                />
+              </div>
+              {(placeFilter !== "all" || catFilter !== "all" || searchQuery || stockFilter !== "all") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlaceFilter("all");
+                    setCatFilter("all");
+                    setSearchQuery("");
+                    setStockFilter("all");
+                  }}
+                  className="text-xs font-semibold text-[#8a6420] hover:text-[#0d2c5c] transition-colors self-start sm:self-auto cursor-pointer"
+                >
+                  Resetează filtrele
+                </button>
+              )}
+            </div>
           </div>
-        )}
-      </Card>
+
+          {loading ? (
+            <div className="p-5">
+              <TableSkeleton rows={6} />
+            </div>
+          ) : allFilteredItems.length === 0 ? (
+            <EmptyState
+              title="Niciun preparat găsit"
+              hint={
+                searchQuery
+                  ? "Niciun preparat nu corespunde căutării tale. Încearcă alți termeni."
+                  : "Nu există preparate în această selecție. Apasă pe 'Produs nou' pentru a adăuga unul."
+              }
+            />
+          ) : (
+            <div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#f7f9fc] text-[10px] uppercase tracking-[0.14em] text-[#4f6280] border-b border-[#eef2f7]">
+                    <tr>
+                      <th className="px-5 py-3.5">Produs</th>
+                      <th className="px-5 py-3.5">Locație & Categorie</th>
+                      <th className="px-5 py-3.5">Gramaj / Volum</th>
+                      <th className="px-5 py-3.5">Preț</th>
+                      <th className="px-5 py-3.5">Stoc</th>
+                      <th className="px-5 py-3.5 text-right">Acțiuni</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paged.slice.map((it) => (
+                      <tr
+                        key={it.id}
+                        className="border-b border-[#f4f6f9] last:border-0 hover:bg-[#0d2c5c]/[0.015] transition-colors"
+                      >
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            {it.image_url ? (
+                              <img
+                                src={it.image_url}
+                                alt=""
+                                className="h-11 w-11 rounded-xl object-cover border border-[#e1e8f0]"
+                              />
+                            ) : (
+                              <div className="h-11 w-11 rounded-xl bg-[#f1f5f9] flex items-center justify-center text-[#94a3b8] border border-[#e1e8f0]">
+                                <UtensilsCrossed size={18} strokeWidth={1.5} />
+                              </div>
+                            )}
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-[#0d2c5c] text-[13.5px]">{it.title}</span>
+                                {it.is_featured && (
+                                  <Badge tone="gold">Top Recomandat</Badge>
+                                )}
+                              </div>
+                              {it.description && (
+                                <p className="text-[11.5px] text-[#6b7c99] line-clamp-1 mt-0.5">
+                                  {it.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className="text-[12px] font-bold text-[#0d2c5c]">{it._cat}</span>
+                            {it._placeName ? (
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#c69a3f] bg-[#fdf8ec] border border-[#f4e5c8] px-2 py-0.5 rounded-md">
+                                {it._placeName}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-[#94a3b8]">General</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-5 py-3.5 text-[#4f6280] font-medium text-[12.5px]">
+                          {it.volume_or_weight || "—"}
+                        </td>
+                        <td className="px-5 py-3.5 font-bold text-[#0d2c5c] text-[13.5px]">
+                          {lei(it.price)}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <button
+                            onClick={() => void toggleStock(it)}
+                            title="Click pentru a comuta stocul"
+                            className="cursor-pointer transition-transform hover:scale-105"
+                          >
+                            {it.is_available ? (
+                              <Badge tone="green">În stoc</Badge>
+                            ) : (
+                              <Badge tone="red">Epuizat</Badge>
+                            )}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <div className="flex justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setItemEditing(it);
+                                setItemFile(null);
+                                setItemForm({
+                                  category_id: it.category_id,
+                                  title: it.title,
+                                  description: it.description ?? "",
+                                  ingredients: it.ingredients ?? "",
+                                  volume_or_weight: it.volume_or_weight ?? "",
+                                  price: String(it.price),
+                                  is_available: it.is_available,
+                                  is_featured: !!it.is_featured,
+                                });
+                              }}
+                            >
+                              <Pencil size={12} /> Editează
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => void remove(`/menu/items/${it.id}`)}
+                            >
+                              <Trash2 size={12} />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                page={paged.page}
+                pages={paged.pages}
+                total={paged.total}
+                perPage={paged.perPage}
+                onPage={paged.setPage}
+              />
+            </div>
+          )}
+        </Card>
+      </div>
 
       {/* ── MODAL: PRODUS NOU / EDITARE PRODUS ── */}
       <Modal
