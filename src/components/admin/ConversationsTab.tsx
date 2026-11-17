@@ -165,6 +165,15 @@ const QUICK_DB_QUESTIONS = [
   "Avem vreo problemă sau tichet de mentenanță nerezolvat?",
 ];
 
+const AGENTIC_ACTION_PRESETS = [
+  "Marchează camera 201 ca igienizată și curată",
+  "Creează un cupon de 15% reducere cu codul VARA15",
+  "Schimbă ultima comandă de room service în livrată",
+  "Trimite pe e-mail codul PIN și confirmarea către oaspetele din camera 301",
+  "Generează un cod PIN nou pentru camera 301",
+  "Marchează tichetul de mentenanță din camera 201 ca rezolvat",
+];
+
 export default function ConversationsTab() {
   const { toast } = useToast();
   const [subTab, setSubTab] = useState<"ask_db" | "ai_concierge" | "conversations" | "escalations">("ask_db");
@@ -503,6 +512,9 @@ export default function ConversationsTab() {
         },
       ]);
       setDbQuestion("");
+      if (res.intent?.startsWith("action_")) {
+        void loadExecutiveSummary();
+      }
       if (res.telegram_sent) {
         toast("Raportul a fost trimis și pe Telegram!", "success");
       }
@@ -1135,6 +1147,24 @@ export default function ConversationsTab() {
               compact
             />
 
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-800 mb-2 flex items-center gap-1.5">
+                ⚡ Acțiuni Operaționale Directe (Agentic AI — execută modificări live în DB &amp; Email)
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {AGENTIC_ACTION_PRESETS.map((act) => (
+                  <button
+                    key={act}
+                    type="button"
+                    onClick={() => void handleAskDatabase(act)}
+                    className="rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-emerald-900 hover:border-emerald-500 hover:bg-emerald-100/70 transition-colors cursor-pointer"
+                  >
+                    {act}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#4f6280] mb-2">
                 Comenzi & analize rapide:
@@ -1168,6 +1198,9 @@ export default function ConversationsTab() {
                         <span>{turn.question}</span>
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap">
+                        {turn.intent?.startsWith("action_") && (
+                          <Badge tone="green">⚡ Acțiune Executată Live</Badge>
+                        )}
                         <Button variant="ghost" onClick={() => speakDbReply(turn.plainSummary)}>
                           {dbSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} />}
                           {dbSpeaking ? "Oprește" : "Ascultă Vocal"}
