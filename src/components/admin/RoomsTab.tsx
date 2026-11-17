@@ -152,8 +152,15 @@ export default function RoomsTab() {
 
   const submitForm = async () => {
     const errs: Record<string, string> = {};
-    if (!form.title.trim()) errs.title = "Numele camerei este obligatoriu.";
-    if (form.base_price < 0) errs.base_price = "Prețul nu poate fi negativ.";
+    if (form.title.trim().length < 2) {
+      errs.title = "Numele camerei trebuie să aibă minim 2 caractere.";
+    }
+    if (form.description.trim().length < 2) {
+      errs.description = "Descrierea trebuie să aibă minim 2 caractere.";
+    }
+    if (form.base_price <= 0) {
+      errs.base_price = "Prețul de bază trebuie să fie mai mare ca 0.";
+    }
     if (form.max_guests_adults < 1) errs.max_guests_adults = "Minim 1 adult.";
     if (
       form.floor_price > 0 &&
@@ -175,7 +182,7 @@ export default function RoomsTab() {
         base_price: Number(form.base_price),
         max_guests_adults: Number(form.max_guests_adults),
         max_guests_children: Number(form.max_guests_children),
-        size_sqm: Number(form.size_sqm) || null,
+        size_sqm: Number(form.size_sqm) > 0 ? Number(form.size_sqm) : null,
         facility_ids: form.facility_ids,
       };
 
@@ -461,6 +468,11 @@ export default function RoomsTab() {
                   }
                   placeholder="Descrie facilitățile camerei..."
                 />
+                {formErr.description && (
+                  <span className="mt-1 text-[11px] font-semibold text-rose-600">
+                    {formErr.description}
+                  </span>
+                )}
               </FormField>
             </div>
           </div>

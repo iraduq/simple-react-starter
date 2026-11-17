@@ -229,11 +229,31 @@ export async function apiFetch<T>(
   return apiFetch<T>(path, { ...options, _retry: true });
 }
 
+export type ValidationIssue = {
+  field?: string;
+  message?: string;
+  type?: string;
+};
+
 async function extractError(res: Response): Promise<ApiError> {
   let message = `Error ${res.status}`;
+  let details: ValidationIssue[] | undefined;
+  let rawData: unknown;
   try {
     const data = await res.json();
-    if (data?.detail) {
+    rawData = data;
+    if (Array.isArray(data?.details) && data.details.length > 0) {
+      details = data.details as ValidationIssue[];
+      const formatted = details
+        .map((d) => (d.field ? `${d.field}: ${d.message}` : d.message))
+        .filter(Boolean)
+        .join(" · ");
+      if (formatted) {
+        message = data?.message ? `${data.message} (${formatted})` : formatted;
+      } else if (typeof data?.message === "string") {
+        message = data.message;
+      }
+    } else if (data?.detail) {
       if (typeof data.detail === "string") message = data.detail;
       else if (data.detail?.message) message = data.detail.message;
     } else if (typeof data?.message === "string") {
@@ -242,14 +262,23 @@ async function extractError(res: Response): Promise<ApiError> {
   } catch {
     // ignore
   }
-  return new ApiError(message, res.status);
+  return new ApiError(message, res.status, details, rawData);
 }
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  details?: ValidationIssue[];
+  response?: { data?: unknown };
+  constructor(
+    message: string,
+    status: number,
+    details?: ValidationIssue[],
+    data?: unknown,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.details = details;
+    this.response = data !== undefined ? { data } : undefined;
   }
 }
