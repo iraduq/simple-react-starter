@@ -17,11 +17,13 @@ import {
   Mic,
   MicOff,
   Volume2,
+  VolumeX,
   DoorOpen,
   CheckCircle2,
 } from "lucide-react";
 import { useToast } from "../Toast";
 import { get, post, put, fetchBlob, dateTimeFmt, errMsg } from "../../lib/admin";
+import { createVoicePlayer, type VoicePlayer } from "../../lib/voicePlayer";
 import { Badge, Button, Card, EmptyState, Field, SectionHeader, TableSkeleton, inputCls } from "./ui";
 
 interface ConversationSummary {
@@ -135,6 +137,10 @@ export default function ConversationsTab() {
   const [simLoading, setSimLoading] = useState(false);
   const [simResult, setSimResult] = useState<SimResult | null>(null);
   const [simListening, setSimListening] = useState(false);
+  const [simVoiceEnabled, setSimVoiceEnabled] = useState(true);
+  const [simSpeaking, setSimSpeaking] = useState(false);
+  const simVoiceRef = useRef(true);
+  const simVoicePlayerRef = useRef<VoicePlayer | null>(null);
   const simRecRef = useRef<any>(null);
 
   // Conversations & Escalations state
@@ -214,10 +220,25 @@ export default function ConversationsTab() {
     toast("Câmpurile au fost completate cu șablonul implicit. Apasă Salvează pentru a aplica.", "info");
   };
 
+  useEffect(() => {
+    simVoicePlayerRef.current = createVoicePlayer(setSimSpeaking);
+    return () => {
+      simVoicePlayerRef.current?.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    simVoiceRef.current = simVoiceEnabled;
+    if (!simVoiceEnabled) {
+      simVoicePlayerRef.current?.stop();
+    }
+  }, [simVoiceEnabled]);
+
   const handleRunSimulator = async (qOverride?: string) => {
     const q = (qOverride ?? simInput).trim();
     if (!q || simLoading) return;
     if (qOverride) setSimInput(qOverride);
+    simVoicePlayerRef.current?.stop();
     setSimLoading(true);
     try {
       const res = await post<any>("/api/chat/", {
@@ -226,15 +247,20 @@ export default function ConversationsTab() {
         session_id: `admin-sim-${simRoom || "public"}`,
         context: { room_number: simRoom },
       });
+      const finalReply = res.reply || "Fără răspuns.";
+      const replyLang = res.language || "ro";
       setSimResult({
-        reply: res.reply || "Fără răspuns.",
+        reply: finalReply,
         intent: res.intent || "other",
-        language: res.language || "ro",
+        language: replyLang,
         tools_used: res.meta?.tools_used || [],
         retrieved_docs: res.meta?.retrieved_docs || [],
         latency_ms: res.meta?.latency_ms || 0,
         cta: res.cta || null,
       });
+      if (simVoiceRef.current && res.reply) {
+        void simVoicePlayerRef.current?.speak(finalReply, replyLang);
+      }
     } catch (e) {
       toast(errMsg(e), "error");
     } finally {
@@ -242,19 +268,18 @@ export default function ConversationsTab() {
     }
   };
 
-  const speakSimulatorReply = (text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window) || !text) return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text.replace(/\*\*/g, ""));
-    const voices = window.speechSynthesis.getVoices();
-    const roVoice = voices.find((v) => v.lang.toLowerCase().startsWith("ro"));
-    if (roVoice) utter.voice = roVoice;
-    utter.lang = "ro-RO";
-    window.speechSynthesis.speak(utter);
+  const speakSimulatorReply = (text: string, lang: string = "ro") => {
+    if (!text) return;
+    if (simSpeaking) {
+      simVoicePlayerRef.current?.stop();
+      return;
+    }
+    void simVoicePlayerRef.current?.speak(text, lang);
   };
 
   const toggleSimVoice = () => {
     if (typeof window === "undefined") return;
+    simVoicePlayerRef.current?.stop();
     if (simListening && simRecRef.current) {
       simRecRef.current.stop();
       setSimListening(false);
@@ -632,9 +657,20 @@ export default function ConversationsTab() {
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#c69a3f] flex items-center gap-1.5">
                       <CheckCircle2 size={14} className="text-emerald-600" /> Răspuns Concierge AI
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      <Button variant="ghost" onClick={() => speakSimulatorReply(simResult.reply)}>
-                        <Volume2 size={13} /> Ascultă Vocal
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Button
+                        variant={simVoiceEnabled ? "gold" : "ghost"}
+                        onClick={() => setSimVoiceEnabled((v) => !v)}
+                      >
+                        {simVoiceEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+                        {simVoiceEnabled ? "Auto-Voce ON" : "Auto-Voce OFF"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => speakSimulatorReply(simResult.reply, simResult.language)}
+                      >
+                        {simSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} />}
+                        {simSpeaking ? "Oprește Vocea" : "Ascultă Vocal"}
                       </Button>
                       <Badge tone="navy">{simResult.latency_ms} ms</Badge>
                     </div>

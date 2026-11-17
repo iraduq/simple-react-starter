@@ -5,7 +5,6 @@ import {
   ArrowUpRight,
   BedDouble,
   Clock,
-  DoorOpen,
   Mic,
   MicOff,
   Send,
@@ -17,24 +16,13 @@ import {
 } from "lucide-react";
 import { ron } from "../lib/format";
 import { API_URL } from "../lib/config";
+import { getAccessToken } from "../lib/token";
+import { createVoicePlayer, type VoicePlayer } from "../lib/voicePlayer";
 
 const API_BASE = API_URL.replace(/\/$/, "");
 const CHAT_URL = `${API_BASE}/api/chat/`;
 const SESSION_KEY = "casaesy_chat_session";
 const ROOM_KEY = "casaesy_chat_room";
-
-const ROOM_OPTIONS = [
-  { value: "", label: "🌐 Vizitator Public (Web)" },
-  { value: "101", label: "🔑 Camera 101 · Standard Twin" },
-  { value: "102", label: "🔑 Camera 102 · Standard Twin" },
-  { value: "103", label: "🔑 Camera 103 · Standard Twin" },
-  { value: "201", label: "🔑 Camera 201 · Deluxe Double" },
-  { value: "202", label: "🔑 Camera 202 · Deluxe Double" },
-  { value: "301", label: "🔑 Camera 301 · Luxury Suite" },
-  { value: "302", label: "🔑 Camera 302 · Luxury Suite" },
-  { value: "401", label: "🔑 Camera 401 · Family Room" },
-  { value: "402", label: "🔑 Camera 402 · Family Room" },
-];
 
 type RoomImg = { image_url?: string; url?: string } | string;
 type RoomCard = {
@@ -296,24 +284,6 @@ function EsyTeaser({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function speakReply(text: string, lang: string = "ro") {
-  if (typeof window === "undefined" || !("speechSynthesis" in window) || !text) return;
-  try {
-    window.speechSynthesis.cancel();
-    const clean = text.replace(/\*\*/g, "").replace(/[#*`]/g, "");
-    const utter = new SpeechSynthesisUtterance(clean);
-    const voices = window.speechSynthesis.getVoices();
-    const langPrefix = lang.toLowerCase().slice(0, 2);
-    const matched = voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix));
-    if (matched) utter.voice = matched;
-    utter.lang = langPrefix === "ro" ? "ro-RO" : lang;
-    utter.rate = 1.02;
-    window.speechSynthesis.speak(utter);
-  } catch {
-    // ignore speech synthesis errors
-  }
-}
-
 function WelcomeBlock({
   onPick,
   disabled,
@@ -421,15 +391,31 @@ export default function ChatWidget() {
   );
   const [roomNumber, setRoomNumber] = useState<string>(() => {
     if (typeof window === "undefined") return "";
+    try {
+      localStorage.removeItem(ROOM_KEY);
+    } catch {
+      // ignore storage errors
+    }
     const params = new URLSearchParams(window.location.search);
-    const urlRoom = params.get("room");
+    const urlRoom = params.get("room")?.trim();
     if (urlRoom) {
-      localStorage.setItem(ROOM_KEY, urlRoom);
+      try {
+        sessionStorage.setItem(ROOM_KEY, urlRoom);
+      } catch {
+        // ignore storage errors
+      }
       return urlRoom;
     }
-    return localStorage.getItem(ROOM_KEY) || "";
+    try {
+      return sessionStorage.getItem(ROOM_KEY) || "";
+    } catch {
+      return "";
+    }
   });
-  const [voiceReplies, setVoiceReplies] = useState(false);
+  const [voiceReplies, setVoiceReplies] = useState(true);
+  const [speaking, setSpeaking] = useState(false);
+  const voiceRepliesRef = useRef(true);
+  const voicePlayerRef = useRef<VoicePlayer | null>(null);
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<any>(null);
 
@@ -462,22 +448,50 @@ export default function ChatWidget() {
   }, [open, loading]);
 
   useEffect(() => {
-    if (!voiceReplies && typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    voicePlayerRef.current = createVoicePlayer(setSpeaking);
+    return () => {
+      voicePlayerRef.current?.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    voiceRepliesRef.current = voiceReplies;
+    if (!voiceReplies) {
+      voicePlayerRef.current?.stop();
     }
   }, [voiceReplies]);
 
-  const handleRoomChange = (val: string) => {
-    setRoomNumber(val);
-    if (typeof window !== "undefined") {
-      if (val) localStorage.setItem(ROOM_KEY, val);
-      else localStorage.removeItem(ROOM_KEY);
-    }
-  };
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("room")) return;
+    const token = getAccessToken();
+    if (!token) return;
+    let cancelled = false;
+    fetch(`${API_BASE}/orders/active-stay-rooms`, {
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.eligible || !Array.isArray(data?.active_rooms)) return;
+        const activeUnit = data.active_rooms.find((r: any) => r?.unit_number)?.unit_number;
+        if (activeUnit) {
+          setRoomNumber(String(activeUnit));
+        }
+      })
+      .catch(() => {
+        // ignore silent stay room lookup failures
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function send(text: string) {
     const msg = text.trim();
     if (!msg || loading) return;
+    voicePlayerRef.current?.stop();
     const history = messages
       .filter((m) => m.id !== "welcome" && !m.error)
       .map((m) => ({ role: m.role, text: m.text }));
@@ -510,8 +524,8 @@ export default function ChatWidget() {
         ? data.suggested_actions
         : undefined;
       const finalText = reply || "Îmi pare rău, nu am un răspuns acum.";
-      if (voiceReplies) {
-        speakReply(finalText, data.language || "ro");
+      if (voiceRepliesRef.current) {
+        void voicePlayerRef.current?.speak(finalText, data.language || "ro");
       }
       setMessages((p) => [
         ...p,
@@ -543,6 +557,7 @@ export default function ChatWidget() {
 
   const toggleVoiceInput = () => {
     if (typeof window === "undefined") return;
+    voicePlayerRef.current?.stop();
     if (listening && recognitionRef.current) {
       recognitionRef.current.stop();
       setListening(false);
@@ -676,49 +691,46 @@ export default function ChatWidget() {
                       AI
                     </span>
                   </div>
-                  <div className="mt-0.5 flex items-center gap-1.5">
+                  <div className="mt-0.5 flex items-center gap-1.5 flex-wrap">
                     <span className="flex items-center gap-1 text-[11px] font-medium text-white/80">
                       <Clock size={10} className="text-[#a6cafd]" /> 24/7 Voce & Text
+                      {roomNumber ? ` · Camera ${roomNumber}` : ""}
                     </span>
+                    {speaking && (
+                      <span className="rounded-full bg-[#c69a3f]/30 border border-[#e6b85c]/50 px-1.5 py-0.2 text-[9.5px] font-bold text-[#fde68a] animate-pulse">
+                        Vorbește...
+                      </span>
+                    )}
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setVoiceReplies((v) => !v)}
-                  title={voiceReplies ? "Oprește citirea vocală" : "Activează răspuns vocal (stil Alexa)"}
+                  title={
+                    voiceReplies
+                      ? "Sonor pornit — apasă pentru a opri vocea"
+                      : "Sonor oprit — apasă pentru a porni vocea"
+                  }
+                  aria-label={voiceReplies ? "Oprește sonorul" : "Pornește sonorul"}
                   className={`relative grid h-8 w-8 place-items-center rounded-full transition-colors cursor-pointer ${
                     voiceReplies
-                      ? "bg-[#c69a3f] text-white"
-                      : "text-white/80 hover:bg-white/10"
+                      ? "bg-[#c69a3f] text-white shadow-sm"
+                      : "text-white/75 hover:bg-white/10"
                   }`}
                 >
                   {voiceReplies ? <Volume2 size={16} /> : <VolumeX size={16} />}
                 </button>
                 <button
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    voicePlayerRef.current?.stop();
+                    setOpen(false);
+                  }}
                   aria-label="Închide chatul"
                   className="relative grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/10 active:scale-95 cursor-pointer"
                   style={{ color: "rgba(255,255,255,0.85)" }}
                 >
                   <X size={18} strokeWidth={2} />
                 </button>
-              </div>
-
-              {/* Room / Mode Switcher */}
-              <div className="relative flex items-center gap-2 rounded-xl bg-white/10 px-2.5 py-1.5 border border-white/15">
-                <DoorOpen size={13} className="text-[#e6b85c] shrink-0" />
-                <select
-                  value={roomNumber}
-                  onChange={(e) => handleRoomChange(e.target.value)}
-                  aria-label="Mod Cameră / Vizitator"
-                  className="flex-1 bg-transparent text-[11.5px] font-semibold text-white outline-none cursor-pointer [&>option]:text-[#0d2c5c]"
-                >
-                  {ROOM_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div
