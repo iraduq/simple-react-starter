@@ -29,6 +29,8 @@ import {
   Modal,
   Field,
   Textarea,
+  Pagination,
+  usePaged,
 } from "./ui";
 
 export interface AdminReviewItem {
@@ -151,6 +153,13 @@ export default function ReviewsTab() {
       return true;
     });
   }, [reviews, filterMode, search]);
+
+  const paged = usePaged(filtered, 6);
+  const { setPage } = paged;
+
+  useEffect(() => {
+    setPage(1);
+  }, [filterMode, search, setPage]);
 
   const stats = useMemo(() => {
     const count = reviews.length;
@@ -589,8 +598,9 @@ export default function ReviewsTab() {
           Nu există recenzii care să corespundă filtrului curent.
         </div>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4.5">
-          {filtered.map((r) => {
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4.5">
+            {paged.slice.map((r) => {
             const cleanRoomTitle =
               !r.room_title || /^([a-zA-Z0-9])\1{5,}$/.test(r.room_title.trim())
                 ? "Cameră Vila Casa Esy"
@@ -783,6 +793,17 @@ export default function ReviewsTab() {
               </div>
             );
           })}
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-[#e1e8f0] bg-white shadow-xs">
+            <Pagination
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              perPage={paged.perPage}
+              onPage={paged.setPage}
+            />
+          </div>
         </div>
       )}
 
