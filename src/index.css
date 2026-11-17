@@ -65,6 +65,16 @@ body {
   font-weight: 600 !important;
   font-size: max(1.15em, 18px);
 }
+.admin-shell .text-white h1,
+.admin-shell .text-white h2,
+.admin-shell .text-white h3,
+.admin-shell .text-white h4,
+.admin-shell h1.text-white,
+.admin-shell h2.text-white,
+.admin-shell h3.text-white,
+.admin-shell h4.text-white {
+  color: #ffffff !important;
+}
 /* unifică culorile scăpate din paletă */
 .admin-shell .text-black { color: var(--navy) !important; }
 .admin-shell [class*="text-black/"],

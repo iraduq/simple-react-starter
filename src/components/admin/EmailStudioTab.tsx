@@ -1032,18 +1032,20 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
                   <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#e6b85c]">
                     Model Email Selectat
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-slate-200">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/15 border border-white/25 !text-white">
                     {activeTemplate.slug}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold leading-tight mt-0.5">
+                <h3 className="text-white !text-white text-[18px] sm:text-[20px] font-bold leading-snug mt-1">
                   {activeTemplate.name}
                 </h3>
                 {/* PROMINENT TRIGGER NOTICE */}
-                <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-300/30 text-amber-200 text-[11.5px] font-medium">
+                <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-[#e6b85c]/45 text-white text-[11.5px] font-medium">
                   <Sparkles size={12} className="text-[#e6b85c] shrink-0" />
-                  <strong className="text-white">Când primește clientul:</strong>
-                  <span>{activeMeta?.triggerWhen || activeTemplate.description}</span>
+                  <strong className="text-[#e6b85c]">Când primește clientul:</strong>
+                  <span className="text-white font-medium">
+                    {activeMeta?.triggerWhen || activeTemplate.description}
+                  </span>
                 </div>
               </div>
             </div>
