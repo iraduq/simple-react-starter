@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -39,7 +39,7 @@ import {
   EmptyState,
   inputCls,
 } from "./ui";
-import { get, post, patch, del, list, errMsg, API_URL } from "../../lib/admin";
+import { get, post, patch, del, list, upload, errMsg } from "../../lib/admin";
 import { useToast } from "../Toast";
 import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
 
@@ -126,6 +126,8 @@ export default function LostFoundTab() {
   const [labelModalItem, setLabelModalItem] = useState<LostFoundItem | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [brokenPhotos, setBrokenPhotos] = useState<Record<string, boolean>>({});
+  const [replacePhotoItemId, setReplacePhotoItemId] = useState<string | null>(null);
+  const replacePhotoInputRef = useRef<HTMLInputElement | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<{
     item: LostFoundItem;
     top: number;
@@ -260,42 +262,71 @@ export default function LostFoundTab() {
     toast("Datele oaspetelui au fost asociate cu succes!", "success");
   };
 
-  // Upload Photo
+  const uploadPhotoFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const data = await upload<{ url?: string; photo_url?: string }>(
+        "/lost-found/upload-photo",
+        formData,
+      );
+      const rawUrl = String(data?.url || data?.photo_url || "").trim();
+      if (rawUrl && !rawUrl.endsWith("undefined") && !rawUrl.endsWith("null")) {
+        return rawUrl;
+      }
+    } catch {
+      // Fallback local Data URL optimizat dacă serverul de stocare nu a răspuns
+    }
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+      reader.onerror = () => reject(new Error("Nu am putut citi fotografia."));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Upload Photo (in Create Modal)
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingPhoto(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const apiBase = API_URL.replace(/\/$/, "");
-      const token = localStorage.getItem("access_token");
-      const res = await fetch(`${apiBase}/lost-found/upload-photo`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error("Upload-ul imaginii a eșuat");
-      const data = await res.json();
-      const rawUrl = String(data?.url || data?.photo_url || "").trim();
-      const finalUrl =
-        !rawUrl || rawUrl.endsWith("undefined")
-          ? ""
-          : rawUrl.startsWith("http") || rawUrl.startsWith("data:")
-            ? rawUrl
-            : `${apiBase}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
+      const finalUrl = await uploadPhotoFile(file);
+      if (!finalUrl) throw new Error("Upload-ul imaginii a eșuat");
       setForm((prev) => ({ ...prev, photo_url: finalUrl }));
-      toast("Fotografia a fost optimizată și încărcată.", "success");
+      toast("Fotografia a fost încărcată și atașată!", "success");
     } catch (err) {
       toast(errMsg(err), "error");
     } finally {
       setUploadingPhoto(false);
+      e.target.value = "";
+    }
+  };
+
+  // Update / Attach Photo for an Existing Item
+  const triggerReplacePhoto = (itemId: string) => {
+    setReplacePhotoItemId(itemId);
+    setTimeout(() => replacePhotoInputRef.current?.click(), 0);
+  };
+
+  const handleReplaceItemPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const targetId = replacePhotoItemId;
+    e.target.value = "";
+    if (!file || !targetId) return;
+
+    try {
+      const finalUrl = await uploadPhotoFile(file);
+      if (!finalUrl) throw new Error("Upload-ul imaginii a eșuat");
+      await patch(`/lost-found/${targetId}`, { photo_url: finalUrl });
+      setBrokenPhotos((prev) => ({ ...prev, [targetId]: false }));
+      toast("Fotografia obiectului a fost actualizată!", "success");
+      await loadData(true);
+    } catch (err) {
+      toast(errMsg(err), "error");
+    } finally {
+      setReplacePhotoItemId(null);
     }
   };
 
@@ -638,9 +669,20 @@ export default function LostFoundTab() {
                             </div>
                           </button>
                         ) : (
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#e1e8f0] bg-[#f4f6f9] text-xl">
-                            {CATEGORY_LABELS[item.category]?.icon || "📦"}
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => triggerReplacePhoto(item.id)}
+                            title="Click pentru a încărca fotografia obiectului"
+                            className="group relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-dashed border-[#cbd5e1] bg-[#f4f6f9] text-xl transition-colors hover:border-[#c69a3f] hover:bg-[#fdf8ec] cursor-pointer"
+                          >
+                            <span className="group-hover:opacity-20 transition-opacity">
+                              {CATEGORY_LABELS[item.category]?.icon || "📦"}
+                            </span>
+                            <Camera
+                              size={15}
+                              className="absolute text-[#0d2c5c] opacity-0 group-hover:opacity-100 transition-opacity"
+                            />
+                          </button>
                         )}
                         <div>
                           <p className="font-semibold text-[#0d2c5c] text-[13.5px]">
@@ -895,9 +937,16 @@ export default function LostFoundTab() {
                   />
                 </label>
                 {form.photo_url && (
-                  <span className="text-[11px] font-semibold text-emerald-600">
-                    ✓ Fotografie atașată
-                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src={form.photo_url}
+                      alt="Preview obiect"
+                      className="h-11 w-11 rounded-xl object-cover border border-[#e1e8f0] shadow-xs"
+                    />
+                    <span className="text-[11px] font-semibold text-emerald-600">
+                      ✓ Fotografie atașată
+                    </span>
+                  </div>
                 )}
               </div>
             </Field>
@@ -1163,6 +1212,18 @@ export default function LostFoundTab() {
               <button
                 type="button"
                 onClick={() => {
+                  const target = menuAnchor.item;
+                  setMenuAnchor(null);
+                  triggerReplacePhoto(target.id);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#0d2c5c] hover:bg-[#f4f6f9] cursor-pointer"
+              >
+                <Camera size={13} /> Încarcă / Schimbă Fotografia
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setLabelModalItem(menuAnchor.item);
                   setMenuAnchor(null);
                 }}
@@ -1188,6 +1249,15 @@ export default function LostFoundTab() {
           </>,
           document.body,
         )}
+
+      {/* Input ascuns pentru încărcare/schimbare poză pe obiect existent */}
+      <input
+        ref={replacePhotoInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => void handleReplaceItemPhoto(e)}
+      />
 
       {/* ── MODAL: PREVIEW ZOOM FOTOGRAFIE ── */}
       {photoPreview && (
