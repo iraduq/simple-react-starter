@@ -1,6 +1,12 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Square } from "lucide-react";
+import {
+  configureAnalyserNode,
+  extractAnalyserSpectrum,
+  getAudioContext,
+  readLiveAudioSpectrum,
+} from "../lib/voicePlayer";
 
 interface AiVoiceWaveProps {
   active: boolean;
@@ -88,7 +94,50 @@ export default function AiVoiceWave({
     if (!ctx) return;
 
     let rafId = 0;
+    let cancelled = false;
     const startMs = performance.now();
+
+    let micStream: MediaStream | null = null;
+    let micSource: MediaStreamAudioSourceNode | null = null;
+    let micAnalyser: AnalyserNode | null = null;
+    let micFreqBuf: Uint8Array<ArrayBuffer> | undefined;
+    let micTimeBuf: Uint8Array<ArrayBuffer> | undefined;
+
+    if (
+      mode === "listening" &&
+      typeof navigator !== "undefined" &&
+      navigator.mediaDevices?.getUserMedia
+    ) {
+      void navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          if (cancelled) {
+            stream.getTracks().forEach((tr) => tr.stop());
+            return;
+          }
+          const audioCtx = getAudioContext();
+          if (!audioCtx) {
+            stream.getTracks().forEach((tr) => tr.stop());
+            return;
+          }
+          if (audioCtx.state === "suspended") {
+            void audioCtx.resume().catch(() => {});
+          }
+          micStream = stream;
+          micAnalyser = configureAnalyserNode(audioCtx.createAnalyser());
+          micSource = audioCtx.createMediaStreamSource(stream);
+          // Notă: NU conectăm la destination pentru a evita microfonia/ecoul
+          micSource.connect(micAnalyser);
+          micFreqBuf = new Uint8Array(micAnalyser.frequencyBinCount);
+          micTimeBuf = new Uint8Array(micAnalyser.fftSize);
+        })
+        .catch(() => {
+          // Permisiune microfon refuzată sau indisponibilă — fallback liniștit
+        });
+    }
+
+    let smoothRms = 0;
+    const smoothBands: [number, number, number, number] = [0, 0, 0, 0];
 
     const renderFrame = (nowMs: number) => {
       const rect = canvas.getBoundingClientRect();
@@ -104,10 +153,23 @@ export default function AiVoiceWave({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
 
+      const spectrum =
+        mode === "listening" && micAnalyser
+          ? extractAnalyserSpectrum(micAnalyser, micFreqBuf, micTimeBuf)
+          : readLiveAudioSpectrum();
+
+      const rmsRate = spectrum.rms > smoothRms ? 0.38 : 0.16;
+      smoothRms += (spectrum.rms - smoothRms) * rmsRate;
+      for (let b = 0; b < 4; b++) {
+        const rate = spectrum.bands[b] > smoothBands[b] ? 0.38 : 0.16;
+        smoothBands[b] += (spectrum.bands[b] - smoothBands[b]) * rate;
+      }
+
       const t = (nowMs - startMs) / 1000;
       const centerY = height / 2;
-      const maxAmp = height * 0.42;
-      const cadence = 0.62 + 0.38 * (0.5 + 0.5 * Math.sin(t * 3.1) * Math.cos(t * 1.7));
+      const maxAmp = height * 0.44;
+      const hasLiveSignal = spectrum.active || smoothRms > 0.015;
+      const idleCadence = 0.24 + 0.08 * Math.sin(t * 3.0);
       const padX = 8;
       const drawW = width - padX * 2;
       const samples = 96;
@@ -116,17 +178,24 @@ export default function AiVoiceWave({
         const pointsTop: Array<{ x: number; y: number }> = [];
         const pointsBottom: Array<{ x: number; y: number }> = [];
 
+        const liveBand = smoothBands[layerIdx] ?? smoothRms;
+        const bandDrive = hasLiveSignal
+          ? 0.12 + liveBand * 1.15 + smoothRms * 0.45
+          : idleCadence;
+
         for (let i = 0; i <= samples; i++) {
           const u = i / samples;
           const x = padX + u * drawW;
           const envelope = Math.pow(Math.sin(Math.PI * u), 2.35);
 
-          const primary = Math.sin(u * Math.PI * layer.freq + t * layer.speed + layer.phase);
+          const spatialShift = hasLiveSignal ? liveBand * 2.2 : 0;
+          const primary = Math.sin(u * Math.PI * layer.freq + t * layer.speed + layer.phase + spatialShift);
           const secondary =
             layer.harmonicAmp *
             Math.sin(u * Math.PI * layer.harmonicFreq - t * layer.speed * 0.75 + layerIdx);
-          const displacement = Math.abs(primary * 0.68 + secondary) + 0.26;
-          const amp = maxAmp * layer.ampRatio * cadence * envelope * displacement;
+          const rippleBoost = hasLiveSignal ? 0.22 + smoothRms * 0.24 : 0.26;
+          const displacement = Math.abs(primary * 0.68 + secondary) + rippleBoost;
+          const amp = Math.min(maxAmp, maxAmp * layer.ampRatio * bandDrive * envelope * displacement);
 
           pointsTop.push({ x, y: centerY - amp });
           pointsBottom.push({ x, y: centerY + amp });
@@ -162,24 +231,41 @@ export default function AiVoiceWave({
 
       const lineGrad = ctx.createLinearGradient(padX, centerY, width - padX, centerY);
       lineGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
-      lineGrad.addColorStop(0.22, "rgba(186, 230, 253, 0.9)");
-      lineGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.96)");
-      lineGrad.addColorStop(0.78, "rgba(216, 180, 254, 0.9)");
+      lineGrad.addColorStop(0.22, "rgba(186, 230, 253, 0.92)");
+      lineGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.98)");
+      lineGrad.addColorStop(0.78, "rgba(216, 180, 254, 0.92)");
       lineGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
 
+      ctx.save();
       ctx.beginPath();
       ctx.moveTo(padX, centerY);
       ctx.lineTo(width - padX, centerY);
       ctx.strokeStyle = lineGrad;
-      ctx.lineWidth = 1.6;
+      ctx.shadowColor = "rgba(139, 92, 246, 0.75)";
+      ctx.shadowBlur = 4 + smoothRms * 14;
+      ctx.lineWidth = 1.4 + smoothRms * 2.2;
       ctx.stroke();
+      ctx.restore();
 
       rafId = requestAnimationFrame(renderFrame);
     };
 
     rafId = requestAnimationFrame(renderFrame);
-    return () => cancelAnimationFrame(rafId);
-  }, [active, compact]);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(rafId);
+      if (micSource) {
+        try {
+          micSource.disconnect();
+        } catch {
+          // ignore
+        }
+      }
+      if (micStream) {
+        micStream.getTracks().forEach((tr) => tr.stop());
+      }
+    };
+  }, [active, compact, mode]);
 
   const statusText =
     label ||

@@ -8,18 +8,104 @@ export interface VoicePlayer {
   stop: () => void;
 }
 
+export interface AudioSpectrumSnapshot {
+  active: boolean;
+  rms: number;
+  bands: [number, number, number, number];
+}
+
+const BAND_RANGES: ReadonlyArray<readonly [number, number]> = [
+  [2, 8],   // Fundamentală joasă (~170-650 Hz)
+  [8, 19],  // Vocale și formanți principali (~750-1700 Hz)
+  [19, 37], // Formanți înalți & claritate (~1800-3400 Hz)
+  [37, 69], // Consoane & sibilanță (~3500-6400 Hz)
+];
+
 let sharedAudioCtx: AudioContext | null = null;
+let sharedAnalyser: AnalyserNode | null = null;
 let sharedAudioEl: HTMLAudioElement | null = null;
+let mediaSourceNode: MediaElementAudioSourceNode | null = null;
+let sharedFreqData: Uint8Array<ArrayBuffer> | null = null;
+let sharedTimeData: Uint8Array<ArrayBuffer> | null = null;
 let unlockerInstalled = false;
 
-function getAudioContext(): AudioContext | null {
+export function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
-  const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  const Ctx =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!Ctx) return null;
   if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
     sharedAudioCtx = new Ctx();
+    sharedAnalyser = null;
+    mediaSourceNode = null;
   }
   return sharedAudioCtx;
+}
+
+export function configureAnalyserNode(analyser: AnalyserNode): AnalyserNode {
+  analyser.fftSize = 256;
+  analyser.smoothingTimeConstant = 0.75;
+  return analyser;
+}
+
+function getSharedAnalyser(ctx: AudioContext): AnalyserNode {
+  if (!sharedAnalyser) {
+    sharedAnalyser = configureAnalyserNode(ctx.createAnalyser());
+    sharedAnalyser.connect(ctx.destination);
+    sharedFreqData = new Uint8Array(sharedAnalyser.frequencyBinCount);
+    sharedTimeData = new Uint8Array(sharedAnalyser.fftSize);
+  }
+  return sharedAnalyser;
+}
+
+export function extractAnalyserSpectrum(
+  analyser: AnalyserNode | null,
+  freqData?: Uint8Array<ArrayBuffer>,
+  timeData?: Uint8Array<ArrayBuffer>,
+): AudioSpectrumSnapshot {
+  if (!analyser) {
+    return { active: false, rms: 0, bands: [0, 0, 0, 0] };
+  }
+  const fBuf = freqData ?? new Uint8Array(analyser.frequencyBinCount);
+  const tBuf = timeData ?? new Uint8Array(analyser.fftSize);
+
+  analyser.getByteFrequencyData(fBuf);
+  analyser.getByteTimeDomainData(tBuf);
+
+  let sumSq = 0;
+  for (let i = 0; i < tBuf.length; i++) {
+    const centered = (tBuf[i] - 128) / 128;
+    sumSq += centered * centered;
+  }
+  const rms = Math.min(1, Math.sqrt(sumSq / Math.max(tBuf.length, 1)) * 3.8);
+
+  const bands: [number, number, number, number] = [0, 0, 0, 0];
+  for (let b = 0; b < BAND_RANGES.length; b++) {
+    const [startBin, endBin] = BAND_RANGES[b];
+    const limit = Math.min(endBin, fBuf.length);
+    let acc = 0;
+    let count = 0;
+    for (let i = startBin; i < limit; i++) {
+      acc += fBuf[i];
+      count += 1;
+    }
+    bands[b] = count > 0 ? Math.min(1, (acc / count / 255) * 1.45) : 0;
+  }
+
+  const active = rms > 0.012 || bands.some((v) => v > 0.03);
+  return { active, rms, bands };
+}
+
+export function readLiveAudioSpectrum(): AudioSpectrumSnapshot {
+  if (!sharedAnalyser || !sharedAudioCtx || sharedAudioCtx.state !== "running") {
+    return { active: false, rms: 0, bands: [0, 0, 0, 0] };
+  }
+  return extractAnalyserSpectrum(
+    sharedAnalyser,
+    sharedFreqData ?? undefined,
+    sharedTimeData ?? undefined,
+  );
 }
 
 function getSharedAudioEl(): HTMLAudioElement | null {
@@ -112,6 +198,21 @@ export function createVoicePlayer(onSpeakingChange?: (speaking: boolean) => void
       notify(false);
       return;
     }
+
+    const ctx = getAudioContext();
+    if (ctx) {
+      try {
+        if (ctx.state === "suspended") await ctx.resume();
+        const analyser = getSharedAnalyser(ctx);
+        if (!mediaSourceNode) {
+          mediaSourceNode = ctx.createMediaElementSource(audio);
+          mediaSourceNode.connect(analyser);
+        }
+      } catch {
+        // Ignore if createMediaElementSource cannot attach
+      }
+    }
+
     const base64 = arrayBufferToBase64(arrayBuffer);
     activeAudioEl = audio;
 
@@ -166,12 +267,18 @@ export function createVoicePlayer(onSpeakingChange?: (speaking: boolean) => void
           const decoded = await ctx.decodeAudioData(arrayBuffer.slice(0));
           if (mySeq !== seqId) return;
 
+          const analyser = getSharedAnalyser(ctx);
           const src = ctx.createBufferSource();
           src.buffer = decoded;
-          src.connect(ctx.destination);
+          src.connect(analyser);
           bufferSource = src;
           src.onended = () => {
             if (mySeq === seqId) {
+              try {
+                src.disconnect();
+              } catch {
+                // ignore
+              }
               bufferSource = null;
               notify(false);
             }
