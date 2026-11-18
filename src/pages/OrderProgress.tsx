@@ -139,7 +139,7 @@ export default function OrderProgress() {
     const sessionId = searchParams.get("session_id");
     if (payment === "success") {
       if (sessionId) {
-        void apiFetch("/orders/confirm-payment", {
+        void apiFetch(`/orders/confirm-payment?session_id=${encodeURIComponent(sessionId)}`, {
           method: "POST",
           body: JSON.stringify({ session_id: sessionId }),
         })

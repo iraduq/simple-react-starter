@@ -816,10 +816,21 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
   const [promoCode, setPromoCode] = useState("VARA2026");
   const [customRecipients, setCustomRecipients] = useState("");
   const [sendingCampaign, setSendingCampaign] = useState(false);
+  const [subscribersModalOpen, setSubscribersModalOpen] = useState(false);
+  const [subscriberSearch, setSubscriberSearch] = useState("");
+  const [newSubscriberEmail, setNewSubscriberEmail] = useState("");
+  const [savingSubscriber, setSavingSubscriber] = useState(false);
   const [subscriberStats, setSubscriberStats] = useState<{
     active_count: number;
     unsubscribed_count: number;
     total_count: number;
+    subscribers?: {
+      id: string | number;
+      email: string;
+      is_subscribed: boolean;
+      created_at?: string | null;
+      updated_at?: string | null;
+    }[];
   } | null>(null);
 
   const loadTemplates = useCallback(
@@ -828,9 +839,18 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
       try {
         const [data, subs] = await Promise.all([
           get<EmailTemplateItem[]>("/email-templates"),
-          get<{ active_count: number; unsubscribed_count: number; total_count: number }>(
-            "/email-templates/newsletter/subscribers",
-          ).catch(() => null),
+          get<{
+            active_count: number;
+            unsubscribed_count: number;
+            total_count: number;
+            subscribers?: {
+              id: string | number;
+              email: string;
+              is_subscribed: boolean;
+              created_at?: string | null;
+              updated_at?: string | null;
+            }[];
+          }>("/email-templates/newsletter/subscribers").catch(() => null),
         ]);
         const arr = Array.isArray(data) ? data : [];
         setTemplates(arr);
@@ -996,10 +1016,15 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
             <span>{templates.length || 12} modele active Resend</span>
           </div>
           {subscriberStats && (
-            <div className="px-3.5 py-1.5 rounded-full bg-[#fdf8ec] border border-[#c69a3f]/45 text-[#0d2c5c] text-[12px] font-bold flex items-center gap-2 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setSubscribersModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-full bg-[#fdf8ec] hover:bg-[#f7ecd2] border border-[#c69a3f]/50 text-[#0d2c5c] text-[12px] font-bold flex items-center gap-2 shadow-xs transition cursor-pointer"
+              title="Vezi și gestionează lista de abonați Newsletter"
+            >
               <Megaphone size={13} className="text-[#c69a3f]" />
-              <span>{subscriberStats.active_count} abonați Newsletter activi</span>
-            </div>
+              <span>{subscriberStats.active_count} abonați Newsletter</span>
+            </button>
           )}
           <button
             onClick={() => void loadTemplates()}
@@ -1163,6 +1188,18 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
               </div>
 
               {/* Action Buttons */}
+              {(activeTemplate.slug === "newsletter_campaign" ||
+                activeTemplate.slug === "seasonal_campaign" ||
+                activeTemplate.slug === "newsletter_welcome") && (
+                <button
+                  type="button"
+                  onClick={() => setCampaignModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-300/45 px-3.5 py-2 text-xs font-bold text-white transition cursor-pointer"
+                >
+                  <Megaphone size={13} className="text-emerald-300" /> Trimite la Abonați
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setTestModalOpen(true)}
@@ -1566,6 +1603,217 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
               <Send size={14} />
               {sendingTest ? "Se trimite..." : "Trimite Test Acum"}
             </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── MODAL TRIMITE CAMPANIE / NEWSLETTER CĂTRE ABONAȚI ── */}
+      <Modal
+        open={campaignModalOpen}
+        onClose={() => setCampaignModalOpen(false)}
+        title="Trimite Newsletter către Abonați"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-[#556987] leading-relaxed">
+            Se va trimite șablonul <strong>{activeTemplate?.name}</strong> (cu subiectul și conținutul curent din editor) către toți abonații activi. Fiecare email conține automat antetele <strong>RFC 8058 One-Click Unsubscribe</strong> (Yahoo Mail &amp; Gmail) și link personalizat de dezabonare 1-click.
+          </p>
+
+          <Field label="Cod Promoțional ({{code}})">
+            <input
+              type="text"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+              placeholder="ex: VARA2026"
+              className={inputCls}
+            />
+          </Field>
+
+          <Field label="Destinatari personalizați (opțional — lasă gol pentru toți abonații activi)">
+            <textarea
+              rows={2}
+              value={customRecipients}
+              onChange={(e) => setCustomRecipients(e.target.value)}
+              placeholder="ex: ion@yahoo.com, maria@gmail.com (lasă gol pentru lista completă de abonați)"
+              className={inputCls}
+            />
+          </Field>
+
+          <div className="rounded-xl bg-[#fdf8ec] border border-[#c69a3f]/40 p-3.5 text-xs text-[#0d2c5c] flex items-center justify-between gap-3">
+            <span className="font-semibold">Abonați Newsletter activi în baza de date:</span>
+            <span className="font-extrabold text-sm text-[#8a6420]">
+              {subscriberStats?.active_count ?? 0} abonați
+            </span>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={() => setCampaignModalOpen(false)}>
+              Anulează
+            </Button>
+            <Button
+              disabled={sendingCampaign || !activeTemplate}
+              onClick={async () => {
+                if (!activeTemplate) return;
+                setSendingCampaign(true);
+                try {
+                  const recipientsList = customRecipients
+                    .split(/[,;\n]+/)
+                    .map((s) => s.trim())
+                    .filter((s) => s.includes("@"));
+                  const res = await post<{ sent_count: number; total_targets: number }>(
+                    `/email-templates/${activeTemplate.slug}/broadcast`,
+                    {
+                      subject,
+                      html_content: htmlContent,
+                      promo_code: promoCode.trim() || "ESY2026",
+                      recipients: recipientsList.length > 0 ? recipientsList : null,
+                    },
+                  );
+                  toast(
+                    `Newsletter trimis cu succes către ${res.sent_count}/${res.total_targets} destinatari!`,
+                    "success",
+                  );
+                  setCampaignModalOpen(false);
+                } catch (e) {
+                  toast(errMsg(e), "error");
+                } finally {
+                  setSendingCampaign(false);
+                }
+              }}
+            >
+              <Megaphone size={14} />
+              {sendingCampaign ? "Se trimite campania..." : "Expediază Newsletter Acum"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── MODAL GESTIONARE ABONAȚI NEWSLETTER ── */}
+      <Modal
+        open={subscribersModalOpen}
+        onClose={() => setSubscribersModalOpen(false)}
+        title="Abonați Newsletter · Vila Casa Esy"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-2.5">
+            <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-center">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Activi</div>
+              <div className="text-xl font-extrabold text-[#0d2c5c]">{subscriberStats?.active_count ?? 0}</div>
+            </div>
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-center">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Dezabonați</div>
+              <div className="text-xl font-extrabold text-[#0d2c5c]">{subscriberStats?.unsubscribed_count ?? 0}</div>
+            </div>
+            <div className="rounded-xl bg-[#fdf8ec] border border-[#c69a3f]/40 p-3 text-center">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#8a6420]">Total</div>
+              <div className="text-xl font-extrabold text-[#0d2c5c]">{subscriberStats?.total_count ?? 0}</div>
+            </div>
+          </div>
+
+          {/* Adăugare rapidă abonat */}
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={newSubscriberEmail}
+              onChange={(e) => setNewSubscriberEmail(e.target.value)}
+              placeholder="Adaugă email abonat (ex: client@yahoo.com)..."
+              className={inputCls}
+            />
+            <Button
+              disabled={savingSubscriber || !newSubscriberEmail.includes("@")}
+              onClick={async () => {
+                setSavingSubscriber(true);
+                try {
+                  await post("/email-templates/newsletter/subscribe", {
+                    email: newSubscriberEmail.trim().toLowerCase(),
+                  });
+                  toast("Abonat adăugat și email de bun venit trimis!", "success");
+                  setNewSubscriberEmail("");
+                  await loadTemplates(true);
+                } catch (e) {
+                  toast(errMsg(e), "error");
+                } finally {
+                  setSavingSubscriber(false);
+                }
+              }}
+            >
+              Adaugă
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <input
+              type="text"
+              value={subscriberSearch}
+              onChange={(e) => setSubscriberSearch(e.target.value)}
+              placeholder="Caută după adresă email..."
+              className={inputCls}
+            />
+            <Button
+              variant="ghost"
+              onClick={() => {
+                const rows = subscriberStats?.subscribers ?? [];
+                const csv = [
+                  "email,status,updated_at",
+                  ...rows.map((r) => `${r.email},${r.is_subscribed ? "subscribed" : "unsubscribed"},${r.updated_at || ""}`),
+                ].join("\n");
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "newsletter-abonati-casa-esy.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Export CSV
+            </Button>
+          </div>
+
+          <div className="max-h-72 overflow-y-auto divide-y divide-[#e2e8f0] rounded-xl border border-[#e2e8f0]">
+            {(subscriberStats?.subscribers ?? [])
+              .filter((s) => !subscriberSearch.trim() || s.email.toLowerCase().includes(subscriberSearch.trim().toLowerCase()))
+              .map((s) => (
+                <div key={String(s.id)} className="px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs">
+                  <div className="min-w-0">
+                    <div className="font-semibold text-[#0d2c5c] truncate">{s.email}</div>
+                    <div className="text-[11px] text-[#64748b]">
+                      {s.is_subscribed ? "Abonat activ (1-Click Yahoo/Gmail)" : "Dezabonat"}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await post(
+                          s.is_subscribed
+                            ? "/email-templates/newsletter/unsubscribe"
+                            : "/email-templates/newsletter/subscribe",
+                          { email: s.email },
+                        );
+                        toast(
+                          s.is_subscribed ? `${s.email} a fost dezabonat.` : `${s.email} a fost reabonat.`,
+                          "success",
+                        );
+                        await loadTemplates(true);
+                      } catch (e) {
+                        toast(errMsg(e), "error");
+                      }
+                    }}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold transition cursor-pointer shrink-0 ${
+                      s.is_subscribed
+                        ? "bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
+                        : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                    }`}
+                  >
+                    {s.is_subscribed ? "Dezabonează" : "Reabonează"}
+                  </button>
+                </div>
+              ))}
+            {!(subscriberStats?.subscribers ?? []).length && (
+              <div className="p-6 text-center text-xs text-[#64748b]">
+                Nu există încă abonați înregistrați la newsletter.
+              </div>
+            )}
           </div>
         </div>
       </Modal>
