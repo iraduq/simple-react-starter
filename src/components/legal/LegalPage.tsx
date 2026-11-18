@@ -1,21 +1,5 @@
 import { useRef, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  Mail,
-  Phone,
-  ShieldCheck,
-  FileText,
-  Cookie,
-  Scale,
-  Check,
-} from "lucide-react";
-
-const LEGAL_NAV = [
-  { to: "/termeni-si-conditii", label: "Termeni și condiții", icon: Scale },
-  { to: "/confidentialitate", label: "Confidențialitate", icon: FileText },
-  { to: "/cookies", label: "Politica Cookie", icon: Cookie },
-  { to: "/gdpr", label: "Conformitate GDPR", icon: ShieldCheck },
-];
+import { Mail, Phone, ShieldCheck, Check } from "lucide-react";
 
 export function LegalSection({
   title,
@@ -82,7 +66,6 @@ export default function LegalPage({
   children: ReactNode;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const { pathname } = useLocation();
 
   return (
     <div className="relative bg-white text-[#1a1a1a] min-h-screen overflow-hidden">
@@ -150,39 +133,14 @@ export default function LegalPage({
       {/* ── CONȚINUT PRINCIPAL ÎN TEMATICA SITE-ULUI ── */}
       <section className="relative py-14 md:py-20 px-5 md:px-10 z-10 bg-white">
         <div className="max-w-4xl mx-auto">
-          {/* Bară de comutare între cele 4 pagini legale + dată actualizare */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 mb-8 border-b border-[#0d2c5c]/12">
-            <div className="flex flex-wrap items-center gap-2.5">
-              {LEGAL_NAV.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.to;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-[11.5px] font-bold uppercase tracking-[0.15em] no-underline transition-all ${
-                      isActive
-                        ? "bg-[#0d2c5c] text-white border-[#0d2c5c] shadow-sm"
-                        : "bg-white border-[#e2e8f0] text-[#334155] hover:border-[#0d2c5c] hover:text-[#0d2c5c]"
-                    }`}
-                  >
-                    <Icon
-                      size={14}
-                      className={isActive ? "text-[#e6b85c]" : "text-[#0d2c5c]"}
-                    />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-
-            {lastUpdated && (
+          {lastUpdated && (
+            <div className="flex items-center justify-end pb-6 mb-8 border-b border-[#0d2c5c]/12">
               <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#64748b] shrink-0">
-                <ShieldCheck size={15} className="text-[#0d2c5c]" />
+                <ShieldCheck size={15} className="text-[#c69a3f]" />
                 <span>Actualizat: {lastUpdated}</span>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Secțiunile documentului — deschise, fără cutii gri */}
           <div className="divide-y divide-[#0d2c5c]/10">{children}</div>

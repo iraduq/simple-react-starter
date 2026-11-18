@@ -8,7 +8,6 @@ import {
   ChevronUp,
   Star,
   Cookie,
-  ShieldCheck,
   Send,
   UserMinus,
   CheckCircle2,
@@ -63,14 +62,11 @@ export default function Footer() {
       setNewsletterFeedback(msg);
       toast(msg, "success");
       setNewsletterEmail("");
-    } catch {
-      const fallbackMsg =
-        newsletterMode === "subscribe"
-          ? "Te-ai abonat cu succes la newsletter-ul Vila Casa Esy!"
-          : "Adresa ta de e-mail a fost dezabonată de la newsletter.";
-      setNewsletterFeedback(fallbackMsg);
-      toast(fallbackMsg, "success");
-      setNewsletterEmail("");
+    } catch (err: any) {
+      const errText =
+        err?.message ||
+        "Nu am putut procesa solicitarea în acest moment. Încearcă din nou.";
+      toast(errText, "error");
     } finally {
       setNewsletterLoading(false);
     }
@@ -223,18 +219,37 @@ export default function Footer() {
                   Preferințe Cookie
                 </button>
               </li>
-              <li>
-                <a
-                  href="https://anpc.ro/ce-este-sal/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#0d2c5c] no-underline hover:text-[#c69a3f] transition-colors"
-                >
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d2c5c]/10 text-[#0d2c5c]">
-                    <ShieldCheck size={13.5} className="text-[#0d2c5c]" />
-                  </span>
-                  ANPC — SAL / SOL
-                </a>
+              <li className="pt-2">
+                <div className="flex flex-col gap-2.5 max-w-[220px]">
+                  <a
+                    href="https://anpc.ro/ce-este-sal/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="ANPC — Soluționarea Alternativă a Litigiilor (SAL)"
+                    className="block rounded-xl overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    <img
+                      src="/anpc-sal.svg"
+                      alt="ANPC — Soluționarea Alternativă a Litigiilor (SAL)"
+                      className="w-full h-auto block"
+                      loading="lazy"
+                    />
+                  </a>
+                  <a
+                    href="https://ec.europa.eu/consumers/odr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Platforma SOL — Soluționarea Online a Litigiilor"
+                    className="block rounded-xl overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    <img
+                      src="/anpc-sol.svg"
+                      alt="SOL — Soluționarea Online a Litigiilor"
+                      className="w-full h-auto block"
+                      loading="lazy"
+                    />
+                  </a>
+                </div>
               </li>
             </ul>
           </div>

@@ -240,31 +240,34 @@ export default function Navbar() {
 
           {/* TOOLS + CTA */}
           <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4 -mt-0.5">
-            {/* ACTIVE ROOM SERVICE ORDER LIVE PILL */}
+            {/* ACTIVE ROOM SERVICE ORDER LIVE INDICATOR */}
             {activeOrder && (
               <Link
                 to={`/comanda/${activeOrder.order_code}`}
-                className={`hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                className={`group hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-semibold tracking-[0.06em] transition-all duration-300 no-underline ${
                   solid
-                    ? "bg-[#fdf8ec] text-[#8a6420] border-[#c69a3f]/40 hover:bg-[#c69a3f]/15"
-                    : "bg-[#0d2c5c]/85 text-[#f6d892] border-[#c69a3f]/40 backdrop-blur-md hover:bg-[#0d2c5c]"
+                    ? "bg-[#0d2c5c] text-white border border-[#c69a3f]/45 shadow-[0_6px_18px_-8px_rgba(13,44,92,0.55)] hover:bg-[#133a75] hover:border-[#c69a3f]"
+                    : "bg-white/12 text-white border border-white/25 backdrop-blur-md hover:bg-white/20 hover:border-[#e6b85c]/70"
                 }`}
-                title={`Vezi comanda #${activeOrder.order_code}`}
+                title={`Urmărește comanda Room Service #${activeOrder.order_code}`}
               >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e6b85c] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c69a3f]" />
                 </span>
-                <ChefHat size={14} className="text-[#c69a3f]" />
-                <span className="font-['Outfit',sans-serif]">
-                  #{activeOrder.order_code}:{" "}
-                  {activeOrder.status === "delivered"
-                    ? "Livrată"
-                    : activeOrder.status === "delivering"
-                      ? "În livrare"
-                      : activeOrder.status === "preparing"
-                        ? "În preparare"
-                        : "Recepționată"}
+                <ChefHat size={13} className="text-[#e6b85c] shrink-0" />
+                <span className="font-['Outfit',sans-serif] whitespace-nowrap">
+                  Comandă{" "}
+                  <span className="text-[#e6b85c] font-bold">
+                    ·{" "}
+                    {activeOrder.status === "delivered"
+                      ? "Livrată"
+                      : activeOrder.status === "delivering"
+                        ? "Pe drum"
+                        : activeOrder.status === "preparing"
+                          ? "În preparare"
+                          : "Activă"}
+                  </span>
                 </span>
               </Link>
             )}

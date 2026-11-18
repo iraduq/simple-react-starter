@@ -80,10 +80,14 @@ const SAMPLE_PREVIEW_VARS: Record<string, string> = {
   description: "Cazare Suită Deluxe & Room Service",
   qr_code_url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CASA-ESY-BK-90421",
   wifi_qr_code_url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=WIFI:S:CasaEsy_Guests_5G;T:WPA;P:VacantaLaMare2026;;",
+  email: "alexandru.ionescu@yahoo.com",
+  unsubscribe_url: "https://backend-licenta-i0lr.onrender.com/email-templates/newsletter/unsubscribe-one-click?token=demo",
 };
 
 const MERGE_TAGS = [
   { tag: "{{guest_name}}", label: "Nume oaspete", sample: "Alexandru Ionescu" },
+  { tag: "{{email}}", label: "Adresă email abonat", sample: "alexandru@yahoo.com" },
+  { tag: "{{unsubscribe_url}}", label: "Link 1-Click Dezabonare (Yahoo/Gmail)", sample: "https://.../unsubscribe-one-click" },
   { tag: "{{code}}", label: "Cod OTP / promoțional", sample: "849201" },
   { tag: "{{amount}}", label: "Sumă plată Stripe (RON)", sample: "420,00" },
   { tag: "{{booking_code}}", label: "Cod rezervare", sample: "BK-90421" },
@@ -430,6 +434,58 @@ function getDefaultVisualConfig(slug: string): VisualConfig {
     };
   }
 
+  if (slug === "newsletter_welcome") {
+    return {
+      headerTitle: "Vila Casa Esy",
+      headerSubtitle: "Newsletter Exclusiv · Marea Neagră",
+      badgeText: "Abonare Confirmată",
+      headerBg: "#0d2c5c",
+      headline: "Bun venit la malul mării, {{guest_name}}!",
+      bodyText:
+        "Îți mulțumim că te-ai abonat la newsletter-ul Vila Casa Esy.\nVei primi prioritar ofertele noastre sezoniere, pachetele SPA & Beach Club și coduri exclusive de reducere.",
+      hasCodeBox: false,
+      codeBoxLabel: "",
+      codeBoxValue: "",
+      codeBoxNote: "",
+      hasBookingTable: false,
+      hasCtaButton: true,
+      ctaButtonText: "Descoperă Camerele & Ofertele",
+      ctaButtonUrl: "https://casaesy.ro/camere",
+      ctaButtonColor: "#c69a3f",
+      hasQrCode: false,
+      qrInstruction: "",
+      footerContact:
+        'Vila Casa Esy · Eforie Nord · <a href="{{unsubscribe_url}}" style="color:#0D2C5C;font-weight:700;text-decoration:underline;">Dezabonare 1-Click</a>',
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
+  if (slug === "newsletter_campaign") {
+    return {
+      headerTitle: "Vila Casa Esy",
+      headerSubtitle: "Ediție Specială Newsletter",
+      badgeText: "Newsletter Abonați",
+      headerBg: "#0d2c5c",
+      headline: "Salutare, {{guest_name}}! Marea te așteaptă.",
+      bodyText:
+        "Am pregătit pentru abonații noștri o selecție de camere cu vedere la mare, seri gastronomice la Restaurantul Casa Esy și acces privilegiat la Beach Club & SPA Infinity.",
+      hasCodeBox: true,
+      codeBoxLabel: "Cod promoțional exclusiv abonați",
+      codeBoxValue: "{{code}}",
+      codeBoxNote: "Introdu codul la finalizarea rezervării pe site.",
+      hasBookingTable: false,
+      hasCtaButton: true,
+      ctaButtonText: "Rezervă Acum Cu Reducere",
+      ctaButtonUrl: "https://casaesy.ro/camere",
+      ctaButtonColor: "#c69a3f",
+      hasQrCode: false,
+      qrInstruction: "",
+      footerContact:
+        'Vila Casa Esy · Eforie Nord · <a href="{{unsubscribe_url}}" style="color:#0D2C5C;font-weight:700;text-decoration:underline;">Dezabonare 1-Click (fără autentificare)</a>',
+      footerCopyright: "© 2026 Casa Esy. Toate drepturile rezervate.",
+    };
+  }
+
   if (slug === "seasonal_campaign") {
     return {
       headerTitle: "Casa Esy",
@@ -697,19 +753,31 @@ const TEMPLATE_METAS: Record<
   },
   seasonal_campaign: {
     category: "marketing",
-    categoryLabel: "Marketing & Oferte",
+    categoryLabel: "Newsletter & Oferte",
     icon: Sparkles,
     triggerWhen: "La transmiterea unei campanii promoționale din panoul de administrare.",
+  },
+  newsletter_welcome: {
+    category: "marketing",
+    categoryLabel: "Newsletter & Oferte",
+    icon: Mail,
+    triggerWhen: "Trimis automat imediat ce un client se abonează la newsletter-ul de pe site (include 1-Click Unsubscribe Yahoo/Gmail).",
+  },
+  newsletter_campaign: {
+    category: "marketing",
+    categoryLabel: "Newsletter & Oferte",
+    icon: Megaphone,
+    triggerWhen: "Șablonul de newsletter editabil de admin pentru trimiterea către abonați (cu buton nativ 1-Click Unsubscribe Yahoo/Gmail).",
   },
 };
 
 const CATEGORIES = [
-  { id: "all", label: "Toate Modelele (10)" },
+  { id: "all", label: "Toate Modelele (12)" },
   { id: "security", label: "🔐 Securitate & Logare (4)" },
   { id: "payments", label: "💳 Plăți Stripe (1)" },
   { id: "stay", label: "🏖️ Sejur & Wi-Fi (3)" },
   { id: "dining", label: "🍽️ Room Service (1)" },
-  { id: "marketing", label: "✨ Oferte & Noutăți (1)" },
+  { id: "marketing", label: "📰 Newsletter & Oferte (3)" },
 ];
 
 interface EmailStudioTabProps {
@@ -748,14 +816,25 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
   const [promoCode, setPromoCode] = useState("VARA2026");
   const [customRecipients, setCustomRecipients] = useState("");
   const [sendingCampaign, setSendingCampaign] = useState(false);
+  const [subscriberStats, setSubscriberStats] = useState<{
+    active_count: number;
+    unsubscribed_count: number;
+    total_count: number;
+  } | null>(null);
 
   const loadTemplates = useCallback(
     async (silent = false) => {
       if (!silent) setLoading(true);
       try {
-        const data = await get<EmailTemplateItem[]>("/email-templates");
+        const [data, subs] = await Promise.all([
+          get<EmailTemplateItem[]>("/email-templates"),
+          get<{ active_count: number; unsubscribed_count: number; total_count: number }>(
+            "/email-templates/newsletter/subscribers",
+          ).catch(() => null),
+        ]);
         const arr = Array.isArray(data) ? data : [];
         setTemplates(arr);
+        if (subs) setSubscriberStats(subs);
       } catch (e) {
         if (!silent) toast(errMsg(e), "error");
       } finally {
@@ -914,8 +993,14 @@ export default function EmailStudioTab({ onNavigateToBroadcast }: EmailStudioTab
           )}
           <div className="px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#0d2c5c] text-[12px] font-bold flex items-center gap-2 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>{templates.length || 10} modele active Resend</span>
+            <span>{templates.length || 12} modele active Resend</span>
           </div>
+          {subscriberStats && (
+            <div className="px-3.5 py-1.5 rounded-full bg-[#fdf8ec] border border-[#c69a3f]/45 text-[#0d2c5c] text-[12px] font-bold flex items-center gap-2 shadow-xs">
+              <Megaphone size={13} className="text-[#c69a3f]" />
+              <span>{subscriberStats.active_count} abonați Newsletter activi</span>
+            </div>
+          )}
           <button
             onClick={() => void loadTemplates()}
             disabled={loading}

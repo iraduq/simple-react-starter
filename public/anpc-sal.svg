@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 62" width="260" height="62" role="img" aria-label="ANPC - Soluționarea Alternativă a Litigiilor (SAL)">
+  <defs>
+    <linearGradient id="salBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b3470"/>
+      <stop offset="100%" stop-color="#0052a5"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="258" height="60" rx="10" fill="url(#salBg)" stroke="#ffd200" stroke-width="1.6"/>
+  <!-- Tricolor Romania ribbon -->
+  <rect x="1" y="1" width="6" height="20" rx="2" fill="#002b7f"/>
+  <rect x="1" y="21" width="6" height="20" fill="#fcd116"/>
+  <rect x="1" y="41" width="6" height="20" rx="2" fill="#ce1126"/>
+  <!-- Left emblem circle with EU stars & scales -->
+  <g transform="translate(36, 31)">
+    <circle r="19" fill="#003399" stroke="#ffd200" stroke-width="1.2"/>
+    <g fill="#ffd200">
+      <circle cx="0" cy="-14.5" r="1.2"/>
+      <circle cx="7.2" cy="-12.5" r="1.2"/>
+      <circle cx="12.5" cy="-7.2" r="1.2"/>
+      <circle cx="14.5" cy="0" r="1.2"/>
+      <circle cx="12.5" cy="7.2" r="1.2"/>
+      <circle cx="7.2" cy="12.5" r="1.2"/>
+      <circle cx="0" cy="14.5" r="1.2"/>
+      <circle cx="-7.2" cy="12.5" r="1.2"/>
+      <circle cx="-12.5" cy="7.2" r="1.2"/>
+      <circle cx="-14.5" cy="0" r="1.2"/>
+      <circle cx="-12.5" cy="-7.2" r="1.2"/>
+      <circle cx="-7.2" cy="-12.5" r="1.2"/>
+    </g>
+    <text x="0" y="3.5" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="9.5" font-weight="800" letter-spacing="0.4">SAL</text>
+  </g>
+  <!-- Text block -->
+  <text x="64" y="19" fill="#ffd200" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="800" letter-spacing="1.1">ANPC · PROTECȚIA CONSUMATORILOR</text>
+  <text x="64" y="34" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10.2" font-weight="700">SOLUȚIONAREA ALTERNATIVĂ</text>
+  <text x="64" y="46" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="10.2" font-weight="700">A LITIGIILOR</text>
+  <text x="64" y="56" fill="#cfe2ff" font-family="Arial, Helvetica, sans-serif" font-size="7.5" font-weight="600">anpc.ro/ce-este-sal/</text>
+</svg>

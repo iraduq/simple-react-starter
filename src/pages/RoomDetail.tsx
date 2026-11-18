@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   CalendarDays,
@@ -127,6 +127,8 @@ export default function RoomDetail() {
     checkIn: string;
     checkOut: string;
   } | null>(null);
+  const ownCheckoutRef = useRef(false);
+  const ownCheckoutTsRef = useRef(0);
 
   // Real-time live synchronization to prevent double booking and sync room state
   useAdminLiveSync({
@@ -134,7 +136,10 @@ export default function RoomDetail() {
     onSync: (payload) => {
       if (!payload || !roomId) return;
       if (String(payload.room_id) === String(roomId)) {
+        const isOwnCheckoutWindow =
+          ownCheckoutRef.current || Date.now() - ownCheckoutTsRef.current < 15000;
         if (payload.event === "room_held") {
+          if (isOwnCheckoutWindow) return;
           setLiveHeldInfo({
             expiresAt: payload.expires_at,
             checkIn: payload.check_in ? payload.check_in.slice(0, 10) : "",
@@ -153,6 +158,7 @@ export default function RoomDetail() {
           payload.event === "room_booked" ||
           payload.event === "payment_confirmed"
         ) {
+          if (isOwnCheckoutWindow) return;
           setLiveHeldInfo(null);
           if (payload.check_in && payload.check_out) {
             const bookedDays = nightsBetween(
@@ -424,6 +430,8 @@ export default function RoomDetail() {
       return;
     }
 
+    ownCheckoutRef.current = true;
+    ownCheckoutTsRef.current = Date.now();
     setSubmitting(true);
     try {
       const stripeRes = await apiFetch<{ checkout_url: string }>(
@@ -452,6 +460,8 @@ export default function RoomDetail() {
 
       window.location.href = stripeRes.checkout_url;
     } catch (err) {
+      ownCheckoutRef.current = false;
+      ownCheckoutTsRef.current = 0;
       toast(
         httpErrorMessage(err, "Procesul de plată nu a putut fi inițiat."),
         "error",
