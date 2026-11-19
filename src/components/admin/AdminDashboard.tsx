@@ -228,7 +228,6 @@ const STAFF_ROLE_CONFIG: Record<
       "bookings",
       "tape_chart",
       "housekeeping",
-      "units",
       "smartlocks",
       "breakfast",
       "orders_kds",

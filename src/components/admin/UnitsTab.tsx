@@ -541,7 +541,7 @@ export default function UnitsTab() {
     try {
       const [r, u] = await Promise.all([
         get<unknown>("/rooms"),
-        get<unknown>("/users/admin/all"),
+        get<unknown>("/users/admin/all").catch(() => []),
       ]);
       const rs = list<Room>(r);
       setRooms(rs);

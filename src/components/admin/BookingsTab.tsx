@@ -134,7 +134,7 @@ export default function BookingsTab() {
       const [b, r, u] = await Promise.all([
         get<unknown>("/bookings"),
         get<unknown>("/rooms"),
-        get<unknown>("/users/admin/all"),
+        get<unknown>("/users/admin/all").catch(() => []),
       ]);
       setBookings(list<BookingItem>(b));
       setRooms(list<Room>(r));
