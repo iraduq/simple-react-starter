@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import type { MenuCategory } from "../types/places";
 import { lei } from "../services/placesService";
-import { apiFetch, hasSession } from "../lib/auth";
+import { apiFetch, getCachedUser, hasSession } from "../lib/auth";
 import { useCart } from "../context/CartContext";
 import { useToast } from "./Toast";
 
@@ -190,6 +190,10 @@ export default function PlaceMenu({
       setCartViewOpen(false);
       try {
         localStorage.setItem("casa_esy_active_order_code", res.order_code);
+        localStorage.setItem(
+          "casa_esy_active_order_owner",
+          (getCachedUser()?.email || "guest").toLowerCase()
+        );
         window.dispatchEvent(
           new CustomEvent("casa-esy-active-order-changed", { detail: { order_code: res.order_code } })
         );

@@ -70,9 +70,16 @@ export const clearSession = async () => {
   const accessToken = getAccessToken();
   const hadStoredAuth = hasStoredAuth();
   clearAuthTokens();
+  try {
+    localStorage.removeItem("casa_esy_active_order_code");
+    localStorage.removeItem("casa_esy_active_order_owner");
+  } catch {
+    // ignore storage errors
+  }
   cachedUser = null;
   hasFetched = true; // Setăm true pentru că sigur nu mai are sesiune
   notifySessionChange();
+  window.dispatchEvent(new Event("casa-esy-active-order-changed"));
 
   try {
     if (hadStoredAuth) {
