@@ -227,9 +227,7 @@ export default function SmartLockTab() {
     );
 
     try {
-      if (unit.room_id) {
-        await patch(`/rooms/${unit.room_id}/units/${unit.id}`, { status: newStatus });
-      }
+      await patch(`/housekeeping/units/${unit.id}/status`, { status: newStatus });
       toast(
         newStatus === "active"
           ? `Clanța camerei ${uNum} este acum ACTIVATĂ (ON / În funcțiune).`

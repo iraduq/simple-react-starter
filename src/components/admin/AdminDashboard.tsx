@@ -234,7 +234,6 @@ const STAFF_ROLE_CONFIG: Record<
       "maintenance",
       "lost_found",
       "qr_studio",
-      "reviews",
     ],
   },
   menajera: {
