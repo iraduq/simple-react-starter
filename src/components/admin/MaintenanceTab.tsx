@@ -21,6 +21,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
+import { getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
 import { useAdminLiveSync } from "../../context/AdminLiveSyncContext";
 import {
@@ -93,6 +94,8 @@ const DEPT_LABELS: Record<string, string> = {
 
 export default function MaintenanceTab() {
   const { toast } = useToast();
+  const canManageTechnicians =
+    (getCachedUser()?.role || "").toLowerCase().trim() === "admin";
 
   const [subView, setSubView] = useState<"tickets" | "technicians">("tickets");
 
@@ -497,10 +500,12 @@ export default function MaintenanceTab() {
               Reîncarcă
             </GhostButton>
             {subView === "technicians" ? (
-              <PrimaryButton size="sm" onClick={openCreateTechnicianModal}>
-                <UserPlus size={14} />
-                Adaugă tehnician
-              </PrimaryButton>
+              canManageTechnicians ? (
+                <PrimaryButton size="sm" onClick={openCreateTechnicianModal}>
+                  <UserPlus size={14} />
+                  Adaugă tehnician
+                </PrimaryButton>
+              ) : null
             ) : (
               <PrimaryButton
                 size="sm"
@@ -912,32 +917,36 @@ export default function MaintenanceTab() {
                     </div>
 
                     <div className="flex items-center justify-between gap-2 border-t border-[#eef2f7] pt-3">
-                      <button
-                        type="button"
-                        onClick={() => void handleToggleTechActive(tech)}
-                        className="rounded-lg border border-[#e1e8f0] bg-[#f8fafd] px-2.5 py-1.5 text-[11px] font-semibold text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
-                      >
-                        {tech.is_active ? "Marchează indisponibil" : "Activează"}
-                      </button>
+                      {canManageTechnicians && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => void handleToggleTechActive(tech)}
+                            className="rounded-lg border border-[#e1e8f0] bg-[#f8fafd] px-2.5 py-1.5 text-[11px] font-semibold text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
+                          >
+                            {tech.is_active ? "Marchează indisponibil" : "Activează"}
+                          </button>
 
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => openEditTechnicianModal(tech)}
-                          title="Editează tehnician"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] bg-white text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
-                        >
-                          <Pencil size={13} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTechTarget(tech)}
-                          title="Șterge tehnician"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 cursor-pointer"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => openEditTechnicianModal(tech)}
+                              title="Editează tehnician"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#e1e8f0] bg-white text-[#0d2c5c] hover:border-[#0d2c5c] cursor-pointer"
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeleteTechTarget(tech)}
+                              title="Șterge tehnician"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1035,13 +1044,15 @@ export default function MaintenanceTab() {
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b7c99] ml-0.5">
                   Atribuire tehnician
                 </span>
-                <button
-                  type="button"
-                  onClick={openCreateTechnicianModal}
-                  className="text-[11px] font-bold text-[#8a6420] hover:text-[#0d2c5c] cursor-pointer"
-                >
-                  + Tehnician nou
-                </button>
+                {canManageTechnicians && (
+                  <button
+                    type="button"
+                    onClick={openCreateTechnicianModal}
+                    className="text-[11px] font-bold text-[#8a6420] hover:text-[#0d2c5c] cursor-pointer"
+                  >
+                    + Tehnician nou
+                  </button>
+                )}
               </div>
               <Select value={newAssignedTo} onChange={(e) => setNewAssignedTo(e.target.value)}>
                 <option value="">Nealocat (va fi preluat ulterior)</option>
@@ -1136,17 +1147,21 @@ export default function MaintenanceTab() {
           )}
 
           <div className="flex items-center justify-between gap-2 pt-2">
-            <button
-              type="button"
-              onClick={() => {
-                setEditTicketTarget(null);
-                setSubView("technicians");
-                openCreateTechnicianModal();
-              }}
-              className="text-xs font-bold text-[#8a6420] hover:text-[#0d2c5c] cursor-pointer"
-            >
-              + Adaugă tehnician nou
-            </button>
+            {canManageTechnicians ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditTicketTarget(null);
+                  setSubView("technicians");
+                  openCreateTechnicianModal();
+                }}
+                className="text-xs font-bold text-[#8a6420] hover:text-[#0d2c5c] cursor-pointer"
+              >
+                + Adaugă tehnician nou
+              </button>
+            ) : (
+              <span />
+            )}
 
             <div className="flex items-center gap-2">
               <GhostButton onClick={() => setEditTicketTarget(null)}>Anulează</GhostButton>

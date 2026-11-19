@@ -57,8 +57,7 @@ export default function Login() {
 
   const resolvePostLoginRoute = (role?: string | null) => {
     const r = (role || "").toLowerCase().trim();
-    if (r === "menajera" || r === "manajera") return "/housekeeping";
-    if (["admin", "intretinere", "receptionist", "bucatar"].includes(r)) {
+    if (["admin", "menajera", "manajera", "intretinere", "receptionist", "bucatar"].includes(r)) {
       return "/admin";
     }
     return "/profile";

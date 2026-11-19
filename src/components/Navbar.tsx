@@ -165,7 +165,7 @@ export default function Navbar() {
     staffRole === "admin"
       ? { to: "/admin", label: "Administrează" }
       : staffRole === "menajera" || staffRole === "manajera"
-        ? { to: "/housekeeping", label: "Portal Housekeeping" }
+        ? { to: "/admin?tab=housekeeping", label: "Panou Housekeeping" }
         : staffRole === "intretinere"
           ? { to: "/admin?tab=maintenance", label: "Portal Întreținere" }
           : staffRole === "receptionist"

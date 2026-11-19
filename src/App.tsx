@@ -44,7 +44,6 @@ import Footer from "./components/Footer";
 import ChatWidget from "./components/ChatWidget";
 import BookingSuccess from "./pages/BookingSuccess";
 import CheckIn from "./pages/CheckIn";
-import Housekeeping from "./pages/Housekeeping";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 import BroadcastAlertBanner from "./components/notifications/BroadcastAlertBanner";
 
@@ -155,7 +154,7 @@ function AppInner() {
           path="/housekeeping"
           element={
             <ProtectedRoute>
-              <Housekeeping />
+              <Navigate to="/admin?tab=housekeeping" replace />
             </ProtectedRoute>
           }
         />
