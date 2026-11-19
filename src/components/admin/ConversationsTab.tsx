@@ -765,84 +765,83 @@ export default function ConversationsTab() {
             </Card>
 
             {/* Coloana Dreaptă: Simulator Interactiv Live Stil Alexa / In-Room */}
-            <div className="lg:col-span-6 relative overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-[#071126] via-[#0d1c3a] to-[#081225] p-6 sm:p-7 space-y-5 shadow-[0_24px_64px_rgba(6,13,31,0.34)] text-white">
-              {/* Top Iridescent AI Aurora Bar */}
+            <div className="lg:col-span-6 relative overflow-hidden rounded-[24px] border border-[#e5dcc3] bg-gradient-to-br from-white via-[#fcfdff] to-[#fdfaf3] p-6 sm:p-7 space-y-5 shadow-[0_18px_48px_rgba(13,44,92,0.08)]">
+              {/* Top Signature Coastal Navy + AI Iridescent + Gold Ribbon */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 h-[2.5px]"
+                className="pointer-events-none absolute inset-x-0 top-0 h-[3px]"
                 style={{
                   background:
-                    "linear-gradient(90deg, #38bdf8 0%, #6366f1 35%, #a855f7 65%, #e6b85c 100%)",
+                    "linear-gradient(90deg, #0d2c5c 0%, #3b82f6 35%, #8b5cf6 65%, #c69a3f 100%)",
                 }}
               />
-              {/* Ambient Neural Glows */}
+              {/* Soft Ambient Pearl/AI Glow */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl"
+                className="pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full bg-indigo-400/10 blur-3xl"
               />
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#c69a3f]/15 blur-3xl"
+                className="pointer-events-none absolute -bottom-24 -left-20 h-56 w-56 rounded-full bg-[#c69a3f]/10 blur-3xl"
               />
 
               {/* Header */}
-              <div className="relative z-10 flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-white/10">
+              <div className="relative z-10 flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-[#e8eef6]">
                 <div className="flex items-start gap-3.5">
-                  <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 shadow-[0_0_28px_rgba(99,102,241,0.55)] ring-1 ring-white/25">
-                    <Bot size={22} className="text-white drop-shadow" />
-                    <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-[#0a1630] bg-emerald-400 shadow-[0_0_10px_#34d399]" />
+                  <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0d2c5c] via-[#1e4380] to-[#4f46e5] shadow-[0_8px_22px_rgba(13,44,92,0.22)] ring-2 ring-[#e5dcc3]/70">
+                    <Bot size={20} className="text-[#f5d588]" />
+                    <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-[19px] font-bold tracking-tight text-white font-['Outfit',sans-serif]">
-                        Simulator Live · Voce &amp; Mod Cameră
-                      </h3>
-                    </div>
-                    <p className="text-[12.5px] text-slate-300/85 mt-0.5 leading-relaxed">
+                    <h3 className="text-[19px] font-bold tracking-tight text-[#0d2c5c] font-['Outfit',sans-serif]">
+                      Simulator Live · Voce &amp; Mod Cameră
+                    </h3>
+                    <p className="text-[12.5px] text-[#5e718f] mt-0.5 leading-relaxed">
                       Testează orice întrebare sau comandă de Room Service exact ca un oaspete din cameră.
                     </p>
                   </div>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-emerald-300 shadow-[0_0_18px_rgba(52,211,153,0.18)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d6e4f5] bg-[#f3f7fd] px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.13em] text-[#0d2c5c]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Funcții Reale Active
                 </span>
               </div>
 
               {/* Room Context Keycard Selector */}
-              <div className="relative z-10 rounded-2xl bg-white/[0.05] border border-white/12 p-3.5 backdrop-blur-md flex flex-col sm:flex-row sm:items-center gap-3">
-                <span className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-[#f3cf7a] flex items-center gap-1.5 shrink-0">
-                  <DoorOpen size={15} className="text-[#e6b85c]" /> Simulează din:
+              <div className="relative z-10 rounded-2xl bg-gradient-to-r from-[#f8faff] via-white to-[#fdfaf2] border border-[#e2e8f2] p-3.5 shadow-[0_2px_10px_rgba(13,44,92,0.03)] flex flex-col sm:flex-row sm:items-center gap-3">
+                <span className="text-[11.5px] font-bold uppercase tracking-[0.1em] text-[#0d2c5c] flex items-center gap-1.5 shrink-0">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-[#fdf6e2] border border-[#e5dcc3] text-[#c69a3f]">
+                    <DoorOpen size={13} />
+                  </span>
+                  Simulează din:
                 </span>
                 <select
                   value={simRoom}
                   onChange={(e) => setSimRoom(e.target.value)}
-                  className="flex-1 rounded-xl border border-white/15 bg-[#0b172e]/90 px-3.5 py-2 text-[13px] font-medium text-white outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 cursor-pointer"
+                  className={`${inputCls} flex-1 text-[13px] py-2 bg-white border-[#dbe4f0] font-medium text-[#0d2c5c] focus:border-[#c69a3f]`}
                 >
-                  <option value="" className="bg-[#0b172a] text-white">
-                    🌐 Vizitator Public (fără cameră)
-                  </option>
+                  <option value="">🌐 Vizitator Public (fără cameră)</option>
                   {conciergeUnits.length > 0 ? (
                     conciergeUnits.map((u) => (
-                      <option key={u.unit_number} value={u.unit_number} className="bg-[#0b172a] text-white">
+                      <option key={u.unit_number} value={u.unit_number}>
                         🔑 Camera {u.unit_number} — {u.room_title} ({u.base_price} RON)
                       </option>
                     ))
                   ) : (
                     <>
-                      <option value="101" className="bg-[#0b172a] text-white">🔑 Camera 101 — Standard Twin Room</option>
-                      <option value="201" className="bg-[#0b172a] text-white">🔑 Camera 201 — Deluxe Double Room</option>
-                      <option value="301" className="bg-[#0b172a] text-white">🔑 Camera 301 — Luxury Suite</option>
-                      <option value="401" className="bg-[#0b172a] text-white">🔑 Camera 401 — Family Room</option>
+                      <option value="101">🔑 Camera 101 — Standard Twin Room</option>
+                      <option value="201">🔑 Camera 201 — Deluxe Double Room</option>
+                      <option value="301">🔑 Camera 301 — Luxury Suite</option>
+                      <option value="401">🔑 Camera 401 — Family Room</option>
                     </>
                   )}
                 </select>
               </div>
 
-              {/* Glowing AI Prompt Bar */}
+              {/* Elevated Luxury AI Prompt Capsule */}
               <div className="relative z-10 flex flex-col sm:flex-row gap-2.5">
-                <div className="flex flex-1 items-center gap-2.5 rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-2.5 backdrop-blur-md transition focus-within:border-cyan-400/60 focus-within:bg-white/[0.09] focus-within:ring-2 focus-within:ring-cyan-400/20">
-                  <Wand2 size={16} className="text-cyan-300 shrink-0" />
+                <div className="flex flex-1 items-center gap-2.5 rounded-2xl border border-[#d8e2f0] bg-white px-4 py-2.5 shadow-[0_6px_20px_rgba(13,44,92,0.05)] transition focus-within:border-[#c69a3f] focus-within:ring-4 focus-within:ring-[#c69a3f]/15">
+                  <Wand2 size={16} className="text-[#c69a3f] shrink-0" />
                   <input
                     value={simInput}
                     onChange={(e) => setSimInput(e.target.value)}
@@ -850,7 +849,7 @@ export default function ConversationsTab() {
                       if (e.key === "Enter") void handleRunSimulator();
                     }}
                     placeholder={simListening ? "Vorbește acum..." : "Întreabă sau comandă în cameră..."}
-                    className="w-full bg-transparent text-[13.5px] text-white placeholder:text-slate-400 outline-none"
+                    className="w-full bg-transparent text-[13.5px] text-[#0d2c5c] placeholder:text-[#8c9db8] outline-none"
                   />
                 </div>
                 <button
@@ -858,18 +857,18 @@ export default function ConversationsTab() {
                   onClick={toggleSimVoice}
                   className={`inline-flex items-center justify-center gap-1.5 rounded-2xl px-4 py-2.5 text-[12px] font-bold uppercase tracking-wider transition cursor-pointer ${
                     simListening
-                      ? "bg-rose-500/90 text-white shadow-[0_0_24px_rgba(244,63,94,0.55)] animate-pulse"
-                      : "border border-white/15 bg-white/[0.07] text-slate-200 hover:bg-white/[0.14] hover:border-cyan-400/40"
+                      ? "bg-rose-600 text-white shadow-[0_8px_20px_rgba(225,29,72,0.35)] animate-pulse"
+                      : "border border-[#d8e2f0] bg-white text-[#0d2c5c] shadow-xs hover:border-[#c69a3f] hover:bg-[#fffdf7]"
                   }`}
                 >
-                  {simListening ? <MicOff size={15} /> : <Mic size={15} />}
+                  {simListening ? <MicOff size={15} /> : <Mic size={15} className="text-[#4f46e5]" />}
                   {simListening ? "Ascult..." : "Voce"}
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleRunSimulator()}
                   disabled={simLoading || !simInput.trim()}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#d4a64a] via-[#e6b85c] to-[#c69a3f] px-5 py-2.5 text-[12px] font-extrabold uppercase tracking-wider text-[#081225] shadow-[0_8px_24px_rgba(230,184,92,0.35)] transition hover:brightness-110 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#0d2c5c] via-[#173e7a] to-[#0d2c5c] px-5 py-2.5 text-[12px] font-bold uppercase tracking-wider text-[#f5d588] shadow-[0_8px_22px_rgba(13,44,92,0.22)] transition hover:brightness-110 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer shrink-0"
                 >
                   <Send size={14} /> {simLoading ? "Gândește..." : "Testează"}
                 </button>
@@ -877,7 +876,7 @@ export default function ConversationsTab() {
 
               {/* Scenarii Rapide */}
               <div className="relative z-10">
-                <span className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-slate-400 block mb-2.5">
+                <span className="text-[10.5px] font-bold uppercase tracking-[0.15em] text-[#6b7c99] block mb-2.5">
                   Scenarii de test rapide:
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -886,7 +885,7 @@ export default function ConversationsTab() {
                       key={preset}
                       type="button"
                       onClick={() => void handleRunSimulator(preset)}
-                      className="text-left rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11.5px] font-medium text-slate-200 hover:border-cyan-400/50 hover:bg-cyan-400/10 hover:text-white transition-all duration-150 cursor-pointer"
+                      className="text-left rounded-xl border border-[#e1e8f2] bg-white px-3 py-1.5 text-[12px] font-medium text-[#0d2c5c] shadow-[0_2px_6px_rgba(13,44,92,0.03)] hover:-translate-y-0.5 hover:border-[#c69a3f] hover:bg-[#fffdf7] hover:shadow-[0_6px_16px_rgba(198,154,63,0.14)] transition-all duration-150 cursor-pointer"
                     >
                       {preset}
                     </button>
@@ -898,7 +897,7 @@ export default function ConversationsTab() {
                 <AiVoiceWave
                   active={simSpeaking || simListening}
                   mode={simListening ? "listening" : "speaking"}
-                  theme="dark"
+                  theme="light"
                   label={
                     simListening
                       ? "Simulatorul ascultă vocea ta..."
@@ -913,20 +912,20 @@ export default function ConversationsTab() {
               </div>
 
               {simLoading && (
-                <div className="relative z-10 rounded-2xl border border-indigo-400/25 bg-indigo-500/10 p-4 flex items-center gap-3 animate-pulse">
-                  <span className="h-8 w-8 rounded-full bg-gradient-to-tr from-cyan-400 via-indigo-500 to-violet-500 shadow-[0_0_18px_rgba(99,102,241,0.6)] shrink-0" />
-                  <div className="space-y-1">
-                    <div className="text-[13px] font-semibold text-white">Esy Concierge AI procesează...</div>
-                    <div className="text-[11.5px] text-slate-300">Verifică baza de cunoștințe RAG, disponibilitatea și instrumentele live.</div>
+                <div className="relative z-10 rounded-2xl border border-[#dbe4f3] bg-gradient-to-r from-[#f6f9ff] via-white to-[#fdfaf2] p-4 flex items-center gap-3.5 animate-pulse shadow-xs">
+                  <span className="h-8 w-8 rounded-full bg-gradient-to-tr from-[#0d2c5c] via-[#4f46e5] to-[#c69a3f] shadow-sm shrink-0" />
+                  <div className="space-y-0.5">
+                    <div className="text-[13px] font-bold text-[#0d2c5c]">Esy Concierge AI procesează...</div>
+                    <div className="text-[11.5px] text-[#5e718f]">Verifică baza de cunoștințe RAG, disponibilitatea și instrumentele live.</div>
                   </div>
                 </div>
               )}
 
               {!simLoading && simResult && (
-                <div className="relative z-10 rounded-2xl border border-[#e6b85c]/25 bg-white/[0.06] backdrop-blur-md p-5 shadow-lg space-y-3.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#f3cf7a] flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-400" /> Răspuns Concierge AI
+                <div className="relative z-10 rounded-2xl border border-[#e5dcc3] bg-white p-5 shadow-[0_10px_28px_rgba(13,44,92,0.06)] space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#eef2f7]">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9a7222] flex items-center gap-1.5">
+                      <CheckCircle2 size={14} className="text-emerald-600" /> Răspuns Concierge AI
                     </span>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <button
@@ -934,8 +933,8 @@ export default function ConversationsTab() {
                         onClick={() => setSimVoiceEnabled((v) => !v)}
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider transition cursor-pointer ${
                           simVoiceEnabled
-                            ? "bg-[#e6b85c]/20 border border-[#e6b85c]/45 text-[#f3cf7a]"
-                            : "bg-white/[0.06] border border-white/12 text-slate-300 hover:bg-white/10"
+                            ? "bg-[#fdf6e2] border border-[#e5dcc3] text-[#9a7222]"
+                            : "bg-[#f4f7fb] border border-[#e1e8f0] text-[#5e718f] hover:bg-[#eaf0f8]"
                         }`}
                       >
                         {simVoiceEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
@@ -944,44 +943,42 @@ export default function ConversationsTab() {
                       <button
                         type="button"
                         onClick={() => speakSimulatorReply(simResult.reply, simResult.language)}
-                        className="inline-flex items-center gap-1 rounded-full bg-indigo-500/20 border border-indigo-400/35 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-indigo-200 hover:bg-indigo-500/35 transition cursor-pointer"
+                        className="inline-flex items-center gap-1 rounded-full bg-[#eef3fc] border border-[#d6e2f5] px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-[#0d2c5c] hover:bg-[#e1eaf9] transition cursor-pointer"
                       >
-                        {simSpeaking ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                        {simSpeaking ? <VolumeX size={12} /> : <Volume2 size={12} className="text-[#4f46e5]" />}
                         {simSpeaking ? "Oprește" : "Ascultă"}
                       </button>
-                      <span className="rounded-full bg-white/10 border border-white/15 px-2.5 py-1 text-[10.5px] font-mono font-semibold text-cyan-200">
-                        {simResult.latency_ms} ms
-                      </span>
+                      <Badge tone="navy">{simResult.latency_ms} ms</Badge>
                     </div>
                   </div>
 
-                  <p className="text-[13.5px] leading-relaxed text-slate-100 whitespace-pre-line">
+                  <p className="text-[13.5px] leading-relaxed text-[#0d2c5c] whitespace-pre-line">
                     {simResult.reply}
                   </p>
 
-                  <div className="pt-3 border-t border-white/10 flex flex-wrap gap-1.5 text-[10.5px]">
-                    <span className="rounded-lg bg-white/10 border border-white/10 px-2.5 py-0.5 font-semibold text-slate-200">
+                  <div className="pt-3 border-t border-[#eef2f7] flex flex-wrap gap-1.5 text-[10.5px]">
+                    <span className="rounded-lg bg-[#f4f7fb] border border-[#e1e8f0] px-2.5 py-0.5 font-semibold text-[#0d2c5c]">
                       Intent: {simResult.intent}
                     </span>
-                    <span className="rounded-lg bg-white/10 border border-white/10 px-2.5 py-0.5 font-semibold text-slate-200">
+                    <span className="rounded-lg bg-[#f4f7fb] border border-[#e1e8f0] px-2.5 py-0.5 font-semibold text-[#0d2c5c]">
                       Limbă: {simResult.language.toUpperCase()}
                     </span>
                     {simResult.tools_used.length > 0 ? (
                       simResult.tools_used.map((tl, idx) => (
                         <span
                           key={`${tl}-${idx}`}
-                          className="rounded-lg bg-emerald-400/15 border border-emerald-400/35 px-2.5 py-0.5 font-bold text-emerald-300"
+                          className="rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 font-bold text-emerald-700"
                         >
                           ⚡ Tool: {tl}
                         </span>
                       ))
                     ) : (
-                      <span className="rounded-lg bg-amber-400/15 border border-amber-400/30 px-2.5 py-0.5 font-semibold text-amber-200">
+                      <span className="rounded-lg bg-[#fdf6e2] border border-[#e5dcc3] px-2.5 py-0.5 font-semibold text-[#9a7222]">
                         Context direct din System Prompt
                       </span>
                     )}
                     {simResult.cta && (
-                      <span className="rounded-lg bg-[#e6b85c]/20 border border-[#e6b85c]/40 px-2.5 py-0.5 font-bold text-[#f3cf7a]">
+                      <span className="rounded-lg bg-[#0d2c5c] px-2.5 py-0.5 font-bold text-[#f5d588]">
                         CTA: {simResult.cta.label} ({simResult.cta.url})
                       </span>
                     )}
@@ -1131,50 +1128,50 @@ export default function ConversationsTab() {
             )
           )}
 
-          <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-[#060f22] via-[#0c1a36] to-[#081226] p-6 sm:p-8 space-y-6 shadow-[0_28px_72px_rgba(6,13,31,0.38)] text-white">
-            {/* Top Iridescent AI Aurora Bar */}
+          <div className="relative overflow-hidden rounded-[26px] border border-[#e5dcc3] bg-gradient-to-br from-white via-[#fcfdff] to-[#fdfaf3] p-6 sm:p-8 space-y-6 shadow-[0_20px_56px_rgba(13,44,92,0.08)]">
+            {/* Top Signature Coastal Navy + AI Iridescent + Gold Ribbon */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-0 top-0 h-[3px]"
               style={{
                 background:
-                  "linear-gradient(90deg, #38bdf8 0%, #6366f1 30%, #a855f7 60%, #e6b85c 100%)",
+                  "linear-gradient(90deg, #0d2c5c 0%, #3b82f6 34%, #8b5cf6 66%, #c69a3f 100%)",
               }}
             />
-            {/* Ambient Neural Orbs */}
+            {/* Soft Ambient Pearl & Gold Glows */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -top-28 right-10 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl"
+              className="pointer-events-none absolute -top-24 right-10 h-64 w-64 rounded-full bg-indigo-400/10 blur-3xl"
             />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -bottom-28 -left-16 h-72 w-72 rounded-full bg-[#c69a3f]/15 blur-3xl"
+              className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-[#c69a3f]/10 blur-3xl"
             />
 
             {/* Header */}
-            <div className="relative z-10 flex flex-wrap items-start justify-between gap-4 pb-5 border-b border-white/10">
+            <div className="relative z-10 flex flex-wrap items-start justify-between gap-4 pb-5 border-b border-[#e8eef6]">
               <div className="flex items-start gap-4">
-                <div className="relative flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 shadow-[0_0_32px_rgba(99,102,241,0.55)] ring-1 ring-white/25">
-                  <Sparkles size={24} className="text-white drop-shadow" />
-                  <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-[#09142b] bg-emerald-400 shadow-[0_0_10px_#34d399]" />
+                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0d2c5c] via-[#1e4380] to-[#4f46e5] shadow-[0_10px_24px_rgba(13,44,92,0.22)] ring-2 ring-[#e5dcc3]/80">
+                  <Sparkles size={22} className="text-[#f5d588]" />
+                  <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
                 </div>
                 <div>
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h3 className="text-[22px] sm:text-[24px] font-bold tracking-tight text-white font-['Outfit',sans-serif]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-[22px] sm:text-[23px] font-bold tracking-tight text-[#0d2c5c] font-['Outfit',sans-serif]">
                       Asistent Executiv AI · Bază de Date &amp; Telegram
                     </h3>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                      Neural Live
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#d6e4f5] bg-[#f3f7fd] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#0d2c5c]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      AI Live
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[#e6b85c]/35 bg-[#e6b85c]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#f3cf7a]">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#e5dcc3] bg-[#fdf6e2] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#9a7222]">
                       RAG Admin + SQL
                     </span>
                   </div>
-                  <p className="text-[13px] text-slate-300/85 mt-1 max-w-3xl leading-relaxed">
+                  <p className="text-[13px] text-[#5e718f] mt-1 max-w-3xl leading-relaxed">
                     Întreabă orice în limbaj natural, cu memorie conversațională (poți continua cu{" "}
-                    <i className="text-cyan-200">„Cine a făcut-o?”</i> sau{" "}
-                    <i className="text-cyan-200">„Ce telefon are?”</i>). Același creier inteligent răspunde instant și pe botul tău de Telegram.
+                    <i className="text-[#0d2c5c] font-medium">„Cine a făcut-o?”</i> sau{" "}
+                    <i className="text-[#0d2c5c] font-medium">„Ce telefon are?”</i>). Același creier inteligent răspunde instant și pe botul tău de Telegram.
                   </p>
                 </div>
               </div>
@@ -1183,10 +1180,10 @@ export default function ConversationsTab() {
                 <button
                   type="button"
                   onClick={() => setDbVoiceEnabled((v) => !v)}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider transition cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition cursor-pointer ${
                     dbVoiceEnabled
-                      ? "bg-gradient-to-r from-[#d4a64a] to-[#e6b85c] text-[#081225] shadow-[0_6px_20px_rgba(230,184,92,0.35)]"
-                      : "border border-white/15 bg-white/[0.06] text-slate-300 hover:bg-white/[0.12]"
+                      ? "bg-gradient-to-r from-[#c69a3f] to-[#d9ad52] text-white shadow-[0_6px_18px_rgba(198,154,63,0.32)]"
+                      : "border border-[#d8e2f0] bg-white text-[#5e718f] hover:border-[#c69a3f] hover:text-[#0d2c5c]"
                   }`}
                 >
                   {dbVoiceEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
@@ -1196,7 +1193,7 @@ export default function ConversationsTab() {
                   <button
                     type="button"
                     onClick={() => void handleResetDbChat()}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-200 hover:bg-white/[0.14] hover:border-white/25 transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#d8e2f0] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#fffdf7] transition cursor-pointer"
                   >
                     <RotateCcw size={13} /> Conversație nouă
                   </button>
@@ -1204,11 +1201,11 @@ export default function ConversationsTab() {
               </div>
             </div>
 
-            {/* Hero AI Command Input Bar */}
+            {/* Hero Luxury AI Command Bar */}
             <div className="relative z-10 space-y-3">
               <div className="flex flex-col sm:flex-row gap-2.5">
-                <div className="flex flex-1 items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 backdrop-blur-md transition focus-within:border-indigo-400/70 focus-within:bg-white/[0.09] focus-within:ring-2 focus-within:ring-indigo-400/25">
-                  <Sparkles size={17} className="text-[#f3cf7a] shrink-0" />
+                <div className="flex flex-1 items-center gap-3 rounded-2xl border border-[#d8e2f0] bg-white px-4 py-3 shadow-[0_8px_24px_rgba(13,44,92,0.05)] transition focus-within:border-[#c69a3f] focus-within:ring-4 focus-within:ring-[#c69a3f]/15">
+                  <Sparkles size={17} className="text-[#c69a3f] shrink-0" />
                   <input
                     value={dbQuestion}
                     onChange={(e) => setDbQuestion(e.target.value)}
@@ -1220,7 +1217,7 @@ export default function ConversationsTab() {
                         ? "Te ascult... rostește întrebarea"
                         : "Ex: Care a fost cea mai scumpă cameră închiriată, cât a adus și cine a făcut-o?"
                     }
-                    className="w-full bg-transparent text-[14px] text-white placeholder:text-slate-400 outline-none"
+                    className="w-full bg-transparent text-[14px] text-[#0d2c5c] placeholder:text-[#8c9db8] outline-none"
                   />
                 </div>
                 <button
@@ -1228,41 +1225,41 @@ export default function ConversationsTab() {
                   onClick={toggleDbVoice}
                   className={`inline-flex items-center justify-center gap-1.5 rounded-2xl px-4 py-3 text-[12px] font-bold uppercase tracking-wider transition cursor-pointer ${
                     dbListening
-                      ? "bg-rose-500/90 text-white shadow-[0_0_24px_rgba(244,63,94,0.55)] animate-pulse"
-                      : "border border-white/15 bg-white/[0.07] text-slate-200 hover:bg-white/[0.14] hover:border-indigo-400/50"
+                      ? "bg-rose-600 text-white shadow-[0_8px_20px_rgba(225,29,72,0.35)] animate-pulse"
+                      : "border border-[#d8e2f0] bg-white text-[#0d2c5c] shadow-xs hover:border-[#c69a3f] hover:bg-[#fffdf7]"
                   }`}
                 >
-                  {dbListening ? <MicOff size={15} /> : <Mic size={15} />}
+                  {dbListening ? <MicOff size={15} /> : <Mic size={15} className="text-[#4f46e5]" />}
                   {dbListening ? "Ascult..." : "Voce"}
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleAskDatabase()}
                   disabled={askingDb || !dbQuestion.trim()}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#d4a64a] via-[#e6b85c] to-[#c69a3f] px-6 py-3 text-[12px] font-extrabold uppercase tracking-wider text-[#081225] shadow-[0_8px_28px_rgba(230,184,92,0.38)] transition hover:brightness-110 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0d2c5c] via-[#173e7a] to-[#0d2c5c] px-6 py-3 text-[12px] font-bold uppercase tracking-wider text-[#f5d588] shadow-[0_10px_24px_rgba(13,44,92,0.22)] transition hover:brightness-110 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer shrink-0"
                 >
                   <Send size={14} />
                   {askingDb ? "Analizez..." : "Întreabă AI"}
                 </button>
               </div>
 
-              <label className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[12px] font-medium text-slate-300 hover:bg-white/[0.08] transition cursor-pointer select-none">
+              <label className="inline-flex items-center gap-2.5 rounded-full border border-[#e5ecf5] bg-[#f8fafd] px-3.5 py-1.5 text-[12px] font-medium text-[#4f6280] hover:border-[#c69a3f]/50 transition cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={sendToTelegram}
                   onChange={(e) => setSendToTelegram(e.target.checked)}
-                  className="h-4 w-4 rounded border-white/25 bg-white/10 text-[#e6b85c] focus:ring-[#e6b85c] accent-[#e6b85c]"
+                  className="h-4 w-4 rounded border-slate-300 text-[#c69a3f] focus:ring-[#c69a3f] accent-[#c69a3f]"
                 />
                 Trimite automat răspunsul și pe Telegram (raport rapid pe telefon)
               </label>
             </div>
 
-            {/* Luminous Siri/Gemini Voice Waveform */}
+            {/* Light Luxury AI Voice Waveform */}
             <div className="relative z-10">
               <AiVoiceWave
                 active={dbSpeaking || dbListening}
                 mode={dbListening ? "listening" : "speaking"}
-                theme="dark"
+                theme="light"
                 label={
                   dbListening
                     ? "Te ascult... rostește întrebarea"
@@ -1277,9 +1274,9 @@ export default function ConversationsTab() {
             </div>
 
             {/* Agentic AI Direct Actions Deck */}
-            <div className="relative z-10 rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.07] p-4 sm:p-5 backdrop-blur-sm">
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-300 mb-3 flex items-center gap-2">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-emerald-400/20 text-emerald-300">
+            <div className="relative z-10 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-[#f4fcf8] via-white to-[#eefaf3] p-4 sm:p-5 shadow-[0_4px_16px_rgba(16,185,129,0.05)]">
+              <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-emerald-800 mb-3 flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-emerald-100 border border-emerald-200 text-emerald-700">
                   <Zap size={12} />
                 </span>
                 Acțiuni Operaționale Directe (Agentic AI — execută modificări live în DB &amp; Email)
@@ -1290,7 +1287,7 @@ export default function ConversationsTab() {
                     key={act}
                     type="button"
                     onClick={() => void handleAskDatabase(act)}
-                    className="rounded-xl border border-emerald-400/25 bg-[#071923]/70 px-3.5 py-2 text-[12px] font-semibold text-emerald-100 hover:border-emerald-300/70 hover:bg-emerald-500/20 hover:text-white hover:shadow-[0_0_18px_rgba(52,211,153,0.22)] transition-all duration-150 cursor-pointer"
+                    className="rounded-xl border border-emerald-200/90 bg-white px-3.5 py-2 text-[12px] font-semibold text-emerald-950 shadow-[0_2px_6px_rgba(16,185,129,0.05)] hover:-translate-y-0.5 hover:border-emerald-500 hover:bg-emerald-50/70 hover:shadow-sm transition-all duration-150 cursor-pointer"
                   >
                     {act}
                   </button>
@@ -1300,7 +1297,7 @@ export default function ConversationsTab() {
 
             {/* Quick Executive Analytics Chips */}
             <div className="relative z-10">
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400 mb-2.5">
+              <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#5e718f] mb-2.5">
                 Comenzi &amp; analize rapide:
               </div>
               <div className="flex flex-wrap gap-2">
@@ -1309,7 +1306,7 @@ export default function ConversationsTab() {
                     key={q}
                     type="button"
                     onClick={() => void handleAskDatabase(q)}
-                    className="rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2 text-[12px] font-medium text-slate-200 hover:border-[#e6b85c]/60 hover:bg-[#e6b85c]/15 hover:text-white transition-all duration-150 cursor-pointer"
+                    className="rounded-xl border border-[#e1e8f2] bg-white px-3.5 py-2 text-[12px] font-medium text-[#0d2c5c] shadow-[0_2px_6px_rgba(13,44,92,0.03)] hover:-translate-y-0.5 hover:border-[#c69a3f] hover:bg-[#fffdf7] hover:shadow-[0_6px_16px_rgba(198,154,63,0.14)] transition-all duration-150 cursor-pointer"
                   >
                     {q}
                   </button>
@@ -1319,11 +1316,11 @@ export default function ConversationsTab() {
 
             {/* AI Thinking Shimmer */}
             {askingDb && (
-              <div className="relative z-10 rounded-2xl border border-indigo-400/25 bg-indigo-500/10 p-4 flex items-center gap-3.5 animate-pulse">
-                <span className="h-9 w-9 rounded-full bg-gradient-to-tr from-cyan-400 via-indigo-500 to-violet-500 shadow-[0_0_22px_rgba(99,102,241,0.65)] shrink-0" />
-                <div className="space-y-1">
-                  <div className="text-[13.5px] font-semibold text-white">Esy Executiv AI analizează baza de date...</div>
-                  <div className="text-[12px] text-slate-300">Interoghează tabelele live, ghidurile operaționale RAG și compune raportul executiv.</div>
+              <div className="relative z-10 rounded-2xl border border-[#dbe4f3] bg-gradient-to-r from-[#f6f9ff] via-white to-[#fdfaf2] p-4 flex items-center gap-3.5 animate-pulse shadow-xs">
+                <span className="h-9 w-9 rounded-full bg-gradient-to-tr from-[#0d2c5c] via-[#4f46e5] to-[#c69a3f] shadow-sm shrink-0" />
+                <div className="space-y-0.5">
+                  <div className="text-[13.5px] font-bold text-[#0d2c5c]">Esy Executiv AI analizează baza de date...</div>
+                  <div className="text-[12px] text-[#5e718f]">Interoghează tabelele live, ghidurile operaționale RAG și compune raportul executiv.</div>
                 </div>
               </div>
             )}
@@ -1334,43 +1331,33 @@ export default function ConversationsTab() {
                 {[...dbTurns].reverse().map((turn) => (
                   <div
                     key={turn.id}
-                    className="rounded-2xl border border-white/12 bg-white/[0.06] backdrop-blur-md p-5 shadow-lg space-y-3.5"
+                    className="rounded-2xl border border-[#e5dcc3] bg-gradient-to-br from-white via-[#fcfdff] to-[#fdfaf3] p-5 shadow-[0_10px_28px_rgba(13,44,92,0.06)] space-y-3.5"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-white/10 pb-3">
-                      <div className="text-[13.5px] font-bold text-white flex items-center gap-2.5">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/25 border border-indigo-400/40 text-indigo-300 shrink-0">
+                    <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e8eef6] pb-3">
+                      <div className="text-[13.5px] font-bold text-[#0d2c5c] flex items-center gap-2.5">
+                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#eef3fc] border border-[#d6e2f5] text-[#2f6fd6] shrink-0">
                           <User size={13} />
                         </span>
                         <span>{turn.question}</span>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         {turn.intent?.startsWith("action_") && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 border border-emerald-400/35 px-2.5 py-0.5 text-[10.5px] font-bold text-emerald-300">
-                            ⚡ Acțiune Executată Live
-                          </span>
+                          <Badge tone="green">⚡ Acțiune Executată Live</Badge>
                         )}
                         <button
                           type="button"
                           onClick={() => speakDbReply(turn.plainSummary)}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/35 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-200 hover:bg-indigo-500/35 transition cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[#eef3fc] border border-[#d6e2f5] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] hover:bg-[#e1eaf9] transition cursor-pointer"
                         >
-                          {dbSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} />}
+                          {dbSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} className="text-[#4f46e5]" />}
                           {dbSpeaking ? "Oprește" : "Ascultă Vocal"}
                         </button>
-                        {turn.bookingCode && (
-                          <span className="rounded-full bg-[#e6b85c]/20 border border-[#e6b85c]/40 px-2.5 py-0.5 text-[10.5px] font-bold text-[#f3cf7a]">
-                            #{turn.bookingCode}
-                          </span>
-                        )}
-                        {turn.telegramSent && (
-                          <span className="rounded-full bg-cyan-400/15 border border-cyan-400/35 px-2.5 py-0.5 text-[10.5px] font-bold text-cyan-200">
-                            Telegram ✓
-                          </span>
-                        )}
+                        {turn.bookingCode && <Badge tone="navy">#{turn.bookingCode}</Badge>}
+                        {turn.telegramSent && <Badge tone="green">Trimis pe Telegram</Badge>}
                       </div>
                     </div>
                     <div
-                      className="text-[14px] leading-relaxed text-slate-100 whitespace-pre-line space-y-1.5 [&_b]:text-[#f3cf7a] [&_strong]:text-[#f3cf7a] [&_code]:bg-white/10 [&_code]:text-cyan-300 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-[12.5px]"
+                      className="text-[14px] leading-relaxed text-[#0d2c5c] whitespace-pre-line space-y-1.5 [&_b]:text-[#0d2c5c] [&_strong]:text-[#0d2c5c] [&_code]:bg-[#f1f5fb] [&_code]:text-[#0d2c5c] [&_code]:border [&_code]:border-[#dbe4f3] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-[12.5px]"
                       dangerouslySetInnerHTML={{ __html: turn.responseHtml }}
                     />
                   </div>

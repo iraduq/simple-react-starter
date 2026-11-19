@@ -295,24 +295,22 @@ export default function AiVoiceWave({
             className={`relative overflow-hidden rounded-2xl border ${
               isDark
                 ? "border-indigo-400/25 shadow-[0_0_32px_rgba(99,102,241,0.22)]"
-                : "border-[#dbeafe] shadow-sm"
+                : "border-[#dbe4f3] shadow-[0_10px_30px_rgba(79,70,229,0.10)]"
             } ${compact ? "px-3.5 py-2.5" : "px-4 py-3"}`}
             style={{
               background: isDark
                 ? "radial-gradient(ellipse at 50% 50%, rgba(79,70,229,0.22) 0%, rgba(15,23,42,0.88) 65%, rgba(7,15,34,0.96) 100%)"
-                : "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245,248,255,0.98) 100%)",
+                : "radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.07) 0%, rgba(255,255,255,0.98) 55%, rgba(253,249,240,0.96) 100%)",
             }}
           >
-            {isDark && (
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 h-[1px]"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.8) 30%, rgba(168,85,247,0.9) 55%, rgba(230,184,92,0.8) 80%, transparent 100%)",
-                }}
-              />
-            )}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-0 h-[2px]"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.85) 28%, rgba(99,102,241,0.9) 52%, rgba(198,154,63,0.85) 78%, transparent 100%)",
+              }}
+            />
 
             <div className="relative z-10 flex items-center justify-between gap-2 mb-1">
               <div className="flex items-center gap-2.5 min-w-0">
