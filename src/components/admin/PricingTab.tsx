@@ -8,6 +8,7 @@ import {
   Calendar,
   DollarSign,
   Sliders,
+  Flame,
 } from "lucide-react";
 import {
   Card,
@@ -105,6 +106,7 @@ export default function PricingTab() {
   const [loading, setLoading] = useState(true);
   const [calLoading, setCalLoading] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
+  const [pricingView, setPricingView] = useState<"demand" | "rules">("demand");
   const [ruleOpen, setRuleOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -349,7 +351,6 @@ export default function PricingTab() {
   return (
     <div className="w-full space-y-4">
         <SectionHeader eyebrow="Tarife" title="Prețuri și calendar" action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />} />
-        {selectedRoom && <PricingDemandCalendar roomId={selectedRoom} />}
 
         {rooms.length === 0 ? (
           <Card className="bg-white border border-[#e1e8f0] rounded-2xl">
@@ -357,31 +358,66 @@ export default function PricingTab() {
           </Card>
         ) : (
           <>
-            <Card className="mb-5 p-4 bg-white border border-[#e1e8f0] rounded-2xl shadow-sm">
-              <Field label="Selectează cameră">
-                <select
-                  className={inputCls}
-                  value={selectedRoom}
-                  onChange={(e) => setSelectedRoom(e.target.value)}
-                >
-                  {rooms.map((r) => (
-                    <option key={r.id} value={String(r.id)}>
-                      {roomLabel(r)}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              {basePrice != null && (
-                <p className="mt-3 text-[12px] text-[#0d2c5c]/60">
-                  Tarif de bază:{" "}
-                  <span className="font-semibold text-[#0d2c5c]">
-                    {money(Number(basePrice))}
-                  </span>{" "}
-                  / noapte
-                </p>
-              )}
+            <Card className="p-4 bg-white border border-[#e1e8f0] rounded-2xl shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="flex-1">
+                  <Field label="Selectează cameră">
+                    <select
+                      className={inputCls}
+                      value={selectedRoom}
+                      onChange={(e) => setSelectedRoom(e.target.value)}
+                    >
+                      {rooms.map((r) => (
+                        <option key={r.id} value={String(r.id)}>
+                          {roomLabel(r)}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  {basePrice != null && (
+                    <p className="mt-2.5 text-[12px] text-[#0d2c5c]/60">
+                      Tarif de bază:{" "}
+                      <span className="font-semibold text-[#0d2c5c]">
+                        {money(Number(basePrice))}
+                      </span>{" "}
+                      / noapte
+                    </p>
+                  )}
+                </div>
+
+                {/* Comutator curat între cele 2 moduri */}
+                <div className="inline-flex rounded-xl bg-[#f2f5fa] p-1 border border-[#e1e8f0] shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setPricingView("demand")}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[11.5px] font-bold transition cursor-pointer ${
+                      pricingView === "demand"
+                        ? "bg-white text-[#0d2c5c] shadow-xs ring-1 ring-[#e5dcc3]"
+                        : "text-[#5e718f] hover:text-[#0d2c5c]"
+                    }`}
+                  >
+                    <Flame size={13} className="text-[#c69a3f]" />
+                    Tarif Dinamic &amp; Sărbători
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPricingView("rules")}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[11.5px] font-bold transition cursor-pointer ${
+                      pricingView === "rules"
+                        ? "bg-white text-[#0d2c5c] shadow-xs ring-1 ring-[#e5dcc3]"
+                        : "text-[#5e718f] hover:text-[#0d2c5c]"
+                    }`}
+                  >
+                    <Sliders size={13} className="text-[#0d2c5c]" />
+                    Reguli &amp; Blocări Manuale
+                  </button>
+                </div>
+              </div>
             </Card>
 
+            {pricingView === "demand" ? (
+              <PricingDemandCalendar roomId={selectedRoom} />
+            ) : (
             <Card className="p-4 sm:p-6 bg-white border border-[#e1e8f0] rounded-2xl shadow-sm">
               <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -490,6 +526,7 @@ export default function PricingTab() {
                 </div>
               )}
             </Card>
+            )}
           </>
         )}
 
