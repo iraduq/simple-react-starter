@@ -30,6 +30,7 @@ import {
 } from "../../lib/admin";
 import { useToast } from "../Toast";
 import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
+import PricingDemandCalendar from "./PricingDemandCalendar";
 
 type CalendarDay = {
   date: string;
@@ -348,6 +349,7 @@ export default function PricingTab() {
   return (
     <div className="w-full space-y-4">
         <SectionHeader eyebrow="Tarife" title="Prețuri și calendar" action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />} />
+        {selectedRoom && <PricingDemandCalendar roomId={selectedRoom} />}
 
         {rooms.length === 0 ? (
           <Card className="bg-white border border-[#e1e8f0] rounded-2xl">
