@@ -159,11 +159,11 @@ export default function SystemHealthWidget() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Hero Executive Status Banner */}
-      <div className="overflow-hidden rounded-[24px] border border-[#e5dcc3] bg-white shadow-[0_14px_40px_rgba(13,44,92,0.07)]">
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-[#0d2c5c] via-[#153a74] to-[#0d2c5c] px-6 py-5 text-white">
+      {/* 1. Hero Status Banner — curat Alb + Navy */}
+      <div className="overflow-hidden rounded-2xl border border-[#e1e8f0] bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0d2c5c] px-6 py-5 text-white">
           <div className="flex items-center gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-[#f5d588]/40 text-[#f5d588]">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 text-white">
               <Activity size={22} />
             </span>
             <div>
@@ -171,7 +171,7 @@ export default function SystemHealthWidget() {
                 <h3 className="text-[19px] font-bold tracking-tight font-['Outfit',sans-serif]">
                   {overallLabel}
                 </h3>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 border border-white/15 px-3 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-[#f5d588]">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 border border-white/20 px-3 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-white">
                   <span className={`h-2 w-2 rounded-full ${overallDot} animate-pulse`} />
                   {data?.status === "healthy" ? "LIVE OK" : data?.status || "VERIFICARE"}
                 </span>
@@ -188,7 +188,7 @@ export default function SystemHealthWidget() {
               onClick={() => setAutoRefresh((v) => !v)}
               className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider transition cursor-pointer ${
                 autoRefresh
-                  ? "bg-white/15 border border-[#f5d588]/45 text-[#f5d588]"
+                  ? "bg-white/18 border border-white/35 text-white"
                   : "bg-white/5 border border-white/15 text-white/70 hover:bg-white/10"
               }`}
             >
@@ -199,7 +199,7 @@ export default function SystemHealthWidget() {
               type="button"
               onClick={() => void loadHealth()}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#c69a3f] to-[#d9ad52] px-4 py-2 text-[11px] font-extrabold uppercase tracking-wider text-[#081225] shadow-sm hover:brightness-110 transition disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[#0d2c5c] shadow-sm hover:bg-[#f4f7fb] transition disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw size={12.5} className={loading ? "animate-spin" : ""} />
               Verifică acum
@@ -207,8 +207,8 @@ export default function SystemHealthWidget() {
           </div>
         </div>
 
-        {/* 4 Summary KPI Tiles */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 divide-x divide-[#eef2f7] bg-gradient-to-b from-white to-[#fdfbf6]">
+        {/* 4 Summary KPI Tiles — fundal alb curat */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 divide-x divide-[#eef2f7] bg-white">
           <div className="p-4 sm:p-5">
             <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] flex items-center gap-1.5">
               <CheckCircle2 size={13} className="text-emerald-600" /> Servicii Operaționale
@@ -221,7 +221,7 @@ export default function SystemHealthWidget() {
 
           <div className="p-4 sm:p-5">
             <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] flex items-center gap-1.5">
-              <Database size={13} className="text-[#c69a3f]" /> Latență Bază de Date
+              <Database size={13} className="text-[#0d2c5c]" /> Latență Bază de Date
             </div>
             <div className="mt-1.5 text-[24px] font-extrabold text-[#0d2c5c]">
               {dbLatency}
@@ -231,7 +231,7 @@ export default function SystemHealthWidget() {
 
           <div className="p-4 sm:p-5">
             <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] flex items-center gap-1.5">
-              <Server size={13} className="text-[#2f6fd6]" /> Mediu &amp; Uptime
+              <Server size={13} className="text-[#0d2c5c]" /> Mediu &amp; Uptime
             </div>
             <div className="mt-1.5 text-[24px] font-extrabold text-[#0d2c5c]">
               {data ? fmtUptime(data.uptime_seconds) : "—"}
@@ -243,7 +243,7 @@ export default function SystemHealthWidget() {
 
           <div className="p-4 sm:p-5">
             <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6b7c99] flex items-center gap-1.5">
-              <Clock size={13} className="text-[#c69a3f]" /> Ultima Verificare
+              <Clock size={13} className="text-[#0d2c5c]" /> Ultima Verificare
             </div>
             <div className="mt-1.5 text-[24px] font-extrabold text-[#0d2c5c] tabular-nums">
               {fmtCheckedTime(data?.checked_at)}
@@ -259,7 +259,7 @@ export default function SystemHealthWidget() {
         </div>
       )}
 
-      {/* 2. Detailed Service Cards Grid (2 columns, rich descriptions) */}
+      {/* 2. Detailed Service Cards Grid — carduri albe curate fără tentă galbenă */}
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${loading && !data ? "opacity-60" : ""}`}>
         {services.map((svc) => {
           const meta = SERVICE_META[svc.key] || {
@@ -271,26 +271,26 @@ export default function SystemHealthWidget() {
           const isOk = svc.status === "healthy";
           const isWarn = svc.status === "degraded";
 
-          const dotCls = isOk ? "bg-emerald-500" : isWarn ? "bg-[#c69a3f]" : "bg-rose-500";
+          const dotCls = isOk ? "bg-emerald-500" : isWarn ? "bg-amber-500" : "bg-rose-500";
           const badgeCls = isOk
-            ? "text-emerald-800 bg-emerald-50 border-emerald-200/90"
+            ? "text-emerald-700 bg-emerald-50 border-emerald-200"
             : isWarn
-              ? "text-[#8a6420] bg-[#fdf6e2] border-[#e5dcc3]"
+              ? "text-amber-700 bg-amber-50 border-amber-200"
               : "text-rose-700 bg-rose-50 border-rose-200";
-          const barCls = isOk ? "bg-emerald-500 w-full" : isWarn ? "bg-[#c69a3f] w-3/4" : "bg-rose-500 w-1/4";
+          const barCls = isOk ? "bg-emerald-500 w-full" : isWarn ? "bg-amber-500 w-3/4" : "bg-rose-500 w-1/4";
 
           return (
             <Card
               key={svc.key}
-              className="p-5 border-[#e5dcc3]/80 bg-gradient-to-b from-white to-[#fdfbf7] flex flex-col justify-between gap-3.5 shadow-[0_6px_22px_rgba(13,44,92,0.04)] hover:border-[#c69a3f]/70 transition"
+              className="p-5 border border-[#e1e8f0] bg-white flex flex-col justify-between gap-3.5 shadow-sm hover:border-[#0d2c5c]/30 transition"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3.5 min-w-0">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#0d2c5c] text-[#f5d588] shadow-xs ring-1 ring-[#c69a3f]/30">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0d2c5c]/8 text-[#0d2c5c]">
                     <Icon size={19} />
                   </span>
                   <div className="min-w-0">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#9a7222] block">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6b7c99] block">
                       {meta.category}
                     </span>
                     <h4 className="text-[16px] font-bold text-[#0d2c5c] leading-snug">
@@ -325,11 +325,11 @@ export default function SystemHealthWidget() {
         })}
       </div>
 
-      {/* 3. Architecture & Active Automations Overview */}
+      {/* 3. Architecture & Active Automations Overview — carduri albe curate */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-5 border-[#e1e8f0] bg-white space-y-2">
+        <Card className="p-5 border border-[#e1e8f0] bg-white space-y-2 shadow-sm">
           <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c]">
-            <Lock size={15} className="text-[#c69a3f]" />
+            <Lock size={15} className="text-[#0d2c5c]" />
             Securitate &amp; Protecție API
           </div>
           <p className="text-[12.5px] leading-relaxed text-[#556885]">
@@ -337,9 +337,9 @@ export default function SystemHealthWidget() {
           </p>
         </Card>
 
-        <Card className="p-5 border-[#e1e8f0] bg-white space-y-2">
+        <Card className="p-5 border border-[#e1e8f0] bg-white space-y-2 shadow-sm">
           <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c]">
-            <Cpu size={15} className="text-[#c69a3f]" />
+            <Cpu size={15} className="text-[#0d2c5c]" />
             Job-uri Automate (Scheduler)
           </div>
           <p className="text-[12.5px] leading-relaxed text-[#556885]">
@@ -347,9 +347,9 @@ export default function SystemHealthWidget() {
           </p>
         </Card>
 
-        <Card className="p-5 border-[#e1e8f0] bg-white space-y-2">
+        <Card className="p-5 border border-[#e1e8f0] bg-white space-y-2 shadow-sm">
           <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-[#0d2c5c]">
-            <Globe size={15} className="text-[#c69a3f]" />
+            <Globe size={15} className="text-[#0d2c5c]" />
             Integrări Externe &amp; Fallback
           </div>
           <p className="text-[12.5px] leading-relaxed text-[#556885]">
