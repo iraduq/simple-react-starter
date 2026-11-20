@@ -21,11 +21,11 @@ export default function NotFound() {
           <h1
             className="text-[36px] sm:text-[46px] font-semibold tracking-tight text-[#0d2c5c] leading-tight font-['Outfit',sans-serif]"
           >
-            Ups... Nu te întrista.
+            Pierdut printre valuri...
           </h1>
 
           <p className="mt-3 text-[16px] sm:text-[18px] font-medium text-[#4f6280]">
-            Este doar o eroare{" "}
+            Ups, nu te întrista — este doar o eroare{" "}
             <span className="font-bold text-[#dc2626]">404</span>!
           </p>
 
