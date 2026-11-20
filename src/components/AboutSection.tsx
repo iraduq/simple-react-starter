@@ -30,20 +30,6 @@ export default function AboutSection() {
         <span className="w-px h-16 md:h-24 bg-gradient-to-b from-[#c69a3f]/80 to-transparent" />
       </div>
 
-      {/* ── BACKGROUND WATERMARK (SVG Uriaș Decorativ) ── */}
-      <svg
-        className="absolute -left-32 top-10 w-[600px] h-[600px] text-[#c69a3f] opacity-[0.04] pointer-events-none animate-[spin_120s_linear_infinite]"
-        viewBox="0 0 100 100"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path d="M50 0 C55 20 80 45 100 50 C80 55 55 80 50 100 C45 80 20 55 0 50 C20 45 45 20 50 0 Z" />
-        <path
-          d="M50 15 C52 25 75 48 85 50 C75 52 52 75 50 85 C48 75 25 52 15 50 C25 48 48 25 50 15 Z"
-          opacity="0.5"
-        />
-      </svg>
-
       <div className="relative max-w-7xl mx-auto z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mt-6">
           {/* ── BLOCUL STÂNGA: Titlu + Imagine (pe mobil) + Descriere ── */}

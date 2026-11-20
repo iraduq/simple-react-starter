@@ -1704,12 +1704,6 @@ function FloatingMaritimeBackgroundWhite() {
         </svg>
       </div>
 
-      <div className="absolute -bottom-24 -left-24 w-[480px] h-[480px] opacity-[0.018] text-[#c69a3f]">
-        <svg viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 0 C55 20 80 45 100 50 C80 55 55 80 50 100 C45 80 20 55 0 50 C20 45 45 20 50 0 Z" />
-        </svg>
-      </div>
-
       {/* 3. SOFT AMBIENT LUXURY GLOWS (CLEAN & NON-INTRUSIVE) */}
       <div className="absolute top-[28%] -left-20 w-[450px] h-[450px] rounded-full bg-[#c69a3f]/[0.025] blur-[140px]" />
       <div className="absolute top-[60%] -right-20 w-[500px] h-[500px] rounded-full bg-[#0d2c5c]/[0.02] blur-[150px]" />

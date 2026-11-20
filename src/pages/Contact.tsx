@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Send,
   AlertCircle,
@@ -8,24 +7,9 @@ import {
   Mail,
   Clock,
   CheckCircle2,
-  Compass,
-  Anchor,
-  Shell,
-  Waves,
-  Sparkles,
 } from "lucide-react";
 import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
-import Footer from "../components/Footer";
-
-const FLOATING_OBJECTS = [
-  { Icon: Compass, className: "top-16 left-[5%] text-[#c69a3f]/25", size: 46, y: 18, x: 8, rot: 25, dur: 9 },
-  { Icon: Shell, className: "top-40 right-[7%] text-[#0d2c5c]/15", size: 38, y: -16, x: -10, rot: -18, dur: 8 },
-  { Icon: Anchor, className: "top-[54%] left-[3%] text-[#0d2c5c]/15", size: 34, y: 14, x: 6, rot: 14, dur: 10 },
-  { Icon: Waves, className: "bottom-36 right-[6%] text-[#c69a3f]/25", size: 44, y: -14, x: 10, rot: -10, dur: 7.5 },
-  { Icon: Sparkles, className: "top-24 left-[42%] text-[#c69a3f]/30", size: 26, y: 12, x: -6, rot: 20, dur: 6.5 },
-  { Icon: Compass, className: "bottom-24 left-[28%] text-[#0d2c5c]/10", size: 32, y: -15, x: 8, rot: -22, dur: 11 },
-];
 
 export default function Contact() {
   const { toast } = useToast();
@@ -173,51 +157,8 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ── CONȚINUT PRINCIPAL PE FUNDAL ALB CU OBIECTE PLUTITOARE ── */}
+      {/* ── CONȚINUT PRINCIPAL PE FUNDAL ALB CURAT ── */}
       <section className="relative bg-white py-16 md:py-24 px-5 md:px-10 z-10 overflow-hidden">
-        {/* Fir aurit cu romb sus (stil AboutSection) */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center z-10 pointer-events-none">
-          <span className="w-2.5 h-2.5 rotate-45 border border-[#c69a3f] bg-white" />
-          <span className="w-px h-14 md:h-20 bg-gradient-to-b from-[#c69a3f]/70 to-transparent" />
-        </div>
-
-        {/* Watermark rotativ auriu pe fundal */}
-        <svg
-          className="absolute -left-36 top-6 w-[520px] h-[520px] text-[#c69a3f] opacity-[0.045] pointer-events-none animate-[spin_120s_linear_infinite]"
-          viewBox="0 0 100 100"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path d="M50 0 C55 20 80 45 100 50 C80 55 55 80 50 100 C45 80 20 55 0 50 C20 45 45 20 50 0 Z" />
-          <path
-            d="M50 15 C52 25 75 48 85 50 C75 52 52 75 50 85 C48 75 25 52 15 50 C25 48 48 25 50 15 Z"
-            opacity="0.5"
-          />
-        </svg>
-
-        {/* Obiecte specifice Casa Esy care plutesc pe fundal */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-          {FLOATING_OBJECTS.map(({ Icon, className, size, y, x, rot, dur }, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ y: 0, x: 0, rotate: 0 }}
-              animate={{
-                y: [0, y, 0, -y * 0.6, 0],
-                x: [0, x, 0, -x * 0.6, 0],
-                rotate: [0, rot, 0, -rot * 0.5, 0],
-              }}
-              transition={{
-                duration: dur,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className={`absolute ${className}`}
-            >
-              <Icon size={size} strokeWidth={1.35} />
-            </motion.div>
-          ))}
-        </div>
-
         <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-start pt-4">
           {/* Coloana stângă: Date de contact */}
           <div className="lg:col-span-2 flex flex-col gap-4 order-2 lg:order-1">
@@ -395,8 +336,6 @@ export default function Contact() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }
