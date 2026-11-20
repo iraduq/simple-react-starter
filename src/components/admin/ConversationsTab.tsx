@@ -24,6 +24,7 @@ import {
   Crown,
   Zap,
   Wand2,
+  Sun,
 } from "lucide-react";
 import { useToast } from "../Toast";
 import { get, post, put, fetchBlob, dateTimeFmt, errMsg } from "../../lib/admin";
@@ -527,6 +528,46 @@ export default function ConversationsTab() {
       toast(errMsg(e), "error");
     } finally {
       setAskingDb(false);
+    }
+  };
+
+  const [sendingBriefing, setSendingBriefing] = useState(false);
+
+  const handleSendMorningBriefing = async () => {
+    setSendingBriefing(true);
+    try {
+      const res = await post<{
+        html?: string;
+        telegram_sent?: boolean;
+        schedule?: { time_label?: string };
+      }>("/api/telegram/morning-briefing/send", {});
+      const htmlResp = res.html || "Briefing-ul de dimineață a fost generat.";
+      const plainResp = htmlResp.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      setDbTurns((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-briefing`,
+          question: `Briefing Executiv de Dimineață (programat zilnic la ${res.schedule?.time_label || "08:00"})`,
+          responseHtml: htmlResp,
+          plainSummary: plainResp,
+          intent: "morning_briefing",
+          bookingCode: null,
+          telegramSent: Boolean(res.telegram_sent),
+        },
+      ]);
+      toast(
+        res.telegram_sent
+          ? "Briefing-ul de dimineață a fost trimis pe Telegram!"
+          : "Briefing generat (verifică TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID pentru livrare Telegram).",
+        res.telegram_sent ? "success" : "info",
+      );
+      if (dbVoiceRef.current && plainResp) {
+        void dbVoicePlayerRef.current?.speak(plainResp, "ro");
+      }
+    } catch (e) {
+      toast(errMsg(e), "error");
+    } finally {
+      setSendingBriefing(false);
     }
   };
 
@@ -1177,6 +1218,16 @@ export default function ConversationsTab() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleSendMorningBriefing()}
+                  disabled={sendingBriefing}
+                  title="Programat automat zilnic la 08:00 (Europe/Bucharest). Apasă pentru a-l trimite acum pe Telegram."
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#e5dcc3] bg-[#fdf6e2] px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[#9a7222] hover:border-[#c69a3f] hover:bg-[#faecc3] transition disabled:opacity-55 cursor-pointer"
+                >
+                  <Sun size={13} className={sendingBriefing ? "animate-spin" : ""} />
+                  {sendingBriefing ? "Generez..." : "Briefing 08:00"}
+                </button>
                 <button
                   type="button"
                   onClick={() => setDbVoiceEnabled((v) => !v)}
