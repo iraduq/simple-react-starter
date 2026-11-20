@@ -358,61 +358,57 @@ export default function PricingTab() {
           </Card>
         ) : (
           <>
-            <Card className="p-4 bg-white border border-[#e1e8f0] rounded-2xl shadow-sm">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="flex-1">
-                  <Field label="Selectează cameră">
-                    <select
-                      className={inputCls}
-                      value={selectedRoom}
-                      onChange={(e) => setSelectedRoom(e.target.value)}
-                    >
-                      {rooms.map((r) => (
-                        <option key={r.id} value={String(r.id)}>
-                          {roomLabel(r)}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  {basePrice != null && (
-                    <p className="mt-2.5 text-[12px] text-[#0d2c5c]/60">
-                      Tarif de bază:{" "}
-                      <span className="font-semibold text-[#0d2c5c]">
-                        {money(Number(basePrice))}
-                      </span>{" "}
-                      / noapte
-                    </p>
-                  )}
-                </div>
+            {/* Butoane de comutare în stilul signature Casa Esy (Navy + Gold pills) */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setPricingView("demand")}
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.12em] transition-all cursor-pointer ${
+                  pricingView === "demand"
+                    ? "bg-[#0d2c5c] text-[#f5d588] shadow-[0_6px_18px_rgba(13,44,92,0.20)]"
+                    : "border border-[#dce4f0] bg-white text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#fffdf7]"
+                }`}
+              >
+                <Flame size={14} className={pricingView === "demand" ? "text-[#f5d588]" : "text-[#c69a3f]"} />
+                Tarif Dinamic &amp; Sărbători
+              </button>
+              <button
+                type="button"
+                onClick={() => setPricingView("rules")}
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.12em] transition-all cursor-pointer ${
+                  pricingView === "rules"
+                    ? "bg-[#0d2c5c] text-[#f5d588] shadow-[0_6px_18px_rgba(13,44,92,0.20)]"
+                    : "border border-[#dce4f0] bg-white text-[#0d2c5c] hover:border-[#c69a3f] hover:bg-[#fffdf7]"
+                }`}
+              >
+                <Sliders size={14} className={pricingView === "rules" ? "text-[#f5d588]" : "text-[#0d2c5c]"} />
+                Reguli &amp; Blocări Manuale
+              </button>
+            </div>
 
-                {/* Comutator curat între cele 2 moduri */}
-                <div className="inline-flex rounded-xl bg-[#f2f5fa] p-1 border border-[#e1e8f0] shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setPricingView("demand")}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[11.5px] font-bold transition cursor-pointer ${
-                      pricingView === "demand"
-                        ? "bg-white text-[#0d2c5c] shadow-xs ring-1 ring-[#e5dcc3]"
-                        : "text-[#5e718f] hover:text-[#0d2c5c]"
-                    }`}
-                  >
-                    <Flame size={13} className="text-[#c69a3f]" />
-                    Tarif Dinamic &amp; Sărbători
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPricingView("rules")}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[11.5px] font-bold transition cursor-pointer ${
-                      pricingView === "rules"
-                        ? "bg-white text-[#0d2c5c] shadow-xs ring-1 ring-[#e5dcc3]"
-                        : "text-[#5e718f] hover:text-[#0d2c5c]"
-                    }`}
-                  >
-                    <Sliders size={13} className="text-[#0d2c5c]" />
-                    Reguli &amp; Blocări Manuale
-                  </button>
-                </div>
-              </div>
+            <Card className="p-4 bg-white border border-[#e1e8f0] rounded-2xl shadow-sm">
+              <Field label="Selectează cameră">
+                <select
+                  className={inputCls}
+                  value={selectedRoom}
+                  onChange={(e) => setSelectedRoom(e.target.value)}
+                >
+                  {rooms.map((r) => (
+                    <option key={r.id} value={String(r.id)}>
+                      {roomLabel(r)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              {basePrice != null && (
+                <p className="mt-2.5 text-[12px] text-[#0d2c5c]/60">
+                  Tarif de bază:{" "}
+                  <span className="font-semibold text-[#0d2c5c]">
+                    {money(Number(basePrice))}
+                  </span>{" "}
+                  / noapte
+                </p>
+              )}
             </Card>
 
             {pricingView === "demand" ? (
