@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Cookie, ShieldCheck, SlidersHorizontal, X, Check } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 
 export const COOKIE_CONSENT_STORAGE_KEY = "casa_esy_cookie_consent_v1";
 export const COOKIE_CONSENT_EVENT = "casa-esy-cookie-consent-updated";
@@ -21,6 +21,7 @@ export interface CookieConsentState {
   preferences: boolean;
   analytics: boolean;
   marketing: boolean;
+  geolocation?: boolean;
 }
 
 function expireCookie(name: string) {
@@ -65,6 +66,10 @@ export function getSavedCookieConsent(): CookieConsentState | null {
       preferences: Boolean(parsed.preferences),
       analytics: Boolean(parsed.analytics),
       marketing: Boolean(parsed.marketing),
+      geolocation:
+        parsed.geolocation !== undefined
+          ? Boolean(parsed.geolocation)
+          : Boolean(parsed.preferences),
     };
   } catch {
     return null;
@@ -82,6 +87,7 @@ export function saveCookieConsent(prefs: {
   preferences: boolean;
   analytics: boolean;
   marketing: boolean;
+  geolocation?: boolean;
 }): CookieConsentState {
   const state: CookieConsentState = {
     version: "1.0",
@@ -90,6 +96,7 @@ export function saveCookieConsent(prefs: {
     preferences: prefs.preferences,
     analytics: prefs.analytics,
     marketing: prefs.marketing,
+    geolocation: prefs.geolocation ?? prefs.preferences,
   };
   try {
     localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(state));
@@ -114,7 +121,10 @@ export function trackAnalyticsEvent(eventName: string, detail?: Record<string, u
       safeStats.pageViews = Number(safeStats.pageViews || 0) + 1;
       safeStats.lastPath = detail?.path || window.location.pathname;
     } else {
-      const events = safeStats.events && typeof safeStats.events === "object" ? safeStats.events : {};
+      const events =
+        safeStats.events && typeof safeStats.events === "object"
+          ? safeStats.events
+          : {};
       const key = detail?.slug ? `${eventName}:${String(detail.slug)}` : eventName;
       events[key] = Number(events[key] || 0) + 1;
       safeStats.events = events;
@@ -150,12 +160,32 @@ export function openCookieSettingsModal() {
   }
 }
 
+interface AccordionItemConfig {
+  id: "essential" | "functional" | "analytics" | "marketing" | "geolocation";
+  title: string;
+  description: string;
+  locked?: boolean;
+  checked: boolean;
+  onToggle?: () => void;
+}
+
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
+
   const [preferences, setPreferences] = useState(true);
   const [analytics, setAnalytics] = useState(true);
-  const [marketing, setMarketing] = useState(false);
+  const [marketing, setMarketing] = useState(true);
+  const [geolocation, setGeolocation] = useState(true);
+
+  // Categorii deschise în acordeon (implicit „essential” și „functional” pot fi deschise la click)
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({
+    essential: true,
+    functional: false,
+    analytics: false,
+    marketing: false,
+    geolocation: false,
+  });
 
   useEffect(() => {
     const existing = getSavedCookieConsent();
@@ -166,6 +196,7 @@ export default function CookieConsentBanner() {
       setPreferences(existing.preferences);
       setAnalytics(existing.analytics);
       setMarketing(existing.marketing);
+      setGeolocation(existing.geolocation ?? existing.preferences);
     }
 
     const handleOpenSettings = () => {
@@ -174,6 +205,7 @@ export default function CookieConsentBanner() {
         setPreferences(current.preferences);
         setAnalytics(current.analytics);
         setMarketing(current.marketing);
+        setGeolocation(current.geolocation ?? current.preferences);
       }
       setCustomizeOpen(true);
       setVisible(true);
@@ -183,174 +215,273 @@ export default function CookieConsentBanner() {
     return () => window.removeEventListener(COOKIE_OPEN_MODAL_EVENT, handleOpenSettings);
   }, []);
 
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const handleAcceptAll = () => {
-    saveCookieConsent({ preferences: true, analytics: true, marketing: true });
+    saveCookieConsent({
+      preferences: true,
+      analytics: true,
+      marketing: true,
+      geolocation: true,
+    });
     setCustomizeOpen(false);
     setVisible(false);
   };
 
-  const handleRejectNonEssential = () => {
-    saveCookieConsent({ preferences: false, analytics: false, marketing: false });
+  const handleRejectAll = () => {
+    saveCookieConsent({
+      preferences: false,
+      analytics: false,
+      marketing: false,
+      geolocation: false,
+    });
     setCustomizeOpen(false);
     setVisible(false);
   };
 
-  const handleSaveCustom = () => {
-    saveCookieConsent({ preferences, analytics, marketing });
+  const handleAcceptSelected = () => {
+    saveCookieConsent({
+      preferences,
+      analytics,
+      marketing,
+      geolocation,
+    });
     setCustomizeOpen(false);
     setVisible(false);
+  };
+
+  const handleCloseModal = () => {
+    setCustomizeOpen(false);
+    if (getSavedCookieConsent()) {
+      setVisible(false);
+    }
   };
 
   if (!visible) return null;
 
-  return (
-    <div className="fixed bottom-4 left-4 right-4 z-[9990] mx-auto max-w-4xl">
-      <div className="rounded-3xl border border-[#0d2c5c]/15 bg-white/95 backdrop-blur-md p-5 sm:p-6 shadow-[0_24px_60px_rgba(13,44,92,0.24)] text-[#0d2c5c]">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-          <div className="flex items-start gap-3.5">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#fdf8ec] border border-[#c69a3f]/35 text-[#c69a3f]">
-              <Cookie size={22} />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#c69a3f]">
-                  Conformitate GDPR & ePrivacy (UE 2016/679)
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                  <ShieldCheck size={11} /> Protecție Date Activă
-                </span>
-              </div>
-              <h3 className="mt-1 font-['Cormorant_Garamond',serif] text-xl sm:text-2xl font-bold text-[#0d2c5c]">
-                Respectăm confidențialitatea și alegerile tale
-              </h3>
-              <p className="mt-1 text-xs sm:text-[13px] leading-relaxed text-[#4f6280]">
-                Folosim module cookie și stocare locală strict necesare pentru securitatea sesiunii, rezervări și plăți Stripe,
-                precum și cookie-uri opționale pentru preferințe, statistici de trafic și oferte personalizate. Poți citi detalii în{" "}
-                <Link to="/cookies" className="font-semibold text-[#0d2c5c] underline hover:text-[#c69a3f]">
-                  Politica de Cookie-uri
-                </Link>{" "}
-                și{" "}
-                <Link to="/gdpr" className="font-semibold text-[#0d2c5c] underline hover:text-[#c69a3f]">
-                  Angajamentul GDPR
-                </Link>
-                .
-              </p>
-            </div>
-          </div>
+  const categories: AccordionItemConfig[] = [
+    {
+      id: "essential",
+      title: "Esențiale",
+      description:
+        "Aceste cookie-uri sunt strict necesare pentru funcționarea corectă a platformei Vila Casa Esy (autentificare, rezervări, coș Room Service și procesarea securizată Stripe) și nu pot fi dezactivate.",
+      locked: true,
+      checked: true,
+    },
+    {
+      id: "functional",
+      title: "Funcționale",
+      description:
+        "Aceste cookie-uri memorează setările tale preferate (cum ar fi limba selectată RO/EN/DE și filtrele pentru camere sau meniul digital) pentru a-ți oferi o experiență personalizată.",
+      checked: preferences,
+      onToggle: () => setPreferences((v) => !v),
+    },
+    {
+      id: "analytics",
+      title: "Performanță și Analitice",
+      description:
+        "Ne ajută să înțelegem cum interacționează oaspeții cu paginile Vilei Casa Esy și să optimizăm viteza de încărcare și disponibilitatea camerelor.",
+      checked: analytics,
+      onToggle: () => setAnalytics((v) => !v),
+    },
+    {
+      id: "marketing",
+      title: "Marketing și Publicitate",
+      description:
+        "Utilizate pentru a-ți afișa oferte sezoniere relevante la malul mării, pachete speciale și coduri promoționale personalizate.",
+      checked: marketing,
+      onToggle: () => setMarketing((v) => !v),
+    },
+    {
+      id: "geolocation",
+      title: "Geolocație și Hărți",
+      description:
+        "Permite afișarea hărții interactive din Eforie Nord și orientarea rapidă către plajă, terase și punctele de interes ale Vilei Casa Esy.",
+      checked: geolocation,
+      onToggle: () => setGeolocation((v) => !v),
+    },
+  ];
 
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setCustomizeOpen((v) => !v)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#cbd5e1] bg-white px-3.5 py-2.5 text-xs font-bold text-[#0d2c5c] hover:border-[#0d2c5c] transition cursor-pointer"
-            >
-              <SlidersHorizontal size={14} />
-              Personalizează
-            </button>
-            <button
-              type="button"
-              onClick={handleRejectNonEssential}
-              className="inline-flex items-center justify-center rounded-xl border border-[#cbd5e1] bg-[#f8fafc] px-3.5 py-2.5 text-xs font-bold text-[#3d4f6b] hover:bg-[#eef2f7] transition cursor-pointer"
-            >
-              Doar necesare
-            </button>
-            <button
-              type="button"
-              onClick={handleAcceptAll}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0d2c5c] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#c69a3f] hover:text-[#0d2c5c] transition cursor-pointer"
-            >
-              <Check size={14} />
-              Acceptă toate
-            </button>
+  return (
+    <>
+      {/* ── 1. CARDUL COMPACT DIN STÂNGA-JOS (când modalul nu este deschis) ── */}
+      {!customizeOpen && (
+        <div className="fixed bottom-5 left-5 z-[9990] w-[calc(100vw-2.5rem)] max-w-[450px] font-['Plus_Jakarta_Sans',sans-serif]">
+          <div className="rounded-2xl border border-[#e1e8f0] bg-white p-6 shadow-[0_20px_55px_rgba(13,44,92,0.18)] text-[#0d2c5c]">
+            <h3 className="font-['Outfit',sans-serif] text-[18.5px] font-semibold text-[#0d2c5c] leading-snug">
+              Acceptați câteva cookie-uri?
+            </h3>
+
+            <p className="mt-2.5 text-[13.5px] leading-relaxed text-[#4f6280]">
+              Folosim cookie-uri pentru funcțiile esențiale și pentru a înțelege mai bine cum utilizezi{" "}
+              <strong className="font-semibold text-[#0d2c5c]">Vila Casa Esy</strong>, astfel încât să creăm cea mai bună experiență pentru tine{" "}
+              <span className="text-[#c69a3f]">✦</span>{" "}
+              <Link
+                to="/cookies"
+                className="text-[12.5px] font-semibold text-[#0d2c5c] underline decoration-[#c69a3f] underline-offset-2 hover:text-[#c69a3f]"
+              >
+                Detalii
+              </Link>
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5">
+              <button
+                type="button"
+                onClick={() => setCustomizeOpen(true)}
+                className="rounded-xl border-[1.5px] border-[#0d2c5c] bg-white hover:bg-[#f8fafc] px-4 py-2.5 text-[13px] font-semibold text-[#0d2c5c] transition cursor-pointer"
+              >
+                Gestionează preferințele
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleRejectAll}
+                  className="rounded-xl bg-[#f1f5f9] hover:bg-[#e2e8f0] px-4 py-2.5 text-[13px] font-semibold text-[#334155] transition cursor-pointer"
+                >
+                  Refuză toate
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAcceptAll}
+                  className="rounded-xl bg-[#0d2c5c] hover:bg-[#163c78] px-4 py-2.5 text-[13px] font-semibold text-white transition cursor-pointer shadow-xs"
+                >
+                  Acceptă toate
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {customizeOpen && (
-          <div className="mt-5 pt-5 border-t border-[#e1e8f0] space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0d2c5c]">
-                Configurare Granulară Consimțământ Cookie-uri
-              </span>
+      {/* ── 2. MODALUL ELEGANT „GESTIONEAZĂ PREFERINȚELE PENTRU COOKIE-URI” ── */}
+      {customizeOpen && (
+        <div
+          className="fixed inset-0 z-[9995] bg-[#0d2c5c]/40 backdrop-blur-[2px] flex items-center justify-center p-4 font-['Plus_Jakarta_Sans',sans-serif]"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="w-full max-w-[560px] max-h-[88vh] flex flex-col rounded-2xl bg-white border border-[#e1e8f0] p-6 sm:p-7 shadow-[0_28px_80px_rgba(13,44,92,0.24)] text-[#0d2c5c]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="font-['Outfit',sans-serif] text-[19px] sm:text-[21px] font-semibold text-[#0d2c5c]">
+                Gestionează preferințele pentru cookie-uri
+              </h2>
               <button
                 type="button"
-                onClick={() => setCustomizeOpen(false)}
-                className="text-xs text-[#6b7c99] hover:text-[#0d2c5c] inline-flex items-center gap-1 cursor-pointer"
+                onClick={handleCloseModal}
+                aria-label="Închide"
+                className="w-8 h-8 rounded-lg text-[#64748b] hover:text-[#0d2c5c] hover:bg-[#f1f5f9] flex items-center justify-center transition cursor-pointer"
               >
-                <X size={14} /> Închide detalii
+                <X size={18} />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="rounded-2xl border border-[#e1e8f0] bg-[#f8fafc] p-3.5">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-[#0d2c5c]">Strict Necesare</span>
-                  <span className="text-[10px] font-bold uppercase bg-[#0d2c5c] text-white px-2 py-0.5 rounded-full">
-                    Activ permanent
-                  </span>
-                </div>
-                <p className="text-[11.5px] text-[#6b7c99] leading-relaxed">
-                  Asigură autentificarea JWT, coșul Room Service, protecția anti-CSRF și procesarea securizată Stripe.
-                </p>
+            <p className="mt-3 text-[13.5px] leading-relaxed text-[#4f6280]">
+              Folosim cookie-uri pentru a oferi funcții esențiale și pentru a-ți îmbunătăți experiența pe Vila Casa Esy. Confidențialitatea ta este importantă pentru noi, așa că îți oferim control deplin asupra modului în care le utilizăm. Activează sau dezactivează fiecare categorie mai jos.
+            </p>
+
+            {/* Accordion List */}
+            <div className="mt-5 space-y-2.5 overflow-y-auto pr-1">
+              {categories.map((cat) => {
+                const isExpanded = Boolean(expandedIds[cat.id]);
+
+                return (
+                  <div
+                    key={cat.id}
+                    className="rounded-xl overflow-hidden border border-[#e6edf5] bg-[#f4f7fb] transition-colors"
+                  >
+                    <div
+                      className={`flex items-center justify-between gap-3 px-4 py-3.5 transition-colors ${
+                        isExpanded ? "bg-[#e3ebf5]/85" : "hover:bg-[#ebf1f8]"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(cat.id)}
+                        className="flex items-center gap-3 text-left flex-1 min-w-0 bg-transparent border-0 p-0 cursor-pointer"
+                      >
+                        {isExpanded ? (
+                          <ChevronUp size={16} className="text-[#0d2c5c] shrink-0" />
+                        ) : (
+                          <ChevronDown size={16} className="text-[#0d2c5c] shrink-0" />
+                        )}
+                        <span className="text-[14.5px] font-medium text-[#0d2c5c] truncate">
+                          {cat.title}
+                        </span>
+                      </button>
+
+                      {/* Pill Switch Toggle */}
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={cat.checked}
+                        disabled={cat.locked}
+                        onClick={() => {
+                          if (!cat.locked && cat.onToggle) {
+                            cat.onToggle();
+                          }
+                        }}
+                        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 ${
+                          cat.locked
+                            ? "bg-[#0d2c5c]/40 cursor-not-allowed"
+                            : cat.checked
+                              ? "bg-[#0d2c5c] cursor-pointer"
+                              : "bg-[#cbd5e1] cursor-pointer"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 rounded-full bg-white shadow-xs transition-transform duration-200 ${
+                            cat.checked ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="px-4 py-3.5 text-[13.5px] leading-relaxed text-[#4f6280] bg-[#f4f7fb]">
+                        {cat.description}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="mt-6 pt-4 border-t border-[#e1e8f0] flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleAcceptSelected}
+                className="rounded-xl bg-[#f1f5f9] hover:bg-[#e2e8f0] px-4 py-2.5 text-[13.5px] font-semibold text-[#0d2c5c] transition cursor-pointer"
+              >
+                Acceptă selecția
+              </button>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleRejectAll}
+                  className="rounded-xl bg-[#f1f5f9] hover:bg-[#e2e8f0] px-4 py-2.5 text-[13.5px] font-semibold text-[#334155] transition cursor-pointer"
+                >
+                  Refuză toate
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAcceptAll}
+                  className="rounded-xl bg-[#0d2c5c] hover:bg-[#163c78] px-5 py-2.5 text-[13.5px] font-semibold text-white transition cursor-pointer shadow-xs"
+                >
+                  Acceptă toate
+                </button>
               </div>
-
-              <label className="rounded-2xl border border-[#e1e8f0] bg-white p-3.5 cursor-pointer hover:border-[#c69a3f]">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-[#0d2c5c]">Preferințe & Limbă</span>
-                  <input
-                    type="checkbox"
-                    checked={preferences}
-                    onChange={(e) => setPreferences(e.target.checked)}
-                    className="h-4 w-4 accent-[#0d2c5c]"
-                  />
-                </div>
-                <p className="text-[11.5px] text-[#6b7c99] leading-relaxed">
-                  Memorează limba selectată (RO/EN), filtrele de camere și opțiunile tale de afișare.
-                </p>
-              </label>
-
-              <label className="rounded-2xl border border-[#e1e8f0] bg-white p-3.5 cursor-pointer hover:border-[#c69a3f]">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-[#0d2c5c]">Analitice & Statistici</span>
-                  <input
-                    type="checkbox"
-                    checked={analytics}
-                    onChange={(e) => setAnalytics(e.target.checked)}
-                    className="h-4 w-4 accent-[#0d2c5c]"
-                  />
-                </div>
-                <p className="text-[11.5px] text-[#6b7c99] leading-relaxed">
-                  Ne ajută să măsurăm anonimizat gradul de interes pentru camere și performanța paginilor.
-                </p>
-              </label>
-
-              <label className="rounded-2xl border border-[#e1e8f0] bg-white p-3.5 cursor-pointer hover:border-[#c69a3f]">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-[#0d2c5c]">Marketing & Oferte</span>
-                  <input
-                    type="checkbox"
-                    checked={marketing}
-                    onChange={(e) => setMarketing(e.target.checked)}
-                    className="h-4 w-4 accent-[#0d2c5c]"
-                  />
-                </div>
-                <p className="text-[11.5px] text-[#6b7c99] leading-relaxed">
-                  Permite afișarea campaniilor sezoniere și a cupoanelor promoționale relevante (ex: VARA2026).
-                </p>
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={handleSaveCustom}
-                className="rounded-xl bg-[#c69a3f] hover:bg-[#b58932] text-[#0d2c5c] px-5 py-2 text-xs font-extrabold uppercase tracking-wider transition cursor-pointer"
-              >
-                Salvează Preferințele Mele
-              </button>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
