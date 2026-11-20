@@ -25,11 +25,13 @@ import {
   Zap,
   Wand2,
   Sun,
+  ShieldCheck,
 } from "lucide-react";
 import { useToast } from "../Toast";
 import { get, post, put, fetchBlob, dateTimeFmt, errMsg } from "../../lib/admin";
 import { createVoicePlayer, type VoicePlayer } from "../../lib/voicePlayer";
 import AiVoiceWave from "../AiVoiceWave";
+import AiQualityAuditPanel from "./AiQualityAuditPanel";
 import { Badge, Button, Card, EmptyState, Field, SectionHeader, TableSkeleton, inputCls } from "./ui";
 
 interface ConversationSummary {
@@ -179,7 +181,7 @@ const AGENTIC_ACTION_PRESETS = [
 
 export default function ConversationsTab() {
   const { toast } = useToast();
-  const [subTab, setSubTab] = useState<"ask_db" | "ai_concierge" | "conversations" | "escalations">("ask_db");
+  const [subTab, setSubTab] = useState<"ask_db" | "ai_concierge" | "quality_audit" | "conversations" | "escalations">("ask_db");
 
   // Natural Language DB Query & Executive AI state
   const [dbSessionId, setDbSessionId] = useState<string>(() => `admin-web-${Date.now()}`);
@@ -667,6 +669,19 @@ export default function ConversationsTab() {
 
         <button
           type="button"
+          onClick={() => setSubTab("quality_audit")}
+          className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-[12px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer ${
+            subTab === "quality_audit"
+              ? "border-[#c69a3f] text-[#0d2c5c]"
+              : "border-transparent text-[#6b7c99] hover:text-[#0d2c5c]"
+          }`}
+        >
+          <ShieldCheck size={15} className="text-[#c69a3f]" />
+          Audit Calitate AI
+        </button>
+
+        <button
+          type="button"
           onClick={() => setSubTab("conversations")}
           className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-[12px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer ${
             subTab === "conversations"
@@ -691,6 +706,17 @@ export default function ConversationsTab() {
           Alerte și escaladări ({escalations.length})
         </button>
       </div>
+
+      {/* ── SUB-TAB: AUDIT CALITATE AI & AUTO-ÎNVĂȚARE RAG ── */}
+      {subTab === "quality_audit" && (
+        <AiQualityAuditPanel
+          onOpenSession={(sid) => {
+            setSelectedSessionId(sid);
+            setSubTab("conversations");
+          }}
+          onConfigUpdated={() => void loadConciergeConfig()}
+        />
+      )}
 
       {/* ── SUB-TAB: CONFIGURARE & SIMULATOR SMART AI CONCIERGE ── */}
       {subTab === "ai_concierge" && (
