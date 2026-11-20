@@ -1,51 +1,75 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft, BedDouble, Compass, PhoneCall } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { AlertTriangle, ArrowLeft, BedDouble, PhoneCall } from "lucide-react";
 
 export default function NotFound() {
+  const { pathname } = useLocation();
+
   return (
-    <div className="relative min-h-[82vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#faf8f3] via-white to-[#f6f8fc] px-6 py-20">
-      {/* Motive marine discrete în fundal — exact în stilul Casa Esy */}
+    <div className="relative min-h-[82vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#faf8f3] via-white to-[#fdf6f6] px-6 py-20">
+      {/* Accente ambientale discrete: crimson + auriu + navy */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-[#c69a3f]/10 blur-3xl"
+        className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-[#b91c1c]/10 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-[#0d2c5c]/8 blur-3xl"
+        className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-[#c69a3f]/12 blur-3xl"
       />
 
-      <div className="relative z-10 w-full max-w-2xl rounded-[28px] border border-[#e5dcc3] bg-white/95 p-8 sm:p-12 text-center shadow-[0_24px_64px_rgba(13,44,92,0.08)]">
-        {/* Bandă aurie fină sus */}
+      <div className="relative z-10 w-full max-w-2xl overflow-hidden rounded-[28px] border border-[#ebd7d9] bg-white/95 p-8 sm:p-12 text-center shadow-[0_24px_64px_rgba(140,29,44,0.09)]">
+        {/* Bandă superioară Navy → Roșu Bordeaux → Auriu */}
         <div
           aria-hidden="true"
-          className="absolute inset-x-10 top-0 h-[3px] rounded-b-full bg-gradient-to-r from-transparent via-[#c69a3f] to-transparent"
+          className="absolute inset-x-0 top-0 h-[3.5px]"
+          style={{
+            background:
+              "linear-gradient(90deg, #0d2c5c 0%, #a62639 50%, #c69a3f 100%)",
+          }}
         />
 
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0d2c5c] text-[#f5d588] shadow-[0_12px_28px_rgba(13,44,92,0.22)] ring-4 ring-[#fdf6e2]">
-          <Compass size={30} strokeWidth={1.6} />
+        {/* Emblemă roșu bordeaux luxury */}
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8c1d2c] to-[#be123c] text-white shadow-[0_12px_28px_rgba(166,38,57,0.28)] ring-4 ring-rose-50">
+          <AlertTriangle size={28} strokeWidth={1.8} />
         </div>
 
-        <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#9a7222]">
-          Vila Casa Esy · Eforie Nord
-        </p>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50/90 px-3.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#9f1239]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#be123c] animate-pulse" />
+          Eroare 404 · Pagină inexistentă
+        </span>
 
         <div
-          className="mt-2 text-[76px] sm:text-[92px] font-semibold leading-none tracking-tight text-[#c69a3f]"
-          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          className="mt-3 text-[82px] sm:text-[98px] font-semibold leading-none tracking-tight bg-clip-text text-transparent"
+          style={{
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            backgroundImage: "linear-gradient(135deg, #8c1d2c 0%, #be123c 55%, #c69a3f 100%)",
+          }}
         >
           404
         </div>
 
+        {/* Separator editorial Casa Esy */}
+        <div className="mx-auto my-3 flex items-center justify-center gap-3">
+          <span className="h-[1px] w-12 bg-gradient-to-r from-transparent to-[#c69a3f]" />
+          <span className="h-1.5 w-1.5 rotate-45 bg-[#a62639]" />
+          <span className="h-[1px] w-12 bg-gradient-to-l from-transparent to-[#c69a3f]" />
+        </div>
+
         <h1
-          className="mt-3 text-[28px] sm:text-[34px] font-semibold text-[#0d2c5c] leading-tight"
+          className="text-[28px] sm:text-[34px] font-semibold text-[#0d2c5c] leading-tight"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
           Această pagină nu a fost găsită
         </h1>
 
         <p className="mx-auto mt-3 max-w-md text-[14.5px] leading-relaxed text-[#5e718f]">
-          Se pare că adresa pe care o cauți a fost mutată sau nu există. Te poți întoarce la pagina principală sau poți explora camerele noastre de la malul mării.
+          Adresa solicitată nu există sau a fost mutată. Te poți întoarce în siguranță la pagina principală sau poți explora camerele Vilei Casa Esy.
         </p>
+
+        {pathname && pathname !== "/" && (
+          <div className="mt-4 inline-flex items-center rounded-lg border border-rose-200/80 bg-rose-50/60 px-3 py-1 font-mono text-[12px] text-[#9f1239]">
+            {pathname}
+          </div>
+        )}
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
@@ -66,7 +90,7 @@ export default function NotFound() {
 
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 rounded-full border border-[#e5dcc3] bg-[#fdfaf2] px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[#8a6420] transition hover:border-[#c69a3f] no-underline"
+            className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50/50 px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-[#9f1239] transition hover:border-[#be123c] hover:bg-rose-50 no-underline"
           >
             <PhoneCall size={14} />
             Contact
