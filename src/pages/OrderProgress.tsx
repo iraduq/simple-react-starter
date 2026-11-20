@@ -20,6 +20,8 @@ import {
 import { apiFetch } from "../lib/api";
 import { WS_URL } from "../lib/config";
 import { useToast } from "../components/Toast";
+import CasaEsyLottie from "../components/lottie/CasaEsyLottie";
+import type { CasaEsyLottieId } from "../components/lottie/casaEsyLottieData";
 
 interface OrderItem {
   id: string;
@@ -48,30 +50,40 @@ interface OrderData {
   created_at: string;
 }
 
-const STEPS = [
+const STEPS: Array<{
+  key: string;
+  title: string;
+  subtitle: string;
+  icon: typeof Clock;
+  lottieId: CasaEsyLottieId;
+}> = [
   {
     key: "new",
     title: "Înregistrată",
     subtitle: "Preluată în bucătărie",
     icon: Clock,
+    lottieId: "order-registered",
   },
   {
     key: "preparing",
     title: "În Preparare",
     subtitle: "Gătită proaspăt acum",
     icon: ChefHat,
+    lottieId: "order-preparing",
   },
   {
     key: "ready",
     title: "Pe Drum",
     subtitle: "Ospătarul se apropie",
     icon: Bell,
+    lottieId: "order-delivering",
   },
   {
     key: "delivered",
     title: "Livrată",
     subtitle: "Predată · Poftă bună!",
     icon: CheckCircle2,
+    lottieId: "order-delivered",
   },
 ];
 
@@ -382,7 +394,7 @@ export default function OrderProgress() {
                     <div className="relative">
                       {/* Linia de conectare (desktop) */}
                       <div
-                        className="hidden sm:block absolute top-6 left-[12.5%] right-[12.5%] h-[3px] rounded-full bg-[#eef2f7]"
+                        className="hidden sm:block absolute top-9 left-[12.5%] right-[12.5%] h-[3px] rounded-full bg-[#eef2f7]"
                         aria-hidden="true"
                       >
                         <div
@@ -403,15 +415,24 @@ export default function OrderProgress() {
                               className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-3"
                             >
                               <div
-                                className={`relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 shrink-0 ${
+                                className={`relative w-[72px] h-[72px] rounded-full flex items-center justify-center transition-all duration-500 shrink-0 ${
                                   isCurrent
-                                    ? "bg-[#0d2c5c] text-[#c69a3f] ring-4 ring-[#0d2c5c]/10 shadow-md"
+                                    ? "bg-white ring-4 ring-[#c69a3f]/35 shadow-[0_12px_28px_-10px_rgba(13,44,92,0.4)]"
                                     : done
-                                      ? "bg-emerald-600 text-white shadow-xs"
-                                      : "bg-white text-[#94a3b8] border border-[#dce4f0]"
+                                      ? "bg-white ring-2 ring-emerald-500/30 shadow-xs"
+                                      : "bg-[#f8fafc] text-[#94a3b8] border border-[#dce4f0]"
                                 }`}
                               >
-                                <Icon size={20} />
+                                {isCurrent || done ? (
+                                  <CasaEsyLottie
+                                    id={step.lottieId}
+                                    size={64}
+                                    loop={isCurrent}
+                                    autoplay
+                                  />
+                                ) : (
+                                  <Icon size={22} />
+                                )}
                               </div>
                               <div className="min-w-0">
                                 <div

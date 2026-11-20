@@ -47,6 +47,7 @@ import CheckIn from "./pages/CheckIn";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 import BroadcastAlertBanner from "./components/notifications/BroadcastAlertBanner";
 import NotFound from "./pages/NotFound";
+import LottieShowcase from "./pages/LottieShowcase";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 function AvailabilityRedirect() {
@@ -110,6 +111,7 @@ function AppInner() {
         <Route path="/disponibilitate" element={<AvailabilityRedirect />} />
         <Route path="/places" element={<Places />} />
         <Route path="/facilitati" element={<ResortFacilities />} />
+        <Route path="/lottie" element={<LottieShowcase />} />
         <Route path="/comanda/:orderCode" element={<OrderProgress />} />
         <Route path="/places/:placeId" element={<PlaceDetail />} />
         <Route path="/contact" element={<Contact />} />
