@@ -46,6 +46,8 @@ import BookingSuccess from "./pages/BookingSuccess";
 import CheckIn from "./pages/CheckIn";
 import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 import BroadcastAlertBanner from "./components/notifications/BroadcastAlertBanner";
+import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function AvailabilityRedirect() {
   return <Navigate to={`/camere${window.location.search}`} replace />;
@@ -158,6 +160,7 @@ function AppInner() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
     </>
@@ -166,7 +169,8 @@ function AppInner() {
 
 function App() {
   return (
-    <ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
       <GoogleTranslate />
 
       <Router>
@@ -178,6 +182,7 @@ function App() {
         </AdminLiveSyncProvider>
       </Router>
     </ToastProvider>
+    </ErrorBoundary>
   );
 }
 
