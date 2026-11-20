@@ -24,7 +24,6 @@ import {
 import { get, post, del, list, dateTimeFmt, errMsg, type AuditLog } from "../../lib/admin";
 import { useToast } from "../Toast";
 import { useAdminLiveSync, LiveSyncBadge } from "../../context/AdminLiveSyncContext";
-import SystemHealthWidget from "./SystemHealthWidget";
 
 type SortKey = "timestamp" | "user" | "action" | "resource" | "ip";
 type SortDir = "asc" | "desc";
@@ -221,8 +220,6 @@ export default function AuditLogsTab() {
         title="Panou de firewall, mentenanță și securitate"
         action={<LiveSyncBadge isSyncing={isSyncing} status={connectionStatus} />}
       />
-
-      <SystemHealthWidget />
 
       {/* ── PANOU FIREWALL, MENTENANȚĂ & IP BLACKLIST ── */}
       <div className="grid gap-6 lg:grid-cols-12">

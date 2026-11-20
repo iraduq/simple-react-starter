@@ -17,10 +17,12 @@ import {
   UtensilsCrossed,
   KeyRound,
   LayoutDashboard,
-  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, Coffee, TicketPercent, Star, Radio, Globe, Wrench, Crown, SlidersHorizontal, Sparkles,
+  PackageSearch, Mail, QrCode, MessageSquare, CalendarRange, ChefHat, Coffee, TicketPercent, Star, Radio, Globe, Wrench, Crown, SlidersHorizontal, Sparkles, Activity,
 } from "lucide-react";
 import { fetchSession, clearSession, getCachedUser } from "../../lib/auth";
 import { useToast } from "../Toast";
+import { SectionHeader } from "./ui";
+import SystemHealthWidget from "./SystemHealthWidget";
 
 import BookingsTab from "./BookingsTab";
 import RoomsTab from "./RoomsTab";
@@ -75,7 +77,8 @@ export type TabKey =
   | "channel_manager"
   | "maintenance"
   | "loyalty"
-  | "env_config";
+  | "env_config"
+  | "system_health";
 
 const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "bookings", label: "Rezervări", icon: CalendarDays },
@@ -104,6 +107,7 @@ const NAV: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "env_config", label: "Variabile și Cloud", icon: SlidersHorizontal },
   { key: "users", label: "Utilizatori", icon: Users },
   { key: "audit", label: "Jurnal de securitate", icon: Shield },
+  { key: "system_health", label: "Stare sistem & Health", icon: Activity },
 ];
 
 /* ───────────────────────────────────────────────
@@ -458,6 +462,15 @@ export default function AdminDashboard({ initialTab }: { initialTab?: TabKey }) 
             {tab === "maintenance" && <MaintenanceTab />}
             {tab === "loyalty" && <LoyaltyTab />}
             {tab === "env_config" && <EnvConfigTab />}
+            {tab === "system_health" && (
+              <div className="space-y-6">
+                <SectionHeader
+                  eyebrow="Monitorizare & Diagnostic"
+                  title="Stare sistem și infrastructură"
+                />
+                <SystemHealthWidget />
+              </div>
+            )}
             {tab === "channel_manager" && (
               <ChannelManagerTab onNavigateToTapeChart={() => setTab("tape_chart")} />
             )}
