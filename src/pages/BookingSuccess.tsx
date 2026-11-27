@@ -3,10 +3,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import { CreditCard, Loader2 } from "lucide-react";
 import { apiFetch } from "../lib/api";
 import { downloadBookingInvoicePdf } from "../lib/admin";
-import { type BookingConfirmationDetails, RATE_PLAN_LABELS, calcNights } from "./BookingSuccess/types";
-import BookingSuccessHero from "./BookingSuccess/components/BookingSuccessHero";
-import StayDetailsCard from "./BookingSuccess/components/StayDetailsCard";
-import DigitalPassCard from "./BookingSuccess/components/DigitalPassCard";
+import { type BookingConfirmationDetails, RATE_PLAN_LABELS, calcNights } from "../types/bookingSuccess";
+import BookingSuccessHero from "../components/booking/BookingSuccessHero";
+import StayDetailsCard from "../components/booking/StayDetailsCard";
+import DigitalPassCard from "../components/booking/DigitalPassCard";
 
 export default function BookingSuccess() {
   const [searchParams] = useSearchParams();

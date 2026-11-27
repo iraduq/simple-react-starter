@@ -6,9 +6,9 @@ import { saveTokensFrom, clearAuthTokens, markAuthSession } from "../lib/token";
 import { useToast } from "../components/Toast";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import AuthHeroPane from "../components/auth/AuthHeroPane";
-import LoginForm from "./Login/components/LoginForm";
-import ForgotPasswordForm from "./Login/components/ForgotPasswordForm";
-import LoginErrorAlert from "./Login/components/LoginErrorAlert";
+import LoginForm from "../components/auth/LoginForm";
+import ForgotPasswordForm from "../components/auth/ForgotPasswordForm";
+import LoginErrorAlert from "../components/auth/LoginErrorAlert";
 
 const DEACTIVATED_MSG =
   "Contul tău a fost dezactivat. Nu te poți autentifica momentan — te rugăm să contactezi echipa Casa Esy pentru reactivare.";

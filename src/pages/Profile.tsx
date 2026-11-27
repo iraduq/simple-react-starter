@@ -13,16 +13,16 @@ import { useAdminLiveSync } from "../context/AdminLiveSyncContext";
 import { useToast } from "../components/Toast";
 import type { LoyaltyAccountData } from "../components/loyalty/LoyaltyCard";
 
-import type { Booking, TabKey } from "./Profile/types";
-import FloatingMaritimeBackgroundWhite from "./Profile/components/FloatingMaritimeBackground";
-import ProfileHeroBanner from "./Profile/components/ProfileHeroBanner";
-import ProfileSidebar from "./Profile/components/ProfileSidebar";
-import ProfileTabBar from "./Profile/components/ProfileTabBar";
-import OverviewTab from "./Profile/components/OverviewTab";
-import PersonalTab from "./Profile/components/PersonalTab";
-import ReservationsTab from "./Profile/components/ReservationsTab";
-import SecurityTab from "./Profile/components/SecurityTab";
-import DangerTab from "./Profile/components/DangerTab";
+import type { Booking, TabKey } from "../types/profile";
+import FloatingMaritimeBackgroundWhite from "../components/profile/FloatingMaritimeBackground";
+import ProfileHeroBanner from "../components/profile/ProfileHeroBanner";
+import ProfileSidebar from "../components/profile/ProfileSidebar";
+import ProfileTabBar from "../components/profile/ProfileTabBar";
+import OverviewTab from "../components/profile/OverviewTab";
+import PersonalTab from "../components/profile/PersonalTab";
+import ReservationsTab from "../components/profile/ReservationsTab";
+import SecurityTab from "../components/profile/SecurityTab";
+import DangerTab from "../components/profile/DangerTab";
 
 export default function Profile() {
   const navigate = useNavigate();

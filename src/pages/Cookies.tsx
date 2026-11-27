@@ -8,7 +8,7 @@ import {
   type CookieConsentState,
 } from "../components/CookieConsentBanner";
 import { useToast } from "../components/Toast";
-import CookiePreferencesPanel from "./Cookies/components/CookiePreferencesPanel";
+import CookiePreferencesPanel from "../components/legal/CookiePreferencesPanel";
 
 export default function Cookies() {
   const { toast } = useToast();

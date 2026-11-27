@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Mail, CircleAlert as AlertCircle } from "lucide-react";
 import { API_URL } from "../lib/config";
 import AuthHeroPane from "../components/auth/AuthHeroPane";
-import VerifyEmailForm from "./VerifyEmail/components/VerifyEmailForm";
+import VerifyEmailForm from "../components/auth/VerifyEmailForm";
 
 export default function VerifyEmail() {
   const navigate = useNavigate();

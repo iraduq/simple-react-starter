@@ -11,10 +11,10 @@ import { toISODate, nightsBetween } from "../lib/format";
 import { hasSession } from "../lib/auth";
 import type { RoomDetail as RoomDetailType } from "../types/rooms";
 
-import RoomGallery from "./RoomDetail/components/RoomGallery";
-import RoomInfo from "./RoomDetail/components/RoomInfo";
-import BookingSidebar from "./RoomDetail/components/BookingSidebar";
-import { useRoomPricingAndQuote } from "./RoomDetail/hooks/useRoomPricingAndQuote";
+import RoomGallery from "../components/rooms/detail/RoomGallery";
+import RoomInfo from "../components/rooms/detail/RoomInfo";
+import BookingSidebar from "../components/rooms/detail/BookingSidebar";
+import { useRoomPricingAndQuote } from "../hooks/useRoomPricingAndQuote";
 
 export default function RoomDetail() {
   const { roomId = "" } = useParams();

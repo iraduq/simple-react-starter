@@ -5,10 +5,10 @@ import { apiFetch } from "../lib/api";
 import { WS_URL } from "../lib/config";
 import { useToast } from "../components/Toast";
 
-import { STEPS, parseLocationDisplay, formatOrderTime, type OrderData } from "./OrderProgress/types";
-import OrderProgressTimeline from "./OrderProgress/components/OrderProgressTimeline";
-import OrderItemsCard from "./OrderProgress/components/OrderItemsCard";
-import OrderPaymentSummary from "./OrderProgress/components/OrderPaymentSummary";
+import { STEPS, parseLocationDisplay, formatOrderTime, type OrderData } from "../types/orderProgress";
+import OrderProgressTimeline from "../components/orders/progress/OrderProgressTimeline";
+import OrderItemsCard from "../components/orders/progress/OrderItemsCard";
+import OrderPaymentSummary from "../components/orders/progress/OrderPaymentSummary";
 
 export default function OrderProgress() {
   const { orderCode = "" } = useParams<{ orderCode: string }>();
@@ -97,7 +97,7 @@ export default function OrderProgress() {
 
   const normalizedStatus = order?.status === "received" ? "new" : order?.status;
   const isCancelled = normalizedStatus === "cancelled";
-  const currentStepIdx = order ? Math.max(0, STEPS.findIndex((s) => s.key === normalizedStatus)) : 0;
+  const currentStepIdx = order ? Math.max(0, STEPS.findIndex((s: any) => s.key === normalizedStatus)) : 0;
   const progressPct = isCancelled ? 0 : (currentStepIdx / (STEPS.length - 1)) * 100;
   const isCardPaid = Boolean(
     order?.payment_status === "paid" ||

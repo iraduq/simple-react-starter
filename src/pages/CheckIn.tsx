@@ -4,12 +4,12 @@ import { CheckCircle2, Home, RefreshCw, KeyRound } from "lucide-react";
 import { API_URL } from "../lib/config";
 import { apiFetch } from "../lib/api";
 import { useToast } from "../components/Toast";
-import { type CheckInInfo, calculateRefundMeta } from "./CheckIn/types";
-import CheckInHeader from "./CheckIn/components/CheckInHeader";
-import CheckInDetailsGrid from "./CheckIn/components/CheckInDetailsGrid";
-import DigitalSmartLockCard from "./CheckIn/components/DigitalSmartLockCard";
-import CheckInForm from "./CheckIn/components/CheckInForm";
-import RefundSection from "./CheckIn/components/RefundSection";
+import { type CheckInInfo, calculateRefundMeta } from "../types/checkin";
+import CheckInHeader from "../components/checkin/CheckInHeader";
+import CheckInDetailsGrid from "../components/checkin/CheckInDetailsGrid";
+import DigitalSmartLockCard from "../components/checkin/DigitalSmartLockCard";
+import CheckInForm from "../components/checkin/CheckInForm";
+import RefundSection from "../components/checkin/RefundSection";
 
 export default function CheckIn() {
   const { bookingCode } = useParams<{ bookingCode: string }>();
@@ -75,7 +75,7 @@ export default function CheckIn() {
       const data = (await res.json().catch(() => ({}))) as Record<string, string>;
       if (!res.ok) throw new Error(data.message || data.detail || "Self check-in-ul nu a putut fi efectuat.");
       toast("Self check-in finalizat cu succes! Codul tău PIN este activ.", "success");
-      setInfo((prev) => prev ? { ...prev, is_checked_in: true, access_pin: data.access_pin, unit_number: data.unit_number || prev.unit_number } : null);
+      setInfo((prev: any) => prev ? { ...prev, is_checked_in: true, access_pin: data.access_pin, unit_number: data.unit_number || prev.unit_number } : null);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Eroare la finalizarea check-in-ului.";
       setCheckinError(msg);
@@ -96,7 +96,7 @@ export default function CheckIn() {
       });
       toast("Rezervarea a fost anulată și rambursarea a fost inițiată automat prin Stripe.", "success");
       setShowRefundConfirm(false);
-      setInfo((prev) => prev ? { ...prev, status: "cancelled", payment_status: prev.payment_status === "paid" ? "refunded" : prev.payment_status } : null);
+      setInfo((prev: any) => prev ? { ...prev, status: "cancelled", payment_status: prev.payment_status === "paid" ? "refunded" : prev.payment_status } : null);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Nu am putut procesa anularea și rambursarea. Verifică dacă ești autentificat.";
       setRefundError(msg);

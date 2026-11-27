@@ -7,13 +7,13 @@ import { nightsBetween } from "../lib/format";
 import RoomReviewsModal from "../components/reviews/RoomReviewsModal";
 import GuestFeedbackModal from "../components/reviews/GuestFeedbackModal";
 
-import { REVEAL_DELAY, type DisplayRoom } from "./Rooms/types";
-import FloatingDecor from "./Rooms/components/FloatingDecor";
-import RoomsHero from "./Rooms/components/RoomsHero";
-import RoomsFilterTabs from "./Rooms/components/RoomsFilterTabs";
-import RoomListingCard from "./Rooms/components/RoomListingCard";
-import RoomSkeleton from "./Rooms/components/RoomSkeleton";
-import { useRoomsData } from "./Rooms/hooks/useRoomsData";
+import { REVEAL_DELAY, type DisplayRoom } from "../types/roomsPage";
+import FloatingDecor from "../components/rooms/FloatingDecor";
+import RoomsHero from "../components/rooms/RoomsHero";
+import RoomsFilterTabs from "../components/rooms/RoomsFilterTabs";
+import RoomListingCard from "../components/rooms/RoomListingCard";
+import RoomSkeleton from "../components/rooms/RoomSkeleton";
+import { useRoomsData } from "../hooks/useRoomsData";
 
 export default function Rooms() {
   const [params] = useSearchParams();
@@ -56,8 +56,8 @@ export default function Rooms() {
 
   const nights = searched ? nightsBetween(searched.in, searched.out).length : 0;
   const source = results ?? allRooms;
-  const categories = ["Toate", ...Array.from(new Set(source.map((r) => r.category)))];
-  const filtered = activeTab === "Toate" ? source : source.filter((r) => r.category === activeTab);
+  const categories = ["Toate", ...Array.from(new Set(source.map((r: any) => r.category)))];
+  const filtered = activeTab === "Toate" ? source : source.filter((r: any) => r.category === activeTab);
   const bookingQuery = searched ? `?check_in=${searched.in}&check_out=${searched.out}&adults=${adults}&children=${children}` : "";
 
   return (
@@ -91,7 +91,7 @@ export default function Rooms() {
           ) : (
             <div className="flex flex-col gap-14 md:gap-16">
               <AnimatePresence mode="popLayout" initial={false}>
-                {filtered.map((room, idx) => (
+                {filtered.map((room: any, idx: number) => (
                   <RoomListingCard
                     key={room.id} room={room} index={idx} searched={Boolean(searched)} nights={nights}
                     bookingQuery={bookingQuery} reviewsSummary={reviewsSummary}

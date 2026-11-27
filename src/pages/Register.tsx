@@ -8,7 +8,7 @@ import { fetchSession, notifySessionChange } from "../lib/auth";
 import { useToast } from "../components/Toast";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import AuthHeroPane from "../components/auth/AuthHeroPane";
-import RegisterFormFields from "./Register/components/RegisterFormFields";
+import RegisterFormFields from "../components/auth/RegisterFormFields";
 
 const nameRegex = /^[A-Za-zĂăÂâÎîȘșȚț\s-]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

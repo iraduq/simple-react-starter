@@ -10,12 +10,12 @@ import MaintenanceTab from "../components/admin/MaintenanceTab";
 import LostFoundTab from "../components/admin/LostFoundTab";
 import BreakfastTab from "../components/admin/BreakfastTab";
 
-import { isHousekeepingStaff, unitId, roomTitle, unitNumber, extractFloor, normalizedCleanState, ROLE_TITLES, type PortalSection } from "./Housekeeping/types";
-import { SunRing, Wave, Shell } from "./Housekeeping/components/DecorativeShapes";
-import HousekeepingNav from "./Housekeeping/components/HousekeepingNav";
-import HousekeepingRoomsView from "./Housekeeping/components/HousekeepingRoomsView";
-import MaintenanceTicketModal, { type TicketFormState } from "./Housekeeping/components/MaintenanceTicketModal";
-import LostFoundModal, { type LostFormState } from "./Housekeeping/components/LostFoundModal";
+import { isHousekeepingStaff, unitId, roomTitle, unitNumber, extractFloor, normalizedCleanState, ROLE_TITLES, type PortalSection } from "../types/housekeeping";
+import { SunRing, Wave, Shell } from "../components/housekeeping/DecorativeShapes";
+import HousekeepingNav from "../components/housekeeping/HousekeepingNav";
+import HousekeepingRoomsView from "../components/housekeeping/HousekeepingRoomsView";
+import MaintenanceTicketModal, { type TicketFormState } from "../components/housekeeping/MaintenanceTicketModal";
+import LostFoundModal, { type LostFormState } from "../components/housekeeping/LostFoundModal";
 
 export default function Housekeeping({ embedded = false }: { embedded?: boolean }) {
   const navigate = useNavigate();
@@ -110,7 +110,7 @@ export default function Housekeeping({ embedded = false }: { embedded?: boolean 
     setLostForm({ item_name: "", category: "altele", storage_location: "Seif Recepție", description: "", guest_name: u.guest_name || "", guest_email: "", guest_phone: "", booking_id: "" });
     try {
       const s = await apiFetch<any>(`/lost-found/suggest-guest?unit_number=${encodeURIComponent(unitNumber(u))}`);
-      if (s?.found) setLostForm((prev) => ({ ...prev, guest_name: s.guest_name || prev.guest_name, guest_email: s.guest_email || "", guest_phone: s.guest_phone || "", booking_id: s.booking_id || "" }));
+      if (s?.found) setLostForm((prev: any) => ({ ...prev, guest_name: s.guest_name || prev.guest_name, guest_email: s.guest_email || "", guest_phone: s.guest_phone || "", booking_id: s.booking_id || "" }));
     } catch {}
   };
 
@@ -136,7 +136,7 @@ export default function Housekeeping({ embedded = false }: { embedded?: boolean 
   const floors = useMemo(() => Array.from(new Set(units.map(extractFloor))).sort((a, b) => a - b), [units]);
   const counts = useMemo(() => {
     let clean = 0, dirty = 0, inspecting = 0, maintenance = 0, checkoutToday = 0, openTickets = 0;
-    units.forEach((u) => {
+    units.forEach((u: any) => {
       const st = normalizedCleanState(u);
       if (st === "clean") clean++; else if (st === "inspecting") inspecting++; else if (st === "maintenance") maintenance++; else dirty++;
       if (u.occupancy_state === "checkout_today") checkoutToday++;
@@ -147,7 +147,7 @@ export default function Housekeeping({ embedded = false }: { embedded?: boolean 
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return units.filter((u) => {
+    return units.filter((u: any) => {
       if (floorFilter !== "all" && extractFloor(u) !== floorFilter) return false;
       const state = normalizedCleanState(u);
       if (filter === "checkout_today" && u.occupancy_state !== "checkout_today") return false;
@@ -168,8 +168,8 @@ export default function Housekeeping({ embedded = false }: { embedded?: boolean 
         filter={filter} setFilter={setFilter} search={search} setSearch={setSearch} floorFilter={floorFilter}
         setFloorFilter={setFloorFilter} filtered={filtered} paged={paged} updatingId={updatingId}
         handleStatusChange={handleStatusChange}
-        onOpenMaintenanceModal={(u) => { setTicketUnit(u); setTicketForm({ category: "instalatii", priority: "normal", title: "", description: "", setMaintenanceStatus: true }); }}
-        onOpenLostFoundModal={(u) => void openLostFoundModal(u)}
+        onOpenMaintenanceModal={(u: any) => { setTicketUnit(u); setTicketForm({ category: "instalatii", priority: "normal", title: "", description: "", setMaintenanceStatus: true }); }}
+        onOpenLostFoundModal={(u: any) => void openLostFoundModal(u)}
       />
       <MaintenanceTicketModal unit={ticketUnit} form={ticketForm} setForm={setTicketForm} submitting={submittingTicket} onClose={() => setTicketUnit(null)} onSubmit={(e) => void submitMaintenanceTicket(e)} />
       <LostFoundModal unit={lostUnit} form={lostForm} setForm={setLostForm} submitting={submittingLost} onClose={() => setLostUnit(null)} onSubmit={(e) => void submitLostFound(e)} />

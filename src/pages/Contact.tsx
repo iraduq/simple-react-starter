@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { apiFetch, ApiError } from "../lib/api";
 import { useToast } from "../components/Toast";
-import ContactHero from "./Contact/components/ContactHero";
-import ContactInfoList from "./Contact/components/ContactInfoList";
-import ContactForm from "./Contact/components/ContactForm";
+import ContactHero from "../components/contact/ContactHero";
+import ContactInfoList from "../components/contact/ContactInfoList";
+import ContactForm from "../components/contact/ContactForm";
 
 export default function Contact() {
   const { toast } = useToast();

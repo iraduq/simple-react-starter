@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { CASA_ESY_LOTTIE_CATALOG, type CasaEsyLottieMeta } from "../components/lottie/casaEsyLottieData";
 import { useToast } from "../components/Toast";
-import { type CategoryFilter, type StageBg, ROOM_SERVICE_STEPS } from "./LottieShowcase/types";
-import LottieShowcaseHeader from "./LottieShowcase/components/LottieShowcaseHeader";
-import LottieOrderStepperDemo from "./LottieShowcase/components/LottieOrderStepperDemo";
-import LottieFilterBar from "./LottieShowcase/components/LottieFilterBar";
-import LottieCatalogCard from "./LottieShowcase/components/LottieCatalogCard";
+import { type CategoryFilter, type StageBg, ROOM_SERVICE_STEPS } from "../types/lottieShowcase";
+import LottieShowcaseHeader from "../components/lottie/showcase/LottieShowcaseHeader";
+import LottieOrderStepperDemo from "../components/lottie/showcase/LottieOrderStepperDemo";
+import LottieFilterBar from "../components/lottie/showcase/LottieFilterBar";
+import LottieCatalogCard from "../components/lottie/showcase/LottieCatalogCard";
 
 export default function LottieShowcase() {
   const { toast } = useToast();

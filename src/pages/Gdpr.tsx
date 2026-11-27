@@ -4,7 +4,7 @@ import LegalPage, { LegalSection, LegalList } from "../components/legal/LegalPag
 import { getCachedUser } from "../lib/auth";
 import { getSavedCookieConsent } from "../components/CookieConsentBanner";
 import { useToast } from "../components/Toast";
-import GdprDsarForm from "./Gdpr/components/GdprDsarForm";
+import GdprDsarForm from "../components/legal/GdprDsarForm";
 
 export default function Gdpr() {
   const { toast } = useToast();

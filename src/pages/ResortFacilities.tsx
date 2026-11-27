@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { RESORT_FACILITIES } from "./ResortFacilities/types";
-import ResortFacilitiesHero from "./ResortFacilities/components/ResortFacilitiesHero";
-import ResortFacilityRow from "./ResortFacilities/components/ResortFacilityRow";
+import { RESORT_FACILITIES } from "../types/resortFacilities";
+import ResortFacilitiesHero from "../components/facilities/ResortFacilitiesHero";
+import ResortFacilityRow from "../components/facilities/ResortFacilityRow";
 
 export default function ResortFacilities() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -41,7 +41,7 @@ export default function ResortFacilities() {
           >
             Toate Facilitățile
           </button>
-          {RESORT_FACILITIES.map((f) => {
+          {RESORT_FACILITIES.map((f: any) => {
             const Icon = f.icon;
             const isSelected = selectedSlug === f.slug;
             return (
@@ -63,7 +63,7 @@ export default function ResortFacilities() {
         </div>
 
         <div className="space-y-24 md:space-y-32">
-          {RESORT_FACILITIES.map((f, index) => (
+          {RESORT_FACILITIES.map((f: any, index: number) => (
             <ResortFacilityRow key={f.slug} facility={f} index={index} />
           ))}
         </div>

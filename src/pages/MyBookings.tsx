@@ -6,7 +6,7 @@ import { cancelBooking, myBookings } from "../services/bookingsService";
 import { httpErrorMessage } from "../services/apiClient";
 import { ron } from "../lib/format";
 import { type Booking } from "../types/bookings";
-import BookingListItem from "./MyBookings/components/BookingListItem";
+import BookingListItem from "../components/booking/BookingListItem";
 
 export default function MyBookings() {
   const { toast } = useToast();

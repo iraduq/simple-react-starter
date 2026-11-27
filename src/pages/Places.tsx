@@ -5,10 +5,10 @@ import ActiveOrderBanner from "../components/orders/ActiveOrderBanner";
 import { hasCookieConsent, PREF_PLACES_FILTER_KEY } from "../components/CookieConsentBanner";
 import type { MenuCategory, Place } from "../types/places";
 import { getFullMenu, listPlaces, menuForPlace, placeDescription } from "../services/placesService";
-import PlacesHero from "./Places/components/PlacesHero";
-import PlacesFilterBar from "./Places/components/PlacesFilterBar";
-import PlaceRowItem from "./Places/components/PlaceRowItem";
-import PlaceSlideOverModal from "./Places/components/PlaceSlideOverModal";
+import PlacesHero from "../components/places/PlacesHero";
+import PlacesFilterBar from "../components/places/PlacesFilterBar";
+import PlaceRowItem from "../components/places/PlaceRowItem";
+import PlaceSlideOverModal from "../components/places/PlaceSlideOverModal";
 
 export default function Places() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
