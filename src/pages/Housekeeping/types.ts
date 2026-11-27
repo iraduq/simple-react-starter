@@ -31,6 +31,8 @@ export const normalizedCleanState = (u: HousekeepingUnit) => {
   return "clean";
 };
 
+export type CleanState = ReturnType<typeof normalizedCleanState>;
+
 export const stateMeta = (
   state: ReturnType<typeof normalizedCleanState>,
 ): { label: string; tone: "green" | "gold" | "red" | "navy" | "muted" } => {
