@@ -1,40 +1,24 @@
-import { API_URL } from "../lib/config";
-import { markAuthSession, saveTokensFrom } from "../lib/token";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useToast } from "../components/Toast";
-import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input/max";
-import "react-phone-number-input/style.css";
-import GoogleAuthButton from "../components/GoogleAuthButton";
-import CustomCountrySelect from "../components/CustomCountrySelect";
+import { isValidPhoneNumber } from "react-phone-number-input/max";
+import { AlertCircle } from "lucide-react";
+import { API_URL } from "../lib/config";
+import { markAuthSession, saveTokensFrom } from "../lib/token";
 import { fetchSession, notifySessionChange } from "../lib/auth";
-import {
-  Mail,
-  Lock,
-  User,
-  ArrowRight,
-  ArrowLeft,
-  CircleAlert as AlertCircle,
-  CircleCheck as CheckCircle2,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { useToast } from "../components/Toast";
+import GoogleAuthButton from "../components/GoogleAuthButton";
+import AuthHeroPane from "../components/auth/AuthHeroPane";
+import RegisterFormFields from "./Register/components/RegisterFormFields";
 
-const inputBase =
-  "w-full pl-[50px] pr-[44px] py-4 border rounded-[10px] font-sans text-[14.5px] text-[#1a1a1a] bg-[#f4f7fb] outline-none transition-all duration-300 focus:border-[#1e4d8c] focus:bg-white focus:shadow-[0_4px_15px_rgba(30,77,140,0.08)]";
+const nameRegex = /^[A-Za-zĂăÂâÎîȘșȚț\s-]+$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Register() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const phoneWrapRef = useRef<HTMLDivElement>(null);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    first_name: "",
-    last_name: "",
-    phone: "",
-  });
 
+  const [formData, setFormData] = useState({ email: "", password: "", first_name: "", last_name: "", phone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [serverError, setServerError] = useState("");
@@ -49,19 +33,11 @@ export default function Register() {
     number: /[0-9]/.test(formData.password),
     symbol: /[^A-Za-z0-9]/.test(formData.password),
   };
-
   const isPasswordValid = Object.values(passwordRules).every(Boolean);
 
-  const nameRegex = /^[A-Za-zĂăÂâÎîȘșȚț\s-]+$/;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   const fieldValidity = {
-    first_name:
-      formData.first_name.trim().length >= 2 &&
-      nameRegex.test(formData.first_name),
-    last_name:
-      formData.last_name.trim().length >= 2 &&
-      nameRegex.test(formData.last_name),
+    first_name: formData.first_name.trim().length >= 2 && nameRegex.test(formData.first_name),
+    last_name: formData.last_name.trim().length >= 2 && nameRegex.test(formData.last_name),
     email: emailRegex.test(formData.email),
     phone: formData.phone !== "" && isValidPhoneNumber(formData.phone),
     password: isPasswordValid,
@@ -69,36 +45,19 @@ export default function Register() {
 
   const validateField = (name: string, value: string) => {
     let errorMsg = "";
-
-    switch (name) {
-      case "first_name":
-        if (value.trim().length < 2) errorMsg = "Minim 2 caractere.";
-        else if (value.trim().length > 50) errorMsg = "Maxim 50 de caractere.";
-        else if (!nameRegex.test(value))
-          errorMsg = "Doar litere, spații sau cratime.";
-        break;
-      case "last_name":
-        if (value.trim().length < 2) errorMsg = "Minim 2 caractere.";
-        else if (value.trim().length > 50) errorMsg = "Maxim 50 de caractere.";
-        else if (!nameRegex.test(value))
-          errorMsg = "Doar litere, spații sau cratime.";
-        break;
-      case "email":
-        if (!value.trim()) errorMsg = "Email-ul este obligatoriu.";
-        else if (!emailRegex.test(value)) errorMsg = "Format invalid.";
-        break;
-      case "phone":
-        if (!value) errorMsg = "Numărul de telefon este obligatoriu.";
-        else if (value && !isValidPhoneNumber(value))
-          errorMsg = "Număr de telefon invalid.";
-        break;
-      case "password":
-        if (!isPasswordValid)
-          errorMsg =
-            "Parola trebuie să conțină majuscule, litere mici, cifre și simboluri.";
-        break;
+    if (name === "first_name" || name === "last_name") {
+      if (value.trim().length < 2) errorMsg = "Minim 2 caractere.";
+      else if (value.trim().length > 50) errorMsg = "Maxim 50 de caractere.";
+      else if (!nameRegex.test(value)) errorMsg = "Doar litere, spații sau cratime.";
+    } else if (name === "email") {
+      if (!value.trim()) errorMsg = "Email-ul este obligatoriu.";
+      else if (!emailRegex.test(value)) errorMsg = "Format invalid.";
+    } else if (name === "phone") {
+      if (!value) errorMsg = "Numărul de telefon este obligatoriu.";
+      else if (!isValidPhoneNumber(value)) errorMsg = "Număr de telefon invalid.";
+    } else if (name === "password" && !isPasswordValid) {
+      errorMsg = "Parola trebuie să conțină majuscule, litere mici, cifre și simboluri.";
     }
-
     setErrors((prev) => ({ ...prev, [name]: errorMsg }));
     return errorMsg === "";
   };
@@ -107,14 +66,12 @@ export default function Register() {
     const { name, value } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
     validateField(name, value);
-
     if (name === "password") setPasswordFocused(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     if (touched[name]) validateField(name, value);
   };
 
@@ -124,17 +81,10 @@ export default function Register() {
     if (touched.phone) validateField("phone", phoneVal);
   };
 
-  const handlePhoneBlur = () => {
-    setTouched((prev) => ({ ...prev, phone: true }));
-    validateField("phone", formData.phone);
-  };
-
   useEffect(() => {
     const wrap = phoneWrapRef.current;
     if (!wrap) return;
-    const input = wrap.querySelector(
-      "input.PhoneInputInput",
-    ) as HTMLInputElement | null;
+    const input = wrap.querySelector("input.PhoneInputInput") as HTMLInputElement | null;
     if (!input) return;
     input.setAttribute("autocomplete", "tel-national");
     input.setAttribute("name", "phone");
@@ -147,28 +97,16 @@ export default function Register() {
     };
   }, []);
 
-  const validateAll = () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError("");
     const isFirst = validateField("first_name", formData.first_name);
     const isLast = validateField("last_name", formData.last_name);
     const isMail = validateField("email", formData.email);
     const isPhone = validateField("phone", formData.phone);
+    setTouched({ first_name: true, last_name: true, email: true, phone: true, password: true });
 
-    setTouched({
-      first_name: true,
-      last_name: true,
-      email: true,
-      phone: true,
-      password: true,
-    });
-
-    return isFirst && isLast && isMail && isPhone && isPasswordValid;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setServerError("");
-
-    if (!validateAll()) return;
+    if (!(isFirst && isLast && isMail && isPhone && isPasswordValid)) return;
 
     setIsLoading(true);
     try {
@@ -178,23 +116,14 @@ export default function Register() {
         credentials: "include",
         body: JSON.stringify(formData),
       });
-
-      const contentType = response.headers.get("content-type");
-      const data: unknown = contentType?.includes("application/json")
-        ? await response.json()
-        : null;
-
+      const data: unknown = response.headers.get("content-type")?.includes("application/json") ? await response.json() : null;
       if (response.ok) {
         navigate("/verify-email", { state: { email: formData.email } });
       } else {
-        const errorMessage =
-          data && typeof data === "object" && "detail" in data
-            ? String(data.detail)
-            : "Eroare la înregistrare.";
-        setServerError(errorMessage);
+        const msg = data && typeof data === "object" && "detail" in data ? String(data.detail) : "Eroare la înregistrare.";
+        setServerError(msg);
       }
-    } catch (error) {
-      console.error("Eroare:", error);
+    } catch {
       setServerError("A apărut o problemă de conexiune cu serverul.");
     } finally {
       setIsLoading(false);
@@ -207,11 +136,8 @@ export default function Register() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          id_token: credentialResponse.credential,
-        }),
+        body: JSON.stringify({ id_token: credentialResponse.credential }),
       });
-
       if (res.ok) {
         saveTokensFrom(await res.json().catch(() => null));
         markAuthSession();
@@ -220,467 +146,38 @@ export default function Register() {
         navigate("/profile");
         return;
       }
-
-      const contentType = res.headers.get("content-type");
-      let errorMsg = "Eroare la autentificarea cu Google.";
-      if (contentType && contentType.includes("application/json")) {
-        const data = (await res.json()) as Record<string, unknown>;
-        if (data && typeof data.detail === "string") {
-          errorMsg = data.detail;
-        }
-      }
-      toast(errorMsg, "error");
-    } catch (error) {
-      console.error("Eroare detaliată Google Login:", error);
+      toast("Eroare la autentificarea cu Google.", "error");
+    } catch {
       toast("A apărut o problemă de conexiune cu serverul.", "error");
     }
   };
 
-  const getInputClass = (name: keyof typeof fieldValidity) => {
-    if (touched[name] && errors[name])
-      return `${inputBase} border-red-500 bg-red-50`;
-    if (touched[name] && fieldValidity[name])
-      return `${inputBase} border-emerald-500 bg-emerald-50/30`;
-    return `${inputBase} border-[#e1e8f0]`;
-  };
-
-  const getIconClass = (name: keyof typeof fieldValidity) => {
-    if (touched[name] && errors[name]) return "text-red-500";
-    if (touched[name] && fieldValidity[name]) return "text-emerald-500";
-    return "text-[#8595aa]";
-  };
-
-  const getPhoneGroupClass = () => {
-    if (touched.phone && errors.phone)
-      return "border-red-500 [&_.PhoneInputCountry]:border-r-red-300";
-    if (touched.phone && fieldValidity.phone)
-      return "border-emerald-500 [&_.PhoneInputCountry]:border-r-emerald-300";
-    return "border-[#e1e8f0] [&_.PhoneInputCountry]:border-r-[#e1e8f0]";
-  };
-
   return (
-    <div className="flex min-h-screen font-['Albert_Sans',sans-serif] relative bg-transparent [&_input]:font-['Albert_Sans',sans-serif] [&_button]:font-['Albert_Sans',sans-serif] [&_.PhoneInputInput]:font-['Albert_Sans',sans-serif]">
-      {/* 
-        1. FUNDALUL GLOBAL (Imaginea)
-        Am schimbat h-[100dvh] cu inset-0. Astfel, imaginea este ancorată perfect 
-        de ecran și nu mai sare la scroll când dispare bara de URL pe mobil.
-      */}
-      <div
-        className="fixed inset-0 -z-10 bg-cover bg-center min-[900px]:relative min-[900px]:z-0 min-[900px]:flex-[1.2] overflow-hidden"
-        style={{
-          backgroundImage:
-            "url(https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop)",
-        }}
-      >
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(13,44,92,0.4) 0%, rgba(13,44,92,0.85) 100%)",
-          }}
-        />
-
-        {/* Forma grafică și textul (doar pe desktop) */}
-        <svg
-          className="absolute bottom-0 -right-px w-[15%] h-full z-[2] max-[899px]:hidden"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-        >
-          <polygon fill="#ffffff" points="0,100 100,0 100,100" />
-        </svg>
-        <div className="relative z-[3] h-full flex-col justify-between p-[50px_80px_80px_50px] text-white hidden min-[900px]:flex">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.1em] text-white/80 hover:text-white transition-all duration-200 hover:-translate-x-1 self-start"
-          >
-            <ArrowLeft size={16} /> Înapoi acasă
+    <div className="flex min-h-screen bg-white font-sans relative">
+      <AuthHeroPane title="Începe o experiență de neuitat." subtitle="Creează-ți un cont pentru a debloca tarife preferențiale, rezervări rapide și beneficii dedicate oaspeților noștri." />
+      <div className="flex-1 flex items-center justify-center px-5 py-10 relative z-10 w-full min-h-screen min-[900px]:min-h-0">
+        <div className="w-full max-w-[440px] max-[899px]:bg-white/95 max-[899px]:backdrop-blur-sm max-[899px]:p-10 max-[899px]:rounded-2xl max-[899px]:shadow-[0_15px_50px_rgba(13,44,92,0.4)] max-[899px]:border max-[899px]:border-[#e1e8f0] max-[500px]:p-6">
+          <Link to="/" className="flex flex-col items-center mb-6 no-underline">
+            <span className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c]">Casa <em className="italic">Esy</em></span>
+            <span className="text-[#d4a437] text-[10px] tracking-[2px]">★★★</span>
           </Link>
-          <div>
-            <h2 className="font-['Cormorant_Garamond',serif] text-[clamp(2.5rem,4vw,3.5rem)] font-normal leading-[1.1] mb-5 max-w-[500px]">
-              Alătură-te oaspeților noștri.
-            </h2>
-            <p className="text-[1.1rem] leading-[1.6] text-white/85 max-w-[450px]">
-              Creează un cont pentru a debloca oferte exclusive, a rezerva mai
-              rapid și a te bucura de o experiență personalizată la Casa Esy.
-            </p>
+          <div className="text-center mb-6">
+            <h1 className="font-['Cormorant_Garamond',serif] text-[32px] text-[#1a1a1a] mb-2 font-medium">Creează Cont</h1>
+            <p className="text-[#8595aa] text-[14px] m-0">Completează detaliile pentru a te înregistra.</p>
           </div>
-        </div>
-      </div>
-
-      {/* 
-        2. CONTAINERUL FORMULARULUI 
-        Am eliminat `items-center` și am pus `m-auto` pe cardul alb. 
-        Asta previne tăierea părții de sus a formularului și repară scroll-ul.
-      */}
-      <div className="flex-1 relative z-10 w-full min-h-screen flex flex-col min-[900px]:bg-white px-5 py-8">
-        <div className="w-full max-w-[420px] m-auto bg-white/95 backdrop-blur-sm p-6 sm:p-10 rounded-2xl shadow-[0_15px_50px_rgba(13,44,92,0.4)] min-[900px]:shadow-none min-[900px]:backdrop-blur-none min-[900px]:bg-transparent">
-          <Link
-            to="/"
-            className="flex flex-col items-center mb-10 no-underline"
-          >
-            <span className="font-['Cormorant_Garamond',serif] text-[28px] text-[#0d2c5c]">
-              Casa <em className="italic">Esy</em>
-            </span>
-            <span className="text-[#d4a437] text-[10px] tracking-[2px]">
-              ★★★
-            </span>
-          </Link>
-
-          <div className="text-center mb-10">
-            <h1 className="font-['Cormorant_Garamond',serif] text-[32px] text-[#1a1a1a] mb-2.5 font-medium">
-              Creare Cont
-            </h1>
-            <p className="text-[#8595aa] text-[14.5px] m-0">
-              Completează detaliile de mai jos pentru a începe.
-            </p>
-          </div>
-
           {serverError && (
-            <div className="flex items-center gap-2.5 bg-red-50 text-red-800 border border-red-300 px-4 py-3 rounded-[10px] text-[13.5px] font-medium mb-5">
-              <AlertCircle size={18} />
+            <div className="flex items-center gap-2.5 bg-red-50 text-red-500 border border-red-200 px-4 py-3 rounded-[10px] text-[13.5px] font-medium mb-5">
+              <AlertCircle size={18} className="shrink-0" />
               <span>{serverError}</span>
             </div>
           )}
-
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
-            noValidate
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <div className="relative">
-                  <User
-                    className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("first_name")}`}
-                    size={18}
-                    strokeWidth={1.5}
-                  />
-                  <input
-                    type="text"
-                    name="first_name"
-                    placeholder="Prenume"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className={getInputClass("first_name")}
-                  />
-                  {touched.first_name && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none animate-[fadeIn_0.2s_ease-in-out]">
-                      {fieldValidity.first_name ? (
-                        <CheckCircle2
-                          size={17}
-                          strokeWidth={2}
-                          className="text-emerald-500"
-                        />
-                      ) : (
-                        <AlertCircle
-                          size={17}
-                          strokeWidth={2}
-                          className="text-red-500"
-                        />
-                      )}
-                    </span>
-                  )}
-                </div>
-                {errors.first_name && touched.first_name && (
-                  <span className="text-[11.5px] text-red-500 font-medium pl-1">
-                    {errors.first_name}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <div className="relative">
-                  <User
-                    className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("last_name")}`}
-                    size={18}
-                    strokeWidth={1.5}
-                  />
-                  <input
-                    type="text"
-                    name="last_name"
-                    placeholder="Nume"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className={getInputClass("last_name")}
-                  />
-                  {touched.last_name && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
-                      {fieldValidity.last_name ? (
-                        <CheckCircle2
-                          size={17}
-                          strokeWidth={2}
-                          className="text-emerald-500"
-                        />
-                      ) : (
-                        <AlertCircle
-                          size={17}
-                          strokeWidth={2}
-                          className="text-red-500"
-                        />
-                      )}
-                    </span>
-                  )}
-                </div>
-                {errors.last_name && touched.last_name && (
-                  <span className="text-[11.5px] text-red-500 font-medium pl-1">
-                    {errors.last_name}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <div className="relative">
-                <Mail
-                  className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("email")}`}
-                  size={18}
-                  strokeWidth={1.5}
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Adresa de email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={getInputClass("email")}
-                />
-                {touched.email && (
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
-                    {fieldValidity.email ? (
-                      <CheckCircle2
-                        size={17}
-                        strokeWidth={2}
-                        className="text-emerald-500"
-                      />
-                    ) : (
-                      <AlertCircle
-                        size={17}
-                        strokeWidth={2}
-                        className="text-red-500"
-                      />
-                    )}
-                  </span>
-                )}
-              </div>
-              {errors.email && touched.email && (
-                <span className="text-[11.5px] text-red-500 font-medium pl-1">
-                  {errors.email}
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <div
-                ref={phoneWrapRef}
-                className={`relative flex items-stretch overflow-hidden p-0! bg-[#f4f7fb] rounded-[10px] border ${getPhoneGroupClass()} [&_.PhoneInput]:flex [&_.PhoneInput]:items-center [&_.PhoneInput]:w-full [&_.PhoneInput]:flex-1 [&_.PhoneInputCountry]:flex [&_.PhoneInputCountry]:items-center [&_.PhoneInputCountry]:m-0 [&_.PhoneInputCountry]:h-full [&_.PhoneInputCountry]:relative [&_.PhoneInputCountry]:border-r [&_.PhoneInputInput]:border-none [&_.PhoneInputInput]:bg-transparent [&_.PhoneInputInput]:py-4 [&_.PhoneInputInput]:pr-11 [&_.PhoneInputInput]:pl-3.5 [&_.PhoneInputInput]:outline-none [&_.PhoneInputInput]:font-sans [&_.PhoneInputInput]:text-[14.5px] [&_.PhoneInputInput]:text-[#1a1a1a] [&_.PhoneInputInput]:w-full [&_.PhoneInputInput]:placeholder:text-[#8595aa]`}
-              >
-                <PhoneInput
-                  international
-                  defaultCountry="RO"
-                  value={formData.phone}
-                  onChange={handlePhoneChange}
-                  onBlur={handlePhoneBlur}
-                  placeholder="Număr de telefon"
-                  countrySelectComponent={CustomCountrySelect}
-                  focusInputOnCountrySelection={false}
-                />
-                {touched.phone && (
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none z-10">
-                    {fieldValidity.phone ? (
-                      <CheckCircle2
-                        size={17}
-                        strokeWidth={2}
-                        className="text-emerald-500"
-                      />
-                    ) : (
-                      <AlertCircle
-                        size={17}
-                        strokeWidth={2}
-                        className="text-red-500"
-                      />
-                    )}
-                  </span>
-                )}
-              </div>
-              {errors.phone && touched.phone && (
-                <span className="text-[11.5px] text-red-500 font-medium pl-1">
-                  {errors.phone}
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <div className="relative">
-                <Lock
-                  className={`absolute left-[18px] top-1/2 -translate-y-1/2 transition-colors duration-300 ${getIconClass("password")}`}
-                  size={18}
-                  strokeWidth={1.5}
-                />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Creează o parolă"
-                  value={formData.password}
-                  onChange={handleChange}
-                  onFocus={() => setPasswordFocused(true)}
-                  onBlur={handleBlur}
-                  className={getInputClass("password")}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Arată/Ascunde parola"
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none p-1 text-[#8595aa] cursor-pointer flex items-center justify-center transition-colors duration-200 hover:text-[#1e4d8c]"
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} strokeWidth={1.5} />
-                  ) : (
-                    <Eye size={18} strokeWidth={1.5} />
-                  )}
-                </button>
-              </div>
-
-              {(passwordFocused || formData.password.length > 0) && (
-                <div className="pt-3 pb-0.5 mt-0.5 animate-[fadeIn_0.2s_ease-in-out]">
-                  <div className="flex gap-1 mb-3">
-                    {Object.values(passwordRules).map((isMet, index) => (
-                      <span
-                        key={index}
-                        className={`flex-1 h-[3px] rounded-sm transition-colors duration-300 ${isMet ? "bg-emerald-500" : "bg-[#e1e8f0]"}`}
-                      />
-                    ))}
-                  </div>
-
-                  <ul className="list-none p-0 m-0 flex flex-wrap gap-x-4 gap-y-2">
-                    <li
-                      className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-[250ms] ${passwordRules.length ? "text-[#3c4043]" : "text-[#8595aa]"}`}
-                    >
-                      <CheckCircle2
-                        size={13}
-                        strokeWidth={2.25}
-                        className={
-                          passwordRules.length
-                            ? "text-emerald-500"
-                            : "text-[#e1e8f0]"
-                        }
-                      />
-                      8-64 caractere
-                    </li>
-                    <li
-                      className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-[250ms] ${passwordRules.lowercase ? "text-[#3c4043]" : "text-[#8595aa]"}`}
-                    >
-                      <CheckCircle2
-                        size={13}
-                        strokeWidth={2.25}
-                        className={
-                          passwordRules.lowercase
-                            ? "text-emerald-500"
-                            : "text-[#e1e8f0]"
-                        }
-                      />
-                      O literă mică
-                    </li>
-                    <li
-                      className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-[250ms] ${passwordRules.uppercase ? "text-[#3c4043]" : "text-[#8595aa]"}`}
-                    >
-                      <CheckCircle2
-                        size={13}
-                        strokeWidth={2.25}
-                        className={
-                          passwordRules.uppercase
-                            ? "text-emerald-500"
-                            : "text-[#e1e8f0]"
-                        }
-                      />
-                      O literă mare
-                    </li>
-                    <li
-                      className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-[250ms] ${passwordRules.number ? "text-[#3c4043]" : "text-[#8595aa]"}`}
-                    >
-                      <CheckCircle2
-                        size={13}
-                        strokeWidth={2.25}
-                        className={
-                          passwordRules.number
-                            ? "text-emerald-500"
-                            : "text-[#e1e8f0]"
-                        }
-                      />
-                      Un număr
-                    </li>
-                    <li
-                      className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-[250ms] ${passwordRules.symbol ? "text-[#3c4043]" : "text-[#8595aa]"}`}
-                    >
-                      <CheckCircle2
-                        size={13}
-                        strokeWidth={2.25}
-                        className={
-                          passwordRules.symbol
-                            ? "text-emerald-500"
-                            : "text-[#e1e8f0]"
-                        }
-                      />
-                      Un simbol
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <label className="flex items-start gap-2.5 text-xs text-[#4f6280] leading-relaxed cursor-pointer mb-2">
-              <input
-                type="checkbox"
-                required
-                className="mt-1 h-4 w-4 shrink-0 accent-[#0d2c5c]"
-              />
-              <span>
-                Sunt de acord cu{" "}
-                <Link to="/termeni-si-conditii" className="font-bold text-[#0d2c5c] underline">
-                  Termenii și condițiile
-                </Link>{" "}
-                și am luat cunoștință de{" "}
-                <Link to="/confidentialitate" className="font-bold text-[#0d2c5c] underline">
-                  Politica de confidențialitate
-                </Link>{" "}
-                și{" "}
-                <Link to="/gdpr" className="font-bold text-[#0d2c5c] underline">
-                  Drepturile GDPR
-                </Link>
-                .
-              </span>
-            </label>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex items-center justify-center gap-3 w-full py-[18px] bg-[#0d2c5c] text-white rounded-[10px] text-sm font-bold tracking-[0.1em] uppercase shadow-[0_4px_15px_rgba(13,44,92,0.15)] transition-all duration-300 hover:not-disabled:bg-[#c69a3f] hover:not-disabled:text-[#0d2c5c] hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_8px_25px_rgba(198,154,63,0.3)] disabled:bg-[#8595aa] disabled:cursor-not-allowed disabled:shadow-none"
-            >
-              {isLoading ? "Se creează contul..." : "Înregistrează-te"}
-              {!isLoading && <ArrowRight size={18} strokeWidth={2} />}
-            </button>
-          </form>
-
-          <div className="flex items-center text-center my-8 text-[#8595aa] text-[11px] font-bold tracking-[0.15em] before:content-[''] before:flex-1 before:border-b before:border-[#e1e8f0] after:content-[''] after:flex-1 after:border-b after:border-[#e1e8f0]">
-            <span className="px-5">SAU ÎNREGISTREAZĂ-TE CU</span>
+          <GoogleAuthButton onSuccess={handleGoogleSuccess} onError={() => toast("Eroare la conectarea cu Google", "error")} text="signup_with" />
+          <div className="flex items-center text-center my-6 text-[#8595aa] text-[11px] font-bold tracking-[0.15em] before:content-[''] before:flex-1 before:border-b before:border-[#e1e8f0] after:content-[''] after:flex-1 after:border-b after:border-[#e1e8f0]">
+            <span className="px-5">SAU CU EMAIL</span>
           </div>
-
-          <GoogleAuthButton
-            onSuccess={handleGoogleSuccess}
-            onError={() => toast("Eroare la conectarea cu Google", "error")}
-            text="signup_with"
-          />
-
-          <p className="text-center mt-9 text-sm text-[#3c4043]">
-            Ai deja un cont?{" "}
-            <Link
-              to="/login"
-              className="text-[#0d2c5c] font-bold no-underline border-b border-transparent hover:text-[#c69a3f] hover:border-[#c69a3f] transition-colors duration-200"
-            >
-              Intră în cont aici
-            </Link>
+          <RegisterFormFields formData={formData} errors={errors} touched={touched} fieldValidity={fieldValidity} passwordRules={passwordRules} showPassword={showPassword} setShowPassword={setShowPassword} passwordFocused={passwordFocused} setPasswordFocused={setPasswordFocused} phoneWrapRef={phoneWrapRef} handleChange={handleChange} handleBlur={handleBlur} handlePhoneChange={handlePhoneChange} handlePhoneBlur={() => { setTouched((p) => ({ ...p, phone: true })); validateField("phone", formData.phone); }} handleSubmit={handleSubmit} isLoading={isLoading} />
+          <p className="text-center mt-7 text-sm text-[#3c4043]">
+            Ai deja un cont? <Link to="/login" className="text-[#0d2c5c] font-bold no-underline border-b border-transparent hover:text-[#c69a3f] hover:border-[#c69a3f] transition-colors duration-200">Autentifică-te</Link>
           </p>
         </div>
       </div>
